@@ -5,6 +5,7 @@ members = [
     "crates/canonical-encoding",
     "crates/crypto-provider",
     "crates/adapter-api",
+    "crates/adapter-evm",
 ]
 
 [workspace.package]
@@ -69,6 +70,11 @@ proptest = "1.5"
 stateright = "0.30"
 uuid = { version = "1", features = ["v4", "serde"] }
 anyhow = "1"
+
+# dev/test-only differential verifiers (never production dependencies)
+alloy-consensus = { version = "=2.5.0", features = ["k256"] }
+alloy-eips = { version = "=2.5.0", features = ["k256"] }
+alloy-primitives = { version = "=1.7.3", features = ["k256"] }
 
 [profile.release]
 lto = "thin"

@@ -1,0 +1,23 @@
+[package]
+name = "oic-adapter-evm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "EVM chain adapter: strict RLP, EIP-1559 type-2 / EIP-155 legacy, native + ERC-20 transfer (RFC 0001 §9)"
+
+[dependencies]
+oic-domain-types = { workspace = true }
+oic-canonical-encoding = { workspace = true }
+oic-adapter-api = { workspace = true }
+k256 = { workspace = true }
+sha3 = { workspace = true }
+serde = { workspace = true }
+hex = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+serde_json = { workspace = true }
+rand_core = { workspace = true }
+alloy-consensus = { workspace = true }
+alloy-eips = { workspace = true }
+alloy-primitives = { workspace = true }
