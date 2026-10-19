@@ -1,0 +1,12 @@
+[package]
+name = "oic-domain-types"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Chain-neutral security objects for Open Institutional Custody (RFC 0001 §3)"
+
+[dependencies]
+serde = { workspace = true }
+serde_bytes = { workspace = true }
+thiserror = { workspace = true }
+hex = { workspace = true }

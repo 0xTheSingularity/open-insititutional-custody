@@ -1,0 +1,17 @@
+[package]
+name = "oic-canonical-encoding"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Restricted deterministic CBOR profile and domain-separated hashing (RFC 0001 §3.2)"
+
+[dependencies]
+oic-domain-types = { workspace = true }
+serde = { workspace = true }
+sha2 = { workspace = true }
+thiserror = { workspace = true }
+hex = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+serde_json = { workspace = true }

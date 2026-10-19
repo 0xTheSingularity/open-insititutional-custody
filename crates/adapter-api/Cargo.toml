@@ -1,0 +1,11 @@
+[package]
+name = "oic-adapter-api"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Chain adapter contract and capability manifest (RFC 0001 §8)"
+
+[dependencies]
+oic-domain-types = { workspace = true }
+oic-canonical-encoding = { workspace = true }
+serde = { workspace = true }

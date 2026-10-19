@@ -1,1 +1,6 @@
+*.log
+.amp/
 .amp/portals/*
+dist/
+node_modules/
+target/
