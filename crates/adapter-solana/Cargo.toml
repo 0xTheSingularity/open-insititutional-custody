@@ -1,0 +1,32 @@
+[package]
+name = "oic-adapter-solana"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Solana chain adapter: strict legacy/v0 messages, ALT resolution, SOL + SPL TransferChecked + verified ATA creation (RFC 0001 §10)"
+
+[dependencies]
+oic-domain-types = { workspace = true }
+oic-canonical-encoding = { workspace = true }
+oic-adapter-api = { workspace = true }
+ed25519-dalek = { workspace = true }
+curve25519-dalek = { workspace = true }
+sha2 = { workspace = true }
+bs58 = { workspace = true }
+serde = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+serde_json = { workspace = true }
+bincode = { workspace = true }
+solana-message = { workspace = true }
+solana-transaction = { workspace = true }
+solana-keypair = { workspace = true }
+solana-signer = { workspace = true }
+solana-pubkey = { workspace = true }
+solana-hash = { workspace = true }
+solana-instruction = { workspace = true }
+solana-system-interface = { workspace = true }
+solana-compute-budget-interface = { workspace = true }
+spl-token-interface = { workspace = true }
+spl-associated-token-account-interface = { workspace = true }
