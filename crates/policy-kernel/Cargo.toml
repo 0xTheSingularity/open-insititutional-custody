@@ -1,0 +1,15 @@
+[package]
+name = "oic-policy-kernel"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Deterministic, pure policy enforcement kernel: hard denials, rule matching, rolling limits, approval grants (RFC 0001 §4)"
+
+[dependencies]
+oic-domain-types = { workspace = true }
+oic-canonical-encoding = { workspace = true }
+ed25519-dalek = { workspace = true }
+serde = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }

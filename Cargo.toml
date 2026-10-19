@@ -7,6 +7,9 @@ members = [
     "crates/adapter-api",
     "crates/adapter-evm",
     "crates/adapter-solana",
+    "crates/policy-kernel",
+    "crates/authorization-state",
+    "models/authorization-state-machine",
 ]
 
 [workspace.package]

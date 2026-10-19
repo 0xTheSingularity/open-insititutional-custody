@@ -1,0 +1,15 @@
+[package]
+name = "oic-authorization-state"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Authorization-state authority: reservations, native resource locks, policy epochs, freezes, issuance records, fencing, signed checkpoints (RFC 0001 §5)"
+
+[dependencies]
+oic-domain-types = { workspace = true }
+oic-canonical-encoding = { workspace = true }
+oic-policy-kernel = { workspace = true }
+ed25519-dalek = { workspace = true }
+parking_lot = { workspace = true }
+serde = { workspace = true }
+hex = { workspace = true }

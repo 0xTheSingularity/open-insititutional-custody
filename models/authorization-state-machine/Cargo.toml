@@ -1,0 +1,21 @@
+[package]
+name = "oic-model-authorization-state"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Stateright model check of the real authorization-state authority: reserve/release/freeze/abort/observe/replacement (RFC 0001 §5, §16)"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "oic-model-authorization-state"
+path = "src/main.rs"
+
+[dependencies]
+oic-domain-types = { workspace = true }
+oic-canonical-encoding = { workspace = true }
+oic-policy-kernel = { workspace = true }
+oic-authorization-state = { workspace = true }
+ed25519-dalek = { workspace = true }
+stateright = { workspace = true }
