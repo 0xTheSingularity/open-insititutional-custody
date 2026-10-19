@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# Prepares an Amp orb for this repository. Must stay idempotent and non-interactive:
+# it runs on fresh orbs and again on top of stale project snapshots.
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+step() {
+	echo "==> $1"
+	SECONDS=0
+}
+done_step() {
+	echo "    done in ${SECONDS}s"
+}
+
+# Rust toolchain (spec §15.1: core crates are Rust).
+step "Rust toolchain"
+if [ ! -x "$HOME/.cargo/bin/rustup" ]; then
+	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs |
+		sh -s -- -y --no-modify-path --profile minimal --default-toolchain stable \
+			--component rustfmt --component clippy
+fi
+# The installer cannot update this running script's environment.
+# shellcheck disable=SC1091
+. "$HOME/.cargo/env"
+# Honor a pinned toolchain once the repository adds one.
+if [ -f rust-toolchain.toml ] || [ -f rust-toolchain ]; then
+	rustup toolchain install
+fi
+rustc --version
+cargo --version
+done_step
+
+# Make cargo available to Amp and supervised services (login shells read ~/.bash_profile).
+step "Shell profile"
+cargo_env_line='. "$HOME/.cargo/env"'
+for rc in "$HOME/.bash_profile" "$HOME/.bashrc"; do
+	grep -Fqx "$cargo_env_line" "$rc" 2>/dev/null || printf '\n%s\n' "$cargo_env_line" >>"$rc"
+done
+done_step
