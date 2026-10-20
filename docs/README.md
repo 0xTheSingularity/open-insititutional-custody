@@ -1,15 +1,14 @@
 # Documentation
 
-Start with [custody concepts](concepts.md) if you know smart contracts but are new
-to institutional custody. Use [getting started](getting-started.md) to build the
-workspace and run the implemented EVM and Solana transfer examples. Use the
-[approval client guide](approval-client.md) to review packages and sign grants.
-Use the [development guide](development.md) when changing or integrating components.
+Start with [getting started](getting-started.md) to run a local transfer.
+Then [follow a payment](payment-flow.md) from request to settlement.
+Use [core concepts](concepts.md) when a custody term is unfamiliar.
 
 ## Guides
 
 | Task | Guide |
 | --- | --- |
+| Follow one payment across the components | [Payment walkthrough](payment-flow.md) |
 | Learn the vocabulary through a treasury payment | [Custody concepts from first principles](concepts.md) |
 | Install prerequisites and run the current code | [Getting started](getting-started.md) |
 | Set up local approval trust and credentials | [Approval client](approval-client.md) |
@@ -35,6 +34,15 @@ Use the [development guide](development.md) when changing or integrating compone
 | Test chains | [Simulators](../openwiki/testing/chain-simulators.md) |
 | Test and conformance details | [Verification guide](../openwiki/testing/verification-guide.md) |
 | Roadmap and readiness limits | [Implementation boundaries](../openwiki/concepts/implementation-boundaries.md) |
+
+## Design documents
+
+An RFC proposes requirements or a design. Source code and tests establish which
+parts exist today.
+
+- [RFC 0001](../spec/rfc-0001-open-institutional-custody.md): custody, authorization, signing, and chain behavior.
+- [RFC 0002](../spec/rfc-0002-product-completion.md): treasury product, accounting, operation, and acceptance tests.
+- [RFC 0003](../spec/rfc-0003-institution-operated-signer-network.md): proposed institution network and approver light client.
 
 ## Documentation ownership
 
