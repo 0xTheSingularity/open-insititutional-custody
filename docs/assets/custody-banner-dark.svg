@@ -1,17 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="492" viewBox="0 0 1200 492" fill="none" role="img" aria-labelledby="title desc">
-  <title id="title">Your rules. Before the signature.</title>
-  <desc id="desc">Open Institutional Custody. A native transaction passes through a verified release boundary before signature output. The brief animation stops automatically; reduced-motion preferences show the complete static illustration.</desc>
+  <title id="title">Open Institutional Custody · The Singularity</title>
+  <desc id="desc">An open-source project by The Singularity. Your rules. Before the signature. A native transaction passes through a verified release boundary before signature output. The brief animation stops automatically; reduced-motion preferences show the complete static illustration.</desc>
   <style>
     text { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
-    .ink { fill: #F3F1ED; }
-    .muted { fill: #AAA6B2; }
-    .accent { fill: #B59AFB; }
+    .ink { fill: #F4F3F0; }
+    .muted { fill: #A6A6AD; }
     .mono { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace; }
 
     .signal { opacity: 0; }
     @media (prefers-reduced-motion: no-preference) {
-      .signal { animation: transit 7.5s ease-in-out 1; }
-      .gate-accent { animation: acknowledge 7.5s ease-in-out 1; }
+      .signal { animation: transit 7.5s cubic-bezier(0.2, 0, 0, 1) 1; }
+      .gate-accent { animation: acknowledge 7.5s cubic-bezier(0.2, 0, 0, 1) 1; }
     }
     @keyframes transit {
       0%, 8% { opacity: 0; stroke-dashoffset: 24; }
@@ -22,26 +21,23 @@
       96%, 100% { opacity: 0; stroke-dashoffset: -420; }
     }
     @keyframes acknowledge {
-      0%, 35%, 78%, 100% { opacity: .10; }
-      46%, 60% { opacity: .28; }
+      0%, 35%, 78%, 100% { opacity: .05; }
+      46%, 60% { opacity: .14; }
     }
     @media (prefers-reduced-motion: reduce) {
       .signal, .gate-accent { animation: none; }
     }
   </style>
-  <rect width="1200" height="492" fill="#151518"/>
-  <g transform="translate(56 38)" stroke="#B59AFB" stroke-width="2.5" stroke-linecap="square">
-    <path d="M8 0H0V24H8M24 0H32V24H24"/>
-    <path d="M10 12H22"/>
-  </g><text x="104" y="57" class="muted" font-size="16" font-weight="500" letter-spacing="1.4">OPEN INSTITUTIONAL CUSTODY</text><text x="51" y="178" class="ink" font-size="94" font-weight="500" letter-spacing="-4.7">Your rules.</text><text x="51" y="270" class="ink" font-size="94" font-weight="500" letter-spacing="-4.7">Before the</text><text x="51" y="362" class="ink" font-size="94" font-weight="500" letter-spacing="-4.7">signature.</text><g transform="translate(726 153) scale(1)">
-    <path d="M0 114H420" stroke="#3A3642" stroke-width="2"/>
-    <path class="signal" d="M0 114H420" stroke="#B59AFB" stroke-width="3" stroke-dasharray="24 460"/>
-    <path d="M22 64H77L96 83V164H22Z" fill="#151518" stroke="#F3F1ED" stroke-width="2"/>
-    <path d="M77 64V83H96M39 99H65M39 114H77M39 129H69" stroke="#F3F1ED" stroke-width="2"/>
-    <rect class="gate-accent" x="174" y="16" width="112" height="196" fill="#B59AFB" opacity=".10"/>
-    <path d="M198 16H174V212H198M262 16H286V212H262" stroke="#B59AFB" stroke-width="3"/>
-    <path d="M208 113L224 129L252 97" stroke="#B59AFB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="389" cy="114" r="30" fill="#F3F1ED"/>
-    <text x="389" y="126" fill="#151518" text-anchor="middle" font-size="44" style="font-family: Georgia, 'Times New Roman', serif">σ</text>
+  <rect width="1200" height="492" fill="#08080A"/>
+  <g class="brand-lockup" transform="translate(46 26) scale(0.15968216)"><g transform="translate(35.37 35.37) scale(0.14714)"><path d="M 750 185.5 L 750 1314.5" fill="none" stroke="#F4F3F0" stroke-width="109" stroke-linecap="butt" stroke-linejoin="miter"/><path d="M 185.5 750 L 1314.5 750" fill="none" stroke="#F4F3F0" stroke-width="109" stroke-linecap="butt" stroke-linejoin="miter"/><path d="M 1314.5 750 C 979.47 750 750 562.47 750 185.5" fill="none" stroke="#F4F3F0" stroke-width="109" stroke-linecap="butt" stroke-linejoin="miter"/><path d="M 185.5 750 C 520.53 750 750 937.53 750 1314.5" fill="none" stroke="#F4F3F0" stroke-width="109" stroke-linecap="butt" stroke-linejoin="miter"/></g><path transform="translate(328.13 212.73)" d="M61.4 -134L61.4 0L52.6 0L52.6 -134L61.4 -134M110.4 -134L110.4 -125.8L3.4 -125.8L3.4 -134L110.4 -134M235.6 -134L235.6 0L226.6 0L226.6 -134L235.6 -134M145.2 -134L145.2 0L136.4 0L136.4 -134L145.2 -134M230.4 -71.6L230.4 -63.6L140.8 -63.6L140.8 -71.6L230.4 -71.6M285.8 -134L285.8 0L277 0L277 -134L285.8 -134M362.8 -8.2L362.8 0L280.6 0L280.6 -8.2L362.8 -8.2M359.8 -71.4L359.8 -63.4L280.6 -63.4L280.6 -71.4L359.8 -71.4M362.8 -134L362.8 -125.8L280.6 -125.8L280.6 -134L362.8 -134M499.4 2L499.4 2Q481.6 2 469.9 -3.9Q458.2 -9.8 452.5 -19.7Q446.8 -29.6 446.8 -40.8L446.8 -40.8L446.8 -42.8L455.8 -42.8L455.8 -40.6Q455.8 -29.8 460.5 -22.3Q465.2 -14.8 474.9 -10.7Q484.6 -6.6 499.6 -6.6L499.6 -6.6Q517.6 -6.6 527.1 -13.1Q536.6 -19.6 536.6 -32.6L536.6 -32.6Q536.6 -41.4 533.4 -46.8Q530.2 -52.2 523.8 -55.5Q517.4 -58.8 507.4 -61L507.4 -61L483.6 -66.6Q473.8 -69 465.7 -72.8Q457.6 -76.6 452.8 -83.5Q448 -90.4 448 -101.2L448 -101.2Q448 -110.2 453.2 -118.2Q458.4 -126.2 468.9 -131.1Q479.4 -136 494.8 -136L494.8 -136Q511.2 -136 522 -129.9Q532.8 -123.8 538.2 -114Q543.6 -104.2 543.6 -93L543.6 -93L543.6 -91.4L534.6 -91.4L534.6 -93.4Q534.6 -104.2 530.1 -111.8Q525.6 -119.4 516.7 -123.5Q507.8 -127.6 494.6 -127.6L494.6 -127.6Q476.6 -127.6 466.8 -121.2Q457 -114.8 457 -102.2L457 -102.2Q457 -93.6 460.2 -88.4Q463.4 -83.2 470 -80.1Q476.6 -77 486.6 -74.4L486.6 -74.4L510.4 -68.6Q520.4 -66.4 528.4 -62.3Q536.4 -58.2 541 -51.3Q545.6 -44.4 545.6 -33.6L545.6 -33.6Q545.6 -24.4 540.5 -16.2Q535.4 -8 525.2 -3Q515 2 499.4 2M588.2 -134L588.2 0L579.4 0L579.4 -134L588.2 -134M638.4 -102L638.4 0L629.6 0L629.6 -134L639.4 -134L709.8 -31L720.8 -14.8L721.6 -14.8L721.6 -31L721.6 -134L730.4 -134L730.4 0L720.6 0L650.8 -102L639.2 -119L638.4 -119L638.4 -102M824.8 2L824.8 2Q806.6 2 793.3 -6.5Q780 -15 772.7 -30.5Q765.4 -46 765.4 -67L765.4 -67Q765.4 -88 772.8 -103.5Q780.2 -119 793.8 -127.5Q807.4 -136 825.8 -136L825.8 -136Q841 -136 853 -130.2Q865 -124.4 872.1 -113.6Q879.2 -102.8 879.2 -88.4L879.2 -88.4L879.2 -86.4L869.8 -86.4L869.8 -88.4Q869.8 -106.8 858.4 -117Q847 -127.2 825.4 -127.2L825.4 -127.2Q808.6 -127.2 797.3 -120.2Q786 -113.2 780.3 -99.9Q774.6 -86.6 774.6 -67L774.6 -67Q774.6 -47.6 780.3 -34.2Q786 -20.8 797.4 -13.8Q808.8 -6.8 825.8 -6.8L825.8 -6.8Q840 -6.8 850.1 -11.4Q860.2 -16 865.4 -25Q870.6 -34 870.6 -47.2L870.6 -47.2L870.6 -49.4L879.4 -49.4L879.4 -46.2L873 -24.2L871 -24.2Q867 -15.2 860 -9.3Q853 -3.4 843.9 -0.7Q834.8 2 824.8 2M879.4 -61.4L879.4 0L871.6 0L871.6 -30.6L870.6 -32.2L870.6 -61.4L879.4 -61.4M879.4 -64.6L879.4 -56.6L821 -56.6L821 -64.6L879.4 -64.6M970.8 2L970.8 2Q954.8 2 942.6 -4.3Q930.4 -10.6 923.5 -22.9Q916.6 -35.2 916.6 -52.8L916.6 -52.8L916.6 -134L925.4 -134L925.4 -52.8Q925.4 -37.2 930.5 -26.9Q935.6 -16.6 945.7 -11.7Q955.8 -6.8 970.8 -6.8L970.8 -6.8Q986 -6.8 996.1 -11.7Q1006.2 -16.6 1011.2 -26.9Q1016.2 -37.2 1016.2 -52.8L1016.2 -52.8L1016.2 -134L1025 -134L1025 -52.8Q1025 -35.2 1018.2 -22.9Q1011.4 -10.6 999.2 -4.3Q987 2 970.8 2M1075.6 -134L1075.6 0L1066.8 0L1066.8 -134L1075.6 -134M1150.6 -8.2L1150.6 0L1069.8 0L1069.8 -8.2L1150.6 -8.2M1222.6 -107.8L1177.6 0L1168.2 0L1224 -134L1236.2 -134L1292 0L1282.4 0L1237 -107.8L1230.2 -124.8L1229.4 -124.8L1222.6 -107.8M1268.4 -50.8L1268.4 -42.6L1191 -42.6L1191 -50.8L1268.4 -50.8M1327 -56.8L1327 0L1318.2 0L1318.2 -134L1370.4 -134Q1383.6 -134 1393.8 -129.5Q1404 -125 1409.9 -116.4Q1415.8 -107.8 1415.8 -95.6L1415.8 -95.6Q1415.8 -84.2 1410.3 -75.8Q1404.8 -67.4 1395.4 -62.9Q1386 -58.4 1373.6 -58.4L1373.6 -58.4L1373.6 -57.6Q1379.2 -56 1383.5 -52Q1387.8 -48 1391.2 -42.4L1391.2 -42.4L1416 0L1405.8 0L1382.2 -39.8Q1379 -45.6 1374.8 -49.4Q1370.6 -53.2 1364.5 -55Q1358.4 -56.8 1349.2 -56.8L1349.2 -56.8L1327 -56.8M1371.2 -125.8L1327 -125.8L1327 -64.6L1371.2 -64.6Q1388.6 -64.6 1397.7 -72.1Q1406.8 -79.6 1406.8 -95.2L1406.8 -95.2Q1406.8 -110.8 1397.7 -118.3Q1388.6 -125.8 1371.2 -125.8L1371.2 -125.8M1456.4 -134L1456.4 0L1447.6 0L1447.6 -134L1456.4 -134M1540.2 -134L1540.2 0L1531.4 0L1531.4 -134L1540.2 -134M1589.2 -134L1589.2 -125.8L1482.2 -125.8L1482.2 -134L1589.2 -134M1721.4 -134L1668.4 -50L1662.2 -50L1609.2 -134L1619.4 -134L1652.4 -82.2L1665.2 -61.2L1666 -61.2L1678.8 -82.2L1711.2 -134L1721.4 -134M1669.8 -58.8L1669.8 0L1660.8 0L1660.8 -58.8L1669.8 -58.8" fill="#F4F3F0"/></g><text x="1144" y="57" class="muted" font-size="16" font-weight="500" letter-spacing="1.4" text-anchor="end">OPEN INSTITUTIONAL CUSTODY</text><text x="51" y="178" class="ink" font-size="94" font-weight="500" letter-spacing="-4.7">Your rules.</text><text x="51" y="270" class="ink" font-size="94" font-weight="500" letter-spacing="-4.7">Before the</text><text x="51" y="362" class="ink" font-size="94" font-weight="500" letter-spacing="-4.7">signature.</text><g transform="translate(726 153) scale(1)">
+    <path d="M0 114H420" stroke="#3A3A42" stroke-width="2"/>
+    <path class="signal" d="M0 114H420" stroke="#FF6A1A" stroke-width="3" stroke-dasharray="24 460"/>
+    <path d="M22 64H77L96 83V164H22Z" fill="#08080A" stroke="#F4F3F0" stroke-width="2"/>
+    <path d="M77 64V83H96M39 99H65M39 114H77M39 129H69" stroke="#F4F3F0" stroke-width="2"/>
+    <rect class="gate-accent" x="174" y="16" width="112" height="196" fill="#F4F3F0" opacity=".05"/>
+    <path d="M198 16H174V212H198M262 16H286V212H262" stroke="#F4F3F0" stroke-width="3"/>
+    <path d="M208 113L224 129L252 97" stroke="#F4F3F0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="389" cy="114" r="30" fill="#F4F3F0"/>
+    <text x="389" y="126" fill="#08080A" text-anchor="middle" font-size="44" style="font-family: Georgia, 'Times New Roman', serif">σ</text>
   </g><text x="56" y="440" class="muted" font-size="23" font-weight="400" >Payment controls, enforced at the signer.</text><text x="753" y="440" class="muted" font-size="17" font-weight="400" letter-spacing="1.1">CHECK   /   RELEASE   /   SIGN</text>
 </svg>

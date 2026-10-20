@@ -3,11 +3,13 @@
   <source media="(prefers-color-scheme: dark) and (max-width: 640px)" srcset="docs/assets/custody-banner-mobile-dark.svg">
   <source media="(max-width: 640px)" srcset="docs/assets/custody-banner-mobile-light.svg">
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/custody-banner-dark.svg">
-  <img src="docs/assets/custody-banner-light.svg" alt="Your rules. Before the signature. Open Institutional Custody." width="1200">
+  <img src="docs/assets/custody-banner-light.svg" alt="The Singularity — Open Institutional Custody. Your rules. Before the signature." width="1200">
 </picture>
 </p>
 
 # Open Institutional Custody
+
+An open-source project by [The Singularity](https://github.com/0xTheSingularity).
 
 **Rust components for institutional payment authorization and signing.**
 
