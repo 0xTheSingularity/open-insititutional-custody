@@ -767,3 +767,29 @@ mod tests {
         assert!(!b.is_consistent());
     }
 }
+
+// ---------------------------------------------------------------------------
+// Approval package (RFC 0001 §4.3, RFC 0002 §8)
+// ---------------------------------------------------------------------------
+
+/// Every object an authorization envelope commits to, delivered together to
+/// approvers (independent approval client), signers, and auditors. The
+/// receiver never trusts the package's text: it recomputes each hash and
+/// re-decodes the candidate against its own pinned adapter.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ApprovalPackage {
+    pub schema_version: u16,
+    pub intent: Intent,
+    pub candidate: Candidate,
+    pub vault: Vault,
+    pub wallet: ChainWallet,
+    pub key: KeyDescriptor,
+    pub asset: Asset,
+    pub destination: CounterpartyDestination,
+    pub policy: PolicyBundle,
+    pub evidence: EvidenceBundle,
+}
+
+impl ApprovalPackage {
+    pub const SCHEMA_VERSION: u16 = 1;
+}
