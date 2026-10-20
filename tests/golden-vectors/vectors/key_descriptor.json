@@ -1,0 +1,64 @@
+[
+  {
+    "name": "key-descriptor-evm-dev-single-key",
+    "domain": "OIC/KEY_DESCRIPTOR/v1",
+    "type": "KeyDescriptor",
+    "encoded_type": "KeyDescriptor",
+    "producer": "oic_canonical_encoding::domain_hash (no dedicated producer)",
+    "input": {
+      "backend_commit": "k256=0.13.4;ed25519-dalek=2.2.0;chacha20poly1305=0.10.1",
+      "backend_id": "dev-single-key",
+      "environment_id": "dev",
+      "institution_id": "inst",
+      "key_epoch": 1,
+      "key_id": "key-evm",
+      "networks": [
+        "evm-11155111"
+      ],
+      "participants": [
+        "signer-1"
+      ],
+      "public_key": {
+        "bytes": "0x027dabe4c72b4e3b0a4c9582bfa9a8f35cce6cb3679e9e31e3544b995b8f779a74",
+        "scheme": "ecdsa_secp256k1_keccak256_prehashed"
+      },
+      "recovery_profile": "none",
+      "scheme": "ecdsa_secp256k1_keccak256_prehashed",
+      "threshold": 1
+    },
+    "canonical_cbor_hex": "ac666b65795f6964676b65792d65766d66736368656d65782365636473615f736563703235366b315f6b656363616b3235365f707265686173686564686e6574776f726b73816c65766d2d3131313535313131696b65795f65706f636801697468726573686f6c64016a6261636b656e645f69646e6465762d73696e676c652d6b65796a7075626c69635f6b6579a26562797465735821027dabe4c72b4e3b0a4c9582bfa9a8f35cce6cb3679e9e31e3544b995b8f779a7466736368656d65782365636473615f736563703235366b315f6b656363616b3235365f7072656861736865646c7061727469636970616e747381687369676e65722d316e6261636b656e645f636f6d6d697478376b3235363d302e31332e343b656432353531392d64616c656b3d322e322e303b6368616368613230706f6c79313330353d302e31302e316e656e7669726f6e6d656e745f6964636465766e696e737469747574696f6e5f696464696e7374707265636f766572795f70726f66696c65646e6f6e65",
+    "hash_hex": "d40655cb0ec9cb5a09bfa1934b8e7dbe357b80cd118be656c909ff2384f2dc08"
+  },
+  {
+    "name": "key-descriptor-solana-frost-2-of-3",
+    "domain": "OIC/KEY_DESCRIPTOR/v1",
+    "type": "KeyDescriptor",
+    "encoded_type": "KeyDescriptor",
+    "producer": "oic_canonical_encoding::domain_hash (no dedicated producer)",
+    "input": {
+      "backend_commit": "frost-ed25519=2.2.0",
+      "backend_id": "frost-ed25519",
+      "environment_id": "dev",
+      "institution_id": "inst",
+      "key_epoch": 1,
+      "key_id": "key-sol",
+      "networks": [
+        "solana-devnet"
+      ],
+      "participants": [
+        "signer-1",
+        "signer-2",
+        "signer-3"
+      ],
+      "public_key": {
+        "bytes": "0x0d7550754e0800a5d237eef5826035766b9b3e5a15868a940ab289958788e3b0",
+        "scheme": "ed25519_pure"
+      },
+      "recovery_profile": "dkg",
+      "scheme": "ed25519_pure",
+      "threshold": 2
+    },
+    "canonical_cbor_hex": "ac666b65795f6964676b65792d736f6c66736368656d656c656432353531395f70757265686e6574776f726b73816d736f6c616e612d6465766e6574696b65795f65706f636801697468726573686f6c64026a6261636b656e645f69646d66726f73742d656432353531396a7075626c69635f6b6579a265627974657358200d7550754e0800a5d237eef5826035766b9b3e5a15868a940ab289958788e3b066736368656d656c656432353531395f707572656c7061727469636970616e747383687369676e65722d31687369676e65722d32687369676e65722d336e6261636b656e645f636f6d6d69747366726f73742d656432353531393d322e322e306e656e7669726f6e6d656e745f6964636465766e696e737469747574696f6e5f696464696e7374707265636f766572795f70726f66696c6563646b67",
+    "hash_hex": "31e62b69d373d088cefabbb0cc10507bb1656e7ab9d6b3ccbc4892581f2c8e4e"
+  }
+]

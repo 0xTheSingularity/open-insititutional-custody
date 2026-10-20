@@ -1,0 +1,117 @@
+[
+  {
+    "name": "solana-legacy-sol-transfer-built",
+    "adapter_id": "solana",
+    "adapter_version": "0.1.0",
+    "verifier_build_hash_hex": "5cd1c8f85b4dffa2284ebe099d407bdec1560940bcbf3addbbd8dd7779d36867",
+    "chain_profile": {
+      "accepted_trust_levels": [
+        "development_simulator"
+      ],
+      "accepted_versions": [
+        "legacy",
+        "v0"
+      ],
+      "adapter_id": "solana",
+      "chain_profile_id": "solana-devnet-v1",
+      "display_name": "Solana devnet",
+      "finality_commitment": "finalized",
+      "finality_depth": 32,
+      "max_evidence_age_seconds": 120,
+      "network_binding": "0x6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e",
+      "network_id": "solana-devnet"
+    },
+    "input": {
+      "account_keys": [
+        "0d7550754e0800a5d237eef5826035766b9b3e5a15868a940ab289958788e3b0",
+        "c853ad0f0cd2b619aea92ceec4fd56a24d6499d584ce79257e45cfd8139b60a7",
+        "0000000000000000000000000000000000000000000000000000000000000000"
+      ],
+      "address_table_lookups": [],
+      "header": {
+        "num_readonly_signed_accounts": 0,
+        "num_readonly_unsigned_accounts": 1,
+        "num_required_signatures": 1
+      },
+      "instructions": [
+        {
+          "accounts": "0001",
+          "data": "0200000040420f0000000000",
+          "program_id_index": 2
+        }
+      ],
+      "recent_blockhash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "version": "legacy"
+    },
+    "native_unsigned_bytes_hex": "010001030d7550754e0800a5d237eef5826035766b9b3e5a15868a940ab289958788e3b0c853ad0f0cd2b619aea92ceec4fd56a24d6499d584ce79257e45cfd8139b60a70000000000000000000000000000000000000000000000000000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb01020200010c0200000040420f0000000000",
+    "signing_payload": {
+      "message_or_digest": "0x010001030d7550754e0800a5d237eef5826035766b9b3e5a15868a940ab289958788e3b0c853ad0f0cd2b619aea92ceec4fd56a24d6499d584ce79257e45cfd8139b60a70000000000000000000000000000000000000000000000000000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb01020200010c0200000040420f0000000000",
+      "native_signing_context": "solana-message-legacy",
+      "payload_index": 0,
+      "required_key_id": "key-sol",
+      "scheme_id": "ed25519_pure"
+    },
+    "signing_payload_canonical_cbor_hex": "a569736368656d655f69646c656432353531395f707572656d7061796c6f61645f696e646578006f72657175697265645f6b65795f6964676b65792d736f6c716d6573736167655f6f725f6469676573745896010001030d7550754e0800a5d237eef5826035766b9b3e5a15868a940ab289958788e3b0c853ad0f0cd2b619aea92ceec4fd56a24d6499d584ce79257e45cfd8139b60a70000000000000000000000000000000000000000000000000000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb01020200010c0200000040420f0000000000766e61746976655f7369676e696e675f636f6e7465787475736f6c616e612d6d6573736167652d6c6567616379",
+    "differential": "solana-message =6.0.0 VersionedMessage::serialize and bincode; solana-transaction =6.0.0 VersionedTransaction::verify_and_hash_message"
+  },
+  {
+    "name": "solana-v0-sol-transfer-lookup-table",
+    "adapter_id": "solana",
+    "adapter_version": "0.1.0",
+    "verifier_build_hash_hex": "5cd1c8f85b4dffa2284ebe099d407bdec1560940bcbf3addbbd8dd7779d36867",
+    "chain_profile": {
+      "accepted_trust_levels": [
+        "development_simulator"
+      ],
+      "accepted_versions": [
+        "legacy",
+        "v0"
+      ],
+      "adapter_id": "solana",
+      "chain_profile_id": "solana-devnet-v1",
+      "display_name": "Solana devnet",
+      "finality_commitment": "finalized",
+      "finality_depth": 32,
+      "max_evidence_age_seconds": 120,
+      "network_binding": "0x6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e",
+      "network_id": "solana-devnet"
+    },
+    "input": {
+      "account_keys": [
+        "0d7550754e0800a5d237eef5826035766b9b3e5a15868a940ab289958788e3b0",
+        "0000000000000000000000000000000000000000000000000000000000000000"
+      ],
+      "address_table_lookups": [
+        {
+          "account_key": "1111111111111111111111111111111111111111111111111111111111111111",
+          "readonly_indexes": "",
+          "writable_indexes": "00"
+        }
+      ],
+      "header": {
+        "num_readonly_signed_accounts": 0,
+        "num_readonly_unsigned_accounts": 1,
+        "num_required_signatures": 1
+      },
+      "instructions": [
+        {
+          "accounts": "0002",
+          "data": "0200000040420f0000000000",
+          "program_id_index": 1
+        }
+      ],
+      "recent_blockhash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "version": "v0"
+    },
+    "native_unsigned_bytes_hex": "80010001020d7550754e0800a5d237eef5826035766b9b3e5a15868a940ab289958788e3b00000000000000000000000000000000000000000000000000000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb01010200020c0200000040420f0000000000011111111111111111111111111111111111111111111111111111111111111111010000",
+    "signing_payload": {
+      "message_or_digest": "0x80010001020d7550754e0800a5d237eef5826035766b9b3e5a15868a940ab289958788e3b00000000000000000000000000000000000000000000000000000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb01010200020c0200000040420f0000000000011111111111111111111111111111111111111111111111111111111111111111010000",
+      "native_signing_context": "solana-message-v0",
+      "payload_index": 0,
+      "required_key_id": "key-sol",
+      "scheme_id": "ed25519_pure"
+    },
+    "signing_payload_canonical_cbor_hex": "a569736368656d655f69646c656432353531395f707572656d7061796c6f61645f696e646578006f72657175697265645f6b65795f6964676b65792d736f6c716d6573736167655f6f725f646967657374589b80010001020d7550754e0800a5d237eef5826035766b9b3e5a15868a940ab289958788e3b00000000000000000000000000000000000000000000000000000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb01010200020c0200000040420f0000000000011111111111111111111111111111111111111111111111111111111111111111010000766e61746976655f7369676e696e675f636f6e7465787471736f6c616e612d6d6573736167652d7630",
+    "differential": "solana-message =6.0.0 VersionedMessage::serialize and bincode; solana-transaction =6.0.0 VersionedTransaction::verify_and_hash_message"
+  }
+]

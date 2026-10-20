@@ -1,0 +1,66 @@
+[
+  {
+    "name": "policy-bundle-admin-signed",
+    "domain": "OIC/POLICY/v1",
+    "type": "PolicyBundle",
+    "encoded_type": "PolicyBundleUnsigned",
+    "producer": "oic_policy_kernel::policy_hash",
+    "input": {
+      "activation_epoch": 1,
+      "administrative_signatures": [
+        {
+          "credential_id": "admin-1",
+          "signature": {
+            "bytes": "0x19c84af1448baf0d4c55ab08f3f757a311ddf596dc9a47cba84da222d6d60e232b4f09a2636fe8382598509263b40df88b853421fbf43b8dfc6c700d68c92908",
+            "scheme": "ed25519_pure"
+          }
+        },
+        {
+          "credential_id": "admin-2",
+          "signature": {
+            "bytes": "0x4899d991d9ce741ca993097af0b3536223830171e093ea427da2a9e6aca03732a102061cddb8893ce635690db6149def6900669db709c8428656517d11dbff05",
+            "scheme": "ed25519_pure"
+          }
+        }
+      ],
+      "allowlist_version": 1,
+      "denied_assets": [],
+      "denied_destinations": [],
+      "environment_id": "dev",
+      "institution_id": "inst",
+      "max_evidence_age_seconds": 120,
+      "policy_epoch": 1,
+      "policy_id": "pol-1",
+      "rules": [
+        {
+          "approval_roles": [
+            "treasury_approver",
+            "security_approver"
+          ],
+          "assets": [
+            "sepolia-usdc"
+          ],
+          "destinations": [],
+          "exclude_proposer": true,
+          "max_amount_per_operation": "1000000000000",
+          "max_native_fee_per_operation": "1000000000000000000",
+          "operating_window": null,
+          "purposes": [],
+          "required_approvals": 1,
+          "rolling_limits": [
+            {
+              "max_outflow_base_units": "10000000000000",
+              "window_seconds": 86400
+            }
+          ],
+          "rule_id": "r-1",
+          "vaults": [
+            "vault-1"
+          ]
+        }
+      ]
+    },
+    "canonical_cbor_hex": "aa6572756c657381ac66617373657473816c7365706f6c69612d75736463667661756c747381677661756c742d316772756c655f696463722d3168707572706f736573806c64657374696e6174696f6e73806e617070726f76616c5f726f6c6573827174726561737572795f617070726f7665727173656375726974795f617070726f7665726e726f6c6c696e675f6c696d69747381a26e77696e646f775f7365636f6e64731a00015180766d61785f6f7574666c6f775f626173655f756e6974736e3130303030303030303030303030706578636c7564655f70726f706f736572f5706f7065726174696e675f77696e646f77f67272657175697265645f617070726f76616c730178186d61785f616d6f756e745f7065725f6f7065726174696f6e6d31303030303030303030303030781c6d61785f6e61746976655f6665655f7065725f6f7065726174696f6e733130303030303030303030303030303030303069706f6c6963795f696465706f6c2d316c706f6c6963795f65706f6368016d64656e6965645f617373657473806e656e7669726f6e6d656e745f6964636465766e696e737469747574696f6e5f696464696e73747061637469766174696f6e5f65706f63680171616c6c6f776c6973745f76657273696f6e017364656e6965645f64657374696e6174696f6e738078186d61785f65766964656e63655f6167655f7365636f6e64731878",
+    "hash_hex": "94cacf8bf4bf3fcf41e459d31040d9da87d10f21f05df3fc89877a88c5f50159"
+  }
+]

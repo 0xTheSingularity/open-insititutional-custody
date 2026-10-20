@@ -1,0 +1,56 @@
+[
+  {
+    "name": "lifecycle-event-operation-state-changed",
+    "domain": "OIC/WEBHOOK/v1",
+    "type": "LifecycleEventBody",
+    "encoded_type": "LifecycleEventBody",
+    "producer": "oic_canonical_encoding::domain_hash (no dedicated producer)",
+    "input": {
+      "at": 1700000020,
+      "environment_id": "dev",
+      "event_id": "ev-7",
+      "institution_id": "inst",
+      "kind": {
+        "operation_state_changed": {
+          "candidate_id": "cand-1",
+          "candidate_revision": 1,
+          "from": "RESERVED",
+          "intent_id": "intent-1",
+          "operation_family_id": "fam-f64e356cd62656d70b4e537053d60a4a",
+          "to": "ISSUANCE_COMMITTED",
+          "tx_id": null
+        }
+      },
+      "sequence": 7
+    },
+    "canonical_cbor_hex": "a66261741a6553f114646b696e64a1776f7065726174696f6e5f73746174655f6368616e676564a762746f7249535355414e43455f434f4d4d49545445446466726f6d6852455345525645446574785f6964f669696e74656e745f696468696e74656e742d316c63616e6469646174655f69646663616e642d317263616e6469646174655f7265766973696f6e01736f7065726174696f6e5f66616d696c795f6964782466616d2d6636346533353663643632363536643730623465353337303533643630613461686576656e745f69646465762d376873657175656e6365076e656e7669726f6e6d656e745f6964636465766e696e737469747574696f6e5f696464696e7374",
+    "hash_hex": "5f04731b3a33b0b62c6c149ede012034654619dc1d85aa97b42ed7f5674dce13"
+  },
+  {
+    "name": "lifecycle-event-workflow-paused",
+    "domain": "OIC/WEBHOOK/v1",
+    "type": "LifecycleEventBody",
+    "encoded_type": "LifecycleEventBody",
+    "producer": "oic_canonical_encoding::domain_hash (no dedicated producer)",
+    "input": {
+      "at": 1700000020,
+      "environment_id": "dev",
+      "event_id": "ev-8",
+      "institution_id": "inst",
+      "kind": {
+        "workflow_state_changed": {
+          "state": {
+            "paused": {
+              "detail": "base fee above ceiling",
+              "reason": "fee_ceiling"
+            }
+          },
+          "workflow_id": "wf-1"
+        }
+      },
+      "sequence": 8
+    },
+    "canonical_cbor_hex": "a66261741a6553f114646b696e64a176776f726b666c6f775f73746174655f6368616e676564a2657374617465a166706175736564a26664657461696c7662617365206665652061626f7665206365696c696e6766726561736f6e6b6665655f6365696c696e676b776f726b666c6f775f69646477662d31686576656e745f69646465762d386873657175656e6365086e656e7669726f6e6d656e745f6964636465766e696e737469747574696f6e5f696464696e7374",
+    "hash_hex": "17bba3de299c09f8acbacb7c87471c0e0ba109e622906bb42836e86de1144159"
+  }
+]

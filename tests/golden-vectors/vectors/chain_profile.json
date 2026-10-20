@@ -1,0 +1,53 @@
+[
+  {
+    "name": "chain-profile-evm-sepolia",
+    "domain": "OIC/CHAIN_PROFILE/v1",
+    "type": "ChainProfile",
+    "encoded_type": "ChainProfile",
+    "producer": "oic_adapter_api::ChainProfile::hash",
+    "input": {
+      "accepted_trust_levels": [
+        "development_simulator"
+      ],
+      "accepted_versions": [
+        "eip1559-type2"
+      ],
+      "adapter_id": "evm",
+      "chain_profile_id": "evm-sepolia-v1",
+      "display_name": "Sepolia",
+      "finality_commitment": "finalized",
+      "finality_depth": 2,
+      "max_evidence_age_seconds": 120,
+      "network_binding": "0x0000000000aa36a7",
+      "network_id": "evm-11155111"
+    },
+    "canonical_cbor_hex": "aa6a616461707465725f69646365766d6a6e6574776f726b5f69646c65766d2d31313135353131316c646973706c61795f6e616d65675365706f6c69616e66696e616c6974795f6465707468026f6e6574776f726b5f62696e64696e67480000000000aa36a770636861696e5f70726f66696c655f69646e65766d2d7365706f6c69612d76317161636365707465645f76657273696f6e73816d656970313535392d74797065327366696e616c6974795f636f6d6d69746d656e746966696e616c697a65647561636365707465645f74727573745f6c6576656c738175646576656c6f706d656e745f73696d756c61746f7278186d61785f65766964656e63655f6167655f7365636f6e64731878",
+    "hash_hex": "77ba71420fdbd485d551afda6423a8d5c2056934bb03116b5662507b0a4f3429"
+  },
+  {
+    "name": "chain-profile-solana-devnet",
+    "domain": "OIC/CHAIN_PROFILE/v1",
+    "type": "ChainProfile",
+    "encoded_type": "ChainProfile",
+    "producer": "oic_adapter_api::ChainProfile::hash",
+    "input": {
+      "accepted_trust_levels": [
+        "development_simulator"
+      ],
+      "accepted_versions": [
+        "legacy",
+        "v0"
+      ],
+      "adapter_id": "solana",
+      "chain_profile_id": "solana-devnet-v1",
+      "display_name": "Solana devnet",
+      "finality_commitment": "finalized",
+      "finality_depth": 32,
+      "max_evidence_age_seconds": 120,
+      "network_binding": "0x6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e",
+      "network_id": "solana-devnet"
+    },
+    "canonical_cbor_hex": "aa6a616461707465725f696466736f6c616e616a6e6574776f726b5f69646d736f6c616e612d6465766e65746c646973706c61795f6e616d656d536f6c616e61206465766e65746e66696e616c6974795f646570746818206f6e6574776f726b5f62696e64696e6758206e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e70636861696e5f70726f66696c655f696470736f6c616e612d6465766e65742d76317161636365707465645f76657273696f6e7382666c65676163796276307366696e616c6974795f636f6d6d69746d656e746966696e616c697a65647561636365707465645f74727573745f6c6576656c738175646576656c6f706d656e745f73696d756c61746f7278186d61785f65766964656e63655f6167655f7365636f6e64731878",
+    "hash_hex": "3d866e8a09fcaf5501be00aa6e9c614bd508b677c2e87bf5baba81f2a1dcc21b"
+  }
+]

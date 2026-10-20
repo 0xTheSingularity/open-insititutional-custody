@@ -1,0 +1,21 @@
+[
+  {
+    "name": "audit-checkpoint",
+    "domain": "OIC/AUDIT_CHECKPOINT/v1",
+    "type": "AuditCheckpointBody",
+    "encoded_type": "AuditCheckpointBody",
+    "producer": "oic_audit::audit_checkpoint_hash",
+    "input": {
+      "at": 1700000020,
+      "head_event_hash": "05aa0ec47b186d39853e1d0631f00756c7a9a45683bc13351aba2661491b52fe",
+      "sequence": 3,
+      "service_key_id": "audit-key-1"
+    },
+    "canonical_cbor_hex": "a46261741a6553f1146873657175656e6365036e736572766963655f6b65795f69646b61756469742d6b65792d316f686561645f6576656e745f68617368582005aa0ec47b186d39853e1d0631f00756c7a9a45683bc13351aba2661491b52fe",
+    "hash_hex": "7fc9436996b218864f6f8c5560c221063668b0c2b6ccb4ac226a293517a481e6",
+    "ed25519": {
+      "public_key_hex": "b533d8ad9fcfbdde0b481c1b334ddc3c53412fd614564e7e5afd020368d382c3",
+      "signature_hex": "79f07299a4c8ffaedfcd1381cd277ff49ead81bdce7f3fa772ad2c199ab3411822d7db13ebb84eab3537fec021b449f776a8ebf2692ea212672b81717e37840b"
+    }
+  }
+]

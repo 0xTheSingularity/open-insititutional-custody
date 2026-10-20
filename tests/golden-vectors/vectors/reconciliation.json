@@ -1,0 +1,41 @@
+[
+  {
+    "name": "reconciliation-checkpoint-difference",
+    "domain": "OIC/RECONCILIATION/v1",
+    "type": "ReconciliationCheckpointBody",
+    "encoded_type": "ReconciliationCheckpointBody",
+    "producer": "oic_canonical_encoding::domain_hash (no dedicated producer)",
+    "input": {
+      "at": 1700000400,
+      "balances": [
+        {
+          "asset_id": "sepolia-usdc",
+          "chain_balance": "1500000",
+          "chain_wallet_id": "wallet-evm",
+          "journal_balance": "1400000",
+          "pending_inbound": "0",
+          "reserved": "0"
+        }
+      ],
+      "cases_opened": [
+        "case-1"
+      ],
+      "chain_profile_id": "evm-sepolia-v1",
+      "checkpoint_id": "chk-1",
+      "journal_head_hash": "b66903447190cf43017411851bf8679a65a978ac4b2201029fd95d5ef0e035d4",
+      "journal_sequence": 2,
+      "network_id": "evm-11155111",
+      "sources": [
+        "dev-node",
+        "provider-b"
+      ],
+      "state": {
+        "commitment": "finalized",
+        "hash": "0x4141414141414141414141414141414141414141414141414141414141414141",
+        "height": 1300
+      }
+    },
+    "canonical_cbor_hex": "aa6261741a6553f290657374617465a3646861736858204141414141414141414141414141414141414141414141414141414141414141666865696768741905146a636f6d6d69746d656e746966696e616c697a656467736f757263657382686465762d6e6f64656a70726f76696465722d626862616c616e63657381a66861737365745f69646c7365706f6c69612d7573646368726573657276656461306d636861696e5f62616c616e636567313530303030306f636861696e5f77616c6c65745f69646a77616c6c65742d65766d6f6a6f75726e616c5f62616c616e636567313430303030306f70656e64696e675f696e626f756e6461306a6e6574776f726b5f69646c65766d2d31313135353131316c63617365735f6f70656e65648166636173652d316d636865636b706f696e745f69646563686b2d3170636861696e5f70726f66696c655f69646e65766d2d7365706f6c69612d7631706a6f75726e616c5f73657175656e636502716a6f75726e616c5f686561645f686173685820b66903447190cf43017411851bf8679a65a978ac4b2201029fd95d5ef0e035d4",
+    "hash_hex": "1e11af98f8f8024bd9936d5f6eca462f573369419e60d43db70dca6f38474c8f"
+  }
+]

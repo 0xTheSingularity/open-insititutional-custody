@@ -1,0 +1,39 @@
+[
+  {
+    "name": "freeze-proposal-vault",
+    "domain": "OIC/CONFIG_PROPOSAL/v1",
+    "type": "FreezeProposal",
+    "encoded_type": "FreezeProposal",
+    "producer": "oic_authorization_state::FreezeProposal::hash",
+    "input": {
+      "action": "freeze",
+      "by": "responder-1",
+      "environment_id": "dev",
+      "institution_id": "inst",
+      "reason": "suspicious destination",
+      "scope": {
+        "vault": {
+          "vault_id": "vault-1"
+        }
+      }
+    },
+    "canonical_cbor_hex": "a66262796b726573706f6e6465722d316573636f7065a1657661756c74a1687661756c745f6964677661756c742d3166616374696f6e66667265657a6566726561736f6e76737573706963696f75732064657374696e6174696f6e6e656e7669726f6e6d656e745f6964636465766e696e737469747574696f6e5f696464696e7374",
+    "hash_hex": "50f5b5dfc8d247bc1ac74232533ca7938a2629588fc842f27ecd4a1928f473cb"
+  },
+  {
+    "name": "unfreeze-proposal-global",
+    "domain": "OIC/CONFIG_PROPOSAL/v1",
+    "type": "UnfreezeProposal",
+    "encoded_type": "UnfreezeProposal",
+    "producer": "oic_authorization_state::UnfreezeProposal::hash",
+    "input": {
+      "action": "unfreeze",
+      "environment_id": "dev",
+      "freeze_commit_sequence": 12,
+      "institution_id": "inst",
+      "scope": "global"
+    },
+    "canonical_cbor_hex": "a56573636f706566676c6f62616c66616374696f6e68756e667265657a656e656e7669726f6e6d656e745f6964636465766e696e737469747574696f6e5f696464696e737476667265657a655f636f6d6d69745f73657175656e63650c",
+    "hash_hex": "65f3cdaed6b2122a9e629b5e466385ad687e510604901f9357b757e9e366ed11"
+  }
+]

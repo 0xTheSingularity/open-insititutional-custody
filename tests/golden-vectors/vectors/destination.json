@@ -1,0 +1,74 @@
+[
+  {
+    "name": "destination-evm-admin-signed",
+    "domain": "OIC/DESTINATION/v1",
+    "type": "CounterpartyDestination",
+    "encoded_type": "DestinationUnsigned",
+    "producer": "oic_policy_kernel::destination_hash",
+    "input": {
+      "activation_epoch": 1,
+      "address": "0xdededededededededededededededededededede",
+      "address_display": "0xdEDEDEDEdEdEdEDedEDeDedEdEdeDedEdEDedEdE",
+      "administrative_signatures": [
+        {
+          "credential_id": "admin-1",
+          "signature": {
+            "bytes": "0xeb37b3cb489ae833bbc474f10c3d2b837052959e4b6d34d117bbc18c06df5705ad13d9263ecd567cd7c9c54861546feff0ef82fff071501116c59a9f5a251708",
+            "scheme": "ed25519_pure"
+          }
+        },
+        {
+          "credential_id": "admin-2",
+          "signature": {
+            "bytes": "0x39e29eb32cd61e1f8a520b1079e223e1e1050c45efad6c34cb51f465b8f5a0cc6ce01c11828fc9c4d880acdab5ef1ebb61c2f01ff84965a0825a2578c1899909",
+            "scheme": "ed25519_pure"
+          }
+        }
+      ],
+      "allowed_assets": [],
+      "destination_id": "dest-1",
+      "display_name": "Counterparty",
+      "network_id": "evm-11155111",
+      "verification_evidence": "test",
+      "version": 3
+    },
+    "canonical_cbor_hex": "a9676164647265737354dededededededededededededededededededede6776657273696f6e036a6e6574776f726b5f69646c65766d2d31313135353131316c646973706c61795f6e616d656c436f756e74657270617274796e616c6c6f7765645f617373657473806e64657374696e6174696f6e5f696466646573742d316f616464726573735f646973706c6179782a3078644544454445444564456445644544656445446544656445644564654465644564454465644564457061637469766174696f6e5f65706f63680175766572696669636174696f6e5f65766964656e63656474657374",
+    "hash_hex": "baea72f6ea47e3433b4f8ff3cc3d31c245b068c3d5394d2a30ecab7655700de8"
+  },
+  {
+    "name": "destination-solana-admin-signed",
+    "domain": "OIC/DESTINATION/v1",
+    "type": "CounterpartyDestination",
+    "encoded_type": "DestinationUnsigned",
+    "producer": "oic_policy_kernel::destination_hash",
+    "input": {
+      "activation_epoch": 1,
+      "address": "0xc853ad0f0cd2b619aea92ceec4fd56a24d6499d584ce79257e45cfd8139b60a7",
+      "address_display": "EUzYVniKtgNNgFweMtRA9vciTWtE8MDTRfh6ai6VvXoU",
+      "administrative_signatures": [
+        {
+          "credential_id": "admin-1",
+          "signature": {
+            "bytes": "0xceda966cba650084b05351f8ac1cf464dd5dd7c7981fe1c779781b813dcc1c21c05e4ebc1ec3019bcf070d45977ee94a3fa0684009a14392882133310c4cba00",
+            "scheme": "ed25519_pure"
+          }
+        },
+        {
+          "credential_id": "admin-2",
+          "signature": {
+            "bytes": "0xf0a335b06b9154f394b26c032d1b968cc321363dae6fa584ba06d9b8ee92a8b7027d0d4b91e88e840ec6d731ea6b1dbb535d7a95f47c02853b1b80e1961cf205",
+            "scheme": "ed25519_pure"
+          }
+        }
+      ],
+      "allowed_assets": [],
+      "destination_id": "dest-sol",
+      "display_name": "Counterparty",
+      "network_id": "solana-devnet",
+      "verification_evidence": "test",
+      "version": 2
+    },
+    "canonical_cbor_hex": "a967616464726573735820c853ad0f0cd2b619aea92ceec4fd56a24d6499d584ce79257e45cfd8139b60a76776657273696f6e026a6e6574776f726b5f69646d736f6c616e612d6465766e65746c646973706c61795f6e616d656c436f756e74657270617274796e616c6c6f7765645f617373657473806e64657374696e6174696f6e5f696468646573742d736f6c6f616464726573735f646973706c6179782c45557a59566e694b74674e4e674677654d7452413976636954577445384d4454526668366169365676586f557061637469766174696f6e5f65706f63680175766572696669636174696f6e5f65766964656e63656474657374",
+    "hash_hex": "e518039d397c35fea8540189a74a65215ef4e195378e251843916c0df87da5b2"
+  }
+]

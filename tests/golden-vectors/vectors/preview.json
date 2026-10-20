@@ -1,0 +1,17 @@
+[
+  {
+    "name": "preview-evm-erc20",
+    "domain": "OIC/PREVIEW/v1",
+    "type": "PreviewCommitment",
+    "encoded_type": "PreviewCommitment",
+    "producer": "oic_policy_kernel::preview_hash",
+    "input": {
+      "candidate_id": "cand-1",
+      "candidate_revision": 1,
+      "decoded_operation_hash": "60884be3fd234243cffdec5aa56dd3872c2b2562f3af3574f4c5fe956c337802",
+      "evidence_bundle_hash": "4764ec61369ff46746fbb0f27ab455a9700c6fb75ac016facc065ad13840bc38"
+    },
+    "canonical_cbor_hex": "a46c63616e6469646174655f69646663616e642d317263616e6469646174655f7265766973696f6e017465766964656e63655f62756e646c655f6861736858204764ec61369ff46746fbb0f27ab455a9700c6fb75ac016facc065ad13840bc38766465636f6465645f6f7065726174696f6e5f68617368582060884be3fd234243cffdec5aa56dd3872c2b2562f3af3574f4c5fe956c337802",
+    "hash_hex": "331035081a92a779e82a1382ad312fe3eb02eac22f65fc6fcaa5c741bcc65035"
+  }
+]

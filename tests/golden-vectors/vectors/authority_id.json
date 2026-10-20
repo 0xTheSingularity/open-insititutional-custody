@@ -1,0 +1,48 @@
+[
+  {
+    "name": "authority-id-reservation",
+    "domain": "OIC/AUTHORITY_ID/v1",
+    "type": "ReservationIdPreimage",
+    "encoded_type": "ReservationIdPreimage",
+    "producer": "oic_authorization_state::reservation_id_for",
+    "input": [
+      "res",
+      [
+        "fam-f64e356cd62656d70b4e537053d60a4a",
+        "cand-1",
+        1
+      ]
+    ],
+    "canonical_cbor_hex": "826372657383782466616d2d66363465333536636436323635366437306234653533373035336436306134616663616e642d3101",
+    "hash_hex": "fbb7b2ca5592eb8ef5ebde1987ae7953331f2bbec4f7cd45df1366b408081b76",
+    "derived_id": "res-fbb7b2ca5592eb8ef5ebde1987ae7953"
+  },
+  {
+    "name": "authority-id-family",
+    "domain": "OIC/AUTHORITY_ID/v1",
+    "type": "FamilyIdPreimage",
+    "encoded_type": "FamilyIdPreimage",
+    "producer": "oic_authorization_state::family_id_for",
+    "input": [
+      "fam",
+      "intent-1"
+    ],
+    "canonical_cbor_hex": "826366616d68696e74656e742d31",
+    "hash_hex": "f64e356cd62656d70b4e537053d60a4a14f55fc145d81e76b52135755f4de79e",
+    "derived_id": "fam-f64e356cd62656d70b4e537053d60a4a"
+  },
+  {
+    "name": "authority-id-issuance",
+    "domain": "OIC/AUTHORITY_ID/v1",
+    "type": "IssuanceIdPreimage",
+    "encoded_type": "IssuanceIdPreimage",
+    "producer": "oic_authorization_state (private issuance_id_for)",
+    "input": [
+      "iss",
+      "res-fbb7b2ca5592eb8ef5ebde1987ae7953"
+    ],
+    "canonical_cbor_hex": "826369737378247265732d6662623762326361353539326562386566356562646531393837616537393533",
+    "hash_hex": "e091266519f5e21ca4f24460651e385c85eea6f94efdcd1998e06a6cceeb4715",
+    "derived_id": "iss-e091266519f5e21ca4f24460651e385c"
+  }
+]

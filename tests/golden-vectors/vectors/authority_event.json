@@ -1,0 +1,49 @@
+[
+  {
+    "name": "authority-event-policy-activated",
+    "domain": "OIC/AUTHORITY_EVENT/v1",
+    "type": "AuthorityEvent",
+    "encoded_type": "AuthorityEvent",
+    "producer": "oic_audit::authority_event_commitment",
+    "input": {
+      "policy_activated": {
+        "commit_sequence": 2,
+        "policy_epoch": 1,
+        "policy_hash": "94cacf8bf4bf3fcf41e459d31040d9da87d10f21f05df3fc89877a88c5f50159"
+      }
+    },
+    "canonical_cbor_hex": "a170706f6c6963795f616374697661746564a36b706f6c6963795f68617368582094cacf8bf4bf3fcf41e459d31040d9da87d10f21f05df3fc89877a88c5f501596c706f6c6963795f65706f6368016f636f6d6d69745f73657175656e636502",
+    "hash_hex": "d5b0bc58eacd6940595ca3448d60d61142b01d863c7718964b9b2886a8c0bf0d"
+  },
+  {
+    "name": "authority-event-reserved",
+    "domain": "OIC/AUTHORITY_EVENT/v1",
+    "type": "AuthorityEvent",
+    "encoded_type": "AuthorityEvent",
+    "producer": "oic_audit::authority_event_commitment",
+    "input": {
+      "reserved": {
+        "commit_sequence": 4,
+        "reservation_id": "res-fbb7b2ca5592eb8ef5ebde1987ae7953"
+      }
+    },
+    "canonical_cbor_hex": "a1687265736572766564a26e7265736572766174696f6e5f696478247265732d66626237623263613535393265623865663565626465313938376165373935336f636f6d6d69745f73657175656e636504",
+    "hash_hex": "ca287f10d1edd21a0e3f3cce7d9e251cef865551bf03fa5aec973e97782d5574"
+  },
+  {
+    "name": "authority-event-released",
+    "domain": "OIC/AUTHORITY_EVENT/v1",
+    "type": "AuthorityEvent",
+    "encoded_type": "AuthorityEvent",
+    "producer": "oic_audit::authority_event_commitment",
+    "input": {
+      "released": {
+        "commit_sequence": 5,
+        "issuance_id": "iss-e091266519f5e21ca4f24460651e385c",
+        "reservation_id": "res-fbb7b2ca5592eb8ef5ebde1987ae7953"
+      }
+    },
+    "canonical_cbor_hex": "a16872656c6561736564a36b69737375616e63655f696478246973732d65303931323636353139663565323163613466323434363036353165333835636e7265736572766174696f6e5f696478247265732d66626237623263613535393265623865663565626465313938376165373935336f636f6d6d69745f73657175656e636505",
+    "hash_hex": "dfab7a9ec23b7f7d389ca14bece86c967d25bc6308a02dc94c98b161698df709"
+  }
+]

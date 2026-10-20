@@ -1,0 +1,90 @@
+[
+  {
+    "name": "evm-eip1559-erc20-transfer-built",
+    "adapter_id": "evm",
+    "adapter_version": "0.1.0",
+    "verifier_build_hash_hex": "72d661478e50923f937939304088f002312e2953b55a672e2852def6452011a4",
+    "chain_profile": {
+      "accepted_trust_levels": [
+        "development_simulator"
+      ],
+      "accepted_versions": [
+        "eip1559-type2"
+      ],
+      "adapter_id": "evm",
+      "chain_profile_id": "evm-sepolia-v1",
+      "display_name": "Sepolia",
+      "finality_commitment": "finalized",
+      "finality_depth": 2,
+      "max_evidence_age_seconds": 120,
+      "network_binding": "0x0000000000aa36a7",
+      "network_id": "evm-11155111"
+    },
+    "input": {
+      "access_list": [],
+      "chain_id": 11155111,
+      "data": "0xa9059cbb000000000000000000000000dededededededededededededededededededede00000000000000000000000000000000000000000000000000000000000f4240",
+      "gas_limit": 65000,
+      "max_fee_per_gas": "21000000000",
+      "max_priority_fee_per_gas": "1000000000",
+      "nonce": 5,
+      "to": "0xc0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+      "type": "eip1559",
+      "value": "0"
+    },
+    "native_unsigned_bytes_hex": "02f87083aa36a705843b9aca008504e3b2920082fde894c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c080b844a9059cbb000000000000000000000000dededededededededededededededededededede00000000000000000000000000000000000000000000000000000000000f4240c0",
+    "signing_payload": {
+      "message_or_digest": "0xdfba9899659a14bb9156aaeaa789cc837fa38e787c7aaa0f9dccc4ca4da2da32",
+      "native_signing_context": "evm-type2-eip1559",
+      "payload_index": 0,
+      "required_key_id": "key-evm",
+      "scheme_id": "ecdsa_secp256k1_keccak256_prehashed"
+    },
+    "signing_payload_canonical_cbor_hex": "a569736368656d655f6964782365636473615f736563703235366b315f6b656363616b3235365f7072656861736865646d7061796c6f61645f696e646578006f72657175697265645f6b65795f6964676b65792d65766d716d6573736167655f6f725f6469676573745820dfba9899659a14bb9156aaeaa789cc837fa38e787c7aaa0f9dccc4ca4da2da32766e61746976655f7369676e696e675f636f6e746578747165766d2d74797065322d65697031353539",
+    "differential": "alloy-consensus =2.5.0 TxEip1559::encode_for_signing / signature_hash"
+  },
+  {
+    "name": "evm-eip1559-native-transfer",
+    "adapter_id": "evm",
+    "adapter_version": "0.1.0",
+    "verifier_build_hash_hex": "72d661478e50923f937939304088f002312e2953b55a672e2852def6452011a4",
+    "chain_profile": {
+      "accepted_trust_levels": [
+        "development_simulator"
+      ],
+      "accepted_versions": [
+        "eip1559-type2"
+      ],
+      "adapter_id": "evm",
+      "chain_profile_id": "evm-sepolia-v1",
+      "display_name": "Sepolia",
+      "finality_commitment": "finalized",
+      "finality_depth": 2,
+      "max_evidence_age_seconds": 120,
+      "network_binding": "0x0000000000aa36a7",
+      "network_id": "evm-11155111"
+    },
+    "input": {
+      "access_list": [],
+      "chain_id": 11155111,
+      "data": "0x",
+      "gas_limit": 21000,
+      "max_fee_per_gas": "21000000000",
+      "max_priority_fee_per_gas": "1000000000",
+      "nonce": 7,
+      "to": "0xdededededededededededededededededededede",
+      "type": "eip1559",
+      "value": "1000000000000000"
+    },
+    "native_unsigned_bytes_hex": "02f283aa36a707843b9aca008504e3b2920082520894dededededededededededededededededededede87038d7ea4c6800080c0",
+    "signing_payload": {
+      "message_or_digest": "0x36cb13466694aee7d438686a7f1071d4c57cff233b2832debf67a63a0ac7e0dd",
+      "native_signing_context": "evm-type2-eip1559",
+      "payload_index": 0,
+      "required_key_id": "key-evm",
+      "scheme_id": "ecdsa_secp256k1_keccak256_prehashed"
+    },
+    "signing_payload_canonical_cbor_hex": "a569736368656d655f6964782365636473615f736563703235366b315f6b656363616b3235365f7072656861736865646d7061796c6f61645f696e646578006f72657175697265645f6b65795f6964676b65792d65766d716d6573736167655f6f725f646967657374582036cb13466694aee7d438686a7f1071d4c57cff233b2832debf67a63a0ac7e0dd766e61746976655f7369676e696e675f636f6e746578747165766d2d74797065322d65697031353539",
+    "differential": "alloy-consensus =2.5.0 TxEip1559::encode_for_signing / signature_hash"
+  }
+]

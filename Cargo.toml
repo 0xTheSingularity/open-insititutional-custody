@@ -17,6 +17,11 @@ members = [
     "crates/crypto-provider-frost-ed25519",
     "crates/signer",
     "models/authorization-state-machine",
+    "services/broadcaster",
+    "tests/golden-vectors",
+    "services/builder",
+    "services/coordinator",
+    "apps/independent-approval-client",
 ]
 
 [workspace.package]
@@ -46,6 +51,8 @@ oic-adapter-sui = { path = "crates/adapter-sui" }
 oic-adapter-aptos = { path = "crates/adapter-aptos" }
 oic-adapter-xrpl = { path = "crates/adapter-xrpl" }
 oic-audit = { path = "crates/audit" }
+oic-chain-simulator = { path = "crates/chain-simulator" }
+oic-one-time-state-ledger = { path = "crates/one-time-state-ledger" }
 oic-service-builder = { path = "services/builder" }
 oic-service-coordinator = { path = "services/coordinator" }
 oic-service-broadcaster = { path = "services/broadcaster" }
@@ -102,6 +109,8 @@ bincode = { version = "=1.3.3" }
 solana-compute-budget-interface = { version = "=3.1.0" }
 spl-token-interface = { version = "=3.0.0" }
 spl-associated-token-account-interface = { version = "=2.0.0" }
+# JSON Schema validation of golden-vector inputs (tests/golden-vectors only)
+jsonschema = { version = "=0.58.6", default-features = false }
 
 [profile.release]
 lto = "thin"

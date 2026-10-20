@@ -1,0 +1,39 @@
+[package]
+name = "oic-approval-client"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Independent approval client: a pinned verifier that renders, approves, and audits exactly what signed objects authorize (RFC 0001 §4.3, RFC 0002 §8, A34/C15)"
+
+[lib]
+name = "oic_approval_client"
+path = "src/lib.rs"
+
+[[bin]]
+name = "oic-approve"
+path = "src/main.rs"
+
+[dependencies]
+oic-domain-types = { workspace = true }
+oic-policy-kernel = { workspace = true }
+oic-adapter-api = { workspace = true }
+oic-adapter-evm = { workspace = true }
+oic-adapter-solana = { workspace = true }
+oic-approval-verifier = { workspace = true }
+oic-authorization-state = { workspace = true }
+oic-signer = { workspace = true }
+ed25519-dalek = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+clap = { workspace = true }
+chacha20poly1305 = { workspace = true }
+hmac = { workspace = true }
+sha2 = { workspace = true }
+zeroize = { workspace = true }
+hex = { workspace = true }
+rand = { workspace = true }
+
+[dev-dependencies]
+oic-canonical-encoding = { workspace = true }
+k256 = { workspace = true }
+tempfile = { workspace = true }

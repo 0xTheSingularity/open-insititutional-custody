@@ -1,0 +1,51 @@
+[
+  {
+    "name": "workflow-trigger-deposit-accepted",
+    "domain": "OIC/WORKFLOW_TRIGGER/v1",
+    "type": "WorkflowTrigger",
+    "encoded_type": "WorkflowTrigger",
+    "producer": "oic_canonical_encoding::domain_hash (no dedicated producer)",
+    "input": {
+      "deposit_accepted": {
+        "movement_id": "mov-1"
+      }
+    },
+    "canonical_cbor_hex": "a1706465706f7369745f6163636570746564a16b6d6f76656d656e745f6964656d6f762d31",
+    "hash_hex": "25afbe6c627db8662a4ed0c53bd8aad461f1f01e3ab82d935590c9be5b3430a8"
+  },
+  {
+    "name": "workflow-trigger-balance-below-minimum",
+    "domain": "OIC/WORKFLOW_TRIGGER/v1",
+    "type": "WorkflowTrigger",
+    "encoded_type": "WorkflowTrigger",
+    "producer": "oic_canonical_encoding::domain_hash (no dedicated producer)",
+    "input": {
+      "balance_below_minimum": {
+        "asset_id": "sepolia-eth",
+        "chain_wallet_id": "wallet-evm",
+        "observed_state": {
+          "commitment": "finalized",
+          "hash": "0x5151515151515151515151515151515151515151515151515151515151515151",
+          "height": 1250
+        }
+      }
+    },
+    "canonical_cbor_hex": "a17562616c616e63655f62656c6f775f6d696e696d756da36861737365745f69646b7365706f6c69612d6574686e6f627365727665645f7374617465a3646861736858205151515151515151515151515151515151515151515151515151515151515151666865696768741904e26a636f6d6d69746d656e746966696e616c697a65646f636861696e5f77616c6c65745f69646a77616c6c65742d65766d",
+    "hash_hex": "5dd44795517ce2484c927b6fc5ccaf5490ce24a9384128cbfe7e46b4c5e7732b"
+  },
+  {
+    "name": "workflow-trigger-manual",
+    "domain": "OIC/WORKFLOW_TRIGGER/v1",
+    "type": "WorkflowTrigger",
+    "encoded_type": "WorkflowTrigger",
+    "producer": "oic_canonical_encoding::domain_hash (no dedicated producer)",
+    "input": {
+      "manual": {
+        "external_reference": "ops-2026-10-20",
+        "requested_by": "operator-1"
+      }
+    },
+    "canonical_cbor_hex": "a1666d616e75616ca26c7265717565737465645f62796a6f70657261746f722d317265787465726e616c5f7265666572656e63656e6f70732d323032362d31302d3230",
+    "hash_hex": "825de91c8045d6a6e0030d55f91f6816037bdef9aaeccca594f93791ed3f6674"
+  }
+]

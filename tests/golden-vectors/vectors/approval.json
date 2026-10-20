@@ -1,0 +1,81 @@
+[
+  {
+    "name": "grant-exact-candidate",
+    "domain": "OIC/APPROVAL/v1",
+    "type": "ApprovalGrantBody",
+    "encoded_type": "ApprovalGrantBody",
+    "producer": "oic_approval_verifier::grant_signing_hash",
+    "input": {
+      "approver_credential_id": "approver-1",
+      "approver_role": "treasury_approver",
+      "environment_id": "dev",
+      "expires_at": 1700003620,
+      "grant_id": "grant-0",
+      "institution_id": "inst",
+      "intent_hash": "7a58bab859cac5451591ecd182098fa32a34a9768a3784b674e963dfb89ee6aa",
+      "intent_id": "intent-1",
+      "issued_at": 1700000000,
+      "policy_epoch": 1,
+      "policy_id": "pol-1",
+      "scope": {
+        "exact_candidate": {
+          "candidate_id": "cand-1",
+          "candidate_revision": 1,
+          "preview_hash": "331035081a92a779e82a1382ad312fe3eb02eac22f65fc6fcaa5c741bcc65035"
+        }
+      },
+      "vault_id": "vault-1"
+    },
+    "canonical_cbor_hex": "ad6573636f7065a16f65786163745f63616e646964617465a36c63616e6469646174655f69646663616e642d316c707265766965775f686173685820331035081a92a779e82a1382ad312fe3eb02eac22f65fc6fcaa5c741bcc650357263616e6469646174655f7265766973696f6e01686772616e745f6964676772616e742d30687661756c745f6964677661756c742d3169696e74656e745f696468696e74656e742d31696973737565645f61741a6553f10069706f6c6963795f696465706f6c2d316a657870697265735f61741a6553ff246b696e74656e745f6861736858207a58bab859cac5451591ecd182098fa32a34a9768a3784b674e963dfb89ee6aa6c706f6c6963795f65706f6368016d617070726f7665725f726f6c657174726561737572795f617070726f7665726e656e7669726f6e6d656e745f6964636465766e696e737469747574696f6e5f696464696e737476617070726f7665725f63726564656e7469616c5f69646a617070726f7665722d31",
+    "hash_hex": "0ddff59d3684f5e26bc4e108d3f5cb91a03a664e18690a742de85b49ace66901",
+    "ed25519": {
+      "public_key_hex": "70df9e2279adbec6d12bf2921184c9222eb24ed852005bf640139f52e59cd9ae",
+      "signature_hex": "eb56816a6d3dd790a51c196cbe747a6b0c39574af08cb44e23e80188e182f7a09b794abdcc2958b8e2d0fd8c5172d696adc1956db4f172eb7846662d138a790a"
+    }
+  },
+  {
+    "name": "grant-bounded-direct-transfer",
+    "domain": "OIC/APPROVAL/v1",
+    "type": "ApprovalGrantBody",
+    "encoded_type": "ApprovalGrantBody",
+    "producer": "oic_approval_verifier::grant_signing_hash",
+    "input": {
+      "approver_credential_id": "approver-2",
+      "approver_role": "security_approver",
+      "environment_id": "dev",
+      "expires_at": 1700003620,
+      "grant_id": "grant-sol-0",
+      "institution_id": "inst",
+      "intent_hash": "baedc13c525929e874b8aac699b8c78156e6f3226f25d7798d33cf90a8c6a497",
+      "intent_id": "intent-sol-1",
+      "issued_at": 1700000000,
+      "policy_epoch": 1,
+      "policy_id": "pol-1",
+      "scope": {
+        "bounded_direct_transfer": {
+          "template": {
+            "amount_base_units": "1000000",
+            "asset_id": "devnet-sol",
+            "chain_wallet_id": "wallet-sol",
+            "destination_address": "0xc853ad0f0cd2b619aea92ceec4fd56a24d6499d584ce79257e45cfd8139b60a7",
+            "destination_id": "dest-sol",
+            "destination_version": 2,
+            "fillable": [
+              "solana_recent_blockhash"
+            ],
+            "max_native_fee_base_units": "10000000",
+            "maximum_successful_payments": 1,
+            "network_id": "solana-devnet"
+          }
+        }
+      },
+      "vault_id": "vault-1"
+    },
+    "canonical_cbor_hex": "ad6573636f7065a177626f756e6465645f6469726563745f7472616e73666572a16874656d706c617465aa6861737365745f69646a6465766e65742d736f6c6866696c6c61626c658177736f6c616e615f726563656e745f626c6f636b686173686a6e6574776f726b5f69646d736f6c616e612d6465766e65746e64657374696e6174696f6e5f696468646573742d736f6c6f636861696e5f77616c6c65745f69646a77616c6c65742d736f6c71616d6f756e745f626173655f756e69747367313030303030307364657374696e6174696f6e5f616464726573735820c853ad0f0cd2b619aea92ceec4fd56a24d6499d584ce79257e45cfd8139b60a77364657374696e6174696f6e5f76657273696f6e0278196d61785f6e61746976655f6665655f626173655f756e697473683130303030303030781b6d6178696d756d5f7375636365737366756c5f7061796d656e747301686772616e745f69646b6772616e742d736f6c2d30687661756c745f6964677661756c742d3169696e74656e745f69646c696e74656e742d736f6c2d31696973737565645f61741a6553f10069706f6c6963795f696465706f6c2d316a657870697265735f61741a6553ff246b696e74656e745f686173685820baedc13c525929e874b8aac699b8c78156e6f3226f25d7798d33cf90a8c6a4976c706f6c6963795f65706f6368016d617070726f7665725f726f6c657173656375726974795f617070726f7665726e656e7669726f6e6d656e745f6964636465766e696e737469747574696f6e5f696464696e737476617070726f7665725f63726564656e7469616c5f69646a617070726f7665722d32",
+    "hash_hex": "421e77f0317dc8244651af85fd39128dad4d699c7bbd8758e706baab35e0a934",
+    "ed25519": {
+      "public_key_hex": "f95c6a5dff031fac7b1a6a54b6610caeb83b39f7e8a66be16ff5faa4a511ed2d",
+      "signature_hex": "d2764ce60fffe9f367f7ffffe2246124204a8873c52e1314a6a47b4d5495b2ee8444bcac2394f1432c4028122f55c3d5fa0c2beaca35bc4119efe97540ea0e01"
+    }
+  }
+]

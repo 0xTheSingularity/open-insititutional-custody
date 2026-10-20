@@ -1,0 +1,15 @@
+[
+  {
+    "name": "audit-object-reservation",
+    "domain": "OIC/AUDIT_OBJECT/v1",
+    "type": "AuditObjectPreimage",
+    "encoded_type": "AuditObjectPreimage",
+    "producer": "oic_audit::object_commitment",
+    "input": [
+      "reservation",
+      "res-fbb7b2ca5592eb8ef5ebde1987ae7953"
+    ],
+    "canonical_cbor_hex": "826b7265736572766174696f6e78247265732d6662623762326361353539326562386566356562646531393837616537393533",
+    "hash_hex": "cce9d4418c3353eea086e343d0cf8cb45a5c27ee7f41d5fba2aa77948e371cb2"
+  }
+]

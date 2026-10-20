@@ -1,0 +1,28 @@
+[
+  {
+    "name": "public-key-secp256k1-compressed",
+    "domain": "OIC/PUBLIC_KEY/v1",
+    "type": "PublicKey",
+    "encoded_type": "PublicKey",
+    "producer": "oic_signer::public_key_hash",
+    "input": {
+      "bytes": "0x027dabe4c72b4e3b0a4c9582bfa9a8f35cce6cb3679e9e31e3544b995b8f779a74",
+      "scheme": "ecdsa_secp256k1_keccak256_prehashed"
+    },
+    "canonical_cbor_hex": "a26562797465735821027dabe4c72b4e3b0a4c9582bfa9a8f35cce6cb3679e9e31e3544b995b8f779a7466736368656d65782365636473615f736563703235366b315f6b656363616b3235365f707265686173686564",
+    "hash_hex": "4dc0d1cffdf54762dc73795a6bb72d44f990b283d37ba0ecdff21f2385b54e19"
+  },
+  {
+    "name": "public-key-ed25519",
+    "domain": "OIC/PUBLIC_KEY/v1",
+    "type": "PublicKey",
+    "encoded_type": "PublicKey",
+    "producer": "oic_signer::public_key_hash",
+    "input": {
+      "bytes": "0x0d7550754e0800a5d237eef5826035766b9b3e5a15868a940ab289958788e3b0",
+      "scheme": "ed25519_pure"
+    },
+    "canonical_cbor_hex": "a265627974657358200d7550754e0800a5d237eef5826035766b9b3e5a15868a940ab289958788e3b066736368656d656c656432353531395f70757265",
+    "hash_hex": "857a4b04ad79ec9603feeb495e7153094c00884adc890ed15856f93a557fe3c3"
+  }
+]

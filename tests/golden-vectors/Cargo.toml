@@ -1,0 +1,38 @@
+[package]
+name = "oic-golden-vectors"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Golden vectors, JSON Schemas, and executable conformance tests for the OIC authorization protocol v1 (spec/protocol-v1.md)"
+publish = false
+
+[dependencies]
+oic-domain-types = { workspace = true }
+oic-canonical-encoding = { workspace = true }
+oic-policy-kernel = { workspace = true }
+oic-adapter-api = { workspace = true }
+oic-authorization-state = { workspace = true }
+oic-approval-verifier = { workspace = true }
+oic-audit = { workspace = true }
+oic-signer = { workspace = true }
+ed25519-dalek = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+hex = { workspace = true }
+
+[dev-dependencies]
+oic-crypto-provider = { workspace = true }
+oic-crypto-provider-dev = { workspace = true }
+oic-one-time-state-ledger = { workspace = true }
+oic-adapter-evm = { workspace = true }
+oic-adapter-solana = { workspace = true }
+rand_core = { workspace = true }
+alloy-consensus = { workspace = true }
+alloy-primitives = { workspace = true }
+solana-message = { workspace = true }
+solana-transaction = { workspace = true }
+solana-signer = { workspace = true }
+solana-keypair = { workspace = true }
+bincode = { workspace = true }
+jsonschema = { workspace = true }

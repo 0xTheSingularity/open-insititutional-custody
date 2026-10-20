@@ -1,0 +1,72 @@
+[
+  {
+    "name": "intent-evm-erc20-exact-candidate",
+    "domain": "OIC/INTENT/v1",
+    "type": "Intent",
+    "encoded_type": "Intent",
+    "producer": "oic_policy_kernel::intent_hash",
+    "input": {
+      "chain_profile_id": "evm-sepolia-v1",
+      "chain_wallet_id": "wallet-evm",
+      "constraints": {
+        "approval_mode": "exact_candidate",
+        "max_network_fee_base_units": "10000000000000000",
+        "maximum_successful_payments": 1
+      },
+      "created_at": 1699999900,
+      "environment_id": "dev",
+      "external_reference": "ref",
+      "institution_id": "inst",
+      "intent_id": "intent-1",
+      "operation": {
+        "asset_transfer": {
+          "amount_base_units": "1000000",
+          "asset_id": "sepolia-usdc",
+          "destination_id": "dest-1",
+          "destination_version": 3
+        }
+      },
+      "proposer_credential_id": "proposer-1",
+      "purpose": "settlement",
+      "schema_version": 1,
+      "vault_id": "vault-1"
+    },
+    "canonical_cbor_hex": "ad67707572706f73656a736574746c656d656e74687661756c745f6964677661756c742d3169696e74656e745f696468696e74656e742d31696f7065726174696f6ea16e61737365745f7472616e73666572a46861737365745f69646c7365706f6c69612d757364636e64657374696e6174696f6e5f696466646573742d3171616d6f756e745f626173655f756e69747367313030303030307364657374696e6174696f6e5f76657273696f6e036a637265617465645f61741a6553f09c6b636f6e73747261696e7473a36d617070726f76616c5f6d6f64656f65786163745f63616e646964617465781a6d61785f6e6574776f726b5f6665655f626173655f756e697473713130303030303030303030303030303030781b6d6178696d756d5f7375636365737366756c5f7061796d656e7473016e656e7669726f6e6d656e745f6964636465766e696e737469747574696f6e5f696464696e73746e736368656d615f76657273696f6e016f636861696e5f77616c6c65745f69646a77616c6c65742d65766d70636861696e5f70726f66696c655f69646e65766d2d7365706f6c69612d76317265787465726e616c5f7265666572656e6365637265667670726f706f7365725f63726564656e7469616c5f69646a70726f706f7365722d31",
+    "hash_hex": "7a58bab859cac5451591ecd182098fa32a34a9768a3784b674e963dfb89ee6aa"
+  },
+  {
+    "name": "intent-solana-sol-bounded-transfer",
+    "domain": "OIC/INTENT/v1",
+    "type": "Intent",
+    "encoded_type": "Intent",
+    "producer": "oic_policy_kernel::intent_hash",
+    "input": {
+      "chain_profile_id": "solana-devnet-v1",
+      "chain_wallet_id": "wallet-sol",
+      "constraints": {
+        "approval_mode": "bounded_direct_transfer",
+        "max_network_fee_base_units": "10000000",
+        "maximum_successful_payments": 1
+      },
+      "created_at": 1699999900,
+      "environment_id": "dev",
+      "external_reference": "ref",
+      "institution_id": "inst",
+      "intent_id": "intent-sol-1",
+      "operation": {
+        "asset_transfer": {
+          "amount_base_units": "1000000",
+          "asset_id": "devnet-sol",
+          "destination_id": "dest-sol",
+          "destination_version": 2
+        }
+      },
+      "proposer_credential_id": "proposer-1",
+      "purpose": "settlement",
+      "schema_version": 1,
+      "vault_id": "vault-1"
+    },
+    "canonical_cbor_hex": "ad67707572706f73656a736574746c656d656e74687661756c745f6964677661756c742d3169696e74656e745f69646c696e74656e742d736f6c2d31696f7065726174696f6ea16e61737365745f7472616e73666572a46861737365745f69646a6465766e65742d736f6c6e64657374696e6174696f6e5f696468646573742d736f6c71616d6f756e745f626173655f756e69747367313030303030307364657374696e6174696f6e5f76657273696f6e026a637265617465645f61741a6553f09c6b636f6e73747261696e7473a36d617070726f76616c5f6d6f646577626f756e6465645f6469726563745f7472616e73666572781a6d61785f6e6574776f726b5f6665655f626173655f756e697473683130303030303030781b6d6178696d756d5f7375636365737366756c5f7061796d656e7473016e656e7669726f6e6d656e745f6964636465766e696e737469747574696f6e5f696464696e73746e736368656d615f76657273696f6e016f636861696e5f77616c6c65745f69646a77616c6c65742d736f6c70636861696e5f70726f66696c655f696470736f6c616e612d6465766e65742d76317265787465726e616c5f7265666572656e6365637265667670726f706f7365725f63726564656e7469616c5f69646a70726f706f7365722d31",
+    "hash_hex": "baedc13c525929e874b8aac699b8c78156e6f3226f25d7798d33cf90a8c6a497"
+  }
+]

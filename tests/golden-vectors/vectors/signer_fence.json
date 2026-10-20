@@ -1,0 +1,26 @@
+[
+  {
+    "name": "signer-fence-key",
+    "domain": "OIC/SIGNER_FENCE/v1",
+    "type": "ParticipantId",
+    "encoded_type": "ParticipantId",
+    "producer": "oic_signer (private fence_key)",
+    "input": "signer-1",
+    "canonical_cbor_hex": "687369676e65722d31",
+    "hash_hex": "0d67f59d1588028938966e52a6ed3cb42c7b0cdfc6297f40ea6cfb8d0d8eec85",
+    "derived_id": "oic-signer-fence/0d67f59d1588028938966e52a6ed3cb4"
+  },
+  {
+    "name": "signer-abort-sentinel",
+    "domain": "OIC/SIGNER_FENCE/v1",
+    "type": "SessionAbortPreimage",
+    "encoded_type": "SessionAbortPreimage",
+    "producer": "oic_signer (private abort_sentinel)",
+    "input": [
+      "session-abort",
+      "session-evm-1"
+    ],
+    "canonical_cbor_hex": "826d73657373696f6e2d61626f72746d73657373696f6e2d65766d2d31",
+    "hash_hex": "af0c41630b2e2be154beaf7c6c0f08fac6a11acca77564cf302c934a635d31fe"
+  }
+]

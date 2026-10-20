@@ -1,0 +1,31 @@
+[package]
+name = "oic-service-coordinator"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Untrusted signing coordinator: reserve, signer sessions, backend message relay, release, aggregation, and a durable operation lifecycle log (RFC 0001 §1.1, §5.4, §6.4, §12)"
+
+[dependencies]
+oic-domain-types = { workspace = true }
+oic-canonical-encoding = { workspace = true }
+oic-adapter-api = { workspace = true }
+oic-policy-kernel = { workspace = true }
+oic-authorization-state = { workspace = true }
+oic-crypto-provider = { workspace = true }
+oic-crypto-provider-dev = { workspace = true }
+oic-crypto-provider-frost-ed25519 = { workspace = true }
+oic-signer = { workspace = true }
+oic-service-builder = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+parking_lot = { workspace = true }
+uuid = { workspace = true }
+
+[dev-dependencies]
+oic-adapter-evm = { workspace = true }
+oic-adapter-solana = { workspace = true }
+oic-approval-verifier = { workspace = true }
+oic-chain-simulator = { workspace = true }
+oic-one-time-state-ledger = { workspace = true }
+ed25519-dalek = { workspace = true }
+tempfile = { workspace = true }

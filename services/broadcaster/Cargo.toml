@@ -1,0 +1,24 @@
+[package]
+name = "oic-service-broadcaster"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Broadcaster service: durable submission records, multi-source cross-checked chain observation, and invalidation proofs fed to the authorization-state authority (RFC 0001 §12, A18, A30, A31)"
+
+[dependencies]
+oic-domain-types = { workspace = true }
+oic-canonical-encoding = { workspace = true }
+oic-adapter-api = { workspace = true }
+oic-adapter-evm = { workspace = true }
+oic-adapter-solana = { workspace = true }
+oic-authorization-state = { workspace = true }
+oic-chain-simulator = { workspace = true }
+parking_lot = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+oic-policy-kernel = { workspace = true }
+ed25519-dalek = { workspace = true }
+k256 = { workspace = true }
+tempfile = { workspace = true }

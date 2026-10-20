@@ -1,0 +1,25 @@
+[package]
+name = "oic-service-builder"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Builder service core: evidence acquisition, deterministic candidate construction, verification, policy evaluation, and authorization-envelope bodies (RFC 0001 §1.1, §3.3, §3.4, §4.1)"
+
+[dependencies]
+oic-domain-types = { workspace = true }
+oic-adapter-api = { workspace = true }
+oic-adapter-evm = { workspace = true }
+oic-adapter-solana = { workspace = true }
+oic-policy-kernel = { workspace = true }
+oic-authorization-state = { workspace = true }
+oic-approval-verifier = { workspace = true }
+oic-signer = { workspace = true }
+oic-chain-simulator = { workspace = true }
+serde = { workspace = true }
+
+[dev-dependencies]
+oic-crypto-provider = { workspace = true }
+oic-crypto-provider-dev = { workspace = true }
+oic-crypto-provider-frost-ed25519 = { workspace = true }
+oic-one-time-state-ledger = { workspace = true }
+ed25519-dalek = { workspace = true }

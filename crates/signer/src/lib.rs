@@ -346,6 +346,11 @@ impl Signer {
         self.generation
     }
 
+    /// This instance's participant identity (configured at open).
+    pub fn identity(&self) -> &SignerIdentity {
+        &self.identity
+    }
+
     /// Load this participant's sealed share for a key and tombstone every
     /// unconsumed one-time record of older generations for it.
     pub fn load_key(&self, descriptor: &KeyDescriptor, sealed_share: &Bytes) -> OicResult<()> {

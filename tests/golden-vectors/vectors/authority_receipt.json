@@ -1,0 +1,62 @@
+[
+  {
+    "name": "receipt-reserved",
+    "domain": "OIC/AUTHORITY_RECEIPT/v1",
+    "type": "AuthorityReceiptBody",
+    "encoded_type": "AuthorityReceiptBody",
+    "producer": "oic_authorization_state::receipt_hash",
+    "input": {
+      "authority_epoch": 1,
+      "candidate_id": "cand-1",
+      "candidate_revision": 1,
+      "commit_sequence": 4,
+      "envelope_body_hash": "0e4fd0a684f51d80375f857ae707d262d1d521be8b7f9b2bb5d563ee2bb88905",
+      "environment_id": "dev",
+      "expires_at": 1700000320,
+      "freeze_epoch": 0,
+      "institution_id": "inst",
+      "issued_at": 1700000020,
+      "kind": "reserved",
+      "policy_epoch": 1,
+      "reservation_id": "res-fbb7b2ca5592eb8ef5ebde1987ae7953",
+      "reservation_version": 1,
+      "signer_session_id": "session-evm-1"
+    },
+    "canonical_cbor_hex": "af646b696e64687265736572766564696973737565645f61741a6553f1146a657870697265735f61741a6553f2406c63616e6469646174655f69646663616e642d316c667265657a655f65706f6368006c706f6c6963795f65706f6368016e656e7669726f6e6d656e745f6964636465766e696e737469747574696f6e5f696464696e73746e7265736572766174696f6e5f696478247265732d66626237623263613535393265623865663565626465313938376165373935336f617574686f726974795f65706f6368016f636f6d6d69745f73657175656e636504717369676e65725f73657373696f6e5f69646d73657373696f6e2d65766d2d317263616e6469646174655f7265766973696f6e0172656e76656c6f70655f626f64795f6861736858200e4fd0a684f51d80375f857ae707d262d1d521be8b7f9b2bb5d563ee2bb88905737265736572766174696f6e5f76657273696f6e01",
+    "hash_hex": "b4152e664604c0e20319c7b4bb5e3b4998ffd377f317907701abe6fdd78fa966",
+    "ed25519": {
+      "public_key_hex": "197f6b23e16c8532c6abc838facd5ea789be0c76b2920334039bfa8b3d368d61",
+      "signature_hex": "510bcbeb852bfdaabc7527c6c7eca01e92f96f8c4933cdb5814b6b4636a2c4fe841b3e81308444c1fadda228f14601afb58d1d5a319bd3c66f44a0df6b2ffb02"
+    }
+  },
+  {
+    "name": "receipt-release",
+    "domain": "OIC/AUTHORITY_RECEIPT/v1",
+    "type": "AuthorityReceiptBody",
+    "encoded_type": "AuthorityReceiptBody",
+    "producer": "oic_authorization_state::receipt_hash",
+    "input": {
+      "authority_epoch": 1,
+      "candidate_id": "cand-1",
+      "candidate_revision": 1,
+      "commit_sequence": 5,
+      "envelope_body_hash": "0e4fd0a684f51d80375f857ae707d262d1d521be8b7f9b2bb5d563ee2bb88905",
+      "environment_id": "dev",
+      "expires_at": 1700000080,
+      "freeze_epoch": 0,
+      "institution_id": "inst",
+      "issued_at": 1700000020,
+      "kind": "release",
+      "policy_epoch": 1,
+      "reservation_id": "res-fbb7b2ca5592eb8ef5ebde1987ae7953",
+      "reservation_version": 1,
+      "signer_session_id": "session-evm-1"
+    },
+    "canonical_cbor_hex": "af646b696e646772656c65617365696973737565645f61741a6553f1146a657870697265735f61741a6553f1506c63616e6469646174655f69646663616e642d316c667265657a655f65706f6368006c706f6c6963795f65706f6368016e656e7669726f6e6d656e745f6964636465766e696e737469747574696f6e5f696464696e73746e7265736572766174696f6e5f696478247265732d66626237623263613535393265623865663565626465313938376165373935336f617574686f726974795f65706f6368016f636f6d6d69745f73657175656e636505717369676e65725f73657373696f6e5f69646d73657373696f6e2d65766d2d317263616e6469646174655f7265766973696f6e0172656e76656c6f70655f626f64795f6861736858200e4fd0a684f51d80375f857ae707d262d1d521be8b7f9b2bb5d563ee2bb88905737265736572766174696f6e5f76657273696f6e01",
+    "hash_hex": "33747ff1ebd81634fa6543f497a6c04d01ce7a65df39750f5e7b002b507e884f",
+    "ed25519": {
+      "public_key_hex": "197f6b23e16c8532c6abc838facd5ea789be0c76b2920334039bfa8b3d368d61",
+      "signature_hex": "bcb860dc3efecd778bda2bcec3730a9be9e6d3350a21ccff5d0fc1d8f953aa7d118b9a811b2484eebdb3caf6f75beb6949541d7c0fa5c93a05dd84e060ef1e08"
+    }
+  }
+]

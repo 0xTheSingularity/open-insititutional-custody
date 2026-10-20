@@ -334,16 +334,23 @@ fn matches_list<T: PartialEq>(list: &[T], v: &T) -> bool {
 /// First rule (in bundle order) whose vault/asset/destination/purpose scope
 /// matches. Empty lists match anything.
 fn select_rule<'p>(input: &PolicyInput<'p>) -> Result<&'p PolicyRule, Vec<ReasonCode>> {
-    let (asset_id, _, destination_id, _) = intent_transfer(input.intent);
+    match_rule(input.policy, &input.vault.vault_id, input.intent)
+}
+
+/// The rule [`evaluate`] would consult for `intent` in `vault_id`: the first
+/// rule (in bundle order) whose vault/asset/destination/purpose scope
+/// matches, with the same reasons on failure. Performs no binding, hard
+/// denial, limit, or approval check; callers use it to explain what a policy
+/// requires (e.g. which approvals are still missing), never to decide.
+pub fn match_rule<'p>(policy: &'p PolicyBundle, vault_id: &VaultId, intent: &Intent) -> Result<&'p PolicyRule, Vec<ReasonCode>> {
+    let (asset_id, _, destination_id, _) = intent_transfer(intent);
     let mut purpose_blocked = false;
-    for rule in &input.policy.rules {
-        let scope = matches_list(&rule.vaults, &input.vault.vault_id)
-            && matches_list(&rule.assets, asset_id)
-            && matches_list(&rule.destinations, destination_id);
+    for rule in &policy.rules {
+        let scope = matches_list(&rule.vaults, vault_id) && matches_list(&rule.assets, asset_id) && matches_list(&rule.destinations, destination_id);
         if !scope {
             continue;
         }
-        if matches_list(&rule.purposes, &input.intent.purpose) {
+        if matches_list(&rule.purposes, &intent.purpose) {
             return Ok(rule);
         }
         purpose_blocked = true;

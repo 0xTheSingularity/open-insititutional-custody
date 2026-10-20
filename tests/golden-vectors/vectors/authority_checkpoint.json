@@ -1,0 +1,22 @@
+[
+  {
+    "name": "authority-checkpoint",
+    "domain": "OIC/AUTHORITY_CHECKPOINT/v1",
+    "type": "CheckpointBody",
+    "encoded_type": "CheckpointBody",
+    "producer": "oic_authorization_state::checkpoint_hash",
+    "input": {
+      "authority_epoch": 1,
+      "commit_sequence": 2,
+      "environment_id": "dev",
+      "institution_id": "inst",
+      "state_hash": "3a2b022918caa323ac2511a677214ee9dcf5c1320a34b09aaaf24a1956d5a506"
+    },
+    "canonical_cbor_hex": "a56a73746174655f6861736858203a2b022918caa323ac2511a677214ee9dcf5c1320a34b09aaaf24a1956d5a5066e656e7669726f6e6d656e745f6964636465766e696e737469747574696f6e5f696464696e73746f617574686f726974795f65706f6368016f636f6d6d69745f73657175656e636502",
+    "hash_hex": "a1b991f3615a332e84569c8caf4b2faa883d0210b9d4c411c271a72c7f1b86b3",
+    "ed25519": {
+      "public_key_hex": "197f6b23e16c8532c6abc838facd5ea789be0c76b2920334039bfa8b3d368d61",
+      "signature_hex": "964cb4db84e34866cc170041e1bbefb798f058ecff5b625768503402f2f48bdba3e272cd02de3341458a7aa9b8c04207acfae636b29aa819850a4cf19566cf05"
+    }
+  }
+]
