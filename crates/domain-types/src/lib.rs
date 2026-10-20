@@ -10,11 +10,13 @@
 pub mod errors;
 pub mod ids;
 pub mod objects;
+pub mod operations;
 pub mod primitives;
 
 pub use errors::*;
 pub use ids::*;
 pub use objects::*;
+pub use operations::*;
 pub use primitives::*;
 
 /// Domain-separation tags for internal commitments (§3.2). These are never

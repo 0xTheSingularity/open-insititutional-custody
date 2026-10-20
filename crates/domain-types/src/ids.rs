@@ -84,6 +84,18 @@ id_type!(#[doc = "Chain transaction identity (hash / signature) as the chain pre
 id_type!(#[doc = "Audit event identity."] AuditEventId);
 id_type!(#[doc = "Evidence source identity (node, provider)."] EvidenceSourceId);
 id_type!(#[doc = "Signer instance generation / fencing token issuer."] SignerInstanceId);
+// RFC 0002 operational objects.
+id_type!(#[doc = "Deposit address lifecycle record (RFC 0002 §4)."] DepositAddressId);
+id_type!(#[doc = "One observed chain movement (RFC 0002 §4)."] MovementId);
+id_type!(#[doc = "Indexer cursor per chain profile (RFC 0002 §4)."] CursorId);
+id_type!(#[doc = "Backfill job over a height range (RFC 0002 §4)."] BackfillJobId);
+id_type!(#[doc = "Deposit or reconciliation exception case (RFC 0002 §4, §6)."] CaseId);
+id_type!(#[doc = "Reconciliation checkpoint (RFC 0002 §6)."] CheckpointId);
+id_type!(#[doc = "Immutable journal entry (RFC 0002 §6)."] JournalEntryId);
+id_type!(#[doc = "Workflow instance above the intent API (RFC 0002 §5)."] WorkflowId);
+id_type!(#[doc = "Durable workflow trigger identity (RFC 0002 §5)."] TriggerId);
+id_type!(#[doc = "Webhook subscription (RFC 0001 §13.4)."] WebhookSubscriptionId);
+id_type!(#[doc = "Lifecycle/webhook event identity (RFC 0001 §13.4)."] EventId);
 
 /// Monotonic epoch counter used for keys, policies, and signer generations.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize, Default)]
