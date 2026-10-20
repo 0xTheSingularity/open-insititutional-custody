@@ -13,6 +13,21 @@ done_step() {
 	echo "    done in ${SECONDS}s"
 }
 
+# Native crates need a C compiler, archiver, and linker. Avoid refreshing apt on
+# warm snapshots when all prerequisites are already installed.
+step "System build prerequisites"
+missing_packages=()
+for package in build-essential ca-certificates curl; do
+	if ! dpkg-query -W -f='${Status}' "$package" 2>/dev/null | grep -qx 'install ok installed'; then
+		missing_packages+=("$package")
+	fi
+done
+if ((${#missing_packages[@]})); then
+	sudo apt-get update
+	sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${missing_packages[@]}"
+fi
+done_step
+
 # Rust toolchain (spec §15.1: core crates are Rust).
 step "Rust toolchain"
 if [ ! -x "$HOME/.cargo/bin/rustup" ]; then
@@ -27,6 +42,7 @@ fi
 if [ -f rust-toolchain.toml ] || [ -f rust-toolchain ]; then
 	rustup toolchain install
 fi
+rustup component add rustfmt clippy
 rustc --version
 cargo --version
 done_step
@@ -37,4 +53,11 @@ cargo_env_line='. "$HOME/.cargo/env"'
 for rc in "$HOME/.bash_profile" "$HOME/.bashrc"; do
 	grep -Fqx "$cargo_env_line" "$rc" 2>/dev/null || printf '\n%s\n' "$cargo_env_line" >>"$rc"
 done
+done_step
+
+# Cargo's own cache checks are cheap on warm snapshots. Fetch test dependencies
+# too, without changing Cargo.lock or paying for a full workspace compilation at
+# startup. Amp snapshots the registry cache along with the installed toolchain.
+step "Locked workspace dependencies"
+cargo fetch --locked
 done_step

@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# No services or authentication are needed: chains run in process in the tests.
+# Check the restored toolchain/cache without network access or installations.
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+# shellcheck disable=SC1091
+. "$HOME/.cargo/env"
+
+cargo metadata --locked --offline --format-version 1 >/dev/null
+echo "Rust workspace ready (locked dependencies available offline)."

@@ -4,6 +4,29 @@ Use the root [`Cargo.toml`](../Cargo.toml) to identify implemented workspace
 members. Start from a focused test when changing behavior, then run the full
 workspace suite before handing off a code change.
 
+## Amp orbs
+
+The executable [setup hook](../.agents/setup) installs missing native build tools,
+Rust stable (or the repository's pinned toolchain when present), rustfmt, and clippy.
+It downloads all locked workspace dependencies, including test dependencies, into
+Cargo's registry cache so Amp can include them in project snapshots. Warm setup
+runs reuse the installed tools and Cargo cache without custom cache markers.
+
+The [resume hook](../.agents/resume) checks that Cargo can resolve the workspace
+offline. It does not install dependencies or contact external services. No database,
+RPC credentials, environment files, or persistent development servers are required.
+
+To check the hooks manually from the repository root:
+
+```sh
+.agents/setup
+.agents/resume
+cargo test --workspace --locked --offline
+```
+
+Setup caches downloads, not compiled build output; the first build still compiles.
+Keep setup changes on the project's default branch so future orbs receive them.
+
 ## Workspace map
 
 Start with the [coordinator integration test](../services/coordinator/tests/coordinator.rs)
