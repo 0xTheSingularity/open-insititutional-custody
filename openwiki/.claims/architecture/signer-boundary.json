@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:1649b2772bfe23be00c90108e23a791c13f4cd5a4275b7ded0c165d5b6d79f44",
+  "claims": [
+    {
+      "id": "claim_365517fe8d72421ca2de89ea9ada8e0a",
+      "statement": "Signer trust roots independently enroll authority, administrative and approver keys, accepted adapter verifier builds and chain profiles.",
+      "evidence": [
+        {
+          "resource": "repo://crates/signer/src/lib.rs#L154-L173",
+          "version": "repo-lines-v1:sha256:7fabf5761c5f55e91917828c44b637651996654d5ada25b41ed8b4b9884b1187:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjljNzQ4MWIyYmRjOGE0NDliNWU3YTVjYmM2ZThiMGU1YTliNmRjMmFlZWNlOTJkMzk0ZDg2YWQzZTNhMjQ5YmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkMWM2NWMwZDY3ZmZlNmFlMjliN2EyOWY2YTRhMGM2NWVjN2RiODFiNmM1ZDZmYWZhYmRhODZmNTBmZDAyYmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU0ZTYzOWQ1NTU1NTc5Y2JlN2I0ZGQ2MmRmM2YwM2YzY2ZjZDhkYzNkY2JhNzQwZmYwOTVkYzFjMjRmOTNmZGQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3dc579e6c8bc4cb08e440e67caabe6a2",
+      "statement": "Envelope verification independently checks scope, profiles, adapter builds, policy and destination quorums, grants, decoded native claims, local policy, reserved receipt and exactly one backend payload.",
+      "evidence": [
+        {
+          "resource": "repo://crates/signer/src/verify.rs#L90-L307",
+          "version": "repo-lines-v1:sha256:53bebd2f028011905796b1e9eb892a608bef0748cfe93a88805414092ccb4c7c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjE4LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI2NDA4ODAwYmUwODEzYzg4NTA2NDE5NGVmNjE2Y2VmMmM0YzJjZDE4MGFmMDUwMjIyNjlkMzFlZmFlYmRmZjlkIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIwYTJmMjViZjAxZTBmZmUwNTIyYTg2NzBhM2QyM2FjYThmNDI5OWJjODQ0Y2ZlOTE1MmUwODJkZjViYThkMDU4IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI1ZDgyZWM1ODFjZWY1MDFlOGUwMTA3MzZhYTFlNjk2ZGVlZmZjYmVjMDE1ZDI3ZjFmZGJkYzQ3NmRiMGRmZmFkIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIxOWU3NjM1NWNmMTE5OTQ4MGMzZjk5ODM2YjE0ODZjODQxZDg5MWZhYWQ5MDRjNjA4ZTA5MzAyMmQzNzU3YWVlIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_370b93ee320a4ea9aec04a6bc0a77ce6",
+      "statement": "Signer policy evaluation uses zero prior exposure per declared window and delegates cumulative exposure enforcement to the authority receipt.",
+      "evidence": [
+        {
+          "resource": "repo://crates/signer/src/verify.rs#L324-L338",
+          "version": "repo-lines-v1:sha256:b848ce54bae8094141b5cf8c74afb4a193c094f31f30244cb81188c545568515:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzNmU0MWZkYWI2OWVhZjg5ZGQwMGNmMWE1N2Y2Mjg4ZWU3ZDNjYjIxNTI1NjM1OGM0NTJhMWY3NDA5NTc2ZjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg1MDJiNzMwNWExMzUzMzliYTFkOTFiZDcyMTFhODMyZDI3MmY3MDNkYmIwYjVjOTZkNGE2ZTQ0ZDFmZjg1ODUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6e9294e58265465cb9a2dc6db0d99231",
+      "statement": "Sessions reject reused ids, require the expected one-time record, and buffer share-producing rounds until release while enforcing message scope and generations.",
+      "evidence": [
+        {
+          "resource": "repo://crates/signer/src/lib.rs#L405-L547",
+          "version": "repo-lines-v1:sha256:01c5390bd7ba47b0c252346933e5ff9437c5401bb1e34746340ba505cfba35f7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI1YTE0ZTRhNzljZDlhZjk5ZmM5NjU5NjA3YTYzYTMyNjA0NjRkZWY1ZDdhMWMwZjc1NDMwMGQ5Y2Q5M2RhYWY4IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI1MDcxYzZlOTIyZDY0ZTNjMmQxMmQxYjQwMDg0YzMxY2M0ZTc4MDdmYjQyZTdmNzIyOWNjODg2MDVlN2ZjOGI1IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlYjljMDVmMDM0NGUwNzc5MzI5ODE5ZTQ0YzU5YjM3ZDk5ZTM2MTI5MTQ5MTg3YjBiMmZlZTY1ZjcyYzk3Njg3IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0NWU0MTcwMjNiOTBhM2FlMTMxMDdhMTVkNjc0Mzg3ZTU5Nzc5MTg4YzE2NzM5NmE3MWIxMGVjYjFjYmU3ZDI5In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_b653e598059243468234cd967754483d",
+      "statement": "Share or Complete output is withheld unless release has occurred and the stateful backend's ledger record is consumed for this payload; invalid output aborts the session.",
+      "evidence": [
+        {
+          "resource": "repo://crates/signer/src/lib.rs#L551-L654",
+          "version": "repo-lines-v1:sha256:9b18d34f5f399ce7c1d6c095eb1b40691e1a7d6c1b2bf94b2ac0ff4199ad25f8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJhM2NmYjI0YmIwYzA2NGU1MmQyMzVkMGI5ZDVmMTEyOThlMDc1MThmZTY4ZDg5NWMwMTUyYzhmNWIxODFhNmQzIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0ODkzZjQwZTM3ODFlYjg5NmM4MmQwNDZhMDgwNjdhMTFlMzVjZGYyZjFkZmFmMjZmZWE5MGI4ZGI2Njc2NDEzIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI0NWU0MTcwMjNiOTBhM2FlMTMxMDdhMTVkNjc0Mzg3ZTU5Nzc5MTg4YzE2NzM5NmE3MWIxMGVjYjFjYmU3ZDI5IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkNTQ2MzkwZDg5ZWE1NmRmZDRlN2ExN2M0YzUyZDQ4OTRmNWJiZTk5YTE1M2NjZWUzMDBmYzkyZjQ2MGVhYmNhIn0"
+        },
+        {
+          "resource": "repo://crates/signer/tests/evm.rs#L235-L329",
+          "version": "repo-lines-v1:sha256:6cecb5d19b009d5e923f399d6d06cbd66e80a7e21a9ea0c1d540d12592d5607d:eyJzZWxlY3RlZExpbmVDb3VudCI6OTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjZmNWEyZTZjODZkOWFkNDBmNzBiYmUxYTljY2E1NDJkYWExNWYzNmY4ZjJlMTc5YTI4Mjc4OTA1M2M1MGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA4ODc1ZWVmYjllZWI0NjYwNzU5NzQwOWE2MGFlNTM5MzQwYjM0NmY2M2Y5ZjgwMThiMDg0NDc5NWNmZDY5NmUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2020e48e341a40619b18660c10bf32ba",
+      "statement": "Signer open increments a durable generation and refuses an older ledger missing the previous generation fence, while key loading tombstones older key generations.",
+      "evidence": [
+        {
+          "resource": "repo://crates/signer/src/lib.rs#L276-L327",
+          "version": "repo-lines-v1:sha256:b2825ec925f9ba05867e86ca276026b8434116d5208575420ab5d7094a88b38c:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3OWNlZGUyZGQ5NTBiYWJmYWE5MGM0MTdiZTFiYzI3MmM0YzNmOTFhZDU1YjgzNThhYjVmNmE4MGU4YzJlY2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5YjE5ODJlOGRkNzQ4MTE4MTQ2YjM5YTJkMDA2MmY0MDgxZTM0Nzc5Yjg2NzVjMjM0YzRmYjEyNGRjMzkzOTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRlODBhNTNkZDc3ZDI4YWRhYzVkYmRiMGI2YmVlNjQzODk0NTdkMzAxY2I4NDYxYTM3ZDRiMmQxOWNhYjg3YWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFiNDdiZDIwNjg1MGQ4ZWI0Y2JkMzllODhiZDU5YTc5NzYxYTU4ZTYyOTRkMGZlZjU0YzBmZWZiOGNkMzQyYjAifQ"
+        },
+        {
+          "resource": "repo://crates/signer/src/lib.rs#L350-L387",
+          "version": "repo-lines-v1:sha256:8810235f5f5b0c72c0d0021c8d8daa38d16921ee7a4aff2fc35752b88534ea06:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQxODk1NThlYjQ5M2MwNTNhOTU0YjQ4YjQxYzFjYmMxMDU1ZThlYmVmODk0OTM1MDQwZjQ5Njg0MTY0YmQ1YWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk4YzMwYTg0MmViZDlkYTQyY2EzMzU5MGUzZGViZGJlN2E0ODA5YzVkM2NkYjMwMzMzNGFmMTlkYjI4YjlhZjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFmZjUxYmE2MGVmYzEwYzhiODdiNmUzOWM1NjIwZTA1OGU0YmMzMzg3ZGZkZmQxYjU3Yzk3ZGI2YjAwOTU5MTgifQ"
+        },
+        {
+          "resource": "repo://crates/signer/tests/generation.rs#L42-L128",
+          "version": "repo-lines-v1:sha256:cec07ab99478f03df48856bc3bdc2d4cb4edf44ebfd2df530ac090cb55791ace:eyJzZWxlY3RlZExpbmVDb3VudCI6ODcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM4YTdkNzBiZGRjZjM0MDQ1NjYwZTllNGIwZGM4ZDQ4MDJiOWVlNGY3ZmRlYWE0YjhlNzU4YTc5ZmMxNzRjNmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ4MTI4NjM1MTY3ZTQxNTMyNzI2MTExZGRmMjdiODQ2ZGU5OWQyNTM5MTY1NGE3NDA5ZDQ1YTc3NjIyY2FlMzYifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-20T20:16:28.312Z"
+  }
+}

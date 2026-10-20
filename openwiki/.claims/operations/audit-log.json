@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:f9825df77d0d02caaa5e276ef467987c86bfee5fa758c2f31e408b78f6e2145a",
+  "claims": [
+    {
+      "id": "claim_ab44f9cf542f408592984269edf749c2",
+      "statement": "Audit events use domain-separated canonical body hashes, Ed25519 signatures, separately content-derived ids, contiguous sequences and previous-hash linkage verified by verify_chain.",
+      "evidence": [
+        {
+          "resource": "repo://crates/audit/src/chain.rs#L96-L223",
+          "version": "repo-lines-v1:sha256:113308a97694bd2e45818dbeab765ddfbc85e0bdb8367738a531cb5e2bbb3b11:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI4LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5OGZkODBkNTUwNDEyOGVjZDI2YTBiZjA2MzBkMjQ5ZDZmYjMwNmNjYTY5YzI4YzU1MzMzZmE2ZWZmMzNhMWQzIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIzNWY2ZjQ2NmU1OWNmYzMwNzAzYzQ1ZjcyYWY2NWRlNTRhYzM2M2QzNTRjYzFhMzMzMDM1MGFjZDQ1MjQzNGM0IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_c7b39b2944394f748a504574e363db79",
+      "statement": "File audit logs sync framed canonical events, verify the complete chain on open, truncate incomplete final frames and reject complete invalid history or a sequence below a high-water mark/expected minimum.",
+      "evidence": [
+        {
+          "resource": "repo://crates/audit/src/file.rs#L1-L18",
+          "version": "repo-lines-v1:sha256:780a87282a36a793b9a0b6beae24c937c634defb5a2d92889a342e08f6fe1b98:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc0NWJiOTRkYmFiOWIwMTJjNTY4ZTJiZmRhNWQ0M2JjY2RiOTJjNjEyYjRhOTYzYTkxNTdkZjUyZjljY2VjNmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzYzJhZTI0NTBkNjY5ODg3YTk3YTMxZmNiZjE0MDYxNzE5OTU1M2U3NWUyZjAyNmVjYzcyODNjNzgyMTUyNWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUyOTAxNjc3NjY2NTVjOWMyMTcwM2I0ZTc1YWQzYWEyOWYyNWY0YWFiZDA2OGIzMDNmNzA0OTU4MDgzZTEzYjcifQ"
+        },
+        {
+          "resource": "repo://crates/audit/src/file.rs#L65-L118",
+          "version": "repo-lines-v1:sha256:1cc36ad2807180174f45fe33f3a35bfd6dd57c557914a3c24bb0310e3f0c3259:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJmYWMyYzFmZDI5M2FhNzQ2Mzc5YjI5OTkyNjI0ODdkYTYzNjQyNTI3MWU2OGIyNTcwN2RkYjRmNDdlZjg5YjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA0ZDgzNzlkNDBhMzkzYzE4ZWM2ODcwMWFiOWIwMjUzOWQxMDM0NGE3ZGFhMDEwNjY1MjU1M2RlMGIzZDViZDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYTBkYjdlYmE5NTU2NjMxZGFkM2NlZjc5ZmYzZjU5NjhlNDdkNGYzNTQ1NWIyMGJlZGYwM2NiNjk4ZTNkOWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIyYTUwYWFlNGFmZjY5ZDNjOWU2NjE5MGQ2YzBlNTIyY2RlZDY0MWI2NDg0NTE2NWJjNmY4Zjc0N2UwOTk1N2UifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_df2a7b6527694be7a7ebf4a9c3045bb4",
+      "statement": "Checkpoint comparisons verify signatures and exact bridging histories to distinguish consistency, extension and divergence; malformed bridges are errors rather than divergence evidence.",
+      "evidence": [
+        {
+          "resource": "repo://crates/audit/src/checkpoint.rs#L63-L116",
+          "version": "repo-lines-v1:sha256:8853ae1395149e33f243fb07615d70857317bef673bbf47addc89e17f67b6819:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImViMTQ0ZWViYjhlYzMzZmU0ODZhMjY2ZDQ1NzBkNWMyZTEzYTAyZmU1MjAwZDNlYjYzNDVlYjU1MjU2M2RjZDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFkNWI3YmNmMjQ4MmY5MWZjODIxODllYTBhODQxMGM3YTk0MWVhZGM5YmM2MTQzZmRiOTBjZDNkM2VjYzYyM2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2c9f3aa69022437e8d6197976ac0f8da",
+      "statement": "AuthorityAuditSink maps full event and object commitments but audit failure does not undo authority commits; it records last_error and failure counters because AuditSink has no Result return.",
+      "evidence": [
+        {
+          "resource": "repo://crates/audit/src/sink.rs#L150-L195",
+          "version": "repo-lines-v1:sha256:ad48a65049ccda03c67bea53250448f250b0b8d30825c17b4e7ba7b794ad8d6d:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY1NTRmMjkzZTlkZTc0N2Y1ZDJiMmZkNDQ0NzM4MjdlMTg5ZDhkN2VkZjExZjlhZDliMTE4OGViMTgyYmEzYzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ2YmMwODcwM2U2ZTY5MWYzODFjNjYxOTkyZjI2YjIzNTdhYThiYWY1YzkwODAxZjQ0OWYzMjYwMjI5NjM0YTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://crates/audit/src/sink.rs#L49-L105",
+          "version": "repo-lines-v1:sha256:3c3110ff0ae514c61e537e35ebfba51b8ee8e369e58395fc341c5b66635bf50d:eyJzZWxlY3RlZExpbmVDb3VudCI6NTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM4NTcyOWJlZjMwNzIzZjFjNzg1MDgyMGFkYWRiYWNmZDUyZmVkMWFjNjJmOTc1MmQ5ODgwMDJiYmI2MzcxNzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE0ZGYwMDJlODkzN2Y4ZTliZDNjZjI2YmMzODY1MWFmOTRjNGFkYjgxYjMzNGQ5MzEwZmNmZjU3Y2FjODQyMDYifQ"
+        },
+        {
+          "resource": "repo://crates/authorization-state/src/authority.rs#L244-L248",
+          "version": "repo-lines-v1:sha256:2593acf1a50c407a25086e4885a97ca8bbfc5566d87718ebd99b63c0a3373357:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzU0NWY5Mjk1OWEwOTdlYzc0MzcxMmFiOGNjN2NkMjFhNDE0YzQxNjhlYWI1YzVmNmE5MGViMmE0MzkyMDE3YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjcwODM0YmRiZGViZjc1OWFjZGExZDg0NDU0ZWZhMzE2ZGQ2MzA2NjI0NDgxOGNjMTNhMWZiYTlkNTQzOGZhNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjdhNTgxNDE3YzA3ZDUwMmM5NWFkMjVmZmViMTQ2Mjk3NzlkOTc4NzZjOTgwNGZiZmZmN2EwZjc0NjdlMmMxOSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_04f2b4fcdf56485aa5cec34620168430",
+      "statement": "Audit append guards bound labels/detail/commitments and reject only a narrow set of secret markers, so callers remain responsible for never sending secrets.",
+      "evidence": [
+        {
+          "resource": "repo://crates/audit/src/chain.rs#L14-L93",
+          "version": "repo-lines-v1:sha256:5b2cbafb5497b745d817852f7decd6e2ffa2f9a3c043dba46701f8803e46862d:eyJzZWxlY3RlZExpbmVDb3VudCI6ODAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0MTQxNzRhMGY2ODc4ZWI1YzFjMTYwMGQ5NDRiYjNiNjRmZGE4MDM5NDZlOTEzN2ZkYzc2MmYzN2E2NmY4ZmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4OTc3MWZlMWI2NjI4ODc1YWEyM2U3ZGJlNGFhNzE0NjFkMDBjZGZiNjZkZGYxMWI5ZDgyMGFjNTg5N2ZkZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRkODJkOWRkNzYxN2VhY2VkOGIyNDEzMDkxZTdkYmQzYmExODMyNzQ0ZGI0ZWMwMWJjMDM1YTVkY2Q4NzY2ZTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhiOTZiZDVlODQ2NTIxMTlkYmFiYmQwYTEyNDgyODc5ZGVlMDk2MDExZmMwNzA2NmY3MTA2NzcxZGFkMTg5YzIifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-20T20:16:28.312Z"
+  }
+}

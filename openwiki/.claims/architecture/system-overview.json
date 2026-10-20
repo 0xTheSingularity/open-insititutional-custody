@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:eaf8530d5a9d661ceb5a6125c66e2e85b9dc412b0a007623a38e76474774f41e",
+  "claims": [
+    {
+      "id": "claim_d1e2388a94e34ad8b17052d2a0d52ec2",
+      "statement": "The workspace has 21 member packages and exposes builder, coordinator and broadcaster as libraries while oic-approve is the independent approval client binary.",
+      "evidence": [
+        {
+          "resource": "repo://Cargo.toml#L1-L27",
+          "version": "repo-lines-v1:sha256:921dc52f65a2c8459a6e5bf1713bc9e0d040673c45de74ea4b8748cd89c910db:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzNGUxMDJjODYxZjk5NGQyYWFjZTkxMTRkMzkyZGJjMTYyMTkwZTAwYmU4ZmUzNTdkNDcyMTUwY2E0Mzk2MTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4Njk0MTJhMmU4ZDVmM2JhYjQxODg2YzEzYTA2YzZmMDk5MzM4N2NkZTcxMWQ4MzI2ZWRiOGQ1Nzc0ZWM5OWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk0M2QwZTQ4ZjJmYjUxMGMxNjdjZjMzZWNjOGFmMDk4NTFjZmI0MWFhZjExODMwYThhMmUxZjZiNjRmZjVlNjkifQ"
+        },
+        {
+          "resource": "repo://apps/independent-approval-client/Cargo.toml#L1-L18",
+          "version": "repo-lines-v1:sha256:3013b70843ba9230550465e0d21ba06aabf63a79bdbdde19f1ca5547a1d0d5a8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhM2NkNWE4MWIzZjlhNjIxYWE0OTNkOTBjNDVmNDJhYjU3MWQ0ZTQyYjhhZTVhZmYzNTFjYjBhMDJkMDZkODIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkMzY0ODFlMjkxYzQwYjJiMzIxYWQyMmQ3Yzc0MmRkODM1MWRkNTJlNjg1MjkyMDc2MDJjZTc3MmE5YTQ5OWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZhZjI5MDI2OThmMTUzMzQ4NjEwNGJlZjcyYjM5ZWQ5MTU4MzE1YTRmYjVmZWVjNWE0YmFiYzk0MTQ4NjgzMjAifQ"
+        },
+        {
+          "resource": "repo://services/broadcaster/Cargo.toml",
+          "version": "repo-file-v1:sha256:7bd77559a6a900ba2c7aac0f25aa4105d7194e6c2b865330ce872c1b78b4e833"
+        },
+        {
+          "resource": "repo://services/coordinator/Cargo.toml",
+          "version": "repo-file-v1:sha256:d64a4c9405028a0854273460323befd43450d78240f94e602486afa9c2b6a0d7"
+        }
+      ]
+    },
+    {
+      "id": "claim_0109ab8f959540f49fbd5bfa0fdb5351",
+      "statement": "The integrated signing flow reserves, opens and verifies signer sessions, commits authority release, aggregates release-gated outputs and assembles a verified signed transaction.",
+      "evidence": [
+        {
+          "resource": "repo://services/coordinator/src/lib.rs#L200-L380",
+          "version": "repo-lines-v1:sha256:58f8c05c7c4542e33500940e316f61420a312d3d85d549de37e379bd7652f850:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIyNWJhMjI5MjhmZGIxN2FkMDhhZjAwYmVlZDI0MjQwOTc4MjMzYmU0MGEwZTgxNmQ5Y2ZiOTJiY2U0MWYyYjNlIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI1MDEyYjU1ZmIwOTMxN2E2Yzk1ZTNhNDczN2I1MjhlNTY0OTE1ZGRjODBkMTEzZjA5ZGNkY2VkYTQwOWFmZjFlIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4YWFhZjdhOTA0MTQ3N2JlMzA4YTc1Y2U0NGMzOTFiMmE3NzM2MTg4YjQ4MGE2MGVhYTQyYzMzMzUyNjRmNDEwIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJhM2FiNWQ5MTllYmJkNTlkNGMwMmYwOTkzZDJlNDQyY2Q5MWQ1YmYxMzZhNjI5MWE1MTg3NDBjZjM1Nzc5ZjkzIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_7ef9e6c7ec0f4f50a494a29d3b81e121",
+      "statement": "Coordinator integration tests exercise EVM ERC-20 signing and mining and Solana FROST two-of-three signing using every pair from three participants.",
+      "evidence": [
+        {
+          "resource": "repo://services/coordinator/tests/coordinator.rs#L108-L181",
+          "version": "repo-lines-v1:sha256:3c9727edccbf17c03ef8820085515388e3dd66efa59ff85fb9f6bdcf32176dd0:eyJzZWxlY3RlZExpbmVDb3VudCI6NzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyNDJkY2I1MDZmOGU2NTcwZGNiN2UyNjRlNmI5MzczMDA5MTU4NDFlMDI1MTIyM2Q0MWEyMjNkNTczOGIyYjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f509dca7c3cd4a6c97ebccc6c69bd7bf",
+      "statement": "Native semantics and signer-local checks are independent of coordinator descriptions while cumulative exposure is authority-owned and reserve accepts caller-supplied decision and claims.",
+      "evidence": [
+        {
+          "resource": "repo://crates/authorization-state/src/authority.rs#L380-L446",
+          "version": "repo-lines-v1:sha256:84093571b6e316a1f7d2c0d13c2fff16810d1fa7c4b66fd82f9d3ea59e42d6d6:eyJzZWxlY3RlZExpbmVDb3VudCI6NjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhiMmMyMzUyY2U4YjFhMWZkYjJhYWQ3ZTRlOWNlZTM4MWUxY2U1ODEyNGRkZGMwODA5YjhiMWVkZTg3MTBmN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5MmY3MDU3OTg5Y2FiZTZlY2U0OGFjZTM2OGZjNmY0ZTAzZWU1NWQzNGM3NDg1NjhjMWExMjlhOGZhYmRkZDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQxMTNhMDJlMTJlOGQ2YTdkZjE3MjE3MzkyOTViNzhjY2Q3ZTJlZTAxMzg4ODFlNjBjOWE5NGNlM2EwYmJkYzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYxZjI4ZWYyMWRlNDAzOTMyNjRmNzY2Mjc0YzVlM2JkNGU1NWU5ZGFkZjA2N2U2ZWUwNWMxZmY4OTEwOTYyNzgifQ"
+        },
+        {
+          "resource": "repo://crates/signer/src/lib.rs#L10-L48",
+          "version": "repo-lines-v1:sha256:9d84c70d6e73ae94bcc92051378eb9b251902f9aa759eb89c6760fd49c7b7a3f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3ZDE4M2U4NDAwNzg0MmQ0MTFmODU1NjhkMDU4YjUxNDZjNjVkMzAyMDllZWMzNWZiYTNiNDU5ZWNmNzg3N2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2YWYxMzVhNDg0ZDJkNjcxZWEyZTZhN2ExYWUwNGY4OWI0OTQ4MTI2Mzg2MmQxNDNjZGU1NTQ0MTM4NjI5MDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1NWZmYTc2NjdiMGI2MzFkODNjYjlmYWUyMGQwZTEyMzM1Yjg5ZWJjOWFhOGZmMjY3MzUwNmZlNTRmM2ZhMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFkZTdkYjlhNWYyNmJjMDFmMmFhMWYyMjUzMjE2MDg4OTA5YmM5N2RiMTdjYWZiZmZjNjI0NWMwNzk0YjFkNjcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_db3068d30f98435e9cb112076fa6dcdb",
+      "statement": "The implemented coordinator endpoint is in-process and the FROST provider does not supply the authenticated DKG network transport or share refresh/recover capability.",
+      "evidence": [
+        {
+          "resource": "repo://crates/crypto-provider-frost-ed25519/src/lib.rs#L34-L49",
+          "version": "repo-lines-v1:sha256:c614165082a63061f2f9354d43599eb7f97d195189d03c9f06bcf30cbe47bd75:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhOTgzZDZjOTBlN2ViYzE1YWI5MTQxYjEzZmNjNWNmMDJiNTAyMDBkMTM1Y2VjYzY0YzEyYTIzNDkxOTdkNmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyMGU4OTAyMTg1YWI3NjkxYzI5MDI5MWFkZWMzZmExNzQzNTU3OWMyMWFlMzY2ZTc4NzVjNzZkMmM4Y2RlYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZjY2VjODZmN2Y3MWY4NGU1ZGViOTEwZDYxMGI0Zjg5MDNhMzZlOTdhMDJhNTViMmJkZDVmM2ZmNWMzZDE5N2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVkZWMyNmM1OWZiZmNmMjRjYjAwZTZhMjMwZTU3ODBhM2U1MjFjNDNmMGNmZGU3NjAyOWNiMjQ4ZTBmOTgzNDEifQ"
+        },
+        {
+          "resource": "repo://services/coordinator/src/endpoint.rs#L15-L73",
+          "version": "repo-lines-v1:sha256:4a9e824b28a79579931742e8233485961b640ff2eb0b6d43ecf07ae9f8c6309d:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJhNzEyYWZhMTNmOTAyNjE4ODJmZTQ5ZTdiN2E2ZDE5YmJhMzNmZTJiMmI3NTJmNjVjZDc2ODc5NTk3MGM4YjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI0MTMwYjkzM2MwMmY3NGI4Y2M2ODA0YjdkZWNkYzBiY2QyMWIzMTEzNDgzMThlMmYzYzljZTA3ZjY1M2VjNGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_cbaf98c5ef2b4d4cadbe81563674362c",
+      "statement": "Coordinator failures before release abort unissued reservations while failures after release retain exposure and return issuance uncertainty.",
+      "evidence": [
+        {
+          "resource": "repo://services/coordinator/src/lib.rs#L278-L313",
+          "version": "repo-lines-v1:sha256:3fea2d7abf968d3fce8967d68b43ae83e70ad20b6233279f0a80a4c04f76e537:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhiNDhiNGQxNjY1MGMyNjRhMjQ0M2E2MDEwMGVhOGQyOWM4YjQzMDliN2FmYzkwMmFiNGIyZmYyZTEyZjA3N2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MjJjNDJjZDE5YzZkMDNkODA4YzQ1MjcyMDU1MjgyNWI3ZWExYzViNDkxYjIxODUxMWNhYzc0MTVjZjlkOWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE4YWIyZWU3NTY3MDMwZjUyYTY5ZWRkZTM5YTE5YmNmMjBiZGUxMjM3MzNjODkxMTE1OTYxNzk0YmU3YzllMmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk5OWJkZWZlZWFjYTYzNDBlMDI5MGRjODZlODg5Yzg5ZDVlMTg5YWE1YmE0NGI1ODViM2I3MDczNGY0YTYyZDgifQ"
+        },
+        {
+          "resource": "repo://services/coordinator/src/lib.rs#L383-L408",
+          "version": "repo-lines-v1:sha256:e2740b369ea7715beb202eaf696b8e590369ec6431b54dbdd249d3396a95de52:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYxZGRmNzJkMzUyMjZhZmUxNzhiZDFiYjRiNTYzZjk0NGFhYzMxNDg2MDc5YzBiM2ExYjRjNmYxZTFhNDIyYTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM4ODA1NGU3YTNkNmYwZjVkZjAxM2JlNmIwYmYyNzMwYzAxNGIwOTcwNDY4MmY4NmVjN2NkYTUzNWNmNjg2NjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-20T20:16:28.312Z"
+  }
+}

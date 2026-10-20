@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:1a9489080633802166173d18aad477a3e63ec86626f03a1f04571f64d9719964",
+  "claims": [
+    {
+      "id": "claim_efc5e1f0c5ec4ad8bb5be50bcaf07121",
+      "statement": "The workspace has 21 packages spanning custody types/encoding, policy/authority, EVM/Solana, providers/signer, approval client, three service libraries, audit/durability, simulators/vectors and model.",
+      "evidence": [
+        {
+          "resource": "repo://Cargo.toml#L1-L27",
+          "version": "repo-lines-v1:sha256:921dc52f65a2c8459a6e5bf1713bc9e0d040673c45de74ea4b8748cd89c910db:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzNGUxMDJjODYxZjk5NGQyYWFjZTkxMTRkMzkyZGJjMTYyMTkwZTAwYmU4ZmUzNTdkNDcyMTUwY2E0Mzk2MTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4Njk0MTJhMmU4ZDVmM2JhYjQxODg2YzEzYTA2YzZmMDk5MzM4N2NkZTcxMWQ4MzI2ZWRiOGQ1Nzc0ZWM5OWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk0M2QwZTQ4ZjJmYjUxMGMxNjdjZjMzZWNjOGFmMDk4NTFjZmI0MWFhZjExODMwYThhMmUxZjZiNjRmZjVlNjkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_627aac811d42456780effa38f2823317",
+      "statement": "Coordinator integration tests execute EVM ERC-20 transfers and Solana FROST two-of-three signing for every participant pair on deterministic simulators.",
+      "evidence": [
+        {
+          "resource": "repo://services/coordinator/tests/coordinator.rs#L108-L181",
+          "version": "repo-lines-v1:sha256:3c9727edccbf17c03ef8820085515388e3dd66efa59ff85fb9f6bdcf32176dd0:eyJzZWxlY3RlZExpbmVDb3VudCI6NzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyNDJkY2I1MDZmOGU2NTcwZGNiN2UyNjRlNmI5MzczMDA5MTU4NDFlMDI1MTIyM2Q0MWEyMjNkNTczOGIyYjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_eebd21e0a06e4a80b545b9d5ed81e805",
+      "statement": "The approval executable exposes trust initialization, local credential generation, independent display, grant approval/verification and envelope inspection.",
+      "evidence": [
+        {
+          "resource": "repo://apps/independent-approval-client/src/main.rs#L20-L126",
+          "version": "repo-lines-v1:sha256:04c4415c5cf2e6ab378ba6c9e6eed0a9bd54dc38d83229023fc03975042a342e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwMDhiNTUzMTNmZDMwZDVmNjZkMWMzMmFlN2E0MGRiZDZlMzQ4Y2M0OWFmMmFiZGI4NTRhZjkzNTFjYTdlNjRlIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJlNmIwNDQ5MTQ2OTcyMmU4MzYzYTk0ZTQwNDQ1MzhlMDEzYTJhMjE3ZTM2YjFlNTY4YmE2MGFjYjdiNGM4ZjJlIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIxZWFjOTRlOGYxNTFmZjQ2OWU5ZjE4Nzg1MWJiNzBhNDEwNjI4ZWNlYmY0Mzk4MzllNWE4YTRmMDdkYWEwNjJjIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIxOWU3NjM1NWNmMTE5OTQ4MGMzZjk5ODM2YjE0ODZjODQxZDg5MWZhYWQ5MDRjNjA4ZTA5MzAyMmQzNzU3YWVlIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_a6db2fa745ba4f61ad492c03ff7b8340",
+      "statement": "The signing pipeline reserves global resources before signer sessions, commits authority release before share collection, and leaves exposure outstanding until chain resolution.",
+      "evidence": [
+        {
+          "resource": "repo://services/coordinator/src/lib.rs#L251-L313",
+          "version": "repo-lines-v1:sha256:986ada94121cc8fb3db71a68e31a6aa132e0d7045625ab3403b630f9a9d526f6:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU0MjFmNDVkYjU4MGQ2MjQ4MTZmMmJjZTc5YTI1YmVmZTU0M2JhNTA1MGZhMTAxODJhOGNiYWZmYWVlNjI5M2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MjJjNDJjZDE5YzZkMDNkODA4YzQ1MjcyMDU1MjgyNWI3ZWExYzViNDkxYjIxODUxMWNhYzc0MTVjZjlkOWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFkYzIzMDYwZDYyYjc4Mzc1OGM4MDZmMDExY2FkZjczNGRlNGNiNDZmYTQyZThjYjllNTIxYzU1MmI2Njg5MTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk5OWJkZWZlZWFjYTYzNDBlMDI5MGRjODZlODg5Yzg5ZDVlMTg5YWE1YmE0NGI1ODViM2I3MDczNGY0YTYyZDgifQ"
+        },
+        {
+          "resource": "repo://services/coordinator/tests/coordinator.rs#L145-L148",
+          "version": "repo-lines-v1:sha256:80b22f8b5f2c7c0d64dd856860fe2427443d38950aaaae9d78be51bee8a4dc3d:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzFjOWEzNDRmYTcyZjdlNmFjYzI4ZmNmZDNhYWYyMTgwNzBhMzE0ODcwZTkyNzY0OGYxYzA2M2IwMjRjMDc0NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTJjZDNhNmYyYTIzMmEyYjc2MWZiZmM3NGE4ZWYyM2M3NjNjYjdlYjI1NzY1MDUyNWQ5MDMxZjRiYjA1OTJiYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDAzZjA5ZWI2ZWY0MjM4ZDg1NmI2YjQxMTk2MTY3NGVlMTQxYTgzNWQ5OTY1NGVkYmYwZjZmMDI4ZTEyNWE5ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjAyMzQ0MjA2M2MzMTJmNTE2NTk2MmU5MzhmZjk1MjlhMGExNjcxODRlN2I0ZDZmYjY4MjZjZTBiMjI0ZWZkNCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_c573d1b894de4f75a2391f5fefb12d05",
+      "statement": "Conformance tests cover generated fixture equality, declared hash domains, real canonical producer results and native adapter compatibility with independent SDKs.",
+      "evidence": [
+        {
+          "resource": "repo://tests/golden-vectors/tests/conformance.rs#L1-L12",
+          "version": "repo-lines-v1:sha256:78c9bf9565b5969deb69614856efb255df84d71d5c603c53a789b58caf30a74e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA3MmRiNDA1MmQ3ZWEyNTU3ODZkNDBlZjc4ODE4OTk2NWIzYzM2ZGVlZTU3NTE4YzkzZWU1MDY3N2Q4ZDcyNzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5YjgwNzI4YzY3ZWRkYTdhNDM5ZGU3NDY3NTJlZjEzMDliMmE1MWRhMmViNjNkZDk4ZDdmNDAyMzYzOGM0YTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ3ZDQxNjkwNDlkM2ZjOTcyMDE5MzkzNDVjNDhhNzIxOWFlNzc0NTBiYWM4ZDkyOTdkYTZlZWVlNmI2OGE1YWYifQ"
+        },
+        {
+          "resource": "repo://tests/golden-vectors/tests/conformance.rs#L278-L380",
+          "version": "repo-lines-v1:sha256:e75e9bf58924366430c5302444b73854034ae492d7184c1d3e4c5930d959df53:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJkMmNkNGRiNDhhMzUwZThmMGI0Nzk0NGM0NmUzZmZkYmJhMTMyZDIyOTBhOTFkNzAxMmI1NmViNDZjOGFiNGY2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3NGQxNGFhN2ViODExZjA0NDQ5NjRmMzFiM2ViOWRmY2ZjYWUxODMzNjIzYzdkMGIxNTVlMjc5MTBjMjljMTJlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        },
+        {
+          "resource": "repo://tests/golden-vectors/tests/conformance.rs#L53-L118",
+          "version": "repo-lines-v1:sha256:47093d7130894e46ab0df8b7c927130069c9ef6021023ba1efb9cfa924e9043b:eyJzZWxlY3RlZExpbmVDb3VudCI6NjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1MDRkZDA2MWNlYmY3ZWFhMzE3NmE5ZjY4ODFmZmY1NGY1MjE3OTk4OWRmMWM3Y2M1Yjc2YjA1MTczZDJjNjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkzNDIyNjdhOGYxOTI2MmZmYjljOGNiNzFmYmU4MmU0NzViYmI5ZDk3OTA2YWNhOWE2OGQzZDE5ZWE4NWQ2YWQifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-20T20:39:06.439Z"
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:acb72abbd3df3d5a9c6c1fb5fe5df012f2cc8bf01726f64f5a0810cfc1cc2b82",
+  "claims": [
+    {
+      "id": "claim_06b41f7c952447eda93c4187d7b80d81",
+      "statement": "Solana candidates are exact message bytes signed with pure Ed25519; the builder emits legacy while profile-enabled v0 is also verified, and genesis binding is off-chain evidence rather than a native message domain.",
+      "evidence": [
+        {
+          "resource": "repo://crates/adapter-solana/README.md#L14-L37",
+          "version": "repo-lines-v1:sha256:adddbbdffc5eaa8159a42104cf4a6b1d878298a133bf1fba26ef45a3e591a925:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY5YzRkNTZkM2NjYzc3YjUyYWJjNGQ0MDYzMDhhMmE3ZDNlMzFkMjk3YWUxMTlmZjZkZGIyODk0ODAzZGI0YTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkNDQ0ZmQyMWFhNTI5YTllNmY4YjAwNmE2YjExMWIwOThkN2VhMTFlOGYzNWJjYzFhNjMxOTQ4YjJhZWIzZTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE1MGE2ODZiYmVjNTQzYzhkZDJkNDIyMjIxYWMwMzg0MDI2MzJhNzMxYzE2NDI2Nzc5ZmI0MjliOTI0NzczYjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFmNmE2YzM3ZjJhNTk3NWE0YWZjMzZiYzlkMGY5NDEzY2QzYjE3Y2E4N2IzYWEzMTFlMDE2NjliYWJkYTE1YjYifQ"
+        },
+        {
+          "resource": "repo://crates/adapter-solana/src/lib.rs#L110-L153",
+          "version": "repo-lines-v1:sha256:b6c6d533bed0dde56e46ae87681f7587851b9790d795ebf226d1884380d73179:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIzNTYxNzViYTA0MDkwOGFlNDE5YTBmNWNhYThlOWYzNTU1NzU3YTJhMDU4YTNkYWE4YTAxZmUxZTkyNzkzN2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM1ZjUyZDhiNTk2ZjZiNjM4NzdjNmQxMzVlZTU5NTRjMjgwNjFiNGJlYWRiMGQzNjE5Njc3ZTIxODY1MWFlNjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk2OGIwNzg4ODUxMDAxMDUyNmZlYzY2YjM3YjYwMThjZGJiNmIzNzhiYjRlOTUwNDBkYTg2OGNlZTNjYjc0M2EifQ"
+        },
+        {
+          "resource": "repo://crates/adapter-solana/src/lib.rs#L701-L821",
+          "version": "repo-lines-v1:sha256:07b81d350290156e4c538dff5243214b10a8eeae7e2ea3f1561b89bd8c3a7069:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI4MjlmNTc4NTQwMjRkYTVkMGUxMTVmYjVjNTc1MDExMmM0MDg1ZGY5ODY4NWM4MDkzYWZjNjFkOWFlMTc3ZGM3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0ODkzZjQwZTM3ODFlYjg5NmM4MmQwNDZhMDgwNjdhMTFlMzVjZGYyZjFkZmFmMjZmZWE5MGI4ZGI2Njc2NDEzIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlYjlhMDhiYzI5ZjZlYmViZTlhNWYwMTkwM2Q5ODQ1ZGJjYjU4NDJhNDU1ZjA3ZDVmNDAwMmRhYzMyYTVjNjA1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIzMWMwYzE5MTQ2YTFiYTVmMzRhMmZmYTZiNzE1ODcyMTc5NjYwNGUzMTJjMzAyNzVlNjVmOTU0YjM5Y2U5NDY3In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_0f6ea0cdd5b84ace81675437e5ff1af6",
+      "statement": "Solana verification allows one wallet fee-payer signer and one SOL or TransferChecked movement with strictly checked optional ATA and compute budget instructions, rejecting unsupported programs and token variants.",
+      "evidence": [
+        {
+          "resource": "repo://crates/adapter-solana/src/instruction.rs#L1-L235",
+          "version": "repo-lines-v1:sha256:fa28a71df2bf9c0e037f5279a81c9f2c0d1726133117ae8f7dda2892327193a3:eyJzZWxlY3RlZExpbmVDb3VudCI6MjM1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJkMTEzZjg2MWUxZTA2MjEzN2E1YzhjNjNjMTBlYzM0M2RjNGQ2ZmUxNWU4ODczZWQ3MTc4ZWI4ZTg4NTdkNzA2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJlNmIwNDQ5MTQ2OTcyMmU4MzYzYTk0ZTQwNDQ1MzhlMDEzYTJhMjE3ZTM2YjFlNTY4YmE2MGFjYjdiNGM4ZjJlIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MCwicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIxNTdjYzRmZjQ3MWQ2ODBmNTQ0M2I0NDg2ZTcxNDkyN2E4M2UyNGRhMmRmNDM4M2I4ZDhlNzcwNzNmZWI1M2U3In0"
+        },
+        {
+          "resource": "repo://crates/adapter-solana/src/lib.rs#L308-L524",
+          "version": "repo-lines-v1:sha256:3e39c254e47d1737882d45da6212e9898bda7977c62b8e67dbf97f591da325fe:eyJzZWxlY3RlZExpbmVDb3VudCI6MjE3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5OTM0ZTk0ZGI3MWRkZGY1YmNhMzc2ODdkMjgwMzg1N2Q5NmExNGViZDY1NTY3ZmI0NTRjYTFkMzEwOGMyNTQyIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJjMjUzNmFhYjdhYmNiYmZlNTI2NjQwNjM0OTE0OWI5MGQxNzIxZTdmMzVhZWUyMWZlMmI3MTAxZGNlYzFiNjlmIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIyOWJjYTVhMzk5YjJhNjIwZDNlZDNjZWNhMzdhYjBiNjZlM2MwZmE4M2MwOGY1ZGI5N2RhMmVkMWUwNWQ5MjJmIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIxNzcwNjk2MjI3NGQ4MDg2MThjMzU5NzIyYTk1N2NlZWY2YjU0MTUzNWRjMjMyYTQzNTM3NGNjM2UwZTJhODBiIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_174451d84521444dafc5f1e231fd4608",
+      "statement": "Solana parsing bounds transactions to 1232 bytes and 64 accounts with strict compact lengths and complete index/header checks; lookup resolution requires active table evidence and disallows signer/program substitution.",
+      "evidence": [
+        {
+          "resource": "repo://crates/adapter-solana/README.md#L77-L88",
+          "version": "repo-lines-v1:sha256:fc13d4e2bb398b5cff99cc92b1e8eec2c42615b80fa419e385de771fd0124a8e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJlN2VjM2I0Zjc2ZDBkZTc1ZWVjZTdmM2UzOWQzZjY2OWVmZDMxMDQwMjdmMGM4ZDZjNjQzODgwZjc1YzgzZTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZmMwNGM3YzM0NmVlMjk4MGFhZWQ2OWZmMTA1NzZkMTNmZjNkYmNhOWY0ZGU3MWM5Y2QwNDUwOTNjMDY0NDQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFmZDQ0YjU0Y2NmYWQ5YjU4ODgwYmIwZGNhY2ZiNmRhNGY0YjM0NjliOWIxYjY5MTRhZDQ1NDZlYjE4Y2RlZTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNjMmFiYTA4NmY4M2MzYmZiZmNhMjVjNTAxMjY1YTY1NTcxYjZkZjA5NGU4ZDRjOGEzMWJmN2IzNzFmY2Q0ZDAifQ"
+        },
+        {
+          "resource": "repo://crates/adapter-solana/src/message.rs#L1-L27",
+          "version": "repo-lines-v1:sha256:73a5255d95644fec49c60b07871226043a0897ea630ba223f78edfc6122fec59:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJjZGY5MTU5NzBmZjE4MzBmZWZmNmVlNzE4M2FhMTVhM2RiNzMwNTc0NThhMDdiNzQ0YjgyMzM2Y2Q0NTY4ZmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5MDRmNjhjNzlmNWM2NmZiNzdlYzdjODc0YTQ2ODk2NWNmMjdkYTg0M2UwNTlkN2M3MjNiMDYwNTAwMTU4ZDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI0MGQxMmM0ZmY2YTc2ODhkYzMyYTk1Y2I0YmVkMzA5MDMwMDVjY2U0NjFkNjllOWIxMDgwNGQ4OTA3NDEyZWEifQ"
+        },
+        {
+          "resource": "repo://crates/adapter-solana/src/message.rs#L180-L340",
+          "version": "repo-lines-v1:sha256:4c6f08ccabfc1b3771fa2ea4894c2bb9c94fe0a14a34727fa90da8498adc90a7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwY2RhNzU3MDAzYjkwNDA2OTdhYmE5ODA2ZDJmNzZiZjdlMGMxOGE0N2JjMTJjMGEyODNlYmUwMzk1ZThmMjZmIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIwMWJhNDcxOWM4MGI2ZmU5MTFiMDkxYTdjMDUxMjRiNjRlZWVjZTk2NGUwOWMwNThlZjhmOTgwNWRhY2E1NDZiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJhNWY4NjM4NTNhNGZiN2RkZTBlYzdjMjkyNGNlMDI1MTllMjYyN2MxYmUzNGJhMTdhOWZjODgzZmNiYmI1OTViIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI4YTk0Y2M2ZWY2NjcxNGViMjZmMGUxYjM0NGI0ZGJlMTkxMjE4MjI4MTAzYzQxZWM0MWM0YmMyYjgwYzhmNWUyIn0"
+        },
+        {
+          "resource": "repo://crates/adapter-solana/tests/adapter.rs#L1-L40",
+          "version": "repo-lines-v1:sha256:b1b7f0a94c3df22c5b7cfc77dcff223e245766c3da1cc49e592052c6154f7e51:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNzE2NDZjMWY5MTM3ZmU4N2VkODRiODQ1ZDQyYjE2NWFhNTZlOGNkYzU0NGRmNTI5YTIzZjQyZmIxM2ZlY2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4N2E3MDY4NjkzNzg1MGMzNjI4NGY0OWIyZWZkZmEzN2Q5MjliYWYzZDdiNzZjNmM4MDU0MDU3NjE5ZjIwOTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIxOTUxMjM0MzQ4NmUzM2RlZDgyZTI3N2FiY2Q2YzA4YmViYTA5MmRiYmJiNDBhMmE5YzMzYTFlZjdhNzc5ZmYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_cbe7c35338d34ea79eb701cebfc8a453",
+      "statement": "Maximum Solana native fees include signature fee, ceiling-rounded compute priority fee and worst-case ATA rent using checked arithmetic.",
+      "evidence": [
+        {
+          "resource": "repo://crates/adapter-solana/src/lib.rs#L445-L524",
+          "version": "repo-lines-v1:sha256:89ba95045b17083966240d43280a939906b19c12d37b5b5ffa16c3307c046915:eyJzZWxlY3RlZExpbmVDb3VudCI6ODAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIzNWEzNGFhM2JmM2ZlMTZmYWIxYzBkZjhiNmQ3ZjdiODhkY2JjMjBjYzQ4MTdjZjg3ODVhZTlhYTVlY2EzZDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMyNTM2YWFiN2FiY2JiZmU1MjY2NDA2MzQ5MTQ5YjkwZDE3MjFlN2YzNWFlZTIxZmUyYjcxMDFkY2VjMWI2OWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ5ZDZjZDBiMDE1YjQwODgyNmUwZDA4ODBkNzM5N2IwZmRlN2UzMDRjNDk3MTM1ZTIzOThiZDlkMmRjMzU2YzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE3NzA2OTYyMjc0ZDgwODYxOGMzNTk3MjJhOTU3Y2VlZjZiNTQxNTM1ZGMyMzJhNDM1Mzc0Y2MzZTBlMmE4MGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_136e00e7333b4717bf9b52fc09666a28",
+      "statement": "A fresh-blockhash candidate is not mutually exclusive with its predecessor, and invalidation requires finalized block-height expiry, matching signed bytes, valid signatures and no successful family signature in evidence.",
+      "evidence": [
+        {
+          "resource": "repo://crates/adapter-solana/README.md#L146-L147",
+          "version": "repo-lines-v1:sha256:a58ee5ccfe3a4ff310aa49184b5a184f11986f2171499f54ce18aa3f43d9e81c:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmI1ODIyZmFhYWViZTdlMGU3ZjA0MTZkMGVhOWQ3YzYyZDhmYTZhMzA2OWY3Yjc4YWMxNjczZjAyYjQ0ZDkwZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOThjZTMwMmRmZmUyY2QzYTcxMmEyZDZmYTMwMGRjM2VlNDRiNWJmY2U0ZjBlYmQyNjNhNzQ3MmQxYjM4YWMzYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2I3Yjc5YmI2M2NkZjc0N2VkZjc0NGY4OThlOGFlYWRkMzY1MzljMjk4YjI1MzA1Zjc4ODUwZTlkNGI4NjEzMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGI2MGI4MjhhNDFjNWM4YWJlNzU4NWVhYWZhN2FlNjNiYWNkZmYxZWE3YTFmMDcwYmJjNzY1ODNhNjQ3MDIzOCJ9"
+        },
+        {
+          "resource": "repo://crates/adapter-solana/README.md#L21-L25",
+          "version": "repo-lines-v1:sha256:1b74b1e9dee3915d37e56eda44824267f9a1ae73d9612ce122a18a5b2bcc96be:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWZlOTc4ZDVkODMwNzliNjhkMDg4YjY1MzJmNjZjYWUzOTRiODFkYjMwZDA2MjA2NTM0N2VjNDk2ZmE2YmRhOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDdlN2NiZDE1YjYyZDQ2NjVlZTMyN2NiY2EwMWQ1NDcxZWE3NmE4MjExMWNhOWZiZWQwMzc1NDM5ZDE2MDgwMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjk1YmExMGVmYjgzNThkYmNjZTkzM2Q5MzhkMmRiMWM0NTFlOWFjYTg1YmEyMzA3Yzk1ZWY0NGNiNzM5MjAxZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjcyNzA5NTRhMTc1ODQ2NTAzYWEyYmMyMmI5MWY2ZTAyYzYwYmUwNTAwNzg1YTRkNmUyOWI3NjA3NzJkYWVlMSJ9"
+        },
+        {
+          "resource": "repo://crates/adapter-solana/src/lib.rs#L992-L1066",
+          "version": "repo-lines-v1:sha256:cfeb96976cf38583c5da57f93489cec518eaade6aa13ecba032621a90aba807d:eyJzZWxlY3RlZExpbmVDb3VudCI6NzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkZjYyMmE1OTNjMmMwYWI3YTNiYWUxYmQzYWM1ZTlhMWVmZDAzMmE0ZDhmZmY3YWEwNmRkZGQ0ZjMwNjkxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBiNjA3M2U0MDVlNzdjMDdkOWFkYzUyYWVmMzM1YWEzNzRiYzhjNTA2NjVjOWY3NDliODI4NWZiNWVkYTFiMDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5OWJkZWZlZWFjYTYzNDBlMDI5MGRjODZlODg5Yzg5ZDVlMTg5YWE1YmE0NGI1ODViM2I3MDczNGY0YTYyZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ1MTdiYzgxMTNkMjAzZDUwYmNkNTM0YmM5MWEyYjc2YTk2ZDQyOTg1YmYwZmUzYjQ0ZWYzZTg0MjQyOTVhMWIifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-20T20:16:28.312Z"
+  }
+}

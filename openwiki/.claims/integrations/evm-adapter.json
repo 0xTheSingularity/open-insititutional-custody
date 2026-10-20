@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:58691722e4ac73f9548615589a35dbaad65abfff84fbd3d09401b68f74b96581",
+  "claims": [
+    {
+      "id": "claim_3c75fcbdd91d4690a83442cacd64c8a2",
+      "statement": "EVM adapter builds type-2 direct native/ERC-20 transfers, verifies explicitly enabled replay-protected legacy, uses prehashed secp256k1, locks sender nonce and declares no native expiry or L2 data fee.",
+      "evidence": [
+        {
+          "resource": "repo://crates/adapter-evm/README.md#L15-L30",
+          "version": "repo-lines-v1:sha256:7851efec9dfc0c65514407635bdb5749ad2e4c6e23f3a469d90968fa60e78ce4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY5YTI4MGU3MmJjZDJjZDQyYWNiOGU2ZDMwZmJmY2FiZDJlNTIxMjU5NTVlOTQzYjQ0OTRmZTE5ODQ1YTVkZDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY1YTc0MWZmNzY3NDZjZWExOGIyOTliMWRkODVmMmIwMWUwYTM3MjhmOTFlZGUyYjkyNzY1NGFjMmE0MWI0NDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFhMDcxZDY1MzQ5MzRhNTQxMWZiYzY2Yjg3MTliMGMwNjY2YWQwNDIwNmExMTEwNThjYTYxMTdkMzk3MGEzYWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNjMmFiYTA4NmY4M2MzYmZiZmNhMjVjNTAxMjY1YTY1NTcxYjZkZjA5NGU4ZDRjOGEzMWJmN2IzNzFmY2Q0ZDAifQ"
+        },
+        {
+          "resource": "repo://crates/adapter-evm/src/lib.rs#L341-L385",
+          "version": "repo-lines-v1:sha256:b874d07b24c4aaab9f247bf416cd8d5658b4a80bf5000929e7b0d4f83969db0a:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY1ZTliYWNlMzg3YmNlNjgwODhlMGY4N2U3N2FiMDAyYzBlM2UwNDdkNzI3MjE0OGZjY2ZjZGYyNzQwMGJkNjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkyNzMzOWUzYjFmMmViNTM1NGY3MTEyNTg2ZTE5NTM1M2I1NDQxZWVhMDk1YjJjNGM3M2Q0MDk2OGMzNTQ3MTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA3ODRiNjczZDNjZDhhYWUwM2U4NTEyNWQ4Y2MzMGY4M2Y3ZDc2MzM5OGExZTZhNGIwYTI4ODkyZWE1ZWY4MjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRlZTEyMDI3MzEzZDMwN2MwZTNlZmJlMGFmOTc1YmM5N2U0YjA3ZDMwYWE4ZGM4YWUwMjY5M2ZkMWM5ZTM1MWEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fe53ff6c2a324714916a5874294f2506",
+      "statement": "EVM verification rederives native signing payloads and enforces concrete network/contract/recipient/amount and fee bindings against intent or bounded template.",
+      "evidence": [
+        {
+          "resource": "repo://crates/adapter-evm/src/calldata.rs#L1-L105",
+          "version": "repo-lines-v1:sha256:48e279a516f3bf63fcd5bf30094ffabc00cb3c72f99a8db522514f43d7edcb75:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJlNzJlZDk5NGYyYzQ0MzNhNjQwMWM1MzBjZDI1NTYyMmVmMzExYzlmNDFkODM5NzBlZTg4ODM4NTNjOTBjMjExIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI1ZDRlOTg1YzY0YzVjNGU1ODk4MWI0MmEyZjg1YTA4MWY1MTdjMWExYWVhZjFmYWMxMzVmNGU5ZDc1NjM3MDViIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MCwicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI5MDFiZjU4OTQ2OGZiZWYyZDMyYTIwYmYyY2ZlZmRjOWZmODhlZjkyZjcyYzczYzQ5ZTRkNzM0YjI1MzBlMWFiIn0"
+        },
+        {
+          "resource": "repo://crates/adapter-evm/src/lib.rs#L476-L580",
+          "version": "repo-lines-v1:sha256:41189515d63f0f81542985a030a6e3c0bcedd48f69a605ac2a3c562f9b6fd8b1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwMWJhNDcxOWM4MGI2ZmU5MTFiMDkxYTdjMDUxMjRiNjRlZWVjZTk2NGUwOWMwNThlZjhmOTgwNWRhY2E1NDZiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJjNWNkZWY4MDg1YWU3NGFiNjM2ZDY0NTlmNWM2ZDVmYmZiMGRiMjY0ZjFiMGQ3NWJhYzUxOWM5YjNmNjcxN2FjIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIyZDdiNzE0YzdjOTk1NDk5MGNmMDg2ZmUwZDQzNWFmOGNiZWMwZTBjMTUxYmYzZDczMDgxYzBhMDYzNzE5Yzg1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI3M2UwOTNhOTBjYmE1ZDMxNjc4ZWE5MjQ0YTE0MjYyNjQ5ZWE5OTQ3NDc4YmI2YjI5MjE0ZTQ1YjdmNGE2NzRmIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_33081f0c1c864564ab4f5b1caf4d62c3",
+      "statement": "Strict RLP parsing bounds input to 128 KiB and depth eight, rejects nonminimal encodings and trailing bytes, and uses bounded integer fields; signatures are low-s recoverable ECDSA.",
+      "evidence": [
+        {
+          "resource": "repo://crates/adapter-evm/README.md#L47-L57",
+          "version": "repo-lines-v1:sha256:29a5085ae663041289f803132381f0357a883905011b6b7f7f97be5b5a914793:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhYmNiZGU4NWQyZDNiZGQxNTNhYzNhODViNWM5OGMwOTg2M2I3ZWE5Y2I1MTVjMWQ3YjZmMmZiZWJhYmFlMTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIyYmFiMzJiOWE3YWQ3OWIyNWM1NTBhYWRlNmMxMjIyNWE1ZmE3NTY3NTk3ZTY0ZDRkZGE2OTY0NDIyYTc4MjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIzYzg3NzQwNDMyZTIyODRmMTYzMDMxOThjY2I0YTA4ZjQ2YjdkMmM5NjA3MzRiNzM5M2VhOWQ5YzQxZTQ4YzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM5ODRkZjkzNDRkYTJiMWM3NGZmOTNhYTUzN2E5MDdiN2VkMThlNDFmOTBlOWIxMjhjMzY1NzgyOGNlMTU5OWYifQ"
+        },
+        {
+          "resource": "repo://crates/adapter-evm/src/rlp.rs#L1-L20",
+          "version": "repo-lines-v1:sha256:719bb8d21692707e2f110ad245befc424f9b75fe704465996a676487da3ed502:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMyNzZmNDY5ZTk2NzRiYjg2YThhMjExZDEyNmU5MTk2NTZlOThmZDk4NWYxMDU4MmY5YTA5MDk3OTUxOTc3MjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3MzI0NjYyZDVkNDJhZjQxM2JjOWJiMDdlMGQ1ZGYxNjViZDAxNDEzMThmZjA1ZDliY2M1NTc2YzEwZjUwMTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUwN2RkZTM2ZGM1MTk4YzNkZTQyNTdjNWQxYmFkOTUzOTcxNGQyYjFhN2QzYTBhOGVmNjdjOTJmMjgyYjc0Y2UifQ"
+        },
+        {
+          "resource": "repo://crates/adapter-evm/src/tx.rs#L1-L50",
+          "version": "repo-lines-v1:sha256:41cff745e8d92a34e28118bf0b6ccbabef47f17bce2464bbfeaff4048808b6be:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyNzIyMzM1M2QzMmQ3YjgwNjExMDI5MDdiNDVjYjQ0ZDg5YzQ2MjRmMWZlMmI5ODcxMzEyYzc4NzE0MmUwMzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAzZWY3MTBkN2M0YzkyNWM1ZmJkMzZiMjk0YzBiMWZiZGY5YmYxNmI4NGM1MjdlN2NiZDQ5NGM1NDc3NWNiNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFmZTQ1MzRkM2U0MDI1YThmZDFhZjMxMGYyNjE2MmY0MDM4MjIyNjg0N2I2YWUyMWZlMTNkNGJiMTUxNDQ2ZDYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_efdb0f31be724c689ea12005320df960",
+      "statement": "EVM invalidation requires finalized evidence of a non-family nonce consumer for all supplied possibly issued candidates; submitted replacement, missing evidence or an included family transaction yields Unknown.",
+      "evidence": [
+        {
+          "resource": "repo://crates/adapter-evm/src/lib.rs#L687-L768",
+          "version": "repo-lines-v1:sha256:082594e75186011a8c8335b461b2e2a16f615559ccc96ae34bd67b9ceaee151b:eyJzZWxlY3RlZExpbmVDb3VudCI6ODIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwMGM0ZjA1NDdkM2Y3NGRiMmYxMjQwZDdjNTk2ZmUwMDk5YWRkZWFlMGM1OWY5MzkyNzdmNjM0ZDdmZDY5NTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5YjE5ODJlOGRkNzQ4MTE4MTQ2YjM5YTJkMDA2MmY0MDgxZTM0Nzc5Yjg2NzVjMjM0YzRmYjEyNGRjMzkzOTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZkNzZiYjZiMjg4N2NlM2MwNTI4OTU1ZTQ0NDJjMTcyYzA3ODRiMDc0NzY5ZjY4ZTNmMmI1YjliYmRkZGE4MmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUyYWJiMjEwNzg1NGFhMzE2MTg2MjY4ZjE4N2I4OWI0ZjQ0MDRiMDE1ZTg4NTgxNzU1NmMyZWYzYzQ4ZjVjZGMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f36aa6062f8e4831b8b694b020a7e13c",
+      "statement": "The EVM adapter test suite includes differential published-vector, signing-hash, signed-byte and signer-recovery checks against dev-only Alloy dependencies.",
+      "evidence": [
+        {
+          "resource": "repo://crates/adapter-evm/Cargo.toml#L17-L23",
+          "version": "repo-lines-v1:sha256:1406b4a698d5ba0e0bf966d390fbbacc772746d0b2138132abc9b0d7b05d4aed:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzMyYTQwYjE2ZTczZDlhNjcwYjYxYTNhYzA4Mjg1MmJmM2Y3M2QwNmVmYjlmZGEwYzYyOTVmYzNjZGYxOWEwYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTgxMWIwZWNkMGU2YWUxZjY2YjIzNjIyZTRmNzMwOTEzN2MyZDYzOWQ0OWY0ZjlhYzg2NzY5YzBiNzg2YmUxNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmU0NTcxZTM4NjQ0NWMyOGQzNGZjZDdmNGE3NjhlN2VmN2I2NGYzMmJhZjA1MDdiMGY5M2U3M2EzNzEyZWMyMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://crates/adapter-evm/tests/differential.rs",
+          "version": "repo-file-v1:sha256:03fc5788ea7ffddbc7d0f09fed8f1321dfe90ddc4ac0d580a32491c444701e7c"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-20T20:16:28.312Z"
+  }
+}

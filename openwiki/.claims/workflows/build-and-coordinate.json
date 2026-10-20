@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:86ce0d123741a7366c4cb094965122c3dffa9b5ea853a8ebad5cfc8e306eb9c4",
+  "claims": [
+    {
+      "id": "claim_4367a75102e04107b237b431752e93b3",
+      "statement": "Builder checks object scope, builds via the adapter, re-verifies intent and bounded template, compares semantic/payload/evidence commitments and returns an ApprovalPackage.",
+      "evidence": [
+        {
+          "resource": "repo://services/builder/src/lib.rs#L80-L198",
+          "version": "repo-lines-v1:sha256:afc5c92dc446839498f05eac77cc5f20e72c856e8a501ee2cfe666af98052b1e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTE5LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwMmY2NGI2YjM1MTZjNGYwNzBlMTM0MWM1NDU5ZmY1MjMxZDk4MGM1Mjg0YWVlODE3ODlkOGEzNzc2YWI5YWFlIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJkZmI3ODJiMTZiMjEwYmU3ZTA5NWQ5YTNjY2Q5YzQyOTc2ZjhhZDFiYTJmZWFlYzA4ZGNjZWRiOGM0NjgyMDNjIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIzYjQ5Y2JiMWMxMGQ5YmFlNDY1MzI0MmY5MGQzMDQ5YTJmMDk1YWUwODdiNjMzMjk2N2IyZGIxZjBlMDA2ZjFkIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0YzliZmVkMGU1MWRjZDg3N2U1OTkyNDYyYjRkZjRkNmI4ZDE1YzY0ZTVlMWZmNjQyZTI0YmZjZDBhZGU0NWVlIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_a5ada9250d1b46ab911e0531f3cd0e02",
+      "statement": "Builder evaluation authenticates grants and runs the kernel under the same policy as the package, while required_approvals merely explains rule selection and does not decide authorization.",
+      "evidence": [
+        {
+          "resource": "repo://services/builder/src/lib.rs#L201-L258",
+          "version": "repo-lines-v1:sha256:ebe851918b4a7487e03f03a8229051ab5db29d709b0a133e1cd1eb0c6a96e31f:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk5OTU4M2IzMGQzMzMzOWIyMDU1ZjBkMDJhNzgxZjg4NzI0NjM0YWFkM2Q2YmZhNjRmMTZhMWFiZmY3OWI4OTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzZWRmZjQ0Y2YyNTQyNjM0ZjY3MWVmYmVmNDEyMjEwNTgyOWNmYzY0OTJmZTE1MmYyNzk5NmUwMjMxZTk3ODEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MDcwMjgxNDk1ZGU3OWRhMWIzNzViODU4MDc2ZWEyYjFiYmFiNTkzOTFhNDhkNTMzYmI5NTY1NDNjNGE2MTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ5ODQ2MGFjZDM3YTc0YjVkODBmZWEyNTIwYTM5OGQ1ZDQ3ZTAxZDI5NzI5OTM0YzAzZWE3YjJjOTJlNTg3NGUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_64cdc39dd87c41e396e2340ec8f8d233",
+      "statement": "Envelope construction binds package/native/profile/key/policy/destination/evidence claims to a deterministic reservation identity plus explicit signer session/participants/deadline.",
+      "evidence": [
+        {
+          "resource": "repo://services/builder/src/lib.rs#L261-L332",
+          "version": "repo-lines-v1:sha256:c5663b2f515c4aaf5a82f380c2f6866578c06fb264abadfb482a08dab11988fd:eyJzZWxlY3RlZExpbmVDb3VudCI6NzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZiNzY0YTg2YzUzMGQ2YmU2YjEzNDFkMTlmYzQxZWQ1ODI2YmFjY2UxNWNjYzE1OWJjYWEyNGNlZGQzZjQ1ZWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdhOWVjMWFiNDk2ODc5MmM4NjgwN2FjOWYyZWE2NWU3MTMwNzc3NmRlNTQyMjQ5YjAzYjI1MGU1YTcxZjY4MzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3980186489dc481ca08b2ee297c4394e",
+      "statement": "Coordinator gates on Allow and valid static preparation before reserve, drives sessions and buffered share messages, commits authority release, then aggregates and natively verifies signed bytes.",
+      "evidence": [
+        {
+          "resource": "repo://services/coordinator/src/lib.rs#L200-L380",
+          "version": "repo-lines-v1:sha256:58f8c05c7c4542e33500940e316f61420a312d3d85d549de37e379bd7652f850:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIyNWJhMjI5MjhmZGIxN2FkMDhhZjAwYmVlZDI0MjQwOTc4MjMzYmU0MGEwZTgxNmQ5Y2ZiOTJiY2U0MWYyYjNlIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI1MDEyYjU1ZmIwOTMxN2E2Yzk1ZTNhNDczN2I1MjhlNTY0OTE1ZGRjODBkMTEzZjA5ZGNkY2VkYTQwOWFmZjFlIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4YWFhZjdhOTA0MTQ3N2JlMzA4YTc1Y2U0NGMzOTFiMmE3NzM2MTg4YjQ4MGE2MGVhYTQyYzMzMzUyNjRmNDEwIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJhM2FiNWQ5MTllYmJkNTlkNGMwMmYwOTkzZDJlNDQyY2Q5MWQ1YmYxMzZhNjI5MWE1MTg3NDBjZjM1Nzc5ZjkzIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_7586a4571606469ead34f155426b3e3a",
+      "statement": "Pre-release failures attempt session/reservation abort with cleanup failures exposed, whereas post-release failures retain the reservation and return IssuanceUncertain.",
+      "evidence": [
+        {
+          "resource": "repo://services/coordinator/src/lib.rs#L278-L313",
+          "version": "repo-lines-v1:sha256:3fea2d7abf968d3fce8967d68b43ae83e70ad20b6233279f0a80a4c04f76e537:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhiNDhiNGQxNjY1MGMyNjRhMjQ0M2E2MDEwMGVhOGQyOWM4YjQzMDliN2FmYzkwMmFiNGIyZmYyZTEyZjA3N2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MjJjNDJjZDE5YzZkMDNkODA4YzQ1MjcyMDU1MjgyNWI3ZWExYzViNDkxYjIxODUxMWNhYzc0MTVjZjlkOWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE4YWIyZWU3NTY3MDMwZjUyYTY5ZWRkZTM5YTE5YmNmMjBiZGUxMjM3MzNjODkxMTE1OTYxNzk0YmU3YzllMmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk5OWJkZWZlZWFjYTYzNDBlMDI5MGRjODZlODg5Yzg5ZDVlMTg5YWE1YmE0NGI1ODViM2I3MDczNGY0YTYyZDgifQ"
+        },
+        {
+          "resource": "repo://services/coordinator/src/lib.rs#L383-L408",
+          "version": "repo-lines-v1:sha256:e2740b369ea7715beb202eaf696b8e590369ec6431b54dbdd249d3396a95de52:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYxZGRmNzJkMzUyMjZhZmUxNzhiZDFiYjRiNTYzZjk0NGFhYzMxNDg2MDc5YzBiM2ExYjRjNmYxZTFhNDIyYTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM4ODA1NGU3YTNkNmYwZjVkZjAxM2JlNmIwYmYyNzMwYzAxNGIwOTcwNDY4MmY4NmVjN2NkYTUzNWNmNjg2NjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d77aa15892e046fcbb87926d5ebf7c8d",
+      "statement": "Coordinator drivers support FROST Ed25519 and development single-key message protocols via an endpoint trait with an in-process implementation, without receiving key shares.",
+      "evidence": [
+        {
+          "resource": "repo://services/coordinator/src/driver.rs#L1-L19",
+          "version": "repo-lines-v1:sha256:85cd9627355eebac1126a6361a4292fd00539164147372ccf195fa4fce705794:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyMjFiYmU2MGY0YmFlY2ZkY2Y4YmI3ZGZmODliMWYxZDk0OTcyY2UwNTFhNDc3N2ZkMGJjMzc2N2U1MzQyYTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxNzk0N2UyMTA2NGIyZjJjZDU5NmY3ODM2YWEwMWQzYjI2ZWZkOTE4NWQ0Yjg1YjYyN2YyMTIxYWM3ODYzZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlkYjI5MmExOTZlNGQ3NmI2YjFmZWYwZWNlOWE1ZmJmOTdlNDFhNzFlMmE3MmYyYmU3M2RkNDRmZmQ1YjA1YmQifQ"
+        },
+        {
+          "resource": "repo://services/coordinator/src/driver.rs#L220-L237",
+          "version": "repo-lines-v1:sha256:c5dbd4c42fc0250d0a57b81e552349a13cc7c6947520c4d15ed2643ce2a98a00:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY0YzZmYzUyMDc5MTkzMzVjMjcwZjVhNTdhNjZjNThmY2NmMGVhZjBhNjJhNGU5N2U4MWYzNzk1ZTg4NmM0MzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVlZjQwMzI5OGM4YjIzYzVmNGQ3MWZiNjczNzE4YmQzMjczZjUxZGIyMjEyOGYyZTI1YTEyOTdmMzhiOTFmMzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://services/coordinator/src/endpoint.rs#L15-L73",
+          "version": "repo-lines-v1:sha256:4a9e824b28a79579931742e8233485961b640ff2eb0b6d43ecf07ae9f8c6309d:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJhNzEyYWZhMTNmOTAyNjE4ODJmZTQ5ZTdiN2E2ZDE5YmJhMzNmZTJiMmI3NTJmNjVjZDc2ODc5NTk3MGM4YjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI0MTMwYjkzM2MwMmY3NGI4Y2M2ODA0YjdkZWNkYzBiY2QyMWIzMTEzNDgzMThlMmYzYzljZTA3ZjY1M2VjNGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-20T20:16:28.312Z"
+  }
+}

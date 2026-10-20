@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:f1122bb77d3f7774a12445e5b2523c18742c6e26ab94e5bdb641f68c5273de1e",
+  "claims": [
+    {
+      "id": "claim_615cc21c132d467cae2ffbd761b6e5f8",
+      "statement": "The independent verifier authenticates policy/destination quorums and profile/evidence/object bindings and decodes native bytes, then approve rerenders and binds the confirmed exact preview or bounded template.",
+      "evidence": [
+        {
+          "resource": "repo://crates/approval-verifier/src/client.rs#L293-L343",
+          "version": "repo-lines-v1:sha256:137a812415ddd6d33a586c14100e56c2b55a68ca5fc2ef8eac965987837b0896:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjYzNiZjM1YTYwZGFjYTY2MDMzYzAwMTk2MmIyNTVmZmM5MGFmZTc3NmE1ZTNmNjhmOTkzOWMyOTZmZDRiZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNiN2MwMzA0Mzc0NjgyZGQ1NTQxZmM0YTY3Y2QyN2RmNjJiYTFhZWY2YTcwNTdhYzVmMjMyYzA2YWY2N2ViNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://crates/approval-verifier/src/client.rs#L95-L215",
+          "version": "repo-lines-v1:sha256:bb3e7fe2c06ab72db03138d27fe3d69e14130fd7030a07ccf7bec6e4be997078:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJhNTBjZThmMjUyNzFkNTI5OTA0YmM0YTg0NzVlNmUwYWVhNzAwYTMwOGYzNTJkMjYzNmM1YTA4MTVjYWEyMTQwIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI5MmI2YjBmNGYwYmI5YmJmNzRkYTIwMzBiYWMyNzJjNDM1NDA0YWQ1MWNjNjk2YTI0OTU3YWQ3MWJhZjIzNWE1IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkZmNjOGI1NzZmZWM1ZDI5MjAxNmVhY2MwNGRiNDVjODUzMzQ1MzNhOGZkYzMyYTliMTBmZWMzNTgyMTdlNjViIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJmMjE3MzFhOTljN2NhNWI2MDViYjQ0NDg0ODJkY2MzMTc3MTBiMmY0Yzg5OTM0MWQ1ZjA1YzE2NGQ3MjUxYTJkIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_d2e37b466eb94426bafb35023e39c7ac",
+      "statement": "The approval CLI exposes init-trust, keygen, show, approve, verify-grant and inspect-envelope with explicit paths, optional time overrides and confirmation skipping.",
+      "evidence": [
+        {
+          "resource": "repo://apps/independent-approval-client/src/main.rs#L20-L126",
+          "version": "repo-lines-v1:sha256:04c4415c5cf2e6ab378ba6c9e6eed0a9bd54dc38d83229023fc03975042a342e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwMDhiNTUzMTNmZDMwZDVmNjZkMWMzMmFlN2E0MGRiZDZlMzQ4Y2M0OWFmMmFiZGI4NTRhZjkzNTFjYTdlNjRlIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJlNmIwNDQ5MTQ2OTcyMmU4MzYzYTk0ZTQwNDQ1MzhlMDEzYTJhMjE3ZTM2YjFlNTY4YmE2MGFjYjdiNGM4ZjJlIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIxZWFjOTRlOGYxNTFmZjQ2OWU5ZjE4Nzg1MWJiNzBhNDEwNjI4ZWNlYmY0Mzk4MzllNWE4YTRmMDdkYWEwNjJjIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIxOWU3NjM1NWNmMTE5OTQ4MGMzZjk5ODM2YjE0ODZjODQxZDg5MWZhYWQ5MDRjNjA4ZTA5MzAyMmQzNzU3YWVlIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_0ed12ac5b3434520bb1d6a69f3079673",
+      "statement": "Approval credentials are encrypted with PBKDF2-HMAC-SHA256 and ChaCha20-Poly1305, bind header metadata as AAD and are created mode 0600 with minimum 12-byte passphrase and 600000 iterations.",
+      "evidence": [
+        {
+          "resource": "repo://apps/independent-approval-client/src/keyfile.rs#L1-L47",
+          "version": "repo-lines-v1:sha256:39bccdf5c55c67b5ca935d74a12ea585e9236aeffea8b159eff84a860bea5137:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM4ZWM4ZmRhZWJjMjAxNzI1ZGI0OTg5MDFkZDc3ZDEwODg2ZTdjMTEzMzZmMjZlMWJiNzJmYzhhMThmNzVhYjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJiMjc0NGExYTE4NzFkMDM2MTAxZDQ0OGI2MmE2NjY5ZjNkNGRkMWYyMTA5MWZkMmVkNGQ5YTVmMTNjNjM5YzQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE2NDFjZjFjMzRiNmJkODliNmZmMTFhNTFmY2I5YTc4YmNmMDBmZWFlNjU1NmVjN2FiZjcxN2Y3ODFlNzEwMzAifQ"
+        },
+        {
+          "resource": "repo://apps/independent-approval-client/tests/approval_client.rs#L265-L323",
+          "version": "repo-lines-v1:sha256:491b63dbb9ed6a787a957d6fb706550c0b9e27c1ce9521b2e6573392339da183:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzNzkwYWUyYjllODc1NDBiMjkzMDM0ZjgwNjVkMDgwY2Y2MTg1ODEwNGYyYTExZmViNmY3YzMwMTFjOGNiNGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkZTNhMDAxM2Y5M2IwODZiMWY4MzRkYzU3NmJjZTc0MzczZmQxNmJhYmQ4NjViNjQ2YTc4MjJiM2I1YTc3YjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMxNmY4MGYzZTQ2NDVlZTk2MWQxMTQ5NTY1ZDE1MDkxZTA4OThmOTRhOGVmYTQwYjEwNDMwMTE0ZmJhYjRiNzEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fe9ddd6a0def45d4a9599bcb593ad38f",
+      "statement": "approve checks freshness and destination, requires positive TTL, refuses overwriting output and defaults to y/yes confirmation, writing no grant on verification/decryption/confirmation failure.",
+      "evidence": [
+        {
+          "resource": "repo://apps/independent-approval-client/src/commands.rs#L265-L311",
+          "version": "repo-lines-v1:sha256:cfcb58bed802d4ca374bebe8d7aa09e1a8284117a190a0c3adae6ca4a556c607:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ1MDY3Mjc2NTYzYmYyZGQzNTlkYjA5NDEzY2NiNGNhMWQwZGQzNjFjMmRlNGJlN2FjZWU0MTg1YmZjNWU5ZDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRmMDBhZDY5MzA3MTZmMGM5M2RiYmFiZDM0MzEyN2YwZDc4NzBlOWI3MjMwNGNkMjhkNWJlMmU1ZDY2OTFjYmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM4YzM3MjFlZDM1NWRiNjcxZGZkY2RhOTE1YTI2ODc3NTgzZGY2NWViOGQ2ZGFjN2M0NGNmZmI5ZWY1MWJjOWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhYjM1YTgzMzM2OWY0YTg0MzgyODg5YzcwYzU2ZDVlYzc1OTA3OTkwZTk4ZmI5ZmNmZmUxMTRhMjdlMGJiMWMifQ"
+        },
+        {
+          "resource": "repo://apps/independent-approval-client/src/commands.rs#L67-L119",
+          "version": "repo-lines-v1:sha256:474b56ea924b5680c01f777050896d1c472f0b10ab02eaeeafd64b08ea15dd0f:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY2MTExNWJkYWVmMjc0MWUxZTgyODk1ZjY2MjNlNGI2NTM3ZTIxNjkxMThkOWUwMzNkNzRkODhlYWM2Zjc4NGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4OTc3MWZlMWI2NjI4ODc1YWEyM2U3ZGJlNGFhNzE0NjFkMDBjZGZiNjZkZGYxMWI5ZDgyMGFjNTg5N2ZkZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg2MTM4MjRhYzdhOWQ0ZTQ5Zjk3NTBmMzQwNjI5Y2RmMmZiZGI0NzI5N2YyNDNmZThhZGQ3MmRmOGJhODhhOGQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_edd9fa22fed44b409de4a0320ada2b81",
+      "statement": "The CLI has distinct exit codes 0 success, 2 usage, 3 refusal, 4 destination mismatch and 5 file I/O/parse errors, while grant-set verification fails on any bad grant.",
+      "evidence": [
+        {
+          "resource": "repo://apps/independent-approval-client/src/lib.rs#L31-L62",
+          "version": "repo-lines-v1:sha256:e41583ff436f46625d04fb45221a3e67bc6c2916902615fdbd794bd636ea16ee:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZlYmEyMWY1MzczYzQ5ZjAyOTBkMmIxNzc2ZWQ0ZDg2ZmQwODllMmY4ZDgzMDNkYWJjZDk1ZWQzMGEwYzNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYxYjEyNDk4ZTg4NTEzZDRiODFjNDYzNGJlODViNDZjZjIyN2NlMTE2MTllMDIzZThkN2Q5YWVjNDIxOTk1OGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMxOTNmNjJhODk0YzI2ZTcwNzY4OTVkMDYxNDE0YWVhYTAwZWNiZTM1MWY5Y2M1ZjkyMWU1MzhhN2M0ZDc3MGQifQ"
+        },
+        {
+          "resource": "repo://crates/approval-verifier/src/grants.rs#L65-L79",
+          "version": "repo-lines-v1:sha256:c4a6c60f349df601373e856da741816ee7189833246c4e241d5f83ef098a6af4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ3ODJkOTdmNWY5Y2QyNzk0MDQzMmFiYjc4NjFkYTJkZDhlZTc4ZDM2NzUyYmUzNWE2YzVlOTQwZGFlMTBjZTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzMDI0M2QzYTkyZDY4MDg5MjIxNjZmYzcxZTFmNDEzYTBlMmViZmJiYjMzOWFhNGFjNmY4ZDNiMmM3ZGMwNzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY5NTJhYjlhZWY2YzAwODIwZjI5MDY0MGY3NjdiNDE3YzQ3ZTZjZGYyMDYzNGJjOGIxOTQwMTBjODNhYWU1YmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE1MjE2MDRiMzVmYzQwYWYwMGNiYTRlZWEyZmQ1ZTJjM2FmMTg2M2IzOTExODVkN2JmNGJiMDllNzJkMGM4YjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f7565333caa84d8b83e4b0ac65b28e93",
+      "statement": "inspect-envelope compares package bindings but does not authenticate the authority receipt signature because the approval client lacks the authority key trust root; signers perform that verification.",
+      "evidence": [
+        {
+          "resource": "repo://apps/independent-approval-client/src/commands.rs#L598-L626",
+          "version": "repo-lines-v1:sha256:4baf73b9359b5ddb6f303ab289c9ae7077f87e1622f222d39dbe93199b769360:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFlNDcwNjliMDU4OGVlYTdmMWFiNmQyOTE0ZTgzMDYxZTZjNzk0NzE2ZGI4Zjk2OThlMGYzYmZjMzRkYjYyOTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwODk0OGNiNmMwOWQyNWYzZTU3NzQyODJiMjYxNzcwNTk0Zjc4ZWZmZGY4NzBhODc3Nzg4OGNlMDQxY2U1ZTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQzNjY1ZWI2MDI5ZjgyYTU2YWJlODcyMWE5MDczMWQ0OTk5NGJkZjI3YzljNmNkNzUwMjRjNDM0N2Q5YzYzNjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ4MDJiNmFkOTA2YmU5MTNjNjI0YWFlNTU1YWFhYTk4Njk2MDgwZGU0NTc4ODcwMmRkMDJjNTY3MWZkZWZjMWMifQ"
+        },
+        {
+          "resource": "repo://crates/signer/src/verify.rs#L48-L89",
+          "version": "repo-lines-v1:sha256:16583fc4b2f5e9250b5c4abd5c3612b8313075740e623a1e14db8e92cb66015c:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNhMDgzZTliOWI2NGM4ZWI1YzQ1ZTU0MzI1NzYzOTQ3ODI1NGRjODAyMTM4Y2UzMzRjYzZhZTljMWFmOTMwNzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA1YmZiNzM3ZDljZmQ5MGY5OWRhZTQ4Mjc4MjcxOWIyODIyMmE3NGRmYzQ3ZTEyMThmZDE5NDQ4OWZjMjg0MWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA1YmRhZTk5YjM2YmYyZDRhODhkODY1MDAxNzhlMjNjN2Y5OWQyNzY2NDNiYTJmZDlmNjA4OThmM2M5ZGM4ODgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxMjU3NTc2ZmZiZmM1NTk0N2VjYjBiZDMxNTg5NjExYWZmMzU0ODQzNjA0NTM5OGNmMGE2YzE5M2ExNTA3NjYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2a021576879645aea4109747f4bb8f05",
+      "statement": "Approval CLI approvable enforces destination and freshness, profile adapters check accepted evidence trust levels, and environment-specific trust restrictions are separately enforced by the policy kernel.",
+      "evidence": [
+        {
+          "resource": "repo://apps/independent-approval-client/src/commands.rs#L67-L119",
+          "version": "repo-lines-v1:sha256:474b56ea924b5680c01f777050896d1c472f0b10ab02eaeeafd64b08ea15dd0f:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY2MTExNWJkYWVmMjc0MWUxZTgyODk1ZjY2MjNlNGI2NTM3ZTIxNjkxMThkOWUwMzNkNzRkODhlYWM2Zjc4NGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4OTc3MWZlMWI2NjI4ODc1YWEyM2U3ZGJlNGFhNzE0NjFkMDBjZGZiNjZkZGYxMWI5ZDgyMGFjNTg5N2ZkZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg2MTM4MjRhYzdhOWQ0ZTQ5Zjk3NTBmMzQwNjI5Y2RmMmZiZGI0NzI5N2YyNDNmZThhZGQ3MmRmOGJhODhhOGQifQ"
+        },
+        {
+          "resource": "repo://crates/adapter-api/src/lib.rs#L183-L209",
+          "version": "repo-lines-v1:sha256:f852043fce3e51de833e9a5643c09570b6d6dc62bab17581bf1bf86144baf8ca:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5MTFkNjlkZTQxNTZlZDgyZDIyMzFhYjU1ZmJmZjgyMTg0MjQ5MmNlZmU0MzYwZDVjYThhN2QyNmE2NzlhY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM1ZjZmNDY2ZTU5Y2ZjMzA3MDNjNDVmNzJhZjY1ZGU1NGFjMzYzZDM1NGNjMWEzMzMwMzUwYWNkNDUyNDM0YzQifQ"
+        },
+        {
+          "resource": "repo://crates/policy-kernel/src/lib.rs#L231-L241",
+          "version": "repo-lines-v1:sha256:01e6ae4810eab493b4a93a58c64a6a85b1983f5d1132cc531c77d51997d499f7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyY2NiZjE2OWJhOWYzNDI2NDVkNzc0ZmRkYWY3MWNjN2UyN2QwNDczY2IxYzU2YTkxYTYxOWU5NDYxYzc4Y2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYzYjE2OTQ3NDRmOWFlZWZjY2EzZTM2NTBlYjAzNTFhYTI2NmQ5ZjRhNjQ1ZDllZjE5MDE5NDJiYmQ2MTY2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdjZWM3NWVhMWRiMmE5NzgyMGQyNmQ2Zjg2ZjNhOWRmY2M0NDRmYjFmZDY0MDUyYjU4M2JkOWQ0MWFiMjYxOGYifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-20T20:39:06.439Z"
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:b5451e84b442dc09ae7c0af564ab4612ac00b95578610182a9b81d7c4c37b272",
+  "claims": [
+    {
+      "id": "claim_bae2b495ef834365b54c7a6866139d7e",
+      "statement": "The workspace declares edition 2021, rust-version 1.85 and 21 real member packages, including the independent approval binary and executable authority model.",
+      "evidence": [
+        {
+          "resource": "repo://Cargo.toml#L1-L35",
+          "version": "repo-lines-v1:sha256:efd20912f51133722904b3f703f0c066b5e61daa285b0ddf763b1202465e4148:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzNGUxMDJjODYxZjk5NGQyYWFjZTkxMTRkMzkyZGJjMTYyMTkwZTAwYmU4ZmUzNTdkNDcyMTUwY2E0Mzk2MTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcwZDgzYzk3NDc3YWVhNTZkZDU5ODEyZTc1MDM4OTRiNmE2NzY0YzMwMDNkZDY5YTdlNDY4YWI2NGI4YjAyMDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNlY2NhZGNiNWJiOTkyMDZkMzM0ODQ1OWFiOGM0MjVlODVhN2ExY2I3ZGNlYThlNmUzYzMzNjM0MDc4NGUxYzgifQ"
+        },
+        {
+          "resource": "repo://apps/independent-approval-client/Cargo.toml#L1-L18",
+          "version": "repo-lines-v1:sha256:3013b70843ba9230550465e0d21ba06aabf63a79bdbdde19f1ca5547a1d0d5a8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhM2NkNWE4MWIzZjlhNjIxYWE0OTNkOTBjNDVmNDJhYjU3MWQ0ZTQyYjhhZTVhZmYzNTFjYjBhMDJkMDZkODIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkMzY0ODFlMjkxYzQwYjJiMzIxYWQyMmQ3Yzc0MmRkODM1MWRkNTJlNjg1MjkyMDc2MDJjZTc3MmE5YTQ5OWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZhZjI5MDI2OThmMTUzMzQ4NjEwNGJlZjcyYjM5ZWQ5MTU4MzE1YTRmYjVmZWVjNWE0YmFiYzk0MTQ4NjgzMjAifQ"
+        },
+        {
+          "resource": "repo://models/authorization-state-machine/Cargo.toml",
+          "version": "repo-file-v1:sha256:da217b9cdc1004baf53d43f2fd652d8b27435a36666ed92de4c415172b5a23a5"
+        }
+      ]
+    },
+    {
+      "id": "claim_aa15c33b54c14b80a1e8fea25255e457",
+      "statement": "Golden-vector conformance checks exact fixture regeneration, coverage of declared domains, real producer canonical bytes/hashes and native payload equivalence against Alloy and Solana SDK.",
+      "evidence": [
+        {
+          "resource": "repo://tests/golden-vectors/tests/conformance.rs#L1-L12",
+          "version": "repo-lines-v1:sha256:78c9bf9565b5969deb69614856efb255df84d71d5c603c53a789b58caf30a74e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA3MmRiNDA1MmQ3ZWEyNTU3ODZkNDBlZjc4ODE4OTk2NWIzYzM2ZGVlZTU3NTE4YzkzZWU1MDY3N2Q4ZDcyNzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5YjgwNzI4YzY3ZWRkYTdhNDM5ZGU3NDY3NTJlZjEzMDliMmE1MWRhMmViNjNkZDk4ZDdmNDAyMzYzOGM0YTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ3ZDQxNjkwNDlkM2ZjOTcyMDE5MzkzNDVjNDhhNzIxOWFlNzc0NTBiYWM4ZDkyOTdkYTZlZWVlNmI2OGE1YWYifQ"
+        },
+        {
+          "resource": "repo://tests/golden-vectors/tests/conformance.rs#L278-L380",
+          "version": "repo-lines-v1:sha256:e75e9bf58924366430c5302444b73854034ae492d7184c1d3e4c5930d959df53:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJkMmNkNGRiNDhhMzUwZThmMGI0Nzk0NGM0NmUzZmZkYmJhMTMyZDIyOTBhOTFkNzAxMmI1NmViNDZjOGFiNGY2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3NGQxNGFhN2ViODExZjA0NDQ5NjRmMzFiM2ViOWRmY2ZjYWUxODMzNjIzYzdkMGIxNTVlMjc5MTBjMjljMTJlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        },
+        {
+          "resource": "repo://tests/golden-vectors/tests/conformance.rs#L53-L141",
+          "version": "repo-lines-v1:sha256:e2296c4f7ea0887576da3891ff4d1ee94a6beb2af5299623afebd4e49cf9a453:eyJzZWxlY3RlZExpbmVDb3VudCI6ODksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlmYjUyYjJkYmMzOTkzNzQyNTQwNmE2YzYxZWM1YzM5NmQ0ZTJiYjVmOTUxZTVlZTY1ZWFlMzc4NzZkNjQ2ZjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1MDRkZDA2MWNlYmY3ZWFhMzE3NmE5ZjY4ODFmZmY1NGY1MjE3OTk4OWRmMWM3Y2M1Yjc2YjA1MTczZDJjNjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjljMGExM2I5MTk3OTBmNTNmZjdlYjM0OTA5YThkMDYyMjdiMTZlMzYzNGU0Yzk3ODdkNGY5NzI4NmNjZjhhYTQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f5ca3f8e40dc4575a6244eafd8565381",
+      "statement": "The vector generator writes files only when OIC_REGENERATE_VECTORS=1 and otherwise returns without mutation.",
+      "evidence": [
+        {
+          "resource": "repo://tests/golden-vectors/tests/generate.rs#L1-L27",
+          "version": "repo-lines-v1:sha256:348fc2619b2f1bba2598ebe8f9503456c49d1115c714da8307c4b0bb6312726b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkZTk2ZDMyMzBlYjc5ZjA5YTU4NDI4NTdhMzJlNTQwNzg5MDI2NDM2NjRhZGZiYzI2NmYyYjM4MDY4ZDk5NTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a33b0ef417084b9fae8119c1ebbde9f7",
+      "statement": "The Stateright harness calls the actual authority within a bounded one-vault/one-budget/one-nonce/two-family universe, checking five safety invariants and reachability targets.",
+      "evidence": [
+        {
+          "resource": "repo://models/authorization-state-machine/src/lib.rs#L1-L28",
+          "version": "repo-lines-v1:sha256:0d00d75fcf56df3cda988a3dc16ea720bb9ae83ce9faeb5bd3d2da23ef4ff239:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMWNkODk4YTczY2UzYTNlZDFiZTZlMTE3NDIyZmViNDZlZGQ4NGJiM2RhNzRiNDc3ZjUxYTQ1OTc4N2ZmOTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU4YjkyNGIwOTkxZGYyMmMwODUzNWY0YTNiYmJjZTBiZGEwZGM5NjE4ODcxMGI4MzU0MGVjNzE4OTBmODM2MjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNkYTg3NWYwNjIwMjcwMTAzYWRhNGJiYjI5NWNiNmI0MjQ0MDY3OTliZGU3ODBlZWE2NTk2YjBhMzZiN2Y2OTcifQ"
+        },
+        {
+          "resource": "repo://models/authorization-state-machine/src/lib.rs#L568-L599",
+          "version": "repo-lines-v1:sha256:55a75e706b5966af2d04c26fe52e9b4cf797fcaf00a92721d9c9f3751e065045:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0M2M5NzllYTIwYWRhMWU1YzI0MTNhODlhMDJmZmVhMTI0NTFjMDljYmYzNjEzYzIyMGNmN2ExYWFhZjIyYTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWE5MTZjNDg3YjRmOTAxODc0MDIxM2EzMzJiN2E5OTQ4ZmQ4Nzg2YTljMjM4NjdhMmJhMjgzZjBmZGVkZjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM4MWJjNTY2ZGE5ZWMxMTU0ODUzZDRmMWM4YTlkODUxZjg0MmZmZGU1MzBlNjEyOWI3Mzc3OGQ1Y2I5NTEyYWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE1MjE2MDRiMzVmYzQwYWYwMGNiYTRlZWEyZmQ1ZTJjM2FmMTg2M2IzOTExODVkN2JmNGJiMDllNzJkMGM4YjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8c87b913918040fb809eb415235da835",
+      "statement": "The workspace model test checks depth eight while the standalone CLI defaults to ten, accepts --depth, exits two on invalid arguments and reports exploration counts on success.",
+      "evidence": [
+        {
+          "resource": "repo://models/authorization-state-machine/src/lib.rs#L606-L610",
+          "version": "repo-lines-v1:sha256:924855fc4783e2a5b14223898e92f2a6c065017bcd3978d4e0ca61817076d4ce:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTJiNWVkZjU5NDljZmVhNjc4MjJjZjY5MTEzMjM2M2Q2OGQ2ZjFlMTY5ZjVlMGQ0ZjdjMTRlNWZhMWU2ZDRlNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDllYzNiM2ZjOWNlZGYwODIwNGJjYzRhZTBhNWYxMzBjOGQ4MTNiODE1NDRlZDQ0ZWFhYmNhMDg4MTM5ODYzNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWM4YjYzMzQxY2RkNTgwOTI4ZmJiNjViZTA4MDUyMzFhNTgzZDEyZGI1ZjVhODIwYjFjYjJkNzgzYTUzN2VlOCJ9"
+        },
+        {
+          "resource": "repo://models/authorization-state-machine/src/main.rs#L7-L41",
+          "version": "repo-lines-v1:sha256:ee4e9ddab8a9bcf66c9b15df5a8d00b5d4fcdf434cd00e82d6c4c12cf5777f04:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhYzEzYTRkNjJlZWYzY2MzZDZmYWRlODFmYjhhZjUyZDA0NzlhMmQwMmI5MmI3N2Q1YzhjNTI5M2Y1NmMxYTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYzYjg0ZWNjNDdmM2EyOWUxYjJhMzAyMDVjMGYwZDRmMjAyZDA1NWMyNjEzZTNkOGYxMzNmMDNhYjYyZTAwNmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a40590d8aa0343699da71c721d15dfe5",
+      "statement": "Coordinator tests provide executable EVM ERC-20 and every-two-of-three Solana FROST transfer examples rather than a server-launch workflow.",
+      "evidence": [
+        {
+          "resource": "repo://services/coordinator/Cargo.toml",
+          "version": "repo-file-v1:sha256:d64a4c9405028a0854273460323befd43450d78240f94e602486afa9c2b6a0d7"
+        },
+        {
+          "resource": "repo://services/coordinator/tests/coordinator.rs#L108-L181",
+          "version": "repo-lines-v1:sha256:3c9727edccbf17c03ef8820085515388e3dd66efa59ff85fb9f6bdcf32176dd0:eyJzZWxlY3RlZExpbmVDb3VudCI6NzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyNDJkY2I1MDZmOGU2NTcwZGNiN2UyNjRlNmI5MzczMDA5MTU4NDFlMDI1MTIyM2Q0MWEyMjNkNTczOGIyYjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-20T20:16:28.312Z"
+  }
+}

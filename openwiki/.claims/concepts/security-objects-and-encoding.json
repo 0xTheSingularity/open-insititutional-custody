@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:d69b11fad6aedab9c73d845893f4f6c150e5d0d840bb9f987e50e5ffe4f21867",
+  "claims": [
+    {
+      "id": "claim_bf7ac1ca27d74ca2a8cdc9895b6f8563",
+      "statement": "Internal security commitments hash canonical bytes rather than JSON serializer output using SHA256(domain || canonical encoding).",
+      "evidence": [
+        {
+          "resource": "repo://crates/canonical-encoding/src/lib.rs#L1-L57",
+          "version": "repo-lines-v1:sha256:42af9481f91005cf9c96875101fc27ced650bb76b2f34ea48d28108d616c2e29:eyJzZWxlY3RlZExpbmVDb3VudCI6NTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjExOTRiYzM5MGZlNGI2ZGM2YTNiODM0MjczYjllYmYzZjU5ZTJhMWVjMTg3YjBkYWIyM2ZkNmNkZTkzMzYwZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFjMDM5ZGYwMmJlOTZmOWIyMWIyNDhlZGI0YmE1NTM2MWIwNmNhYTIyODRkM2I3N2JhNmIzYTgwYWQ5ZTYxNGYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE1MjE2MDRiMzVmYzQwYWYwMGNiYTRlZWEyZmQ1ZTJjM2FmMTg2M2IzOTExODVkN2JmNGJiMDllNzJkMGM4YjMifQ"
+        },
+        {
+          "resource": "repo://crates/domain-types/src/lib.rs#L22-L52",
+          "version": "repo-lines-v1:sha256:038c00d5ce85347730544690602917c96034b1c8ce33109339543217139d3b08:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyZjk2MThkMmMwMmI1MzBmZjNjZDIxMWMyNDJjYTg2MzI5ZTkyNzBiZGM4NWYwNTJkZGU1ZWE3ZjUxMDMyNzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIyNWMwMjU0YmZlZDYzZGM5YWM4ZjJjMjU0YzQxY2IwYzM1OWYzMWE4YTIzMzNhYmNkMzdmOTJiZmZhMjAwZDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_daaddf3e4c9b466bb496a953ec2cc1e9",
+      "statement": "The deterministic CBOR decoder rejects noncanonical and unsupported forms with 64-depth, 65536-item and 4 MiB input bounds, and typed deserialization rejects unknown fields.",
+      "evidence": [
+        {
+          "resource": "repo://crates/canonical-encoding/src/de.rs#L281-L315",
+          "version": "repo-lines-v1:sha256:4801a7044cda8e10df4e73beade8b6a9c473a503df522a2f4a1e90f45301c53f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMyMzNjOGU0NzZkMjI0M2NkNTVlY2FjMTE4NzgzYmE1ZDIwYWRjYmRkNzg3YTBmZTk2ZDkyNjRiNWQ3MGY3MDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlYmNkNzkxOWY2ZTM3NWE0ZTBiN2RhOWNmODNhMjc2ZDljZTA5ODczOWYxZWM2NWFkN2UyYTkyMDY2ZjFlZTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3YjkzYTkxYzNiZWZmMWJmYWJmNGU4OGYwMTlkMTc2NTAyNWM0OTVhMDI4Njk2ZDI3NzNkZGU2YTM5M2UwNDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUifQ"
+        },
+        {
+          "resource": "repo://crates/canonical-encoding/src/value.rs#L1-L53",
+          "version": "repo-lines-v1:sha256:ad17306e70d23b724e0aee88a3ebd30c644943969d1e25efca80851e71ecef31:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjZjdmNDhiZGYwY2I1NmNmMzU2N2MyNzhiNjc3MzlmYTc3NzBlODM3YTY2OTY0Y2I3Mzk1YWRmN2Q3MTI2MmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU0MGJiZjdiZGRmOGRkNjdjNWQ1NzM2MGJmNThjY2E4OTU3OWUzNzhmMDQxYmZiMDQ0N2IwM2UxNWVlY2U3OGIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAxMGQ1NjY5NGI2MjFiMjQ0YWVjNjQ1NzVlNDdhMjEwYzg4ODBkMDFkZTgyODFhNjIxNzJlYTFhY2Q5YmM4ZTgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e6d4ddcb43cb46ebba484907b4ff06b1",
+      "statement": "Amounts are u128 base units serialized as decimal strings while Hash32 and Bytes are hex in JSON and raw bytes in canonical CBOR; public Bytes construction can bypass the checked constructor.",
+      "evidence": [
+        {
+          "resource": "repo://crates/domain-types/src/primitives.rs#L105-L204",
+          "version": "repo-lines-v1:sha256:a9156d0f51b824ca4f81276865b3f20176fc4e4ffacf68e72f93baa02ae9572f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIxZmEyMzhmNWU2NjAxMjMyMzMzNzhlNTY0OGMwZWMyMGY0YjI0NmIwM2U5MzRhNTM3NzhjMDc5MjIxZDk2ZWY0IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI4Njk4MjUxNzkyNGZlOGQzZTE1NjY3MTE1YjFmNWEyMDE4ZTBkNTVjZTVhMDAxYjFlMmQ1ZTMxYjhiMjQxMjJiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIxOWU3NjM1NWNmMTE5OTQ4MGMzZjk5ODM2YjE0ODZjODQxZDg5MWZhYWQ5MDRjNjA4ZTA5MzAyMmQzNzU3YWVlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI1ODFmOWE1NGQzMWVkZmRmMmFjYmZkYTI1NThmMTMwZGM0Y2Y3MGQ0MDA4ZjZiYmU4NzJjZmI5YmRjODgwOTk3In0"
+        },
+        {
+          "resource": "repo://crates/domain-types/src/primitives.rs#L9-L70",
+          "version": "repo-lines-v1:sha256:03d151fc7f2df9a5b9f40dd95a48e4e9417ef120780605651318975c2ad97646:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5MzBkODMyOTI3YjM4YzlmMDU4MGRiNDM3MWJkNzc4MzNiNTM5YjRiYmZiZmZhNTJhMzMxYWFkZTA5OTQ3MDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5NDMzZGQ3YTJjZmUwMWNiMGYyY2JkMDk5MDEzYzExMTIyZWE2OTlmOTk1NGRlYWU3MjlkY2E2MWFlNmQwZDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5YTVhYmFjNTAzZTg2MGE1MTRhYzVkOTA2NDdmY2QxMzgyN2VhNWM5ZTMwZWQyYTllZWNjODkxYmZhNzRmZjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMwZmU1MmU3YWVlY2ViOTRhNjZiMGY5N2I1NWU3NWI0Njc1ODQzYWQ5NzY3Y2U0MTBjZDM3MjcxNGQxZDZlMzkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_cd0734f1576e4f9bb762bd5a588b8de4",
+      "statement": "Exact grants bind candidate id, revision and preview hash while bounded grants bind a direct transfer template with explicit fillable native fields.",
+      "evidence": [
+        {
+          "resource": "repo://crates/approval-verifier/src/client.rs#L46-L53",
+          "version": "repo-lines-v1:sha256:443784a2a11cb7a7572468df79d49ba0eec92f53c4b7696ec07dcced72e518be:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDkxNmNmMjUxNDRlMGRiZGUwMDZmYWIxOTM3YWE2NGQ5N2E4Y2I0YTVhYmQ0YzFmOTc1OTU2MGMzZWZmOWRkNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjRmYmVkOGIzY2UzMDBiZGY2Y2E4ODFhYjMwZDcyMWMyM2Q1OGNiYjJmYTI3MGI3Y2Y4OTYyNGE4OTRmZTEwOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDg5ZTEzMTEyNmE5ZDY5MDVlZTVmMTQ2NThiYzkyODliZTQ1ZWNmNGQzYzQzMTk2YjA5ZDcwY2NiZDgwZGE0YSJ9"
+        },
+        {
+          "resource": "repo://crates/domain-types/src/objects.rs#L265-L326",
+          "version": "repo-lines-v1:sha256:4266600414155edfc3b35bbfbe9ddcf1da41f7ef934820e0ae58d5db918d10a5:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVjMmY3OTdhMGJjZGQ3NzE2YTVjNDhhN2JiYzY4YTAzZTliMGYyZTQ5ZTI0ZDYxZGZjZTc0YjljNWZkNDE5M2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdlZWM0ODdlZDFlMTVlZDM5NWIwODJlYWY3Nzg2MmE0MWM3ZDVmOGU0MTY4YTUyNjJiMmY3MWI2OTE5NDJkZjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI1MDI3MzhmNWJiMTQ4MmVjMDljMTdmODI0YTVmZTJmM2IxOWY5MWE0ZjUzYWE3YzU0Y2E3OThlNWRlOTFlNWYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0deb4beb99f14199959cbc2913eb49fa",
+      "statement": "AuthorizationEnvelope contains a committed body and Reserved receipt, while a separate Release receipt binds the same envelope body for final output authorization.",
+      "evidence": [
+        {
+          "resource": "repo://crates/domain-types/src/objects.rs#L537-L642",
+          "version": "repo-lines-v1:sha256:e469393b22e4f52cb82a35bb2c6ee98206cf8b0669889eb45f97adcd92d550fc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJmYTgyYmNhODY4MDFiMTE2M2MwNmIxM2M0YjY4NmFhYmZhNWNiZWM3MWY4N2ZjNDFhNjhmYmZlY2I2ZjVlOWQ5IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlNzYxZmU0NTI0NWZkY2MyYWY3ZDNlNmVjYTcyMWQ2OTE4YzE2YmJkZWQxMDdkMTQ5YjVjMmU0MTI0MDMzMjJlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIxNTViNWNjZTg4OWM5NGYyODk5OWM1MzcxYWFhYTQ5MWUzN2FjMjdhOWQ5MDA1MzFhNjQyNDBjMWRiMTJlY2U1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_c19d3750a41d43d8a09e13691b82058e",
+      "statement": "The preview commitment includes candidate identity/revision and decoded-operation/evidence hashes, while policy and destination commitments exclude their own signatures.",
+      "evidence": [
+        {
+          "resource": "repo://crates/policy-kernel/src/hashing.rs#L9-L116",
+          "version": "repo-lines-v1:sha256:5f6e70860a3cacfffacf1f245b5738c3f05311052c57635d790d2dff5335b337:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA4LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5MzhmZGIyOThjZGEwMDZmOTJjZWU5ZGJiMDc2NzljNzE4YmM5NGU4OGQxNGI0MGQ4MDE1ZGYyMTQxYmRjMzFlIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI3ZDQ1NTBmYWMyZWQ4NTAyZTFiMDcyMDhmOTg3N2VlNjBkM2MyODI3Y2Y5NDFmYjYzYWZhYWNiMzViZWY0Y2VhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkZDFmMTdmNTI5OTUyZGQ1MWJmMDhkNmZjZjJmYTJiN2ExMjc1ZjQwODAxYjEwYzNiYzAzYWViNzI0MjczOTlhIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJiM2JiM2Y5ZTg2YmFlYWYwMjFkZDA4NDNkMTQxNjJjMTVlNDVmYjhmNzNlNjJiYWVmMGEyZmI4YTc1MGRiOTE2In0"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-20T20:16:28.312Z"
+  }
+}

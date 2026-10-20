@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:e87bb3d0f6bfa3ec471c8a051eba064cd455174b9dddbf951a778a8086de6bfa",
+  "claims": [
+    {
+      "id": "claim_564372f278d74deb995d22ce880bb7bb",
+      "statement": "Authority mutations are fenced by writer token and use an atomic store transaction that publishes a private state copy only after successful persistence.",
+      "evidence": [
+        {
+          "resource": "repo://crates/authorization-state/src/authority.rs#L200-L271",
+          "version": "repo-lines-v1:sha256:e0b426e2df4d26a8ed335755877b2c84cc13b89a0d9b3f448e7c975811fdf756:eyJzZWxlY3RlZExpbmVDb3VudCI6NzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiOTI4YmI1MTBkOTIwOGVkZmI1MWU5YjdiZjU1MjdiNTIzZTNjODIwMjZjMTExYjEyYWNlMjZmMjgwYTVkZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjY2RhNDBlMzI0ODQwNWNlNmRkN2NiNDVhZmU5ZjMyNTQ4Y2FlOGIwMzZhNGM3MjY1MjdiMTFhZjgxNDk5ZDAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzMzZkOGZmMTlkNjk5N2JjZjE3NzQ2MWJjYjU5MDFlMWM2MzgwNzc4Mzk5YWMwY2NlMjIxOWE1NDEzNTZiN2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA0ZTFlMjFlMjFhOTFkNjY4NjRjNDI2M2RjMjQyZjA4ZTQwMDhjZTI5NjAxNDg5ODRkOGIwZjYyYmIxNzI3NTkifQ"
+        },
+        {
+          "resource": "repo://crates/authorization-state/src/store.rs#L19-L74",
+          "version": "repo-lines-v1:sha256:7fc59b81f9d53c52557c8d931aae85deae712f25de72a8cd39c56f6bcadf6fda:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRhYWQzY2EwOWNjOGE1NWNmZDlkZmQ4M2MyZDZiYjczYmI4YzEwNWM2NWVlMWQzMmM5OGJmMDU4MmQ4MzZlMWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyNGRhOWRjNzFmYmRiZGUzZTFkMDFmNmJmZTVkNjM3NmM4MGY5MDIyMzA0ODJlMzE1MDZkZDMwZjY0ODA5M2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY0ZDRhZmY5YjYzMDBhN2ZjMDYyYThlZWFlNjYwMTMxNDZhZDdmMjgwODMyNmQ0OTUxZGI4YjY2M2FlMTkxNjEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_205ba817e9314f6f8d83ed4fb451f6c6",
+      "statement": "Intent registration hashes the body and rejects idempotency key reuse with a changed body while returning the existing family on matching replay.",
+      "evidence": [
+        {
+          "resource": "repo://crates/authorization-state/src/authority.rs#L307-L343",
+          "version": "repo-lines-v1:sha256:5d26427a725f3c8fcdf4a1089038ee62a1f96a40a9754d76e55739638486ba07:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU0ZWM0NWNlZWE4YzMxNTE3N2Q5MWQ2ZmU2MzYwNzRhN2M2NGNhNThiNTliYjk5YWEwYjc1YWMzNGJkMjU0MjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5YjE5ODJlOGRkNzQ4MTE4MTQ2YjM5YTJkMDA2MmY0MDgxZTM0Nzc5Yjg2NzVjMjM0YzRmYjEyNGRjMzkzOTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2ZTFlNGIxMDIwMjE3MTQxY2NkNTBhMzY5ZmIyYTEzYTc5ZDcyMTFlMzcwYTk2MDYyNDFjZWU0ZjMyMWQ5ZTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ3NjBlMzExODIxYjU1NTQwODdhODY3ZmExZjlhN2VkMjQyZDg1ZjVmN2M4MGRkOTczNzQwZmFlYzFmNzRlYmMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_98778c165aff474ab0db1741017c8a4b",
+      "statement": "Reserve accepts caller-provided Allow decisions and claims, checks stateful rule and approval bindings, and atomically acquires resource locks and checks derived rolling limits; it does not decode transactions or verify approval signatures.",
+      "evidence": [
+        {
+          "resource": "repo://crates/authorization-state/src/authority.rs#L380-L540",
+          "version": "repo-lines-v1:sha256:ea071db94d53baa5e9215944dcc54ae201bccd0bdf4a7786d63dce625bdfb788:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI4YjJjMjM1MmNlOGIxYTFmZGIyYWFkN2U0ZTljZWUzODFlMWNlNTgxMjRkZGRjMDgwOWI4YjFlZGU4NzEwZjdmIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI2MzVhY2I1ODUxMzU3YzRlMGViMDEzNDBhNzhlNTQwNWNhMmVhMjQ5ZjU1NzE3MzBmOTZkY2IwYzdiMmExNTNiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkMTEzYTAyZTEyZThkNmE3ZGYxNzIxNzM5Mjk1Yjc4Y2NkN2UyZWUwMTM4ODgxZTYwYzlhOTRjZTNhMGJiZGM0IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJhMTI3YmM3YzNjNTU5NDBmNzIzNWMxMDgxYTYwNzEzZjE1ZTMyMDNhZThjZDY5M2QwMGJlNzZlODU4YTMyOWI5In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_f43cabffbf7d4759b3caa67709e5d595",
+      "statement": "Outstanding active reservations never expire by time, same-family exclusive EVM nonce replacements are charged by maximum, and other claims are additive.",
+      "evidence": [
+        {
+          "resource": "repo://crates/authorization-state/src/authority.rs#L480-L484",
+          "version": "repo-lines-v1:sha256:68266e88fcbadc0c2873b8856eddac3f4f229744343fe5d0c86e6b9dfd3fd9c2:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDM1NDVmNDhhNzNhNzRhNDM0YmE5YjlkNTNiMjVkMjM5MDI4ZGI2Nzg2NDM2NjIxNmFkYTU0ZmM5OTFlY2ExMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmFjMmJjNzViN2ExYjg3ZDBmMWUyMmMwYzI0NWZiYzkzNmI2ZWRjMDJjMjY2NDg5YzEzOWJhYzE2MmEyMjA3NyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWZmNzBlYTBiN2QyMDIyNmNmMTdkNDgzMjIxMTVhOTJkOWQ3YTRmY2I3NDhiZGQ0NDE5OTQ4YTAxNjBhOGYzNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjNkYjNjMmMwYTZkYWM5NWE0NzVmZWI3ZjIwNDczNTRhYzQ2Y2Q2ZDVmYjU0MmE0ZWVhMmFhZDUyNWIyY2M3YiJ9"
+        },
+        {
+          "resource": "repo://crates/authorization-state/src/state.rs#L233-L266",
+          "version": "repo-lines-v1:sha256:ba4471969286017012a0bf5ce57e0cab179c76e30e81707f07893cf6a8ef8eab:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4OTMyM2UwZTkxNmI0YzMxYTJhN2IzZTdkYmJhMDQyYTFkOGU0YzkzMjdhNzI4MzYwYmNlZWU5MzFhNmJlMjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJjMTZkNWMyOTQwNTE5NjBiNTcwOTJhYzQ2ZTI4Y2E3MTIxNDcwMDVkYzgzNzdlNTdkZWM2YTAxMTI0N2ZhMzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRjZjY3MDdhYjdiMzMyMGMzZTFlY2RjN2IyMzYwZjMxYWU1MmQzZDU5Y2M3ZWU4NGRjZGVjMTY2Zjc1YjNmZWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU3MWU3MDU0MGZhN2QyYzY3M2M5MzQ2ZmRhNjcxMTdiMGFkYmM2MmY2ZDAyYTZjMDZjMjg5Y2U1ZjdkYjBjMzYifQ"
+        },
+        {
+          "resource": "repo://crates/authorization-state/tests/authority.rs#L668-L722",
+          "version": "repo-lines-v1:sha256:1c5cb64dbf4bd54547ec7db494c8eb21b2a87ea62c3dd15188f9b5488c05d4e0:eyJzZWxlY3RlZExpbmVDb3VudCI6NTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFlZWNiMThhNThjMWVkN2I1NTQyMTNhZjg1ZTZmNzQxZjkxMTJhZDFhNDU5MTgwZTAxODNlNGYyZTQ2OWIyMTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA1MDU0ZmUzMWIxMTI1M2Y0Y2FlMmI2NDgwNWE0YWMyNzkwNDY5ZTYzMjk2MWE2ODg0YzQ5MWUwNWJmYmE5N2UifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2c72a555ee5844c2824b7095dcd4e379",
+      "statement": "A first release rechecks freeze, epoch, deadline and freshness then commits possibly issued state before returning its receipt; a matching released replay returns the existing issuance and a fresh receipt.",
+      "evidence": [
+        {
+          "resource": "repo://crates/authorization-state/src/authority.rs#L569-L650",
+          "version": "repo-lines-v1:sha256:9313a17839e62df63fc768dbc771c30913b5b2cc68d4159fdb4fa5e7bd082ece:eyJzZWxlY3RlZExpbmVDb3VudCI6ODIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU0YWQ0Yjg1ZmY4ODFmNzdmOTE5Yjc0NmE1NDNjMTUxZGExYzE0YWYyYmI3YmM3YTNjMjgzZDI2YzY2OGZiZjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI0YWY0NWVhMjdhNjc0Mzg0NzIwZjYxOTc0ZDI4MmI5MmRhY2ZiMDY3NTU4ZTNiOTVhZGE3YWYzYWQzOTNkYWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU3MTkwOWRiMTQ3MDlmNjhlZDY1NTA2ZWY5ZDM2MzExMzM5NWNjZGQ5NWM5NDU1NDIzMGE2ZDk3OTBmZDllOGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIyNjNhOWY1ZGI2ODVhZWFkNzFhYTQ4ZjY2NTY5MzY4NDVmMmMxMWM1OGZkNmRhZDQxZTkwMTM3ZjYyNjBmM2QifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_659a1ee65d614d459fd051249c8f55ba",
+      "statement": "A single designated responder can freeze while unfreeze requires admin quorum bound to the current freeze sequence, and approval expiry cannot cancel possibly issued signatures.",
+      "evidence": [
+        {
+          "resource": "repo://crates/authorization-state/src/authority.rs#L668-L803",
+          "version": "repo-lines-v1:sha256:a606894caaaff6c0187b768e249e87f264af952a2bd6af39dc642f7b0dba20d9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTM2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwNjk2ZjUwMWFhYjdhZmI5MzljNzA1NjQ4NDVhNjFkMzY1YmFhMmYwODVlYTIwMDllYmUyNjAxNDBjYjBjOTUzIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIwMWJhNDcxOWM4MGI2ZmU5MTFiMDkxYTdjMDUxMjRiNjRlZWVjZTk2NGUwOWMwNThlZjhmOTgwNWRhY2E1NDZiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI2M2Y1YzdhNjI2ZGIzZjNjNDBlZjEwNGE4ZjU1YmI5NGI5MDExYjY2MDZmMjZlODA3OTg5MzUwMDg2ZWM3ZDc3IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkM2ExOGIxNjk3M2Q4NjliZGMyNGFmOTk1MTdiN2FjOWRkZWMwZDllM2Y4ODNlNGQyNDA4MDFjOGFhZjUyNjgwIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_a3115e7b03344f0fa874d602278dd9ce",
+      "statement": "Finalized failure settles actual fees without asset debit; pre-finality reorgs retain obligations, post-resolution reorgs require recovery, and definitive invalidation releases the candidate obligation.",
+      "evidence": [
+        {
+          "resource": "repo://crates/authorization-state/src/authority.rs#L809-L925",
+          "version": "repo-lines-v1:sha256:a04e898c77aef391abcbebe169d349428f22dbb73fa918cb0ad0ca335fb10c11:eyJzZWxlY3RlZExpbmVDb3VudCI6MTE3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI1NjQ1ZDZhODQ1YzMyNGVjOWMxZDY4MzIzYWZlZmE5Y2Y4MTFkNDM3OWZiNjlmNTc5NGFjODVmODA0Yjc1Yzk4IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmN2E3YWFhNWQ5NjBjYTdhNjUzY2IxMTI4MGZjN2U3M2UxOTMyZWIzYzdjYzcwMTdlM2YzZDUyZDU1Y2I4NWVmIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJmYzVjN2YxMTEyMTU5ODQ2YzUzZmMzYzlmMmM0ZGNjNGI0Y2YxZjA0N2JiNTI0NjRmMzFjNGIzZWIyMDA0YzFkIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlOWIyMmY2ZmI3MmUwMzVlZWE5NWJkNzRhMGUwM2VlM2QxMTEyN2IyM2JiNDAzMzUyMzNiNDI0MzA1OGRmMTNkIn0"
+        },
+        {
+          "resource": "repo://crates/authorization-state/tests/authority.rs#L571-L650",
+          "version": "repo-lines-v1:sha256:5bbce6a626cd4771523b286a1e87193cc2684b65b5a67ab0d509cf251a547148:eyJzZWxlY3RlZExpbmVDb3VudCI6ODAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEyY2ExOTA0ODczMjgwMWVlMDgxNTdhMTViOTc0ZTU0NDI2YzA4ZDQ0NzRhNjY3ZjRmODY2NWU0NzRkMjRkMjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiZTM0YmViN2M1NjAzYjIyZTZiZjc4Mjk1YTI0YTBkNzkyNjRlYzYwYWZlODJhNTNhYzM5ZDU1MzA1MDJhYWIifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-20T20:16:28.312Z"
+  }
+}

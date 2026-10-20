@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:0748ab526e88e68f53eccab61e0efeb2b8849c4a440cc76795ae1eb05148ce5c",
+  "claims": [
+    {
+      "id": "claim_cd04e4fd6ed844ca890aedb6aa888306",
+      "statement": "Broadcaster registers matching client/profile/adapter with at least one evidence source, retains signed bytes and can only deliver already signed transactions.",
+      "evidence": [
+        {
+          "resource": "repo://services/broadcaster/src/broadcaster.rs#L29-L75",
+          "version": "repo-lines-v1:sha256:7c5ea4187455fae05cb9557bac00583b4d4e105f72b6e55a5afad74989bb5b60:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNmZTk0ZDczNzQxMWIyMzBjNzdjNTc5ODVmODBkNjU4OTkzYjcxZWE0Njc2M2EzYTUyMGMyYjQyOTJlNzc1MzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhMGRlYzUwOGJmYTBkZjA3YmQxMzc0NWFlMTNmMTc0N2E2MThjZDFiNTJkMWRhODdiYzkxNjk4NjAwM2Y0ZjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUwZDBkOWQwODg2NmRmZDgzYjk1YzY3ODYwZWFjY2JjMzdhOGZlMDBmMzExZjZlMmZkNzQ3MTYxNjkwOWI0Y2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYxNGJjMWM1ZTEwYTU3YjhkMjkwMDk4MzdlYTBiN2E5NGM3ZDQ4MDU1Yzk4ZTVlN2ExYWY1OWY1OThmZDUyYWMifQ"
+        },
+        {
+          "resource": "repo://services/broadcaster/src/client.rs#L1-L74",
+          "version": "repo-lines-v1:sha256:c024ac3e5fd5d7e8083d033bc61cea0c5724a322d8235aaa10a5b3ef6a04be22:eyJzZWxlY3RlZExpbmVDb3VudCI6NzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkyMjlhMjY4YzcwNzMyNzhiMjA3N2Y4ZTBhYTdkZjZkNGIwMmVlZjU1Mjg3N2VkMGUzMTU1YjU1MDNhMTU0MzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg2NThmZjQ2YjhmNTY1MTg2YTc5ZjI5ZmNiZTc4YjQyNTI4MWJjMDA0ZjJhMTlhYWU2YjVkMTdlMGNmYzg0NzYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7333ba220ca54d449f3e472af3583506",
+      "statement": "Submission durably records Pending before chain handoff, classifies matching acknowledgement separately from inclusion, and records client errors as possible submission uncertainty rather than proof of failure.",
+      "evidence": [
+        {
+          "resource": "repo://services/broadcaster/src/broadcaster.rs#L136-L217",
+          "version": "repo-lines-v1:sha256:1f43030d054d6156a053f20b6f2c657bb96198014a5beaf37897055208add894:eyJzZWxlY3RlZExpbmVDb3VudCI6ODIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3MGRlZjFkNGYzYTM1YjcwNjk4MWYwZjMxNmViNDdmNGM4N2IwYzliNjU4MjQzODEwMWE2MTc0NmI3Y2MzNGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2MGIyNDQyNzEwMWQ3MDVhZDExODU4ZmI5NGQ4YzVlNTAxOGJmZDBlYjllODZiMGUzMDRmY2M3M2UyZGFlZWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU3MzNhMDAxZWI3MjlkY2RjOWFkMWYwZDA1MzE5NGY1NmM4Yjk1Y2UzN2FkNDkwMTFmNmZjODg1YTM4ZjY2YjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE5MGM4NTBkNTdkNWQ0MWMyN2RjNmY1NzFjNGJhZWZkMTU4ZTY2NjNiYWQwYzY5MjZmYTBmYTgyZWY0NDkzNTYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e530e9d1e7bb452aa4943deab542d99f",
+      "statement": "Recovery marks pending attempts as interrupted uncertainty and persists affected records without polling; explicit poll or resolve_unknown performs chain lookup, while rebroadcast resends exact bytes and refuses quarantined or resolved operations.",
+      "evidence": [
+        {
+          "resource": "repo://services/broadcaster/src/broadcaster.rs#L170-L239",
+          "version": "repo-lines-v1:sha256:ed01ccac5ba82260d6d9d71ade1f52ca9c2542b4a4f1f1c850181fe3609598cd:eyJzZWxlY3RlZExpbmVDb3VudCI6NzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjNDI5MTc5YWI0NjQ1Yjk3YTZhODk4MjlmZDEzZTk0MTBlY2JiMDg5ZDdjMDFiZThkOWMwYmE4YTQwNDgxMWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2MDFmMjVjOGYxMWJjMGE0N2U1ZGZiMWRiN2ZmN2FhMGQ4ODUxZTc0ZDBhMmVhYjJkZmFlYzA2YjUwZmMxOTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU3MzNhMDAxZWI3MjlkY2RjOWFkMWYwZDA1MzE5NGY1NmM4Yjk1Y2UzN2FkNDkwMTFmNmZjODg1YTM4ZjY2YjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdiYmUzMmE4ODIxYjhlYTM5M2VjYWU1MmZjZTk3YjAxYjQ3OGE0YThmMGZmOGNiMTAwMjFmNzJhMzdiNDdkZDUifQ"
+        },
+        {
+          "resource": "repo://services/broadcaster/tests/evm.rs#L273-L304",
+          "version": "repo-lines-v1:sha256:1add8c568d2b9b7108711ec31e1704976141574fb23fd364cc90db0b5aa454a1:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlmYjljNWNiOGFiNmVmZDY4Y2JjN2M1NWUwNjhhMzRlY2NiZGU3NmY5NTMxYTZiYjhkYmFhOGQzYzZkYzUzYzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwMjg2OGIyNzFmNTM2NDY1ZGJhMWIxZThmNTc2NjFlMTg3MjhhMDRhOWRhNTBjYWQ5MDJiMTdmMDk3Y2ZkZmEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJjZjE3NzEwMWI2OGI2OWExMmNkNzk1YmNiM2VmYzNhNjg5YzBhOWM5YjQzMTg4Yzc1MDkwMDExNTE0MGEzNzUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0d3ee6bd8322432c8ad54045f89d5e85",
+      "statement": "Polling compares all evidence source classifications, quarantines disagreement, records lost inclusion as reorg and feeds finality to authority settlement.",
+      "evidence": [
+        {
+          "resource": "repo://services/broadcaster/src/broadcaster.rs#L258-L349",
+          "version": "repo-lines-v1:sha256:c9c4ca7130079011c374b95a997cca9088810c2729a78167f05f2bb6d27706e7:eyJzZWxlY3RlZExpbmVDb3VudCI6OTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwZDA0N2E5YWJiNjMyYTBhNDE4NWRlNTkwNGRlZjQxM2FkZjBkYjVlZWEzZjIwMDEzMzM2ZjEzZDEzMWQ0OGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2MGIyNDQyNzEwMWQ3MDVhZDExODU4ZmI5NGQ4YzVlNTAxOGJmZDBlYjllODZiMGUzMDRmY2M3M2UyZGFlZWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5OWJkZWZlZWFjYTYzNDBlMDI5MGRjODZlODg5Yzg5ZDVlMTg5YWE1YmE0NGI1ODViM2I3MDczNGY0YTYyZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyMDJmZjZhOWJmNTE5ZDQ2NmQ0ZTA4M2E3MmFjOTUxOWMwOGIyNWMwODUwZTkzZmIwMTkxNGMyOTAxMzkyOWIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1407ccce8e2d4a339c8a268bcb70d96f",
+      "statement": "resolve_unknown polls actual chain outcome first and releases only after every finalized-source adapter check returns Definitive; any Unknown retains obligations, without requiring proof text/state objects to be identical.",
+      "evidence": [
+        {
+          "resource": "repo://services/broadcaster/src/broadcaster.rs#L352-L391",
+          "version": "repo-lines-v1:sha256:5ff4ef3925b0358efdc3c2ba90d019db07714956d052a019d8f80a0601bbab54:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMzMDI2ZjViMTdlMmI5NzlhNzAzNjg0OTNjMDRkYWVjNjJjYTcyMTdkNDYyMzU4ODE1ZDA3ODkwMjk2OWE0N2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjMzYxOWI1OGU2OGU4NTQzMTFkNWZlMTFjZmJiN2YwMTdhYmYzY2EyMWNkZDZmZmJhMDI0MGQ3ODNiZmViMzciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAwNjAzN2U5OWViYTUzMGVlOTcwMTY2OTMzY2VmZjdmOWVlMzc4YmI3MjhlOTMzOTYwZDhmNDFkODY2YTE5MDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3OTRkMDJhODEyMTk0NGQxNzZkMjY1ZTliYjljYzU5ZjZhYjg5MGJjYWRmOGFlZmRlYmRiYmI0ZjJlYTg0NDQifQ"
+        },
+        {
+          "resource": "repo://services/broadcaster/tests/solana.rs#L111-L133",
+          "version": "repo-lines-v1:sha256:b4014809e52d2e0429a8fb901b4ed2f4ac37e3154f17d7afe332aaf33e48747e:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY4ODhiY2M0YTYzYzg5NDI1YWUxM2NjZTcxMjFkZGYzMzAzZTBiZDZhMzgwZTQ2ZWIxYzlhMjIyYTVkYWJiNjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3c79b0e0379d48d0bdbd009fd6118567",
+      "statement": "After shared evidence validation, broadcaster classification maps any adapter StaleEvidence code to NotVisible and propagates other adapter errors; finalized view lookup follows a visible latest observation.",
+      "evidence": [
+        {
+          "resource": "repo://services/broadcaster/src/broadcaster.rs#L242-L276",
+          "version": "repo-lines-v1:sha256:ee476012787dcedeb6ee8e546c3d79ffc01127d8ad783334e6bea8b4fcf08ba5:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZmM2I4ZmY4MjFkMzBkN2I0YWE0ZmViODk3NWY0YzUwOGUxY2M4MjhmMjg0MjZmNjBmMjFiNWU3Mzg4NWM1ZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE4ODQ3ODUzOWYxNWFlMmEwOTlhYjRjN2Y1MWMxNmE4ZmRjMmE3MjkzMjhmN2ZjMmYyMThhOTJkNWMzMTdmMTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkYjdlYmZiZTYxYzUzZGI4OTQ0ODZmYzUwYmM3ZDgwMDIwZWEwOGVjYjcxNGE0YTJmYmE2ZTlmNzRhYzhkYTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZhNzZmMGY2YmNjMGE0YWUxMDFjZTU0MzgyNWVkNjg0NWU2YWUwYzU3NThiMmY2YmUzNDEwZmE4NjBlNGY5ZjUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-20T20:39:06.439Z"
+  }
+}

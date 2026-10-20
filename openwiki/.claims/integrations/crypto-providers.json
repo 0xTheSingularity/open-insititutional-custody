@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:f41fdd51f3bd8ce91119617b22b2a16fad48d7d8205827d07518a4234c6cc523",
+  "claims": [
+    {
+      "id": "claim_960f1ebea8a3471094f82910cc44cbee",
+      "statement": "Provider descriptors declare exact topology, message convention, one-time state and first share-producing round, and check_topology refuses to expose all-participant or single-key backends as unsupported threshold configurations.",
+      "evidence": [
+        {
+          "resource": "repo://crates/crypto-provider/src/lib.rs#L213-L246",
+          "version": "repo-lines-v1:sha256:f1d5ebdc9746b8bb77a43692795868edef82bac3b1addb7bd9f7e07358711b9f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0M2Y0ODgwMGUwYjBhNGI0ZjU0NmJlZDE5NWU0Mjc4ZjlkNzNmNjllZWM5Y2RkMjQzMjYwZmNjY2E3Yjc1MDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://crates/crypto-provider/src/lib.rs#L30-L73",
+          "version": "repo-lines-v1:sha256:a1740b777b7151224f9c28721ecfab23457ce3fcdd9f7354aea8cd42bb163cea:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZiOGNmZDI4MGE3MGZkNzkxNDI3YzdlMGE5NDlmN2Y3M2I5YjNiYjMxZDViNGRiZTNkZjZmZGQ1OTdjZDJmMDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNlZjhhN2JkYTcxNjk3Zjk5MmNmNTgzZTNmNWIxOTZhZTg5NGQ1MDQxNzAxZjNkZGIzODBlZTkyY2NiMWQyOTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY0MjFhZTEzNTQxNTgxZGQ3MWY3MjMzZDYxODQwYzYwODc3ODkyYmJhMzEzOTdjYTRhZTcxMDE1MGNkNTIxM2QifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_46b70928cda148c0b1b7867077535f9b",
+      "statement": "The development provider produces genuine prehashed secp256k1 or pure Ed25519 signatures with consumed one-time state but provides no threshold security.",
+      "evidence": [
+        {
+          "resource": "repo://crates/crypto-provider-dev/src/lib.rs#L1-L43",
+          "version": "repo-lines-v1:sha256:e4c9c0b6a3f07112185fa7c00953c6842fddf58f2e6d02e63d1950f858968616:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwMzMwYjBhYzUwMzI0YzJkMTUzMDgyZmJhOWEzMTU4MDY0MjhjMDYwNmM2ODg2ODgzYzFhMGYxODYzZjkxMjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwMzE1YjQxNDI2ZWZlNmY0ZThhOWI0NTQ4Y2RmZmNlZWYyMDNkZjQ3MmQ0OWQ0MjY4ZTk3OGY3ODNiNTg3YzEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU1MmQwNzhmMDlkOTdhOWEzMTVmYTBhNzQzMzNmMWZkOGFlZWM2MmRmY2RlZWZmN2Y5ODRlMWY4NTY4YWY4YmUifQ"
+        },
+        {
+          "resource": "repo://crates/crypto-provider-dev/tests/dev_provider.rs#L120-L258",
+          "version": "repo-lines-v1:sha256:e10142786cba0145270dfec930311edfb95847795617256443cea01a46b4dee3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTM5LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJkNmY1N2Y1NGFmMTIxZGYyYTM2ZWMyMzg4Njc1NTc5M2RiMzE5OWI5NzQ2Y2NlYzRmZDEyZTM3NDZjMTBiNTRjIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIwMWJhNDcxOWM4MGI2ZmU5MTFiMDkxYTdjMDUxMjRiNjRlZWVjZTk2NGUwOWMwNThlZjhmOTgwNWRhY2E1NDZiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3ZjlhZDQ2M2JlNzFjNWY0MjA5NDZhZmJmMDdkMGZlOWY1ZjExZGE4MmYxZTk0OTAzY2MzMzk1ZDhjMWEwYjM4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI1MDFmY2MxMWI0NTU0ZmE2ODU2ODIzMjZiMjE4NjIyZjhjYmU1ZDg4ZjA5ZDFkOWY5OGY5YzQwODZmYzIxYThmIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_59868a1277954069bae4791dd77ed950",
+      "statement": "FROST supports threshold Ed25519 with 2 <= t <= n <= 16 and native strict Ed25519 verification, while the trusted dealer option is explicitly development-only.",
+      "evidence": [
+        {
+          "resource": "repo://crates/crypto-provider-frost-ed25519/src/lib.rs#L1-L49",
+          "version": "repo-lines-v1:sha256:29832d0e2d11fee5c3e5578e71db70cf43c5696b2ac89479b01d71f7fa892f1a:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlYzQyNDZiNGMzMTY5MTM5YjZiMTcyYWFkMmQ1OGZlMmU4OThkMGNlNjYyYTA4OTJiY2U5MjE4MzA0YjkwMGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyMGU4OTAyMTg1YWI3NjkxYzI5MDI5MWFkZWMzZmExNzQzNTU3OWMyMWFlMzY2ZTc4NzVjNzZkMmM4Y2RlYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVkZWMyNmM1OWZiZmNmMjRjYjAwZTZhMjMwZTU3ODBhM2U1MjFjNDNmMGNmZGU3NjAyOWNiMjQ4ZTBmOTgzNDEifQ"
+        },
+        {
+          "resource": "repo://crates/crypto-provider-frost-ed25519/src/lib.rs#L565-L588",
+          "version": "repo-lines-v1:sha256:9b7b78d1d3c586824b1afe350b74440d5366903fa2d0cf91c31193bafb5f1434:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMyYzFkNjRkNGRkYjkxODE4NzNiN2ViOGU4NWJiNWE5YmU0ZmVjN2ZhNjM5YjY0ZmNjYjRjZjY3NDc5MjZmZWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1OTNmMzk3N2I3MWEzZGQ3ZGE4NGEzNTRjNGEyZDNhNGViMWIzNTBkMGRkOGVmZmI2ODNiNTQyMzgwYzBmYmEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEwNzg1M2U0ZGRmMTQ5MzljYTk1ZDAwN2ExYjM3ODU5MWJmNmZjM2RmOTM3MTE0ZjQ3MGVmY2MyNzQ3MDMxODEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZkMmI0YTIzYzA4MDEyZWM1N2M2ODViZmY1MTI2ZGQwZmVkNzkyZTljZTYyNjE0OTI0YzFiYjU3MWY1MTk5ZTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8543796301a84e7aaa29eec7c1ce1cc6",
+      "statement": "FROST validates signing package message, participant set and commitments then durably consumes one-time state before producing a share; invalid shares prevent successful aggregation.",
+      "evidence": [
+        {
+          "resource": "repo://crates/crypto-provider-frost-ed25519/src/lib.rs#L692-L827",
+          "version": "repo-lines-v1:sha256:76fcad19cf936c97df33d86c890ac0918ba1dc214af54ee36131b48cb856bfa7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTM2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJiZjIzMWZlNTliMzdlZjBjZGQ1NzEzNDIyNzgxMTQzYmRhMDAyYTA5ZmZhMmY1Mjc1ZDUxMTMyZDMwMzRiY2M2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIzM2M4OWNhODgwNzQyZjYxMDU0MDcyMzk0Y2ZiNzQ0ZDJkMGEyYzJjZTdmZjg4ZmNlMmFiMjZlY2U5YmIxNGZiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJmOWI2MzY1MGYzNzJjOWFhZDJhMzY5YTU4YWYwZWUxMGM3MWIyNDRhNGEyOWVmNzAzOTVjNTU2ZmRjMTY4NmM3IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIzOTE0ZDcwYzc1OTEwOWFjNWMxZjAyNzFhZWJlYTQyZjhkOGQ1YWI4ODJkYWVlN2FmOTZhZmZiNjdlMzUyZDgyIn0"
+        },
+        {
+          "resource": "repo://crates/crypto-provider-frost-ed25519/tests/frost_provider.rs#L306-L446",
+          "version": "repo-lines-v1:sha256:3bc7e228e8dda0c5edb7916f36427bee7989c0abb16e09c140b8e0d36e748d97:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJiYzZjMzI2ZGY0NDcwNTk0ODU4NGVjM2I2ZTM1NmZiNjUwNmFjMzEyMzE1YjY4M2E4MmZmNzNiMzgzMzhkMjNlIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIwMWJhNDcxOWM4MGI2ZmU5MTFiMDkxYTdjMDUxMjRiNjRlZWVjZTk2NGUwOWMwNThlZjhmOTgwNWRhY2E1NDZiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3ZjlhZDQ2M2JlNzFjNWY0MjA5NDZhZmJmMDdkMGZlOWY1ZjExZGE4MmYxZTk0OTAzY2MzMzk1ZDhjMWEwYjM4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJmODUwM2Y1NDhiZGE2NTJlN2Q3OWRmZjY2ZjI4YjI4MTRlYWU4ZDBlNWRiNTRkZTFlNmZhMjMwNjRlNGM3ODBlIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_e99f3cc573d6499d96e2a80920f29da6",
+      "statement": "Sealed provider shares use ChaCha20-Poly1305 with random nonce and canonical associated data binding backend, key, epoch and participant, with zeroized sealing keys and plaintext buffers.",
+      "evidence": [
+        {
+          "resource": "repo://crates/crypto-provider-dev/src/seal.rs#L1-L95",
+          "version": "repo-lines-v1:sha256:bc9cce6851aa13e4751bf812991d51c95466484ccf40a8fc0989d8a99bb142e6:eyJzZWxlY3RlZExpbmVDb3VudCI6OTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkYjY4MzA5ZmRhZGQ2MDQzZjIyZGNkOGNhZGEwOTJhMWZhODkzZGVlNDVhMGUzOWM3M2QzOTVmODFkNTk5ZjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhZTk1YTJiNTI4YTQ0ODFiMDY4ZmU3MmM2ZjJiMDY4MjA2MDZhMjY0MDA1NjM0MjAxMTI2MDYxMTdkYzFkYjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEwMGRiMDQwZjI5MDliZjk3OGZmMGE5NTZhNTVlODNjNjUzNDE4ZGU2YmI2OGY4MDQxZGE5NzZmOGQzZDIyNzAifQ"
+        },
+        {
+          "resource": "repo://crates/crypto-provider-frost-ed25519/src/seal.rs#L1-L95",
+          "version": "repo-lines-v1:sha256:bc9cce6851aa13e4751bf812991d51c95466484ccf40a8fc0989d8a99bb142e6:eyJzZWxlY3RlZExpbmVDb3VudCI6OTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkYjY4MzA5ZmRhZGQ2MDQzZjIyZGNkOGNhZGEwOTJhMWZhODkzZGVlNDVhMGUzOWM3M2QzOTVmODFkNTk5ZjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhZTk1YTJiNTI4YTQ0ODFiMDY4ZmU3MmM2ZjJiMDY4MjA2MDZhMjY0MDA1NjM0MjAxMTI2MDYxMTdkYzFkYjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEwMGRiMDQwZjI5MDliZjk3OGZmMGE5NTZhNTVlODNjNjUzNDE4ZGU2YmI2OGY4MDQxZGE5NzZmOGQzZDIyNzAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d13d957a7f604a3995075e4fd5f48922",
+      "statement": "FROST run_dkg exchanges packages in process and the provider does not implement authenticated DKG transport, share refresh, or recover/replace.",
+      "evidence": [
+        {
+          "resource": "repo://crates/crypto-provider-frost-ed25519/src/lib.rs#L34-L49",
+          "version": "repo-lines-v1:sha256:c614165082a63061f2f9354d43599eb7f97d195189d03c9f06bcf30cbe47bd75:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhOTgzZDZjOTBlN2ViYzE1YWI5MTQxYjEzZmNjNWNmMDJiNTAyMDBkMTM1Y2VjYzY0YzEyYTIzNDkxOTdkNmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyMGU4OTAyMTg1YWI3NjkxYzI5MDI5MWFkZWMzZmExNzQzNTU3OWMyMWFlMzY2ZTc4NzVjNzZkMmM4Y2RlYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZjY2VjODZmN2Y3MWY4NGU1ZGViOTEwZDYxMGI0Zjg5MDNhMzZlOTdhMDJhNTViMmJkZDVmM2ZmNWMzZDE5N2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVkZWMyNmM1OWZiZmNmMjRjYjAwZTZhMjMwZTU3ODBhM2U1MjFjNDNmMGNmZGU3NjAyOWNiMjQ4ZTBmOTgzNDEifQ"
+        },
+        {
+          "resource": "repo://crates/crypto-provider/src/lib.rs#L198-L204",
+          "version": "repo-lines-v1:sha256:b7c7700ed3efbcfd04f2755b3f206f3671c6bd8c6001d754430749c32b20b845:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmZlMjYyZGJjNTk5MThlNDA5YmM2OTc1ZDAxZTQ0NTNiMzU5ZWQ3OWU4NDUwNTNjNjIxYjBjMjBkOGIxNWE4OCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWVlNDk3MmY0M2Y0MjY4ZTQxNGJjMzhkZjNkNzE4YjEzYzE4YTFjMjAxN2I4YTEzZTRjNjc4MTA2Y2I5NTliYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjViOWQzNDA1ZTdjZGQyNTU5ZDRlOTZhNTg3MzdjYzc1YWRmNzM3ZjUwYTIzM2IzYjFiNjRhMTA3NjY0NjhlOSJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-20T20:16:28.312Z"
+  }
+}
