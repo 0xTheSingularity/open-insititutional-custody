@@ -4,8 +4,9 @@ This guide assumes you have sent a blockchain transaction or written a smart
 contract. It explains the additional ideas behind the custody components in this
 repository. The examples describe possible configurations, not product defaults.
 
-Use the [README](../README.md) to run a transfer. Use the links in this guide to
-connect each concept to its implementation.
+Use [getting started](getting-started.md) to run a transfer and the
+[payment walkthrough](payment-flow.md) to follow its components. This guide connects
+each concept to its implementation.
 
 ## Start with a payment
 
@@ -56,7 +57,8 @@ for the shared data structures and commitments.
 
 A **digital signature** authorizes particular bytes under a public key. The
 native chain verifies its required signature format before accepting the transaction.
-The EVM adapter uses secp256k1 ECDSA. The Solana adapter uses pure Ed25519 over the
+ECDSA means Elliptic Curve Digital Signature Algorithm. The EVM adapter uses
+secp256k1 ECDSA. The Solana adapter uses pure Ed25519 over the
 complete message. These schemes have different signing-input requirements.
 
 A **quorum** is the number of participants required for a decision. This project
@@ -216,6 +218,9 @@ and [signer verification](../openwiki/architecture/signer-boundary.md).
 
 The business request can say "pay 1,000 tokens," but each chain encodes different
 instructions, account identities, fees, and validity conditions.
+
+**EVM** means Ethereum Virtual Machine, the execution environment used by Ethereum
+and compatible chains. **SPL** means Solana Program Library, which includes token programs.
 
 | Idea | EVM | Solana |
 | --- | --- | --- |

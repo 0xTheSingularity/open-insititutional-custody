@@ -4,6 +4,23 @@ Use the root [`Cargo.toml`](../Cargo.toml) to identify implemented workspace
 members. Start from a focused test when changing behavior, then run the full
 workspace suite before handing off a code change.
 
+## Workspace map
+
+Start with the [coordinator integration test](../services/coordinator/tests/coordinator.rs)
+and its [construction fixtures](../services/coordinator/tests/common/mod.rs).
+They assemble a working transfer before you explore each package.
+
+| Location | Responsibility |
+| --- | --- |
+| `crates/domain-types`, `crates/canonical-encoding` | Shared objects and their signed representation |
+| `crates/policy-kernel`, `crates/authorization-state` | Payment rules and globally reserved state |
+| `crates/adapter-*` | Native chain parsing and verification |
+| `crates/signer`, `crates/crypto-provider*`, `crates/one-time-state-ledger` | Key material, signing protocol, and one-time state |
+| `crates/approval-verifier`, `apps/independent-approval-client` | Independent payment review and CLI |
+| `services/builder`, `services/coordinator`, `services/broadcaster` | Prepare, orchestrate, and deliver payments |
+| `crates/audit`, `crates/chain-simulator` | Signed history and reproducible test chains |
+| `tests/golden-vectors`, `models/authorization-state-machine` | Protocol compatibility and bounded state exploration |
+
 ## Verification commands
 
 ```sh
@@ -37,8 +54,8 @@ cargo test -p oic-golden-vectors --locked --test conformance
 
 The committed 30 JSON vector files cover internal hash domains and native EVM /
 Solana payloads. Tests rederive bytes and hashes through the real producers,
-verify strict round trips, compare expected fixture files, and cross-check native
-payloads against Alloy and Solana SDK implementations.
+verify strict round trips, and compare expected fixture files. They cross-check
+native payloads against Alloy and Solana SDK implementations.
 
 After an intentional serialized-contract or fixture change, regenerate explicitly:
 
@@ -62,7 +79,7 @@ Expected output begins `all properties hold:` and includes explored state counts
 The checker calls the real authority in a bounded one-vault/one-asset/one-nonce
 universe with two families and a replacement. It tests exposure retention, limits,
 resource exclusivity, freeze ordering and no post-issuance abort, plus reachability.
-The workspace test uses depth eight; CLI default depth is ten. This is bounded
+The workspace test uses depth eight. CLI default depth is ten. This is bounded
 evidence, not an unbounded or distributed-consensus proof.
 
 ## Integrating a new component
@@ -76,7 +93,7 @@ and preserve signer release gating.
 
 Distinguish declared schemas and proposed RFC requirements from implemented
 services. In particular, adding an API, reconciler or Commonware peer network
-requires a real entrypoint and failure tests; reserved paths do not supply one.
+requires a real entrypoint and failure tests. Reserved paths do not supply one.
 
 ## Updating documentation
 
@@ -91,13 +108,13 @@ To use Codex as the writer, ask:
 > as the main researcher and writer, and preserve the README/docs usage guides.
 
 The installed OpenWiki skill drives `begin → submit_plan → next_page → submit_page
-→ finish`. Codex researches and writes assigned pages; OpenWiki persists the queue,
+→ finish`. Codex researches and writes assigned pages. OpenWiki persists the queue,
 validates Claims/evidence, updates indexes/provenance and finalizes. Use its lifecycle
 for generated-page changes instead of editing Claim sidecars, indexes or run state.
 
 Initialization also generates [a GitHub Actions workflow](../.github/workflows/openwiki-update.yml).
-That template uses OpenWiki's native OpenAI-provider run and repository secrets;
-it is separate from host-driven Codex authoring. It has not been configured or
+That template uses OpenWiki's native OpenAI-provider run and repository secrets.
+It is separate from host-driven Codex authoring. It has not been configured or
 executed by this documentation task. No commit, push, or remote scheduling activation
 is implied by creating the local files.
 
