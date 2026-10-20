@@ -1,14 +1,16 @@
 # Documentation
 
-Start with [getting started](getting-started.md) to build the workspace and run the
-implemented EVM and Solana transfer examples. Use the [approval client guide](approval-client.md)
-to review packages and sign grants, then the [development guide](development.md)
-when changing or integrating components.
+Start with [custody concepts](concepts.md) if you know smart contracts but are new
+to institutional custody. Use [getting started](getting-started.md) to build the
+workspace and run the implemented EVM and Solana transfer examples. Use the
+[approval client guide](approval-client.md) to review packages and sign grants.
+Use the [development guide](development.md) when changing or integrating components.
 
 ## Guides
 
 | Task | Guide |
 | --- | --- |
+| Learn the vocabulary through a treasury payment | [Custody concepts from first principles](concepts.md) |
 | Install prerequisites and run the current code | [Getting started](getting-started.md) |
 | Set up local approval trust and credentials | [Approval client](approval-client.md) |
 | Choose tests, check vectors and run the authority model | [Development](development.md) |
@@ -40,7 +42,7 @@ when changing or integrating components.
 reference, authored by Codex from repository source and tests through OpenWiki's
 resumable page/Claims lifecycle. OpenWiki manages its indexes, provenance and
 claim metadata. The documents under `spec/` contain proposed requirements and
-designs; they are not a list of completed features.
+designs. They are not a list of completed features.
 
 When the two disagree, verify the current source and focused tests, then update the
 affected documentation. See [updating documentation](development.md#updating-documentation).
