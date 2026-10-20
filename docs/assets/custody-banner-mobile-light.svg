@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="668" viewBox="0 0 640 668" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Your rules. Before the signature.</title>
+  <desc id="desc">Open Institutional Custody. A native transaction passes through a verified release boundary before signature output. The brief animation stops automatically; reduced-motion preferences show the complete static illustration.</desc>
+  <style>
+    text { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+    .ink { fill: #202024; }
+    .muted { fill: #65636E; }
+    .accent { fill: #6951D5; }
+    .mono { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace; }
+
+    .signal { opacity: 0; }
+    @media (prefers-reduced-motion: no-preference) {
+      .signal { animation: transit 7.5s ease-in-out 1; }
+      .gate-accent { animation: acknowledge 7.5s ease-in-out 1; }
+    }
+    @keyframes transit {
+      0%, 8% { opacity: 0; stroke-dashoffset: 24; }
+      14% { opacity: 1; stroke-dashoffset: 24; }
+      46% { opacity: 1; stroke-dashoffset: -166; }
+      60% { opacity: 1; stroke-dashoffset: -166; }
+      88% { opacity: 1; stroke-dashoffset: -396; }
+      96%, 100% { opacity: 0; stroke-dashoffset: -420; }
+    }
+    @keyframes acknowledge {
+      0%, 35%, 78%, 100% { opacity: .10; }
+      46%, 60% { opacity: .28; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .signal, .gate-accent { animation: none; }
+    }
+  </style>
+  <rect width="640" height="668" fill="#F6F5F2"/>
+  <g transform="translate(40 34)" stroke="#6951D5" stroke-width="2.5" stroke-linecap="square">
+    <path d="M8 0H0V24H8M24 0H32V24H24"/>
+    <path d="M10 12H22"/>
+  </g><text x="88" y="53" class="muted" font-size="16" font-weight="500" letter-spacing="1.15">OPEN INSTITUTIONAL CUSTODY</text><text x="36" y="157" class="ink" font-size="80" font-weight="500" letter-spacing="-3.8">Your rules.</text><text x="36" y="239" class="ink" font-size="80" font-weight="500" letter-spacing="-3.8">Before the</text><text x="36" y="321" class="ink" font-size="80" font-weight="500" letter-spacing="-3.8">signature.</text><path d="M40 370H600" stroke="#D6D2DD"/><g transform="translate(72 404) scale(1.16)">
+    <path d="M0 114H420" stroke="#D6D2DD" stroke-width="2"/>
+    <path class="signal" d="M0 114H420" stroke="#6951D5" stroke-width="3" stroke-dasharray="24 460"/>
+    <path d="M22 64H77L96 83V164H22Z" fill="#F6F5F2" stroke="#202024" stroke-width="2"/>
+    <path d="M77 64V83H96M39 99H65M39 114H77M39 129H69" stroke="#202024" stroke-width="2"/>
+    <rect class="gate-accent" x="174" y="16" width="112" height="196" fill="#6951D5" opacity=".10"/>
+    <path d="M198 16H174V212H198M262 16H286V212H262" stroke="#6951D5" stroke-width="3"/>
+    <path d="M208 113L224 129L252 97" stroke="#6951D5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="389" cy="114" r="30" fill="#202024"/>
+    <text x="389" y="126" fill="#F6F5F2" text-anchor="middle" font-size="44" style="font-family: Georgia, 'Times New Roman', serif">σ</text>
+  </g>
+</svg>

@@ -1,1 +1,47 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="400" viewBox="0 0 1600 400"><rect id="background" data-name="background" fill="#141918" stroke="none" stroke-width="1" x="0" y="0" width="1600" height="400" /><g id="wordmark" data-name="Project identity" fill="none" stroke="#111827" stroke-width="2"><rect id="registration-mark" data-name="registration-mark" fill="#f19a7c" stroke="none" stroke-width="1" x="64" y="35" width="20" height="5" /><text id="wordmark-code" data-name="OIC / WALLET INFRASTRUCTURE" fill="#a4aea8" stroke="none" font-family="Consolas, monospace" font-size="18" font-weight="400" text-anchor="start" x="100" y="44">OIC / WALLET INFRASTRUCTURE</text><text id="wordmark-open" data-name="Open" fill="#f2f0e8" stroke="none" font-family="Arial, Helvetica, sans-serif" font-size="88" font-weight="700" text-anchor="start" x="60" y="137">Open</text><text id="wordmark-institutional" data-name="Institutional" fill="#f2f0e8" stroke="none" font-family="Arial, Helvetica, sans-serif" font-size="88" font-weight="700" text-anchor="start" x="60" y="225">Institutional</text><text id="wordmark-custody" data-name="Custody" fill="#f2f0e8" stroke="none" font-family="Arial, Helvetica, sans-serif" font-size="88" font-weight="700" text-anchor="start" x="60" y="313">Custody</text><text id="platforms" data-name="RUST  /  EVM + SOLANA" fill="#a4aea8" stroke="none" font-family="Consolas, monospace" font-size="20" font-weight="400" text-anchor="start" x="64" y="368">RUST  /  EVM + SOLANA</text></g><path id="panel-divider" data-name="panel-divider" fill="none" stroke="#414d47" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" d="M 790 53 L 790 344" /><g id="verification-gate" data-name="Independent signer checks" fill="none" stroke="#111827" stroke-width="2"><text id="gate-heading" data-name="BEFORE SIGNATURE RELEASE" fill="#a4aea8" stroke="none" font-family="Consolas, monospace" font-size="18" font-weight="400" text-anchor="start" x="855" y="38">BEFORE SIGNATURE RELEASE</text><rect id="gate-outline" data-name="gate-outline" fill="none" stroke="#414d47" stroke-width="1.5" x="855" y="52" width="448" height="292" /><text id="check-0-number" data-name="01" fill="#a4aea8" stroke="none" font-family="Consolas, monospace" font-size="18" font-weight="400" text-anchor="start" x="875" y="96">01</text><text id="check-0-label" data-name="Approved scope" fill="#f2f0e8" stroke="none" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="500" text-anchor="start" x="925" y="97">Approved scope</text><path id="check-0-tick" data-name="check-0-tick" fill="none" stroke="#f2f0e8" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter" d="M 1253 87 L 1260 94 L 1274 79" /><path id="row-1-divider" data-name="row-1-divider" fill="none" stroke="#414d47" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" d="M 855 125 L 1303 125" /><text id="check-1-number" data-name="02" fill="#a4aea8" stroke="none" font-family="Consolas, monospace" font-size="18" font-weight="400" text-anchor="start" x="875" y="169">02</text><text id="check-1-label" data-name="Budget reservation" fill="#f2f0e8" stroke="none" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="500" text-anchor="start" x="925" y="170">Budget reservation</text><path id="check-1-tick" data-name="check-1-tick" fill="none" stroke="#f2f0e8" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter" d="M 1253 160 L 1260 167 L 1274 152" /><path id="row-2-divider" data-name="row-2-divider" fill="none" stroke="#414d47" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" d="M 855 198 L 1303 198" /><text id="check-2-number" data-name="03" fill="#a4aea8" stroke="none" font-family="Consolas, monospace" font-size="18" font-weight="400" text-anchor="start" x="875" y="242">03</text><text id="check-2-label" data-name="Native transaction" fill="#f2f0e8" stroke="none" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="500" text-anchor="start" x="925" y="243">Native transaction</text><path id="check-2-tick" data-name="check-2-tick" fill="none" stroke="#f2f0e8" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter" d="M 1253 233 L 1260 240 L 1274 225" /><path id="row-3-divider" data-name="row-3-divider" fill="none" stroke="#414d47" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" d="M 855 271 L 1303 271" /><text id="check-3-number" data-name="04" fill="#a4aea8" stroke="none" font-family="Consolas, monospace" font-size="18" font-weight="400" text-anchor="start" x="875" y="315">04</text><text id="check-3-label" data-name="Release receipt" fill="#f2f0e8" stroke="none" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="500" text-anchor="start" x="925" y="316">Release receipt</text><path id="check-3-tick" data-name="check-3-tick" fill="none" stroke="#f2f0e8" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter" d="M 1253 306 L 1260 313 L 1274 298" /><text id="gate-caption" data-name="Checks repeated at every signer." fill="#a4aea8" stroke="none" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" text-anchor="start" x="855" y="376">Checks repeated at every signer.</text></g><g id="signature" data-name="Native signature output" fill="none" stroke="#111827" stroke-width="2"><path id="release-arrow" data-name="release-arrow" fill="none" stroke="#f2f0e8" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" d="M 1303 198 L 1341 198" /><path id="release-arrowhead" data-name="release-arrowhead" fill="none" stroke="#f2f0e8" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" d="M 1333 190 L 1341 198 L 1333 206" /><rect id="signature-output" data-name="signature-output" fill="#f19a7c" stroke="none" stroke-width="1" x="1361" y="149" width="175" height="98" /><text id="signature-native" data-name="Native" fill="#1c211f" stroke="none" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="600" text-anchor="middle" x="1448.5" y="189">Native</text><text id="signature-label" data-name="signature" fill="#1c211f" stroke="none" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="600" text-anchor="middle" x="1448.5" y="220">signature</text></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="492" viewBox="0 0 1200 492" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Your rules. Before the signature.</title>
+  <desc id="desc">Open Institutional Custody. A native transaction passes through a verified release boundary before signature output. The brief animation stops automatically; reduced-motion preferences show the complete static illustration.</desc>
+  <style>
+    text { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+    .ink { fill: #F3F1ED; }
+    .muted { fill: #AAA6B2; }
+    .accent { fill: #B59AFB; }
+    .mono { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace; }
+
+    .signal { opacity: 0; }
+    @media (prefers-reduced-motion: no-preference) {
+      .signal { animation: transit 7.5s ease-in-out 1; }
+      .gate-accent { animation: acknowledge 7.5s ease-in-out 1; }
+    }
+    @keyframes transit {
+      0%, 8% { opacity: 0; stroke-dashoffset: 24; }
+      14% { opacity: 1; stroke-dashoffset: 24; }
+      46% { opacity: 1; stroke-dashoffset: -166; }
+      60% { opacity: 1; stroke-dashoffset: -166; }
+      88% { opacity: 1; stroke-dashoffset: -396; }
+      96%, 100% { opacity: 0; stroke-dashoffset: -420; }
+    }
+    @keyframes acknowledge {
+      0%, 35%, 78%, 100% { opacity: .10; }
+      46%, 60% { opacity: .28; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .signal, .gate-accent { animation: none; }
+    }
+  </style>
+  <rect width="1200" height="492" fill="#151518"/>
+  <g transform="translate(56 38)" stroke="#B59AFB" stroke-width="2.5" stroke-linecap="square">
+    <path d="M8 0H0V24H8M24 0H32V24H24"/>
+    <path d="M10 12H22"/>
+  </g><text x="104" y="57" class="muted" font-size="16" font-weight="500" letter-spacing="1.4">OPEN INSTITUTIONAL CUSTODY</text><text x="51" y="178" class="ink" font-size="94" font-weight="500" letter-spacing="-4.7">Your rules.</text><text x="51" y="270" class="ink" font-size="94" font-weight="500" letter-spacing="-4.7">Before the</text><text x="51" y="362" class="ink" font-size="94" font-weight="500" letter-spacing="-4.7">signature.</text><g transform="translate(726 153) scale(1)">
+    <path d="M0 114H420" stroke="#3A3642" stroke-width="2"/>
+    <path class="signal" d="M0 114H420" stroke="#B59AFB" stroke-width="3" stroke-dasharray="24 460"/>
+    <path d="M22 64H77L96 83V164H22Z" fill="#151518" stroke="#F3F1ED" stroke-width="2"/>
+    <path d="M77 64V83H96M39 99H65M39 114H77M39 129H69" stroke="#F3F1ED" stroke-width="2"/>
+    <rect class="gate-accent" x="174" y="16" width="112" height="196" fill="#B59AFB" opacity=".10"/>
+    <path d="M198 16H174V212H198M262 16H286V212H262" stroke="#B59AFB" stroke-width="3"/>
+    <path d="M208 113L224 129L252 97" stroke="#B59AFB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="389" cy="114" r="30" fill="#F3F1ED"/>
+    <text x="389" y="126" fill="#151518" text-anchor="middle" font-size="44" style="font-family: Georgia, 'Times New Roman', serif">σ</text>
+  </g><text x="56" y="440" class="muted" font-size="23" font-weight="400" >Payment controls, enforced at the signer.</text><text x="753" y="440" class="muted" font-size="17" font-weight="400" letter-spacing="1.1">CHECK   /   RELEASE   /   SIGN</text>
+</svg>
