@@ -43,6 +43,7 @@ parts exist today.
 - [RFC 0001](../spec/rfc-0001-open-institutional-custody.md): custody, authorization, signing, and chain behavior.
 - [RFC 0002](../spec/rfc-0002-product-completion.md): treasury product, accounting, operation, and acceptance tests.
 - [RFC 0003](../spec/rfc-0003-institution-operated-signer-network.md): proposed institution network and approver light client.
+- [RFC 0004](../spec/RFC004/README.md): product experience, installation, migration, UI workflows, and illustrative mockups.
 
 ## Documentation ownership
 
