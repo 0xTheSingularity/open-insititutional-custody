@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="620" viewBox="0 0 1600 620" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Open Institutional Custody</title>
+  <desc id="desc">An architectural illustration of independent checks converging on a native signature. Authorization, before the signature.</desc>
+  <defs>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" stroke="#B6CED4" stroke-opacity=".36"/>
+    </pattern>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(1260 290) rotate(90) scale(330 460)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A1E5CB" stop-opacity=".5"/>
+      <stop offset="1" stop-color="#F3F8F7" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="core" x1="1190" y1="234" x2="1310" y2="354" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#216B5E"/>
+      <stop offset="1" stop-color="#123D37"/>
+    </linearGradient>
+    <clipPath id="bounds"><rect x="1" y="1" width="1598" height="618" rx="28"/></clipPath>
+  </defs>
+  <g clip-path="url(#bounds)">
+    <rect width="1600" height="620" fill="#F3F8F7"/>
+    <rect width="1600" height="620" fill="url(#grid)"/>
+    <rect width="1600" height="620" fill="url(#glow)"/>
+    <path d="M878 0V620M0 507H1600" stroke="#B6CED4" stroke-opacity=".6"/>
+    <path d="M0 113H1600" stroke="#B6CED4" stroke-opacity=".5"/>
+
+    <g transform="translate(72 42)" stroke="#216B5E" stroke-width="2.5" stroke-linejoin="round">
+      <path d="m0 14 23-13 23 13-23 13L0 14Z"/>
+      <path d="m0 26 23 13 23-13M0 38l23 13 23-13"/>
+    </g>
+    <text x="140" y="74" fill="#274D54" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="20" letter-spacing="3">OPEN INSTITUTIONAL CUSTODY</text>
+    <circle cx="1470" cy="63" r="5" fill="#216B5E"/>
+    <path d="M1490 63h38" stroke="#A2BDBF" stroke-width="2"/>
+
+    <text x="72" y="186" fill="#216B5E" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="18" letter-spacing="3">POLICY. APPROVAL. SIGNATURE.</text>
+    <text x="68" y="289" fill="#163B43" font-family="Arial, Helvetica, sans-serif" font-size="88" font-weight="700" letter-spacing="-4">Authorization,</text>
+    <text x="68" y="387" fill="#163B43" font-family="Arial, Helvetica, sans-serif" font-size="80" font-weight="700" letter-spacing="-3.5">before the signature.</text>
+    <text x="73" y="447" fill="#496B74" font-family="Arial, Helvetica, sans-serif" font-size="25">Independent checks. Shared limits. Native transactions.</text>
+
+    <g stroke="#9DBFB9">
+      <circle cx="1260" cy="304" r="190" stroke-dasharray="3 12"/>
+      <circle cx="1260" cy="304" r="139"/>
+      <path d="M1106 150l13 13m282 282 13 13M1106 458l13-13m282-282 13-13"/>
+    </g>
+    <g stroke="#378E75" stroke-width="2">
+      <path d="M1034 192h47c54 0 40 112 110 112"/>
+      <path d="M1034 304h157"/>
+      <path d="M1034 416h47c54 0 40-112 110-112"/>
+      <path d="M1330 304h99"/>
+      <path d="m1419 297 10 7-10 7" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g fill="#E4F3EC" stroke="#378E75" stroke-width="2">
+      <circle cx="1010" cy="192" r="25"/>
+      <circle cx="1010" cy="304" r="25"/>
+      <circle cx="1010" cy="416" r="25"/>
+    </g>
+    <g stroke="#216B5E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m1000 192 7 7 13-14M1000 304l7 7 13-14M1000 416l7 7 13-14"/>
+    </g>
+    <rect x="1179" y="223" width="162" height="162" rx="36" fill="#E1F2EA" stroke="#87B9A8"/>
+    <rect x="1192" y="236" width="136" height="136" rx="29" fill="url(#core)"/>
+    <g stroke="#B9F1D9" stroke-width="3.5" stroke-linejoin="round">
+      <path d="m1221 284 39-22 39 22-39 23-39-23Z"/>
+      <path d="m1221 304 39 23 39-23M1221 325l39 23 39-23"/>
+    </g>
+    <circle cx="1457" cy="304" r="28" fill="#E4F3EC" stroke="#378E75" stroke-width="2"/>
+    <path d="m1446 306 8 8 15-20" stroke="#216B5E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="1179" y="436" fill="#3C7468" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="16" letter-spacing="2">CHECK → AUTHORIZE → SIGN</text>
+
+    <g font-family="ui-monospace, SFMono-Regular, Consolas, monospace">
+      <text x="72" y="566" fill="#527782" font-size="17">01</text>
+      <text x="113" y="566" fill="#274D54" font-size="20" letter-spacing="1">INDEPENDENT APPROVAL</text>
+      <text x="574" y="566" fill="#527782" font-size="17">02</text>
+      <text x="615" y="566" fill="#274D54" font-size="20" letter-spacing="1">SHARED EXPOSURE</text>
+      <text x="1080" y="566" fill="#527782" font-size="17">03</text>
+      <text x="1121" y="566" fill="#274D54" font-size="20" letter-spacing="1">EVM + SOLANA</text>
+    </g>
+  </g>
+  <rect x="1" y="1" width="1598" height="618" rx="28" stroke="#C1D7D7" stroke-width="2"/>
+</svg>
