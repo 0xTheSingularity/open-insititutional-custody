@@ -1,6 +1,29 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/custody-banner-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/assets/custody-banner-light.svg">
+    <img src="docs/assets/custody-banner-light.svg" alt="Open Institutional Custody. Authorization, before the signature. Independent checks converge on a native signature." width="1600" height="620">
+  </picture>
+</p>
+
+<div align="center">
+
 # Open Institutional Custody
 
-Control **who can approve a payment, what the wallet can sign, and how much it can spend**.
+</div>
+
+<p align="center">
+  <strong>Control who can approve a payment, what the wallet can sign,<br>and how much it can spend.</strong>
+</p>
+
+<p align="center">
+  <a href="#try-it-locally"><strong>Run a transfer</strong></a> ·
+  <a href="docs/concepts.md">Learn custody</a> ·
+  <a href="openwiki/architecture/system-overview.md">Explore the architecture</a> ·
+  <a href="#troubleshooting-and-help">Get help</a>
+</p>
+
+---
 
 Open Institutional Custody is a Rust toolkit for building an organization's wallet
 infrastructure. It checks payment rules before signing EVM or Solana transfers and
@@ -13,10 +36,11 @@ If you have written a smart contract and sent a transaction, you have enough
 background to start. The examples run locally with real signatures and simulated
 chains. You do not need funds, an RPC account, or existing custody infrastructure.
 
-**Current stage:** tested components and a command-line approval client. The first
-complete product deployment is still under construction. The EVM example uses a
-development single-key provider. Solana signing supports FROST threshold Ed25519.
-[See the capability table](#what-works-today) before choosing an integration.
+> [!NOTE]
+> **Current stage: tested components and a command-line approval client.**
+> The first complete product deployment is still under construction. The EVM
+> example uses a development single-key provider. Solana signing supports FROST
+> threshold Ed25519. [See the capability table](#what-works-today) before choosing an integration.
 
 ## Find your starting point
 
@@ -151,6 +175,27 @@ one owner for a different part of the decision.
 
 ```mermaid
 flowchart TD
+    B["01 · REQUEST & BUILD<br/>Intent → native transaction"]
+    A["02 · APPROVE & RESERVE<br/>Independent review → shared limits"]
+    S["03 · VERIFY & SIGN<br/>Signer checks → authority release → signature"]
+    T["04 · OBSERVE & SETTLE<br/>Submit signed bytes → finality → settlement"]
+    B --> A --> S --> T
+
+    classDef build fill:#eaf2f8,stroke:#7494ad,color:#16394f,stroke-width:1.5px
+    classDef approve fill:#e4f4eb,stroke:#6f9f88,color:#194b35,stroke-width:1.5px
+    classDef sign fill:#fbf1dc,stroke:#b69b5e,color:#59451c,stroke-width:1.5px
+    classDef settle fill:#f0eafb,stroke:#9a84b7,color:#43325c,stroke-width:1.5px
+    class B build
+    class A approve
+    class S sign
+    class T settle
+```
+
+<details>
+<summary><strong>Expand the full component flow</strong></summary>
+
+```mermaid
+flowchart TD
     I[Request a supplier payment] --> B[Builder prepares native transaction]
     B --> A[Approvers independently review and approve]
     A --> R[Authority reserves shared budget and resources]
@@ -161,6 +206,8 @@ flowchart TD
     D --> F[Chain evidence establishes finality]
     F --> T[Authority settles the reservation]
 ```
+
+</details>
 
 1. **Request the payment.** An **intent** records the asset, amount, destination,
    network, purpose, and constraints. A **vault** groups wallets under a policy.
@@ -252,9 +299,10 @@ files. It does not accept a raw transaction as a complete approval package.
 The [approval client guide](docs/approval-client.md) explains each file, enrollment
 step, command, and exit code.
 
-`inspect-envelope` does not verify the authority receipt signature. Every signer
-performs that separate check. A matching inspection report is not permission to
-bypass the signing flow.
+> [!IMPORTANT]
+> `inspect-envelope` does not verify the authority receipt signature. Every signer
+> performs that separate check. A matching inspection report is not permission to
+> bypass the signing flow.
 
 ## What works today
 
@@ -356,3 +404,12 @@ The implementation and its tests establish which parts exist today.
 The [OpenWiki](openwiki/quickstart.md) provides 17 reference pages with claims
 grounded in source and tests. Use it for implementation detail after the
 [beginner guide](docs/concepts.md).
+
+---
+
+<p align="center">
+  <a href="#try-it-locally">Run the examples</a> ·
+  <a href="docs/README.md">Documentation</a> ·
+  <a href="https://github.com/0xTheSingularity/oss-wallet-insitutional/issues">Questions and ideas</a> ·
+  <a href="#open-institutional-custody">Back to top ↑</a>
+</p>
