@@ -17,7 +17,7 @@ use oic_crypto_provider_dev::DevSingleKeyProvider;
 use oic_crypto_provider_frost_ed25519::{build_signing_package, run_dkg, FrostEd25519Provider};
 use oic_domain_types::*;
 use oic_one_time_state_ledger::InMemoryLedger;
-use oic_policy_kernel::{intent_hash, policy_hash, preview_hash, Decision};
+use oic_policy_kernel::{destination_hash, intent_hash, policy_hash, preview_hash, Decision};
 use oic_signer::*;
 use std::collections::{BTreeMap, VecDeque};
 use std::sync::{Arc, Mutex};
@@ -102,14 +102,26 @@ impl World {
 
     pub fn sign_policy(&self, mut bundle: PolicyBundle) -> PolicyBundle {
         let h = policy_hash(&bundle).unwrap();
-        bundle.administrative_signatures = self.admins[..2]
+        bundle.administrative_signatures = self.admin_quorum_signatures(h);
+        bundle
+    }
+
+    /// Admin-quorum signatures (first two admins) over `h`.
+    pub fn admin_quorum_signatures(&self, h: Hash32) -> Vec<CredentialSignature> {
+        self.admins[..2]
             .iter()
             .map(|(c, k)| CredentialSignature {
                 credential_id: c.clone(),
                 signature: SignatureBytes { scheme: SchemeId::Ed25519Pure, bytes: Bytes(k.sign(&h.0).to_bytes().to_vec()) },
             })
-            .collect();
-        bundle
+            .collect()
+    }
+
+    /// Register a destination with the administrative quorum (RFC 0002 §8).
+    pub fn sign_destination(&self, mut d: CounterpartyDestination) -> CounterpartyDestination {
+        let h = destination_hash(&d).unwrap();
+        d.administrative_signatures = self.admin_quorum_signatures(h);
+        d
     }
 
     pub fn trust_roots(&self, profiles: Vec<ChainProfile>) -> TrustRoots {
@@ -260,6 +272,7 @@ impl Setup {
     /// Register policy + intent at the authority and build the candidate.
     pub fn new(world: &World, profile: ChainProfile, adapter: Arc<dyn ChainAdapter>, mut m: SigningMaterials) -> Setup {
         world.authority.set_policy(&m.policy).expect("set_policy");
+        m.destination = world.sign_destination(m.destination.clone());
         let ih = intent_hash(&m.intent).unwrap();
         let reg = world
             .authority
@@ -355,6 +368,7 @@ impl Setup {
             native_signing_payloads: verified.signing_payloads.clone(),
             decoded_operation_hash: verified.decoded_operation_hash,
             evidence_bundle_hash: c.evidence_bundle_hash,
+            destination_hash: destination_hash(&m.destination).unwrap(),
             approval_grants: grants,
             budget_reservation_id: reservation_id_for(&c.operation_family_id, &c.candidate_id, c.candidate_revision).unwrap(),
             reservation_version: 1,
@@ -509,6 +523,7 @@ pub fn evm_destination(addr: [u8; 20]) -> CounterpartyDestination {
         allowed_assets: vec![],
         verification_evidence: "test".into(),
         activation_epoch: Epoch(1),
+        administrative_signatures: vec![],
     }
 }
 
@@ -703,6 +718,7 @@ pub fn sol_destination() -> CounterpartyDestination {
         allowed_assets: vec![],
         verification_evidence: "test".into(),
         activation_epoch: Epoch(1),
+        administrative_signatures: vec![],
     }
 }
 

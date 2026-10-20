@@ -75,15 +75,16 @@
 //!   backend refuses `from == self`). Their content is verified by the
 //!   backend, so attribution carries no authority.
 //!
-//! ## Known limitation
+//! ## Destination authentication
 //!
-//! The envelope (RFC §3.3) commits to the destination id and version but not
-//! to an authenticated destination record; the signer checks the
-//! [`CounterpartyDestination`] it is handed against the intent, the decoded
-//! recipient, any bounded template, and (through exact-candidate preview
-//! hashes) what approvers saw, but with zero-approval automated rules it
-//! cannot authenticate the destination address itself. Closing this needs a
-//! signed destination registry or a destination hash in the envelope.
+//! The [`CounterpartyDestination`] is an administrative-quorum-signed object
+//! (`OIC/DESTINATION/v1`), and the envelope commits to its hash
+//! (`destination_hash`). The signer verifies the quorum with the same admin
+//! roots it uses for policies and checks the hash, the intent's destination
+//! id/version, the decoded recipient, any bounded template, and (through
+//! exact-candidate preview hashes) what approvers saw. A coordinator or
+//! console therefore cannot substitute an address under a registered
+//! destination id, even under a zero-approval automated rule.
 //!
 //! ## Generations and rollback (A12, A13)
 //!

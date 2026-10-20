@@ -118,6 +118,7 @@ pub fn fixture_with(asset: Asset, seed: u8) -> Fx {
         allowed_assets: vec![],
         verification_evidence: "test".into(),
         activation_epoch: Epoch(1),
+        administrative_signatures: vec![],
     };
     let mut items = BTreeMap::new();
     items.insert(nonce_key(&sender), Bytes(NONCE.to_be_bytes().to_vec()));

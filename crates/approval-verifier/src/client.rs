@@ -11,7 +11,7 @@ use crate::grants::sign_grant;
 use ed25519_dalek::{SigningKey, VerifyingKey};
 use oic_adapter_api::*;
 use oic_domain_types::*;
-use oic_policy_kernel::{intent_hash, preview_hash, verify_policy_admin_signatures};
+use oic_policy_kernel::{intent_hash, preview_hash, verify_destination_admin_signatures, verify_policy_admin_signatures};
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
@@ -99,8 +99,11 @@ impl IndependentVerifier {
     fn analyse(&self, inputs: &DisplayInputs<'_>, now: UnixSeconds) -> OicResult<Analysis> {
         let DisplayInputs { intent, candidate, wallet, key, vault, asset, destination, policy, evidence } = *inputs;
 
-        // 1. Policy identity: administrative quorum over policy_hash.
+        // 1. Policy and destination identity: administrative quorum over
+        //    policy_hash and destination_hash. An unsigned destination is not
+        //    a registry entry, however plausible its label.
         verify_policy_admin_signatures(policy, &self.admin_keys, self.admin_quorum)?;
+        verify_destination_admin_signatures(destination, &self.admin_keys, self.admin_quorum)?;
 
         // 2. Cross-references between the objects.
         scope_check(policy.institution_id == intent.institution_id && policy.environment_id == intent.environment_id, "policy belongs to another institution or environment")?;

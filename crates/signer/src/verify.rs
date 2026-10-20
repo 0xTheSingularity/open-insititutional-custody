@@ -6,7 +6,10 @@ use oic_adapter_api::{check_evidence_scope, decoded_operation_hash, evidence_has
 use oic_approval_verifier::verify_grants;
 use oic_authorization_state::{reservation_id_for, verify_receipt, ReceiptExpectation};
 use oic_domain_types::*;
-use oic_policy_kernel::{evaluate, intent_hash, policy_hash, preview_hash, verify_policy_admin_signatures, Decision, ExposureView, PolicyInput, ReasonCode, WindowExposure};
+use oic_policy_kernel::{
+    destination_hash, evaluate, intent_hash, policy_hash, preview_hash, verify_destination_admin_signatures, verify_policy_admin_signatures, Decision, ExposureView,
+    PolicyInput, ReasonCode, WindowExposure,
+};
 use std::collections::BTreeSet;
 
 fn ensure(cond: bool, err: impl FnOnce() -> OicError) -> OicResult<()> {
@@ -162,6 +165,16 @@ impl Signer {
         ensure(pol.allowlist_version == b.allowlist_version, code(ErrorCode::StalePolicy, "allowlist version differs from the envelope"))?;
         let ih = intent_hash(it)?;
         ensure(ih == b.intent_hash, scope("intent does not hash to the envelope intent_hash"))?;
+
+        // ---- 4b. Destination registry ------------------------------------------
+        // The destination is an admin-quorum-signed object; the envelope commits
+        // to its hash, so neither the coordinator nor a console can substitute an
+        // address under a registered destination id (closes the gap noted in
+        // RFC 0001 §3.3 for zero-approval automated rules).
+        let d = &m.destination;
+        verify_destination_admin_signatures(d, &roots.admin_keys, roots.admin_quorum)?;
+        ensure(destination_hash(d)? == b.destination_hash, scope("destination does not hash to the envelope destination_hash"))?;
+        ensure(d.network_id == w.network_id, scope("destination is registered on a different network than the wallet"))?;
 
         // ---- 5. Grants ---------------------------------------------------------
         let approvers = verify_grants(&b.approval_grants, &roots.approvers, now)?;

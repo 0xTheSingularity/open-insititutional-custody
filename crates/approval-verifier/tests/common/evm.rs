@@ -70,7 +70,7 @@ pub fn erc20_asset() -> Asset {
 }
 
 pub fn destination(address: Address) -> CounterpartyDestination {
-    CounterpartyDestination {
+    let d = CounterpartyDestination {
         destination_id: DestinationId::unchecked("dest-1"),
         version: 3,
         network_id: NetworkId::unchecked("evm-11155111"),
@@ -80,7 +80,9 @@ pub fn destination(address: Address) -> CounterpartyDestination {
         allowed_assets: vec![],
         verification_evidence: "callback 2026-01-02".into(),
         activation_epoch: Epoch(1),
-    }
+        administrative_signatures: vec![],
+    };
+    signed_destination(d, &[1, 2])
 }
 
 /// A world whose candidate was built by the real EVM adapter. `paid_to`

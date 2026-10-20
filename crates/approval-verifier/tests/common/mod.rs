@@ -10,7 +10,7 @@ use ed25519_dalek::{Signer, SigningKey};
 use oic_adapter_api::*;
 use oic_approval_verifier::*;
 use oic_domain_types::*;
-use oic_policy_kernel::policy_hash;
+use oic_policy_kernel::{destination_hash, policy_hash};
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
@@ -123,6 +123,24 @@ pub fn policy(signers: &[u8]) -> PolicyBundle {
         })
         .collect();
     b
+}
+
+/// Admin-quorum signatures over `h` by the listed administrators.
+pub fn admin_signatures(h: Hash32, signers: &[u8]) -> Vec<CredentialSignature> {
+    signers
+        .iter()
+        .map(|n| {
+            let (id, k) = admin(*n);
+            CredentialSignature { credential_id: id, signature: SignatureBytes { scheme: SchemeId::Ed25519Pure, bytes: Bytes(k.sign(&h.0).to_bytes().to_vec()) } }
+        })
+        .collect()
+}
+
+/// Destination registered by the listed administrators (RFC 0002 §8).
+pub fn signed_destination(mut d: CounterpartyDestination, signers: &[u8]) -> CounterpartyDestination {
+    let h = destination_hash(&d).unwrap();
+    d.administrative_signatures = admin_signatures(h, signers);
+    d
 }
 
 /// Verifier with both pinned adapters and both chain profiles enrolled.

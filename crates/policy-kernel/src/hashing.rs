@@ -44,6 +44,57 @@ pub fn policy_hash(bundle: &PolicyBundle) -> OicResult<Hash32> {
     domain_hash(domains::POLICY, &PolicyBundleUnsigned::from(bundle))
 }
 
+/// The signed portion of a [`CounterpartyDestination`]: every field except
+/// `administrative_signatures`, which sign this view.
+#[derive(Clone, Debug, Serialize)]
+pub struct DestinationUnsigned<'a> {
+    pub destination_id: &'a DestinationId,
+    pub version: u32,
+    pub network_id: &'a NetworkId,
+    pub address: &'a Bytes,
+    pub address_display: &'a str,
+    pub display_name: &'a str,
+    pub allowed_assets: &'a [AssetId],
+    pub verification_evidence: &'a str,
+    pub activation_epoch: Epoch,
+}
+
+impl<'a> From<&'a CounterpartyDestination> for DestinationUnsigned<'a> {
+    fn from(d: &'a CounterpartyDestination) -> Self {
+        DestinationUnsigned {
+            destination_id: &d.destination_id,
+            version: d.version,
+            network_id: &d.network_id,
+            address: &d.address,
+            address_display: &d.address_display,
+            display_name: &d.display_name,
+            allowed_assets: &d.allowed_assets,
+            verification_evidence: &d.verification_evidence,
+            activation_epoch: d.activation_epoch,
+        }
+    }
+}
+
+/// `SHA256("OIC/DESTINATION/v1" || CanonicalEncode(DestinationUnsigned))`.
+pub fn destination_hash(d: &CounterpartyDestination) -> OicResult<Hash32> {
+    domain_hash(domains::DESTINATION, &DestinationUnsigned::from(d))
+}
+
+/// Verify that at least `quorum` distinct administrative credentials signed
+/// `destination_hash(d)` (RFC 0002 §7: every beneficiary change follows the
+/// administrative quorum process). `quorum == 0` is rejected.
+pub fn verify_destination_admin_signatures(d: &CounterpartyDestination, admin_keys: &[(CredentialId, VerifyingKey)], quorum: u8) -> OicResult<()> {
+    if quorum == 0 {
+        return Err(OicError::invalid_request("administrative quorum must be at least 1"));
+    }
+    let h = destination_hash(d)?;
+    let n = count_quorum_signatures(&h.0, &d.administrative_signatures, admin_keys);
+    if n < usize::from(quorum) {
+        return Err(OicError::invalid_signature(format!("destination administrative quorum not met: {n} of {quorum}")));
+    }
+    Ok(())
+}
+
 /// `SHA256("OIC/INTENT/v1" || CanonicalEncode(intent))`.
 pub fn intent_hash(intent: &Intent) -> OicResult<Hash32> {
     domain_hash(domains::INTENT, intent)

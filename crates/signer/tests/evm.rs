@@ -135,6 +135,33 @@ fn a02_genuinely_reserved_envelope_with_different_recipient_is_rejected_by_adapt
     rejected(&c.node, &env, &m, now(), ErrorCode::ScopeMismatch);
 }
 
+/// Zero-approval automated rule: the coordinator hands the signer a
+/// destination record with the registered id/version but its own address,
+/// consistent with the bytes it built and the envelope it reserved. Without
+/// the admin-quorum signature over the destination this would verify.
+#[test]
+fn a02_substituted_destination_record_fails_registry_quorum() {
+    let c = evm_case(0);
+    let mut attacker = c.setup.m.clone();
+    attacker.destination.address = Bytes(vec![0xaa; 20]);
+    attacker.destination.address_display = "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".into();
+    attacker.candidate = EvmAdapter.build_candidate(&build_ctx(&c.setup, &attacker)).unwrap();
+    let verified = c.setup.verify_for(&attacker);
+    let body = c.setup.body_for(&attacker, &verified, vec![], "sess-evil-2", vec![pid(1)], DEADLINE);
+    let env = c.setup.reserve(&c.world, body, &verified);
+    // Stale signatures from the registered record do not cover the new address.
+    rejected(&c.node, &env, &attacker, now(), ErrorCode::InvalidSignature);
+    // Signed by only one administrator: still below quorum.
+    let mut one_admin = attacker.clone();
+    let h = oic_policy_kernel::destination_hash(&one_admin.destination).unwrap();
+    one_admin.destination.administrative_signatures = c.world.admin_quorum_signatures(h)[..1].to_vec();
+    rejected(&c.node, &env, &one_admin, now(), ErrorCode::InvalidSignature);
+    // Registered destination presented instead: hash bound in the envelope differs.
+    let mut registered = attacker.clone();
+    registered.destination = c.setup.m.destination.clone();
+    rejected(&c.node, &env, &registered, now(), ErrorCode::ScopeMismatch);
+}
+
 #[test]
 fn a03_envelope_replayed_for_another_vault_network_key_or_environment() {
     let c = evm_case(1);

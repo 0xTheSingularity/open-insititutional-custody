@@ -280,9 +280,19 @@ fn inconsistent_objects_are_scope_mismatches() {
     w.wallet.address = Bytes(vec![0x99; 20]);
     assert_eq!(v.render(&w.inputs(), now()).unwrap_err().code, ErrorCode::ScopeMismatch);
 
+    // An edited-but-unsigned destination is not a registry entry at all.
     let mut w = base.clone();
     w.destination.version = 4;
+    assert_eq!(v.render(&w.inputs(), now()).unwrap_err().code, ErrorCode::InvalidSignature);
+    // A properly registered later version still does not match the intent.
+    let mut w = base.clone();
+    w.destination.version = 4;
+    w.destination = signed_destination(w.destination, &[1, 2]);
     assert_eq!(v.render(&w.inputs(), now()).unwrap_err().code, ErrorCode::ScopeMismatch);
+    // A destination signed by a single administrator is below quorum.
+    let mut w = base.clone();
+    w.destination = signed_destination(w.destination, &[1]);
+    assert_eq!(v.render(&w.inputs(), now()).unwrap_err().code, ErrorCode::InvalidSignature);
 
     let mut w = base.clone();
     w.candidate.intent_id = IntentId::unchecked("intent-other");

@@ -61,6 +61,7 @@ pub fn destination(profile: &ChainProfile, address: Vec<u8>, display: String) ->
         allowed_assets: vec![],
         verification_evidence: "test".into(),
         activation_epoch: Epoch(1),
+        administrative_signatures: vec![],
     }
 }
 

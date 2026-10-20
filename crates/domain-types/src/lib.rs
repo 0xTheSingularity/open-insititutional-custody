@@ -34,5 +34,17 @@ pub mod domains {
     pub const KEY_DESCRIPTOR: &str = "OIC/KEY_DESCRIPTOR/v1";
     pub const PUBLIC_KEY: &str = "OIC/PUBLIC_KEY/v1";
     pub const CONFIG_PROPOSAL: &str = "OIC/CONFIG_PROPOSAL/v1";
+    /// Signed counterparty destination record (address-book entry, RFC 0002 §8).
+    pub const DESTINATION: &str = "OIC/DESTINATION/v1";
+    /// Per-asset movement journal entries (RFC 0002 §6).
+    pub const JOURNAL: &str = "OIC/JOURNAL/v1";
+    /// Observed inbound/outbound chain movements (RFC 0002 §4).
+    pub const OBSERVED_MOVEMENT: &str = "OIC/OBSERVED_MOVEMENT/v1";
+    /// Reconciliation checkpoints (RFC 0002 §6).
+    pub const RECONCILIATION: &str = "OIC/RECONCILIATION/v1";
+    /// Workflow trigger identity (RFC 0002 §5 durable deduplication).
+    pub const WORKFLOW_TRIGGER: &str = "OIC/WORKFLOW_TRIGGER/v1";
+    /// Webhook event signing (RFC 0001 §13.4).
+    pub const WEBHOOK: &str = "OIC/WEBHOOK/v1";
     pub const SIGNER_FENCE: &str = "OIC/SIGNER_FENCE/v1";
 }

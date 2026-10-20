@@ -142,6 +142,7 @@ impl Fx {
             allowed_assets: vec![],
             verification_evidence: "kyc".into(),
             activation_epoch: Epoch(1),
+            administrative_signatures: vec![],
         };
         let asset = Asset {
             asset_id: usdc(),

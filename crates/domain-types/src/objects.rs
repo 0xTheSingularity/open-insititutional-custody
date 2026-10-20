@@ -111,6 +111,13 @@ pub struct Asset {
 
 /// Versioned, verified counterparty destination. Approval binds to a specific
 /// version; a later edit is a new version and does not retroactively apply.
+///
+/// A destination is an administrative-quorum-signed object exactly like a
+/// [`PolicyBundle`]: `administrative_signatures` sign
+/// `SHA256("OIC/DESTINATION/v1" || CanonicalEncode(all other fields))`.
+/// Every verifier that acts on a destination address (signer, independent
+/// approval client, authority) checks the quorum, so a coordinator cannot
+/// substitute an attacker address under a registered destination id.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CounterpartyDestination {
     pub destination_id: DestinationId,
@@ -123,6 +130,8 @@ pub struct CounterpartyDestination {
     pub allowed_assets: Vec<AssetId>,
     pub verification_evidence: String,
     pub activation_epoch: Epoch,
+    /// Administrative quorum over the destination hash (RFC 0002 §7, §8).
+    pub administrative_signatures: Vec<CredentialSignature>,
 }
 
 // ---------------------------------------------------------------------------
@@ -608,6 +617,9 @@ pub struct AuthorizationEnvelopeBody {
     pub native_signing_payloads: Vec<NativeSigningPayload>,
     pub decoded_operation_hash: Hash32,
     pub evidence_bundle_hash: Hash32,
+    /// `SHA256("OIC/DESTINATION/v1" || CanonicalEncode(destination without signatures))`
+    /// of the exact admin-signed destination version the intent names.
+    pub destination_hash: Hash32,
     pub approval_grants: Vec<ApprovalGrant>,
     pub budget_reservation_id: ReservationId,
     pub reservation_version: u32,

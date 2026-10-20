@@ -142,6 +142,7 @@ pub fn fixture_with(asset: Asset, seed: u8) -> Fx {
         allowed_assets: vec![],
         verification_evidence: "test".into(),
         activation_epoch: Epoch(1),
+        administrative_signatures: vec![],
     };
     let mut items = BTreeMap::new();
     items.insert(KEY_GENESIS_HASH.to_string(), Bytes(GENESIS.to_vec()));

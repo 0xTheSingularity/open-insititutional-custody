@@ -73,7 +73,7 @@ pub fn spl_asset() -> Asset {
 }
 
 pub fn destination(owner: Pubkey) -> CounterpartyDestination {
-    CounterpartyDestination {
+    let d = CounterpartyDestination {
         destination_id: DestinationId::unchecked("dest-1"),
         version: 3,
         network_id: NetworkId::unchecked("solana-devnet"),
@@ -83,7 +83,9 @@ pub fn destination(owner: Pubkey) -> CounterpartyDestination {
         allowed_assets: vec![],
         verification_evidence: "callback 2026-01-02".into(),
         activation_epoch: Epoch(1),
-    }
+        administrative_signatures: vec![],
+    };
+    signed_destination(d, &[1, 2])
 }
 
 fn le64(v: u64) -> Bytes {
