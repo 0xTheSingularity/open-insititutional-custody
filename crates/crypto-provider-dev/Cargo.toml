@@ -1,0 +1,24 @@
+[package]
+name = "oic-crypto-provider-dev"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Single-key development/conformance crypto provider (NO threshold security) for secp256k1 ECDSA and Ed25519 (RFC 0001 §6)"
+
+[dependencies]
+oic-domain-types = { workspace = true }
+oic-canonical-encoding = { workspace = true }
+oic-crypto-provider = { workspace = true }
+k256 = { workspace = true }
+ed25519-dalek = { workspace = true }
+rand_core = { workspace = true }
+chacha20poly1305 = { workspace = true }
+zeroize = { workspace = true }
+parking_lot = { workspace = true }
+serde = { workspace = true }
+
+[dev-dependencies]
+oic-one-time-state-ledger = { path = "../one-time-state-ledger" }
+oic-adapter-evm = { workspace = true }
+proptest = { workspace = true }
+rand = { workspace = true }

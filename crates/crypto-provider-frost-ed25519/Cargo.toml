@@ -1,0 +1,22 @@
+[package]
+name = "oic-crypto-provider-frost-ed25519"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "FROST(Ed25519, SHA-512) t-of-n threshold crypto provider over the frost-ed25519 crate (RFC 0001 §6)"
+
+[dependencies]
+oic-domain-types = { workspace = true }
+oic-canonical-encoding = { workspace = true }
+oic-crypto-provider = { workspace = true }
+frost-ed25519 = { workspace = true }
+ed25519-dalek = { workspace = true }
+rand_core = { workspace = true }
+chacha20poly1305 = { workspace = true }
+zeroize = { workspace = true }
+parking_lot = { workspace = true }
+serde = { workspace = true }
+
+[dev-dependencies]
+oic-one-time-state-ledger = { path = "../one-time-state-ledger" }
+rand = { workspace = true }

@@ -65,6 +65,12 @@ pub struct BackendDescriptor {
     pub native_verifier_compatible: bool,
     /// Whether one-time state (nonces/preprocessing) exists and must be ledgered.
     pub has_one_time_state: bool,
+    /// First protocol round whose processing can reveal a signature share or
+    /// a complete signature. The signer processes peer messages with
+    /// `round < share_producing_round` freely (commitments, auxiliary data)
+    /// and withholds messages at or after it until the authorization-state
+    /// authority's *release* receipt is present (§5.4 step 5).
+    pub share_producing_round: u16,
     /// Human-readable security note that MUST be shown in operator tooling.
     pub security_note: String,
 }
@@ -90,6 +96,9 @@ pub struct PeerMessage {
     pub key_id: KeyId,
     pub key_epoch: Epoch,
     pub from: ParticipantId,
+    /// Sender's signer-instance generation (§6.3). Peers reject messages from
+    /// a generation older than the roster's current generation for `from`.
+    pub from_generation: Epoch,
     /// `None` = broadcast.
     pub to: Option<ParticipantId>,
     pub round: u16,

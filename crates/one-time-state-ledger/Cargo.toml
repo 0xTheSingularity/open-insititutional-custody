@@ -1,0 +1,18 @@
+[package]
+name = "oic-one-time-state-ledger"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Durable one-time-state (nonce / preprocessing) ledger with rollback detection (RFC 0001 §6.3)"
+
+[dependencies]
+oic-domain-types = { workspace = true }
+oic-canonical-encoding = { workspace = true }
+oic-crypto-provider = { workspace = true }
+parking_lot = { workspace = true }
+serde = { workspace = true }
+hex = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+tempfile = { workspace = true }

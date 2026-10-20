@@ -1,0 +1,19 @@
+[package]
+name = "oic-audit"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Append-only, hash-chained, service-signed audit log with independent signed checkpoints and witness comparison (RFC 0001 §14)"
+
+[dependencies]
+oic-domain-types = { workspace = true }
+oic-canonical-encoding = { workspace = true }
+oic-policy-kernel = { workspace = true }
+oic-authorization-state = { workspace = true }
+ed25519-dalek = { workspace = true }
+parking_lot = { workspace = true }
+serde = { workspace = true }
+hex = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

@@ -1,0 +1,23 @@
+[package]
+name = "oic-approval-verifier"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Independent approval verification: grant signing/verification and trusted-display rendering of exactly what a grant authorizes (RFC 0001 §4.3, RFC 0002 §8)"
+
+[dependencies]
+oic-domain-types = { workspace = true }
+oic-canonical-encoding = { workspace = true }
+oic-policy-kernel = { workspace = true }
+oic-adapter-api = { workspace = true }
+oic-adapter-evm = { workspace = true }
+oic-adapter-solana = { workspace = true }
+ed25519-dalek = { workspace = true }
+serde = { workspace = true }
+hex = { workspace = true }
+bs58 = { workspace = true }
+
+[dev-dependencies]
+k256 = { workspace = true }
+proptest = { workspace = true }
+serde_json = { workspace = true }

@@ -9,6 +9,13 @@ members = [
     "crates/adapter-solana",
     "crates/policy-kernel",
     "crates/authorization-state",
+    "crates/approval-verifier",
+    "crates/audit",
+    "crates/one-time-state-ledger",
+    "crates/chain-simulator",
+    "crates/crypto-provider-dev",
+    "crates/crypto-provider-frost-ed25519",
+    "crates/signer",
     "models/authorization-state-machine",
 ]
 
@@ -75,6 +82,9 @@ proptest = "1.5"
 stateright = "0.30"
 uuid = { version = "1", features = ["v4", "serde"] }
 anyhow = "1"
+chacha20poly1305 = { version = "=0.10.1" }
+zeroize = { version = "1.8", features = ["zeroize_derive"] }
+tempfile = "3"
 
 # dev/test-only differential verifiers (never production dependencies)
 alloy-consensus = { version = "=2.5.0", features = ["k256"] }
