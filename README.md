@@ -1,36 +1,28 @@
-<h1 align="center" id="open-institutional-custody">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/custody-banner-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="docs/assets/custody-banner-light.svg">
-    <img src="docs/assets/custody-banner-light.svg" alt="Open Institutional Custody: approved scope, budget reservation, transaction verification, and a release receipt precede a native signature." width="1600" height="400">
-  </picture>
-</h1>
-
-<p align="center">
-  <strong>Control who can approve a payment, what the wallet can sign,<br>and how much it can spend.</strong>
+<p>
+<picture>
+  <source media="(prefers-color-scheme: dark) and (max-width: 640px)" srcset="docs/assets/custody-banner-mobile-dark.svg">
+  <source media="(max-width: 640px)" srcset="docs/assets/custody-banner-mobile-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/custody-banner-dark.svg">
+  <img src="docs/assets/custody-banner-light.svg" alt="Your rules. Before the signature. Open Institutional Custody." width="1200">
+</picture>
 </p>
 
-<p align="center">
-  <a href="#try-it-locally"><strong>Run a transfer</strong></a> ·
-  <a href="docs/payment-flow.md">Understand the flow</a> ·
-  <a href="docs/README.md">Documentation</a> ·
-  <a href="#troubleshooting-and-help">Get help</a>
-</p>
+# Open Institutional Custody
 
----
+**Rust components for institutional payment authorization and signing.**
 
-Open Institutional Custody is a Rust toolkit for organizational wallets. It checks
-payment rules before EVM or Solana transfers, coordinates signing, and tracks chain outcomes.
-Approvals, shared spending limits, and signer verification connect a treasury's
-decisions to the actual transaction bytes.
+Connect payment approvals and shared spending limits to the exact EVM or Solana
+transaction each signer verifies. Approvers review the payment independently.
+Signers check the bytes, rules, and receipts before producing signature output.
 
-> [!NOTE]
-> **Current stage: Rust libraries and an approval CLI, with local integration demos.**
-> The demos use simulated chains. A complete production deployment is still under development.
+[Run a transfer](#try-it-locally) · [Follow a payment](docs/payment-flow.md) · [Documentation](docs/README.md) · [Contribute](docs/development.md)
+
+> **Development preview.** Rust libraries and an approval CLI, with real signatures
+> and simulated chains. A complete production deployment is still under development.
 
 ## Try it locally
 
-No funds or RPC account is required. Install
+Run an ERC-20 transfer without funds or RPC credentials. Install
 [Git, Rust/Cargo, and platform build tools](docs/getting-started.md#prerequisites), then run:
 
 ```sh
@@ -40,56 +32,60 @@ cargo test -p oic-service-coordinator --locked --test coordinator \
   evm_erc20_end_to_end_signs_and_mines_in_the_simulator -- --exact
 ```
 
-This test approves, signs, and mines an ERC-20 transfer locally. Expected result:
-**1 passed, 0 failed**.
+The test approves, signs, and mines a transfer locally. Expected result: **1 passed, 0 failed**.
+The EVM demo uses a development single-key signer.
 
-[Solana demo](docs/getting-started.md#run-solana-threshold-signing) · [Full test suite](docs/getting-started.md#run-the-full-suite) · [Setup help](docs/getting-started.md#troubleshooting)
+[Try Solana 2-of-3 signing](docs/getting-started.md#run-solana-threshold-signing) · [Run the full suite](docs/getting-started.md#run-the-full-suite) · [Setup help](docs/getting-started.md#troubleshooting)
 
-## How a payment works
+## Every decision has a boundary
 
-**Request → approve → reserve budget → verify → sign → observe → settle**
+<p>
+<picture>
+  <source media="(prefers-color-scheme: dark) and (max-width: 640px)" srcset="docs/assets/custody-flow-mobile-dark.svg">
+  <source media="(max-width: 640px)" srcset="docs/assets/custody-flow-mobile-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/custody-flow-dark.svg">
+  <img src="docs/assets/custody-flow-light.svg" alt="Authorize: build the transaction, review and approve, reserve shared exposure. Sign: verify at each signer, commit release, produce the signature. Resolve: broadcast and observe, establish chain finality, settle the reservation." width="1200">
+</picture>
+</p>
 
-Each signer verifies the transaction independently. Shared reservations account for
-pending payments before signatures leave the system. Approval, signing, and chain
-settlement are separate decisions.
+- **Review independently.** Approvers decode the proposed payment from native transaction bytes.
+- **Reserve shared exposure.** Pending payments count toward the same spending limits.
+- **Verify at the signer.** Each signer checks authorization. A recorded release gates signature output.
+- **Resolve with evidence.** Uncertain payments retain their reservation until chain evidence resolves them.
 
-Follow [one treasury payment](docs/payment-flow.md) for the diagram, component
-responsibilities, and failure cases. The [concepts guide](docs/concepts.md) explains
-the vocabulary from first principles.
+Approval, signature issuance, and settlement are separate decisions. The current
+authority is a trusted single writer; signers rely on its receipts for shared spending state.
+Read the [payment walkthrough](docs/payment-flow.md) for responsibilities and failure cases.
 
 ## What works today
 
-| Area | Supported path |
+| Area | Implemented | Boundary |
+| --- | --- | --- |
+| **EVM** | Native value and registered ERC-20 transfers | Development single-key ECDSA |
+| **Solana** | SOL and classic SPL transfers with FROST Ed25519 | In-process threshold signing; no authenticated signer transport |
+| **Payment controls** | Independent approvals, policy rules, shared exposure, fee limits, and freezes | Off-chain authorization components |
+| **Recovery and audit** | File-backed state, recorded submissions, signed audit events, and checkpoints | Chain clients use simulators; complete reconciliation is pending |
+
+Production threshold ECDSA, live-chain clients, arbitrary contract calls, and a complete
+API/deployment stack need further implementation. See the
+[capability details](docs/getting-started.md#current-product-boundary) before integrating.
+
+## Go deeper
+
+| Start here | What you will find |
 | --- | --- |
-| EVM | Native transfers and registered ERC-20 `transfer` calls, using a development single-key signer. |
-| Solana | SOL and classic SPL token transfers, with FROST threshold Ed25519 signing. |
-| Payment controls | Independent approvals, policy rules, shared exposure, resource reservations, fee limits, and freezes. |
+| [Payment walkthrough](docs/payment-flow.md) | One treasury payment, from request to settlement |
+| [Core concepts](docs/concepts.md) | Keys, shares, approvals, exposure, and finality |
+| [Approval client](docs/approval-client.md) | Review and approve payments with `oic-approve` |
+| [Development](docs/development.md) | Workspace map, focused tests, protocol vectors, and bounded state exploration |
+| [Documentation index](docs/README.md) | Subsystem references and design RFCs |
 
-These are off-chain custody components. Arbitrary contract calls, production
-threshold ECDSA, and authenticated signer networking need additional implementation.
-See the [capability details](docs/getting-started.md#current-product-boundary) before integrating.
+## Contribute
 
-## Documentation
-
-If you have written one smart contract, start with the payment walkthrough.
-
-| You want to… | Read |
-| --- | --- |
-| Understand custody | [Payment walkthrough](docs/payment-flow.md) → [Core concepts](docs/concepts.md) |
-| Run demos and fix setup | [Getting started](docs/getting-started.md) |
-| Review and approve payments | [Approval client](docs/approval-client.md) |
-| Integrate, test, or contribute | [Development](docs/development.md) |
-| Inspect a subsystem | [OpenWiki reference](openwiki/quickstart.md) |
-
-The [documentation home](docs/README.md) also maps subsystem references and design RFCs.
-
-## Troubleshooting and help
-
-Use the [setup troubleshooting table](docs/getting-started.md#troubleshooting) for
-build, approval-input, and uncertain-payment problems. To ask a question or report
-a bug, [open an issue](https://github.com/0xTheSingularity/oss-wallet-insitutional/issues)
+Start with the [development guide](docs/development.md). For setup problems, use
+[troubleshooting](docs/getting-started.md#troubleshooting). For a question or bug,
+[open an issue](https://github.com/0xTheSingularity/oss-wallet-insitutional/issues)
 with the commit, command, toolchain, expected result, and error output.
 Keep keys, shares, passphrases, and secret files out of reports.
 
-For contributions, start with the [workspace map and verification commands](docs/development.md).
-Package metadata declares Apache-2.0.
+Package metadata declares [Apache-2.0](Cargo.toml).
