@@ -1,16 +1,10 @@
-<p align="center">
+<h1 align="center" id="open-institutional-custody">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/custody-banner-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="docs/assets/custody-banner-light.svg">
-    <img src="docs/assets/custody-banner-light.svg" alt="Open Institutional Custody. Authorization, before the signature. Independent checks converge on a native signature." width="1600" height="620">
+    <img src="docs/assets/custody-banner-light.svg" alt="Open Institutional Custody: approved scope, budget reservation, transaction verification, and a release receipt precede a native signature." width="1600" height="400">
   </picture>
-</p>
-
-<div align="center">
-
-# Open Institutional Custody
-
-</div>
+</h1>
 
 <p align="center">
   <strong>Control who can approve a payment, what the wallet can sign,<br>and how much it can spend.</strong>

@@ -1,0 +1,1380 @@
+{
+  "schemaVersion": 1,
+  "id": "project-1",
+  "name": "my-design.vsvg.json",
+  "activePageId": "page-2",
+  "settings": {
+    "defaultCanvas": {
+      "width": 256,
+      "height": 256
+    }
+  },
+  "pages": [
+    {
+      "id": "page-2",
+      "name": "custody-banner-light",
+      "document": {
+        "id": "page-2-document",
+        "name": "custody-banner-light",
+        "width": 1600,
+        "height": 400,
+        "resources": {
+          "gradients": []
+        },
+        "root": {
+          "id": "root",
+          "type": "group",
+          "name": "Root",
+          "children": [
+            {
+              "id": "background",
+              "name": "background",
+              "type": "rect",
+              "x": 0,
+              "y": 0,
+              "width": 1600,
+              "height": 400,
+              "style": {
+                "fill": "#f8f7f3",
+                "stroke": "none",
+                "strokeWidth": 1
+              }
+            },
+            {
+              "id": "wordmark",
+              "name": "Project identity",
+              "type": "group",
+              "children": [
+                {
+                  "id": "registration-mark",
+                  "name": "registration-mark",
+                  "type": "rect",
+                  "x": 64,
+                  "y": 35,
+                  "width": 20,
+                  "height": 5,
+                  "style": {
+                    "fill": "#b84028",
+                    "stroke": "none",
+                    "strokeWidth": 1
+                  }
+                },
+                {
+                  "id": "wordmark-code",
+                  "name": "OIC / WALLET INFRASTRUCTURE",
+                  "type": "text",
+                  "x": 100,
+                  "y": 44,
+                  "text": "OIC / WALLET INFRASTRUCTURE",
+                  "fontSize": 18,
+                  "fontWeight": "400",
+                  "fontFamily": "Consolas, monospace",
+                  "textAnchor": "start",
+                  "fill": "#596561",
+                  "style": {
+                    "fill": "#596561",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "wordmark-open",
+                  "name": "Open",
+                  "type": "text",
+                  "x": 60,
+                  "y": 137,
+                  "text": "Open",
+                  "fontSize": 88,
+                  "fontWeight": "700",
+                  "fontFamily": "Arial, Helvetica, sans-serif",
+                  "textAnchor": "start",
+                  "fill": "#202829",
+                  "style": {
+                    "fill": "#202829",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "wordmark-institutional",
+                  "name": "Institutional",
+                  "type": "text",
+                  "x": 60,
+                  "y": 225,
+                  "text": "Institutional",
+                  "fontSize": 88,
+                  "fontWeight": "700",
+                  "fontFamily": "Arial, Helvetica, sans-serif",
+                  "textAnchor": "start",
+                  "fill": "#202829",
+                  "style": {
+                    "fill": "#202829",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "wordmark-custody",
+                  "name": "Custody",
+                  "type": "text",
+                  "x": 60,
+                  "y": 313,
+                  "text": "Custody",
+                  "fontSize": 88,
+                  "fontWeight": "700",
+                  "fontFamily": "Arial, Helvetica, sans-serif",
+                  "textAnchor": "start",
+                  "fill": "#202829",
+                  "style": {
+                    "fill": "#202829",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "platforms",
+                  "name": "RUST  /  EVM + SOLANA",
+                  "type": "text",
+                  "x": 64,
+                  "y": 368,
+                  "text": "RUST  /  EVM + SOLANA",
+                  "fontSize": 20,
+                  "fontWeight": "400",
+                  "fontFamily": "Consolas, monospace",
+                  "textAnchor": "start",
+                  "fill": "#596561",
+                  "style": {
+                    "fill": "#596561",
+                    "stroke": "none"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "panel-divider",
+              "name": "panel-divider",
+              "type": "path",
+              "start": {
+                "x": 790,
+                "y": 53
+              },
+              "closed": false,
+              "segments": [
+                {
+                  "type": "line",
+                  "to": {
+                    "x": 790,
+                    "y": 344
+                  }
+                }
+              ],
+              "style": {
+                "fill": "none",
+                "stroke": "#c6cdca",
+                "strokeWidth": 1.5,
+                "strokeLinecap": "square",
+                "strokeLinejoin": "miter"
+              }
+            },
+            {
+              "id": "verification-gate",
+              "name": "Independent signer checks",
+              "type": "group",
+              "children": [
+                {
+                  "id": "gate-heading",
+                  "name": "BEFORE SIGNATURE RELEASE",
+                  "type": "text",
+                  "x": 855,
+                  "y": 38,
+                  "text": "BEFORE SIGNATURE RELEASE",
+                  "fontSize": 18,
+                  "fontWeight": "400",
+                  "fontFamily": "Consolas, monospace",
+                  "textAnchor": "start",
+                  "fill": "#596561",
+                  "style": {
+                    "fill": "#596561",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "gate-outline",
+                  "name": "gate-outline",
+                  "type": "rect",
+                  "x": 855,
+                  "y": 52,
+                  "width": 448,
+                  "height": 292,
+                  "style": {
+                    "fill": "none",
+                    "stroke": "#c6cdca",
+                    "strokeWidth": 1.5
+                  }
+                },
+                {
+                  "id": "check-0-number",
+                  "name": "01",
+                  "type": "text",
+                  "x": 875,
+                  "y": 96,
+                  "text": "01",
+                  "fontSize": 18,
+                  "fontWeight": "400",
+                  "fontFamily": "Consolas, monospace",
+                  "textAnchor": "start",
+                  "fill": "#596561",
+                  "style": {
+                    "fill": "#596561",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "check-0-label",
+                  "name": "Approved scope",
+                  "type": "text",
+                  "x": 925,
+                  "y": 97,
+                  "text": "Approved scope",
+                  "fontSize": 26,
+                  "fontWeight": "500",
+                  "fontFamily": "Arial, Helvetica, sans-serif",
+                  "textAnchor": "start",
+                  "fill": "#202829",
+                  "style": {
+                    "fill": "#202829",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "check-0-tick",
+                  "name": "check-0-tick",
+                  "type": "path",
+                  "start": {
+                    "x": 1253,
+                    "y": 87
+                  },
+                  "closed": false,
+                  "segments": [
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1260,
+                        "y": 94
+                      }
+                    },
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1274,
+                        "y": 79
+                      }
+                    }
+                  ],
+                  "style": {
+                    "fill": "none",
+                    "stroke": "#202829",
+                    "strokeWidth": 2.5,
+                    "strokeLinecap": "square",
+                    "strokeLinejoin": "miter"
+                  }
+                },
+                {
+                  "id": "row-1-divider",
+                  "name": "row-1-divider",
+                  "type": "path",
+                  "start": {
+                    "x": 855,
+                    "y": 125
+                  },
+                  "closed": false,
+                  "segments": [
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1303,
+                        "y": 125
+                      }
+                    }
+                  ],
+                  "style": {
+                    "fill": "none",
+                    "stroke": "#c6cdca",
+                    "strokeWidth": 1.5,
+                    "strokeLinecap": "square",
+                    "strokeLinejoin": "miter"
+                  }
+                },
+                {
+                  "id": "check-1-number",
+                  "name": "02",
+                  "type": "text",
+                  "x": 875,
+                  "y": 169,
+                  "text": "02",
+                  "fontSize": 18,
+                  "fontWeight": "400",
+                  "fontFamily": "Consolas, monospace",
+                  "textAnchor": "start",
+                  "fill": "#596561",
+                  "style": {
+                    "fill": "#596561",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "check-1-label",
+                  "name": "Budget reservation",
+                  "type": "text",
+                  "x": 925,
+                  "y": 170,
+                  "text": "Budget reservation",
+                  "fontSize": 26,
+                  "fontWeight": "500",
+                  "fontFamily": "Arial, Helvetica, sans-serif",
+                  "textAnchor": "start",
+                  "fill": "#202829",
+                  "style": {
+                    "fill": "#202829",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "check-1-tick",
+                  "name": "check-1-tick",
+                  "type": "path",
+                  "start": {
+                    "x": 1253,
+                    "y": 160
+                  },
+                  "closed": false,
+                  "segments": [
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1260,
+                        "y": 167
+                      }
+                    },
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1274,
+                        "y": 152
+                      }
+                    }
+                  ],
+                  "style": {
+                    "fill": "none",
+                    "stroke": "#202829",
+                    "strokeWidth": 2.5,
+                    "strokeLinecap": "square",
+                    "strokeLinejoin": "miter"
+                  }
+                },
+                {
+                  "id": "row-2-divider",
+                  "name": "row-2-divider",
+                  "type": "path",
+                  "start": {
+                    "x": 855,
+                    "y": 198
+                  },
+                  "closed": false,
+                  "segments": [
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1303,
+                        "y": 198
+                      }
+                    }
+                  ],
+                  "style": {
+                    "fill": "none",
+                    "stroke": "#c6cdca",
+                    "strokeWidth": 1.5,
+                    "strokeLinecap": "square",
+                    "strokeLinejoin": "miter"
+                  }
+                },
+                {
+                  "id": "check-2-number",
+                  "name": "03",
+                  "type": "text",
+                  "x": 875,
+                  "y": 242,
+                  "text": "03",
+                  "fontSize": 18,
+                  "fontWeight": "400",
+                  "fontFamily": "Consolas, monospace",
+                  "textAnchor": "start",
+                  "fill": "#596561",
+                  "style": {
+                    "fill": "#596561",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "check-2-label",
+                  "name": "Native transaction",
+                  "type": "text",
+                  "x": 925,
+                  "y": 243,
+                  "text": "Native transaction",
+                  "fontSize": 26,
+                  "fontWeight": "500",
+                  "fontFamily": "Arial, Helvetica, sans-serif",
+                  "textAnchor": "start",
+                  "fill": "#202829",
+                  "style": {
+                    "fill": "#202829",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "check-2-tick",
+                  "name": "check-2-tick",
+                  "type": "path",
+                  "start": {
+                    "x": 1253,
+                    "y": 233
+                  },
+                  "closed": false,
+                  "segments": [
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1260,
+                        "y": 240
+                      }
+                    },
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1274,
+                        "y": 225
+                      }
+                    }
+                  ],
+                  "style": {
+                    "fill": "none",
+                    "stroke": "#202829",
+                    "strokeWidth": 2.5,
+                    "strokeLinecap": "square",
+                    "strokeLinejoin": "miter"
+                  }
+                },
+                {
+                  "id": "row-3-divider",
+                  "name": "row-3-divider",
+                  "type": "path",
+                  "start": {
+                    "x": 855,
+                    "y": 271
+                  },
+                  "closed": false,
+                  "segments": [
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1303,
+                        "y": 271
+                      }
+                    }
+                  ],
+                  "style": {
+                    "fill": "none",
+                    "stroke": "#c6cdca",
+                    "strokeWidth": 1.5,
+                    "strokeLinecap": "square",
+                    "strokeLinejoin": "miter"
+                  }
+                },
+                {
+                  "id": "check-3-number",
+                  "name": "04",
+                  "type": "text",
+                  "x": 875,
+                  "y": 315,
+                  "text": "04",
+                  "fontSize": 18,
+                  "fontWeight": "400",
+                  "fontFamily": "Consolas, monospace",
+                  "textAnchor": "start",
+                  "fill": "#596561",
+                  "style": {
+                    "fill": "#596561",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "check-3-label",
+                  "name": "Release receipt",
+                  "type": "text",
+                  "x": 925,
+                  "y": 316,
+                  "text": "Release receipt",
+                  "fontSize": 26,
+                  "fontWeight": "500",
+                  "fontFamily": "Arial, Helvetica, sans-serif",
+                  "textAnchor": "start",
+                  "fill": "#202829",
+                  "style": {
+                    "fill": "#202829",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "check-3-tick",
+                  "name": "check-3-tick",
+                  "type": "path",
+                  "start": {
+                    "x": 1253,
+                    "y": 306
+                  },
+                  "closed": false,
+                  "segments": [
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1260,
+                        "y": 313
+                      }
+                    },
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1274,
+                        "y": 298
+                      }
+                    }
+                  ],
+                  "style": {
+                    "fill": "none",
+                    "stroke": "#202829",
+                    "strokeWidth": 2.5,
+                    "strokeLinecap": "square",
+                    "strokeLinejoin": "miter"
+                  }
+                },
+                {
+                  "id": "gate-caption",
+                  "name": "Checks repeated at every signer.",
+                  "type": "text",
+                  "x": 855,
+                  "y": 376,
+                  "text": "Checks repeated at every signer.",
+                  "fontSize": 21,
+                  "fontWeight": "400",
+                  "fontFamily": "Arial, Helvetica, sans-serif",
+                  "textAnchor": "start",
+                  "fill": "#596561",
+                  "style": {
+                    "fill": "#596561",
+                    "stroke": "none"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "signature",
+              "name": "Native signature output",
+              "type": "group",
+              "children": [
+                {
+                  "id": "release-arrow",
+                  "name": "release-arrow",
+                  "type": "path",
+                  "start": {
+                    "x": 1303,
+                    "y": 198
+                  },
+                  "closed": false,
+                  "segments": [
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1341,
+                        "y": 198
+                      }
+                    }
+                  ],
+                  "style": {
+                    "fill": "none",
+                    "stroke": "#202829",
+                    "strokeWidth": 2,
+                    "strokeLinecap": "square",
+                    "strokeLinejoin": "miter"
+                  }
+                },
+                {
+                  "id": "release-arrowhead",
+                  "name": "release-arrowhead",
+                  "type": "path",
+                  "start": {
+                    "x": 1333,
+                    "y": 190
+                  },
+                  "closed": false,
+                  "segments": [
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1341,
+                        "y": 198
+                      }
+                    },
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1333,
+                        "y": 206
+                      }
+                    }
+                  ],
+                  "style": {
+                    "fill": "none",
+                    "stroke": "#202829",
+                    "strokeWidth": 2,
+                    "strokeLinecap": "square",
+                    "strokeLinejoin": "miter"
+                  }
+                },
+                {
+                  "id": "signature-output",
+                  "name": "signature-output",
+                  "type": "rect",
+                  "x": 1361,
+                  "y": 149,
+                  "width": 175,
+                  "height": 98,
+                  "style": {
+                    "fill": "#b84028",
+                    "stroke": "none",
+                    "strokeWidth": 1
+                  }
+                },
+                {
+                  "id": "signature-native",
+                  "name": "Native",
+                  "type": "text",
+                  "x": 1448.5,
+                  "y": 189,
+                  "text": "Native",
+                  "fontSize": 26,
+                  "fontWeight": "600",
+                  "fontFamily": "Arial, Helvetica, sans-serif",
+                  "textAnchor": "middle",
+                  "fill": "#ffffff",
+                  "style": {
+                    "fill": "#ffffff",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "signature-label",
+                  "name": "signature",
+                  "type": "text",
+                  "x": 1448.5,
+                  "y": 220,
+                  "text": "signature",
+                  "fontSize": 26,
+                  "fontWeight": "600",
+                  "fontFamily": "Arial, Helvetica, sans-serif",
+                  "textAnchor": "middle",
+                  "fill": "#ffffff",
+                  "style": {
+                    "fill": "#ffffff",
+                    "stroke": "none"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "comments": []
+      }
+    },
+    {
+      "id": "page-3",
+      "name": "custody-banner-dark",
+      "document": {
+        "id": "page-3-document",
+        "name": "custody-banner-dark",
+        "width": 1600,
+        "height": 400,
+        "resources": {
+          "gradients": []
+        },
+        "root": {
+          "id": "root",
+          "type": "group",
+          "name": "Root",
+          "children": [
+            {
+              "id": "background",
+              "name": "background",
+              "type": "rect",
+              "x": 0,
+              "y": 0,
+              "width": 1600,
+              "height": 400,
+              "style": {
+                "fill": "#141918",
+                "stroke": "none",
+                "strokeWidth": 1
+              }
+            },
+            {
+              "id": "wordmark",
+              "name": "Project identity",
+              "type": "group",
+              "children": [
+                {
+                  "id": "registration-mark",
+                  "name": "registration-mark",
+                  "type": "rect",
+                  "x": 64,
+                  "y": 35,
+                  "width": 20,
+                  "height": 5,
+                  "style": {
+                    "fill": "#f19a7c",
+                    "stroke": "none",
+                    "strokeWidth": 1
+                  }
+                },
+                {
+                  "id": "wordmark-code",
+                  "name": "OIC / WALLET INFRASTRUCTURE",
+                  "type": "text",
+                  "x": 100,
+                  "y": 44,
+                  "text": "OIC / WALLET INFRASTRUCTURE",
+                  "fontSize": 18,
+                  "fontWeight": "400",
+                  "fontFamily": "Consolas, monospace",
+                  "textAnchor": "start",
+                  "fill": "#a4aea8",
+                  "style": {
+                    "fill": "#a4aea8",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "wordmark-open",
+                  "name": "Open",
+                  "type": "text",
+                  "x": 60,
+                  "y": 137,
+                  "text": "Open",
+                  "fontSize": 88,
+                  "fontWeight": "700",
+                  "fontFamily": "Arial, Helvetica, sans-serif",
+                  "textAnchor": "start",
+                  "fill": "#f2f0e8",
+                  "style": {
+                    "fill": "#f2f0e8",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "wordmark-institutional",
+                  "name": "Institutional",
+                  "type": "text",
+                  "x": 60,
+                  "y": 225,
+                  "text": "Institutional",
+                  "fontSize": 88,
+                  "fontWeight": "700",
+                  "fontFamily": "Arial, Helvetica, sans-serif",
+                  "textAnchor": "start",
+                  "fill": "#f2f0e8",
+                  "style": {
+                    "fill": "#f2f0e8",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "wordmark-custody",
+                  "name": "Custody",
+                  "type": "text",
+                  "x": 60,
+                  "y": 313,
+                  "text": "Custody",
+                  "fontSize": 88,
+                  "fontWeight": "700",
+                  "fontFamily": "Arial, Helvetica, sans-serif",
+                  "textAnchor": "start",
+                  "fill": "#f2f0e8",
+                  "style": {
+                    "fill": "#f2f0e8",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "platforms",
+                  "name": "RUST  /  EVM + SOLANA",
+                  "type": "text",
+                  "x": 64,
+                  "y": 368,
+                  "text": "RUST  /  EVM + SOLANA",
+                  "fontSize": 20,
+                  "fontWeight": "400",
+                  "fontFamily": "Consolas, monospace",
+                  "textAnchor": "start",
+                  "fill": "#a4aea8",
+                  "style": {
+                    "fill": "#a4aea8",
+                    "stroke": "none"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "panel-divider",
+              "name": "panel-divider",
+              "type": "path",
+              "start": {
+                "x": 790,
+                "y": 53
+              },
+              "closed": false,
+              "segments": [
+                {
+                  "type": "line",
+                  "to": {
+                    "x": 790,
+                    "y": 344
+                  }
+                }
+              ],
+              "style": {
+                "fill": "none",
+                "stroke": "#414d47",
+                "strokeWidth": 1.5,
+                "strokeLinecap": "square",
+                "strokeLinejoin": "miter"
+              }
+            },
+            {
+              "id": "verification-gate",
+              "name": "Independent signer checks",
+              "type": "group",
+              "children": [
+                {
+                  "id": "gate-heading",
+                  "name": "BEFORE SIGNATURE RELEASE",
+                  "type": "text",
+                  "x": 855,
+                  "y": 38,
+                  "text": "BEFORE SIGNATURE RELEASE",
+                  "fontSize": 18,
+                  "fontWeight": "400",
+                  "fontFamily": "Consolas, monospace",
+                  "textAnchor": "start",
+                  "fill": "#a4aea8",
+                  "style": {
+                    "fill": "#a4aea8",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "gate-outline",
+                  "name": "gate-outline",
+                  "type": "rect",
+                  "x": 855,
+                  "y": 52,
+                  "width": 448,
+                  "height": 292,
+                  "style": {
+                    "fill": "none",
+                    "stroke": "#414d47",
+                    "strokeWidth": 1.5
+                  }
+                },
+                {
+                  "id": "check-0-number",
+                  "name": "01",
+                  "type": "text",
+                  "x": 875,
+                  "y": 96,
+                  "text": "01",
+                  "fontSize": 18,
+                  "fontWeight": "400",
+                  "fontFamily": "Consolas, monospace",
+                  "textAnchor": "start",
+                  "fill": "#a4aea8",
+                  "style": {
+                    "fill": "#a4aea8",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "check-0-label",
+                  "name": "Approved scope",
+                  "type": "text",
+                  "x": 925,
+                  "y": 97,
+                  "text": "Approved scope",
+                  "fontSize": 26,
+                  "fontWeight": "500",
+                  "fontFamily": "Arial, Helvetica, sans-serif",
+                  "textAnchor": "start",
+                  "fill": "#f2f0e8",
+                  "style": {
+                    "fill": "#f2f0e8",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "check-0-tick",
+                  "name": "check-0-tick",
+                  "type": "path",
+                  "start": {
+                    "x": 1253,
+                    "y": 87
+                  },
+                  "closed": false,
+                  "segments": [
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1260,
+                        "y": 94
+                      }
+                    },
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1274,
+                        "y": 79
+                      }
+                    }
+                  ],
+                  "style": {
+                    "fill": "none",
+                    "stroke": "#f2f0e8",
+                    "strokeWidth": 2.5,
+                    "strokeLinecap": "square",
+                    "strokeLinejoin": "miter"
+                  }
+                },
+                {
+                  "id": "row-1-divider",
+                  "name": "row-1-divider",
+                  "type": "path",
+                  "start": {
+                    "x": 855,
+                    "y": 125
+                  },
+                  "closed": false,
+                  "segments": [
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1303,
+                        "y": 125
+                      }
+                    }
+                  ],
+                  "style": {
+                    "fill": "none",
+                    "stroke": "#414d47",
+                    "strokeWidth": 1.5,
+                    "strokeLinecap": "square",
+                    "strokeLinejoin": "miter"
+                  }
+                },
+                {
+                  "id": "check-1-number",
+                  "name": "02",
+                  "type": "text",
+                  "x": 875,
+                  "y": 169,
+                  "text": "02",
+                  "fontSize": 18,
+                  "fontWeight": "400",
+                  "fontFamily": "Consolas, monospace",
+                  "textAnchor": "start",
+                  "fill": "#a4aea8",
+                  "style": {
+                    "fill": "#a4aea8",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "check-1-label",
+                  "name": "Budget reservation",
+                  "type": "text",
+                  "x": 925,
+                  "y": 170,
+                  "text": "Budget reservation",
+                  "fontSize": 26,
+                  "fontWeight": "500",
+                  "fontFamily": "Arial, Helvetica, sans-serif",
+                  "textAnchor": "start",
+                  "fill": "#f2f0e8",
+                  "style": {
+                    "fill": "#f2f0e8",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "check-1-tick",
+                  "name": "check-1-tick",
+                  "type": "path",
+                  "start": {
+                    "x": 1253,
+                    "y": 160
+                  },
+                  "closed": false,
+                  "segments": [
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1260,
+                        "y": 167
+                      }
+                    },
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1274,
+                        "y": 152
+                      }
+                    }
+                  ],
+                  "style": {
+                    "fill": "none",
+                    "stroke": "#f2f0e8",
+                    "strokeWidth": 2.5,
+                    "strokeLinecap": "square",
+                    "strokeLinejoin": "miter"
+                  }
+                },
+                {
+                  "id": "row-2-divider",
+                  "name": "row-2-divider",
+                  "type": "path",
+                  "start": {
+                    "x": 855,
+                    "y": 198
+                  },
+                  "closed": false,
+                  "segments": [
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1303,
+                        "y": 198
+                      }
+                    }
+                  ],
+                  "style": {
+                    "fill": "none",
+                    "stroke": "#414d47",
+                    "strokeWidth": 1.5,
+                    "strokeLinecap": "square",
+                    "strokeLinejoin": "miter"
+                  }
+                },
+                {
+                  "id": "check-2-number",
+                  "name": "03",
+                  "type": "text",
+                  "x": 875,
+                  "y": 242,
+                  "text": "03",
+                  "fontSize": 18,
+                  "fontWeight": "400",
+                  "fontFamily": "Consolas, monospace",
+                  "textAnchor": "start",
+                  "fill": "#a4aea8",
+                  "style": {
+                    "fill": "#a4aea8",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "check-2-label",
+                  "name": "Native transaction",
+                  "type": "text",
+                  "x": 925,
+                  "y": 243,
+                  "text": "Native transaction",
+                  "fontSize": 26,
+                  "fontWeight": "500",
+                  "fontFamily": "Arial, Helvetica, sans-serif",
+                  "textAnchor": "start",
+                  "fill": "#f2f0e8",
+                  "style": {
+                    "fill": "#f2f0e8",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "check-2-tick",
+                  "name": "check-2-tick",
+                  "type": "path",
+                  "start": {
+                    "x": 1253,
+                    "y": 233
+                  },
+                  "closed": false,
+                  "segments": [
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1260,
+                        "y": 240
+                      }
+                    },
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1274,
+                        "y": 225
+                      }
+                    }
+                  ],
+                  "style": {
+                    "fill": "none",
+                    "stroke": "#f2f0e8",
+                    "strokeWidth": 2.5,
+                    "strokeLinecap": "square",
+                    "strokeLinejoin": "miter"
+                  }
+                },
+                {
+                  "id": "row-3-divider",
+                  "name": "row-3-divider",
+                  "type": "path",
+                  "start": {
+                    "x": 855,
+                    "y": 271
+                  },
+                  "closed": false,
+                  "segments": [
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1303,
+                        "y": 271
+                      }
+                    }
+                  ],
+                  "style": {
+                    "fill": "none",
+                    "stroke": "#414d47",
+                    "strokeWidth": 1.5,
+                    "strokeLinecap": "square",
+                    "strokeLinejoin": "miter"
+                  }
+                },
+                {
+                  "id": "check-3-number",
+                  "name": "04",
+                  "type": "text",
+                  "x": 875,
+                  "y": 315,
+                  "text": "04",
+                  "fontSize": 18,
+                  "fontWeight": "400",
+                  "fontFamily": "Consolas, monospace",
+                  "textAnchor": "start",
+                  "fill": "#a4aea8",
+                  "style": {
+                    "fill": "#a4aea8",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "check-3-label",
+                  "name": "Release receipt",
+                  "type": "text",
+                  "x": 925,
+                  "y": 316,
+                  "text": "Release receipt",
+                  "fontSize": 26,
+                  "fontWeight": "500",
+                  "fontFamily": "Arial, Helvetica, sans-serif",
+                  "textAnchor": "start",
+                  "fill": "#f2f0e8",
+                  "style": {
+                    "fill": "#f2f0e8",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "check-3-tick",
+                  "name": "check-3-tick",
+                  "type": "path",
+                  "start": {
+                    "x": 1253,
+                    "y": 306
+                  },
+                  "closed": false,
+                  "segments": [
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1260,
+                        "y": 313
+                      }
+                    },
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1274,
+                        "y": 298
+                      }
+                    }
+                  ],
+                  "style": {
+                    "fill": "none",
+                    "stroke": "#f2f0e8",
+                    "strokeWidth": 2.5,
+                    "strokeLinecap": "square",
+                    "strokeLinejoin": "miter"
+                  }
+                },
+                {
+                  "id": "gate-caption",
+                  "name": "Checks repeated at every signer.",
+                  "type": "text",
+                  "x": 855,
+                  "y": 376,
+                  "text": "Checks repeated at every signer.",
+                  "fontSize": 21,
+                  "fontWeight": "400",
+                  "fontFamily": "Arial, Helvetica, sans-serif",
+                  "textAnchor": "start",
+                  "fill": "#a4aea8",
+                  "style": {
+                    "fill": "#a4aea8",
+                    "stroke": "none"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "signature",
+              "name": "Native signature output",
+              "type": "group",
+              "children": [
+                {
+                  "id": "release-arrow",
+                  "name": "release-arrow",
+                  "type": "path",
+                  "start": {
+                    "x": 1303,
+                    "y": 198
+                  },
+                  "closed": false,
+                  "segments": [
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1341,
+                        "y": 198
+                      }
+                    }
+                  ],
+                  "style": {
+                    "fill": "none",
+                    "stroke": "#f2f0e8",
+                    "strokeWidth": 2,
+                    "strokeLinecap": "square",
+                    "strokeLinejoin": "miter"
+                  }
+                },
+                {
+                  "id": "release-arrowhead",
+                  "name": "release-arrowhead",
+                  "type": "path",
+                  "start": {
+                    "x": 1333,
+                    "y": 190
+                  },
+                  "closed": false,
+                  "segments": [
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1341,
+                        "y": 198
+                      }
+                    },
+                    {
+                      "type": "line",
+                      "to": {
+                        "x": 1333,
+                        "y": 206
+                      }
+                    }
+                  ],
+                  "style": {
+                    "fill": "none",
+                    "stroke": "#f2f0e8",
+                    "strokeWidth": 2,
+                    "strokeLinecap": "square",
+                    "strokeLinejoin": "miter"
+                  }
+                },
+                {
+                  "id": "signature-output",
+                  "name": "signature-output",
+                  "type": "rect",
+                  "x": 1361,
+                  "y": 149,
+                  "width": 175,
+                  "height": 98,
+                  "style": {
+                    "fill": "#f19a7c",
+                    "stroke": "none",
+                    "strokeWidth": 1
+                  }
+                },
+                {
+                  "id": "signature-native",
+                  "name": "Native",
+                  "type": "text",
+                  "x": 1448.5,
+                  "y": 189,
+                  "text": "Native",
+                  "fontSize": 26,
+                  "fontWeight": "600",
+                  "fontFamily": "Arial, Helvetica, sans-serif",
+                  "textAnchor": "middle",
+                  "fill": "#1c211f",
+                  "style": {
+                    "fill": "#1c211f",
+                    "stroke": "none"
+                  }
+                },
+                {
+                  "id": "signature-label",
+                  "name": "signature",
+                  "type": "text",
+                  "x": 1448.5,
+                  "y": 220,
+                  "text": "signature",
+                  "fontSize": 26,
+                  "fontWeight": "600",
+                  "fontFamily": "Arial, Helvetica, sans-serif",
+                  "textAnchor": "middle",
+                  "fill": "#1c211f",
+                  "style": {
+                    "fill": "#1c211f",
+                    "stroke": "none"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "comments": []
+      }
+    }
+  ],
+  "createdAt": "2026-10-20T21:27:17.646Z",
+  "updatedAt": "2026-10-20T21:51:27.473Z"
+}
