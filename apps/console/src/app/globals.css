@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-heading: ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-clash), sans-serif;
   --font-sans: ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, monospace;
   --color-success: var(--success);
@@ -45,8 +45,8 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.667);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
   --radius-2xl: calc(var(--radius) * 1.8);
@@ -56,85 +56,77 @@
 
 :root {
   color-scheme: light;
-  --background: #f4f5f7;
-  --foreground: #172b4d;
+  --background: #ffffff;
+  --foreground: #141413;
   --card: #ffffff;
   --card-foreground: var(--foreground);
   --popover: #ffffff;
   --popover-foreground: var(--foreground);
-  --primary: #0c66e4;
+  --primary: #1a1a1a;
   --primary-foreground: #ffffff;
-  --secondary: #e9f2ff;
-  --secondary-foreground: #0055cc;
-  --muted: #ebecf0;
-  --muted-foreground: #505f79;
-  --accent: #ebecf0;
+  --secondary: #f0f0ee;
+  --secondary-foreground: var(--foreground);
+  --muted: #f6f6f5;
+  --muted-foreground: #706e69;
+  --accent: #f0f0ee;
   --accent-foreground: var(--foreground);
   --destructive: #b42318;
-  --success: #216e4e;
-  --success-surface: #dcfff1;
-  --success-border: #2a8c65;
-  --warning: #7f5f01;
-  --warning-surface: #fff7d6;
-  --warning-border: #b38600;
-  --border: #dfe1e6;
-  --input: #7a869a;
-  --ring: #0c66e4;
+  --success: #216147;
+  --success-surface: #eef4ef;
+  --success-border: #93af9e;
+  --warning: #8a480e;
+  --warning-surface: #fbf8f3;
+  --warning-border: #d5bca1;
+  --border: #e3e3e8;
+  --input: #8a8993;
+  --ring: #68666f;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.75rem;
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
 }
 
 .dark {
   color-scheme: dark;
-  --background: #101214;
-  --foreground: #dee4ea;
-  --card: #1d2125;
+  --background: #1e1d1b;
+  --foreground: #f0ece3;
+  --card: #1e1d1b;
   --card-foreground: var(--foreground);
-  --popover: #2c333a;
+  --popover: #2c2b28;
   --popover-foreground: var(--foreground);
-  --primary: #85b8ff;
-  --primary-foreground: #092957;
-  --secondary: #09326c;
-  --secondary-foreground: #85b8ff;
-  --muted: #282e33;
-  --muted-foreground: #b6c2cf;
-  --accent: #38414a;
+  --primary: #f0ece3;
+  --primary-foreground: #1e1d1b;
+  --secondary: #2b2a27;
+  --secondary-foreground: var(--foreground);
+  --muted: #282724;
+  --muted-foreground: #b4b0a7;
+  --accent: #33322e;
   --accent-foreground: var(--foreground);
   --destructive: #ff9c8f;
-  --success: #7ee2b8;
-  --success-surface: #1c3329;
-  --success-border: #4b9f7d;
-  --warning: #f5cd47;
-  --warning-surface: #332e1b;
-  --warning-border: #b38600;
-  --border: #454f59;
-  --input: #738496;
-  --ring: #85b8ff;
+  --success: #8bcead;
+  --success-surface: #15211b;
+  --success-border: #3b6650;
+  --warning: #edbb87;
+  --warning-surface: #29241d;
+  --warning-border: #796249;
+  --border: #47453f;
+  --input: #77746d;
+  --ring: #b4b0a7;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
 }
 
 @layer base {
@@ -143,8 +135,145 @@
   }
   body {
     @apply bg-background text-foreground;
+    text-rendering: optimizeLegibility;
   }
   html {
     @apply font-sans;
+  }
+  ::selection {
+    background: var(--foreground);
+    color: var(--background);
+  }
+}
+
+/* Match the live Singularity app's open canvas and softly rounded controls. */
+.console-topbar {
+  display: flex;
+  min-height: 56px;
+  align-items: center;
+  gap: 16px;
+  padding: 6px 40px;
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+}
+
+.console-mark {
+  width: 25px;
+  height: 25px;
+  flex: none;
+  background: currentColor;
+  mask: url("/brand/mark.svg") center / contain no-repeat;
+}
+
+.console-workspace {
+  margin-left: 256px;
+}
+
+.console-rail {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 256px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 0 12px 24px;
+  border-right: 1px solid var(--border);
+  background: var(--card);
+}
+
+.console-brand {
+  display: flex;
+  min-height: 72px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.console-nav-heading {
+  margin: 24px 12px 8px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+
+.console-nav-link {
+  justify-content: flex-start;
+  width: 100%;
+  height: 44px;
+  gap: 12px;
+  padding: 0 12px;
+  border-radius: 8px;
+  color: var(--muted-foreground);
+}
+
+.console-nav-link[aria-current="page"] {
+  background: var(--secondary);
+  color: var(--foreground);
+}
+
+.console-main {
+  width: 100%;
+  max-width: 1280px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 48px;
+}
+
+.sample-notice {
+  border-color: var(--border);
+  background: var(--muted);
+}
+
+@media (max-width: 1023px) {
+  .console-workspace {
+    margin-left: 0;
+  }
+  .console-rail {
+    position: static;
+    width: auto;
+    padding: 0 12px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .console-rail nav {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+  }
+  .console-nav-link {
+    width: auto;
+    padding: 0 12px;
+    margin-bottom: 8px;
+  }
+  .console-main {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 639px) {
+  .console-topbar {
+    min-height: 56px;
+    gap: 12px;
+    padding: 6px 16px;
+  }
+  .console-nav-link {
+    flex: 1;
+    justify-content: center;
+    gap: 0;
+    padding: 0 4px;
+    font-size: 12px;
+  }
+  .console-main {
+    padding: 24px 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

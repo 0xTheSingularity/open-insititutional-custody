@@ -78,14 +78,19 @@ screens show a service-unavailable explanation rather than sample balances.
 
 ## Appearance
 
-Components remain shadcn/ui, not Atlaskit. The themes apply
-[Atlassian's semantic-color guidance](https://atlassian.design/foundations/color-new),
-[surface hierarchy](https://atlassian.design/foundations/elevation) and
-[8px spacing scale](https://atlassian.design/foundations/spacing): a sunken page,
-flat bordered content, a lighter dark-mode menu overlay, blue selection/action
-roles, and separate success/warning text, surface and border tokens. Selected
-navigation also uses an underline; status labels and icons do not rely on color
-alone. These are local shadcn tokens, not an imported Atlassian token package.
+Components remain shadcn/ui. The visual reference is the live
+[Singularity product UI](https://the-singularity-ui-kappa.vercel.app/): an open
+canvas, quiet dividers, rounded panels, 8px button corners and neutral actions.
+Light mode uses white surfaces; dark mode uses warm charcoal with off-white
+text. Separate success/warning text, surface and border tokens retain status
+meaning. Selected navigation uses a filled background and `aria-current`;
+status labels and icons do not rely on color alone.
+
+Clash Grotesk headings and the star mark are self-hosted under `public/`, from
+the Singularity design repository (`brand/dist/brand/fonts/clash-grotesk-var.woff2`
+and `brand/dist/brand/logo/mark.svg`). Body text uses system sans-serif;
+identifiers and exact quantities use system monospace. No Atlaskit components,
+external font requests or additional UI library are used.
 
 `next-themes` sets the class before hydration using the request's CSP nonce.
 Theme choice is stored under `oic-color-theme` in browser local storage. It never

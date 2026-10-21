@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -12,6 +12,7 @@ import {
   CircleAlert,
   ArrowLeftRight,
   PanelsTopLeft,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -162,22 +163,16 @@ export default function Console() {
 
   const title =
     pathname === "/overview"
-      ? "Know what needs attention."
+      ? "Treasury overview"
       : pathname === "/transfers"
-        ? "Follow every transfer."
+        ? "Transfers"
         : pathname.startsWith("/transfers/")
-          ? "Follow one business intent."
+          ? "Transfer details"
           : pathname === "/inventory"
-            ? demo
-              ? "Explore sample inventory."
-              : "Observe your existing treasury."
+            ? "Address inventory"
             : pathname === "/readiness"
-              ? "Evidence before funding."
-              : demo
-                ? "Explore the custody console."
-                : data?.setup.workspace_name
-                  ? "Pick up where you left off."
-                  : "Start with a safe first step.";
+              ? "Production readiness"
+              : "Workspace setup";
 
   return (
     <>
@@ -187,99 +182,96 @@ export default function Console() {
       >
         Skip to content
       </a>
-      <aside className="border-b bg-card px-4 pt-5 md:fixed md:inset-y-0 md:left-0 md:flex md:w-56 md:flex-col md:border-r md:border-b-0 md:px-4 md:py-7">
+      <aside className="console-rail">
         <Link
           href="/setup"
-          className="mb-6 flex items-center gap-3 px-2 text-sm font-semibold"
+          className="console-brand"
+          aria-label="The Singularity custody console"
         >
-          <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <ShieldCheck className="size-5" aria-hidden="true" />
-          </span>
-          <span>
-            Open Institutional
-            <span className="block font-normal text-muted-foreground">
-              Custody
-            </span>
-          </span>
+          <span className="console-mark" aria-hidden="true" />
+          The Singularity
         </Link>
-        <div className="mb-6 hidden rounded-lg border bg-muted/50 p-3 text-sm break-words md:block">
-          {data?.setup.workspace_name ?? "Local workspace"}
-          <span className="mt-1 block text-xs text-muted-foreground">
-            {demo ? "Sample data" : "Test environment"}
-          </span>
-        </div>
         <nav
           aria-label="Main navigation"
-          className="grid grid-cols-3 gap-1 pb-3 md:flex md:flex-col"
+          className="space-y-1 max-lg:space-y-0"
         >
-          {navigation.map((item) => (
-            <Button
-              key={item.href}
-              asChild
-              variant={current.href === item.href ? "secondary" : "ghost"}
-              className="h-11 gap-2 px-3 text-xs aria-[current=page]:font-semibold aria-[current=page]:underline aria-[current=page]:underline-offset-4 md:justify-start md:text-sm"
-            >
-              <Link
-                href={item.href}
-                aria-current={current.href === item.href ? "page" : undefined}
-              >
-                <item.icon
-                  className="hidden size-4 md:block"
-                  aria-hidden="true"
-                />
-                <span className="hidden md:inline">{item.label}</span>
-                <span className="md:hidden">{item.mobileLabel}</span>
-              </Link>
-            </Button>
+          {navigation.map((item, index) => (
+            <Fragment key={item.href}>
+              {(index === 0 || index === 2) && (
+                <p className="console-nav-heading hidden lg:block">
+                  {index === 0 ? "Operations" : "Workspace"}
+                </p>
+              )}
+              <Button asChild variant="ghost" className="console-nav-link">
+                <Link
+                  href={item.href}
+                  aria-current={current.href === item.href ? "page" : undefined}
+                >
+                  <item.icon
+                    className="hidden size-4 sm:block"
+                    aria-hidden="true"
+                  />
+                  <span className="hidden lg:inline">{item.label}</span>
+                  <span className="lg:hidden">{item.mobileLabel}</span>
+                </Link>
+              </Button>
+            </Fragment>
           ))}
         </nav>
-        <div className="mt-7 hidden md:block">
+        <div className="mt-auto hidden pt-16 lg:block">
           <Separator />
-          <div className="px-3 py-6 text-xs text-muted-foreground">
-            <LockKeyhole className="mb-3 size-4" aria-hidden="true" />
-            <strong className="text-foreground">No signing authority</strong>
-            <p className="mt-2 leading-relaxed">
+          <div className="space-y-4 px-3 py-5 text-xs text-muted-foreground">
+            <div>
+              <span>Test workspace</span>
+              <p className="mt-1 break-words text-sm font-medium text-foreground">
+                {data?.setup.workspace_name ?? "Local workspace"}
+              </p>
+            </div>
+            <p className="flex items-center gap-2 text-foreground">
+              <LockKeyhole className="size-3.5" aria-hidden="true" />
+              No signing authority
+            </p>
+            <p className="leading-relaxed">
               {demo
-                ? "This sample shows public examples. It cannot save data, approve, sign or move funds."
-                : "This console can save public addresses. It cannot approve, sign or move funds."}
+                ? "Read-only examples. No saving, approvals or fund movement."
+                : "Public-address metadata only. No approvals or fund movement."}
             </p>
           </div>
         </div>
-        <p className="mt-auto hidden px-3 text-xs text-muted-foreground md:block">
-          A project by
-          <br />
-          <strong className="font-medium text-foreground">
-            The Singularity
-          </strong>
-        </p>
       </aside>
-      <div className="md:ml-56">
-        <header className="flex min-h-16 items-center gap-4 border-b bg-card px-4 text-xs sm:px-8">
-          <span className="mr-auto text-muted-foreground">
-            Workspace <span className="px-2">/</span>
-            {current.label}
+      <div className="console-workspace">
+        <header className="console-topbar text-xs">
+          <span className="mr-auto min-w-0 text-muted-foreground">
+            Custody <span className="px-2">/</span>
+            <span className="text-foreground">{current.label}</span>
           </span>
-          <Badge variant="secondary">
-            {demo ? "Sample only" : "Test only"}
+          <Badge
+            variant="outline"
+            className="hidden gap-2 px-3 py-1 sm:inline-flex"
+          >
+            <span
+              className="size-1.5 rounded-full border border-current"
+              aria-hidden="true"
+            />
+            {demo ? "Read-only sample" : "Local test"}
           </Badge>
-          <span className="hidden text-muted-foreground sm:inline">
-            {demo ? "Hosted demo" : "Local source build"}
-          </span>
           <ThemeToggle />
         </header>
         <main
           id="main"
           tabIndex={-1}
           aria-busy={busy}
-          className="mx-auto max-w-7xl space-y-6 p-4 pt-7 outline-none sm:p-8"
+          className="console-main space-y-8 outline-none"
         >
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+          <div className="flex flex-wrap items-start justify-between gap-5">
+            <div className="max-w-2xl">
+              <h1 className="font-heading text-[32px] leading-tight font-normal tracking-[-0.02em] sm:text-4xl">
+                {title}
+              </h1>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {pathname === "/overview" || current.href === "/transfers"
                   ? demo
-                    ? "Illustrative treasury scenarios. No balances, approvals or chain outcomes are verified."
+                    ? "Historical treasury examples. Balances, approvals and chain outcomes are unverified."
                     : "Custody read models are not connected. Watch-only inventory does not establish balances or control."
                   : pathname === "/inventory"
                     ? demo
@@ -294,7 +286,7 @@ export default function Console() {
             </div>
             <Button
               variant="outline"
-              className="h-11"
+              className="h-11 gap-2 sm:mt-1 sm:h-9"
               onClick={() => void reload()}
               disabled={busy}
             >
@@ -303,14 +295,13 @@ export default function Console() {
             </Button>
           </div>
           {demo && (
-            <Alert className="border-primary/40 bg-secondary">
-              <ShieldCheck aria-hidden="true" />
+            <Alert className="sample-notice">
+              <Info aria-hidden="true" />
               <AlertTitle>Public sample. No real custody.</AlertTitle>
               <AlertDescription>
-                Balances, transfers and inventory are examples. Saving and
-                custody actions are unavailable. CSV previews are temporary; use
-                public test addresses only. Do not enter keys, credentials or
-                private data.
+                No saving, approvals, signing or fund movement. CSV previews are
+                temporary: use public test addresses only, never keys,
+                credentials or private data.
               </AlertDescription>
             </Alert>
           )}

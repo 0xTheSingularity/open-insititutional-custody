@@ -20,9 +20,9 @@ export function ThemeToggle() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
-          className="size-11 shrink-0"
+          className="size-11 shrink-0 sm:size-9"
           aria-label="Choose color theme"
           title="Appearance"
         >
