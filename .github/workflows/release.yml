@@ -38,7 +38,10 @@ jobs:
         include:
           - os: macos-14
             target: aarch64-apple-darwin
-          - os: macos-13
+          # Cross-compile the Intel target on an Apple-Silicon runner: macos-13
+          # (Intel) runners queue for a long time, while macos-14 is plentiful and
+          # the toolchain step below adds the x86_64-apple-darwin target.
+          - os: macos-14
             target: x86_64-apple-darwin
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
