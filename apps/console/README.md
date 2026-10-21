@@ -46,8 +46,9 @@ keys or credentials. This does not supply institution authentication or custody
 integration. Without `OIC_CONSOLE_DEMO=1`, the loopback-only boundary still
 applies.
 
-The hosted sample also has `/overview`, `/transfers` and stable
-`/transfers/sample-…` detail URLs. These show historical illustrative holdings
+The hosted sample includes `/overview`, `/vaults`, `/transfers`, `/approvals`,
+`/destinations`, `/operations` and `/activity`. Vaults, transfers and operational
+cases have stable detail URLs. These show historical illustrative holdings
 and four transfers, not simulator runs or live API observations. The fixture
 snapshot supplies a fixed as-of time and an unverified sample sequence; reload
 does not advance it. No signed grants, transaction bytes, policy epoch, expiry
@@ -61,6 +62,28 @@ conversion. Search/status filters survive detail navigation and Back through
 non-secret URL parameters. The watch-only inventory export deliberately excludes
 treasury illustrations; it is not an audit export. In local mode, these operator
 screens show a service-unavailable explanation rather than sample balances.
+
+`/transfers/new` explores source/destination selection, exact decimal input and
+review without creating a request. It rejects zero amounts, excess precision,
+duplicate sample references and amount-plus-fee exposure above the sample
+available balance. Switching networks clears amount and fee. Review displays
+full addresses, registry version, network/asset identity, base units and the fee
+ceiling. It is not policy evaluation or transaction simulation. Input stays in
+component memory; no draft, idempotency key, grant or reservation is created.
+Do not enter private business data. Creation remains disabled.
+
+`/administration` links to people/access, policies, signers, recovery,
+integrations and migration. These are public capability-requirement previews,
+not authorized administrative read models. They invent no active users,
+policies, grants, signer health or recovery results. Mutations and verifier
+handoffs remain disabled with their prerequisites visible. Migration links to
+the existing watch-only inventory; no canary is claimed.
+
+Searches use non-secret URL parameters; vault/case details and transfer review
+preserve the applicable list filters on Back. Activity downloads include the
+current filter, fixture provenance and explicit unsigned/incomplete markers.
+They are scenario notes, not sequenced events or audit proof. The mobile shell
+uses a shadcn Sheet with keyboard dismissal and the same navigation as desktop.
 
 ## Supported now
 
@@ -135,7 +158,8 @@ The tests exercise the route-handler boundary using disposable SQLite state:
 preview/save/resume/export, duplicate rejection, checksum and size boundaries,
 stale revisions, cross-site rejection and corrupt-storage failure. Demo coverage
 checks fixture provenance, temporary previews, blocked writes and isolation
-from a configured local store.
+from a configured local store. Exact-decimal tests cover ETH/SOL base units
+beyond JavaScript Number precision and rejection rather than rounding.
 
 UI primitives live in `src/components/ui`; `components.json` records the shadcn
 registry configuration. Add primitives with `npx shadcn add <component>` rather

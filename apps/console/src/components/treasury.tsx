@@ -92,7 +92,11 @@ export function TreasuryView({ treasury }: { treasury: SampleTreasury }) {
               {tasks.map((transfer) => (
                 <li key={transfer.id}>
                   <Link
-                    href={`/transfers/${transfer.id}`}
+                    href={
+                      transfer.state === "AwaitingApproval"
+                        ? `/transfers/${transfer.id}`
+                        : `/cases/${transfer.id}`
+                    }
                     className="group flex items-start gap-3 px-5 py-5 transition-colors hover:bg-muted/50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
                   >
                     <CircleAlert
@@ -144,7 +148,7 @@ export function TreasuryView({ treasury }: { treasury: SampleTreasury }) {
           </CardHeader>
           <CardContent className="space-y-4">
             <Button asChild className="h-11 w-full sm:h-9">
-              <Link href="/transfers">Inspect sample transfers</Link>
+              <Link href="/transfers/new">Explore transfer review</Link>
             </Button>
             <Button
               disabled
@@ -197,9 +201,12 @@ export function TreasuryView({ treasury }: { treasury: SampleTreasury }) {
                 {treasury.holdings.map((holding) => (
                   <TableRow key={`${holding.vault}:${holding.asset.network}`}>
                     <TableCell className="min-w-48 py-5 whitespace-normal">
-                      <strong className="block font-medium">
+                      <Link
+                        href={`/vaults/${holding.id}`}
+                        className="block font-medium hover:underline"
+                      >
                         {holding.vault}
-                      </strong>
+                      </Link>
                       <span className="mt-1 block text-xs text-muted-foreground">
                         {holding.asset.network} · native {holding.asset.symbol}
                       </span>

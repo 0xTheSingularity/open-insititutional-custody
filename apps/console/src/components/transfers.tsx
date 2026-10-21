@@ -113,6 +113,11 @@ export function TransferListView({ treasury }: { treasury: SampleTreasury }) {
           ))}
         </div>
         <div className="max-w-sm space-y-2">
+          <Button asChild variant="outline" className="mr-3 h-11">
+            <Link href={`/transfers/new${listQuery(query, status)}`}>
+              Explore transfer review
+            </Link>
+          </Button>
           <Button
             disabled
             className="h-11"

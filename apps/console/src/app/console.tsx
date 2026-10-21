@@ -13,6 +13,13 @@ import {
   ArrowLeftRight,
   PanelsTopLeft,
   Info,
+  Wallet,
+  ClipboardCheck,
+  ContactRound,
+  Workflow,
+  History,
+  Settings2,
+  Menu,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +33,23 @@ import { ReadinessView } from "@/components/readiness";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { TreasuryView, CustodyUnavailable } from "@/components/treasury";
 import { TransferListView, TransferDetailView } from "@/components/transfers";
+import {
+  VaultsView,
+  ApprovalsView,
+  DestinationsView,
+  OperationsView,
+  ActivityView,
+} from "@/components/workbench";
+import { TransferComposer } from "@/components/transfer-composer";
+import { AdministrationView } from "@/components/administration";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import type { Snapshot, Preview } from "@/lib/contracts";
 
 class RequestError extends Error {
@@ -72,31 +96,32 @@ const navigation = [
   {
     href: "/overview",
     label: "Overview",
-    mobileLabel: "Overview",
     icon: PanelsTopLeft,
   },
+  { href: "/vaults", label: "Vaults", icon: Wallet },
   {
     href: "/transfers",
     label: "Transfers",
-    mobileLabel: "Transfers",
     icon: ArrowLeftRight,
   },
+  { href: "/approvals", label: "Approvals", icon: ClipboardCheck },
+  { href: "/destinations", label: "Destinations", icon: ContactRound },
+  { href: "/operations", label: "Operations", icon: Workflow },
+  { href: "/activity", label: "Activity", icon: History },
+  { href: "/administration", label: "Administration", icon: Settings2 },
   {
     href: "/setup",
     label: "Getting started",
-    mobileLabel: "Setup",
     icon: LayoutGrid,
   },
   {
     href: "/inventory",
     label: "Address inventory",
-    mobileLabel: "Inventory",
     icon: List,
   },
   {
     href: "/readiness",
     label: "Readiness",
-    mobileLabel: "Readiness",
     icon: ShieldCheck,
   },
 ];
@@ -105,8 +130,12 @@ export default function Console() {
   const pathname = usePathname();
   const current =
     navigation.find(
-      (item) => item.href === pathname || pathname.startsWith(`${item.href}/`),
-    ) ?? navigation[2];
+      (item) =>
+        item.href === pathname ||
+        pathname.startsWith(`${item.href}/`) ||
+        (item.href === "/operations" && pathname.startsWith("/cases/")),
+    ) ?? navigation[0];
+  const [menuOpen, setMenuOpen] = useState(false);
   const [data, setData] = useState<Snapshot | null>(null);
   const demo = data?.mode === "demo";
   const treasury = data?.sample_treasury;
@@ -164,15 +193,39 @@ export default function Console() {
   const title =
     pathname === "/overview"
       ? "Treasury overview"
-      : pathname === "/transfers"
-        ? "Transfers"
+      : pathname === "/transfers/new"
+        ? "Explore transfer review"
         : pathname.startsWith("/transfers/")
           ? "Transfer details"
-          : pathname === "/inventory"
-            ? "Address inventory"
-            : pathname === "/readiness"
-              ? "Production readiness"
-              : "Workspace setup";
+          : pathname.startsWith("/cases/")
+            ? "Operational case"
+            : pathname.startsWith("/vaults/")
+              ? "Vault details"
+              : pathname === "/readiness"
+                ? "Production readiness"
+                : pathname === "/setup"
+                  ? "Workspace setup"
+                  : current.label;
+
+  const links = navigation.map((item, index) => (
+    <Fragment key={item.href}>
+      {(index === 0 || index === 7) && (
+        <p className="console-nav-heading">
+          {index === 0 ? "Operations" : "Workspace"}
+        </p>
+      )}
+      <Button asChild variant="ghost" className="console-nav-link">
+        <Link
+          href={item.href}
+          onClick={() => setMenuOpen(false)}
+          aria-current={current.href === item.href ? "page" : undefined}
+        >
+          <item.icon className="size-4" aria-hidden="true" />
+          {item.label}
+        </Link>
+      </Button>
+    </Fragment>
+  ));
 
   return (
     <>
@@ -191,32 +244,8 @@ export default function Console() {
           <span className="console-mark" aria-hidden="true" />
           The Singularity
         </Link>
-        <nav
-          aria-label="Main navigation"
-          className="space-y-1 max-lg:space-y-0"
-        >
-          {navigation.map((item, index) => (
-            <Fragment key={item.href}>
-              {(index === 0 || index === 2) && (
-                <p className="console-nav-heading hidden lg:block">
-                  {index === 0 ? "Operations" : "Workspace"}
-                </p>
-              )}
-              <Button asChild variant="ghost" className="console-nav-link">
-                <Link
-                  href={item.href}
-                  aria-current={current.href === item.href ? "page" : undefined}
-                >
-                  <item.icon
-                    className="hidden size-4 sm:block"
-                    aria-hidden="true"
-                  />
-                  <span className="hidden lg:inline">{item.label}</span>
-                  <span className="lg:hidden">{item.mobileLabel}</span>
-                </Link>
-              </Button>
-            </Fragment>
-          ))}
+        <nav aria-label="Main navigation" className="space-y-1">
+          {links}
         </nav>
         <div className="mt-auto hidden pt-16 lg:block">
           <Separator />
@@ -241,6 +270,32 @@ export default function Console() {
       </aside>
       <div className="console-workspace">
         <header className="console-topbar text-xs">
+          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-11 lg:hidden"
+                aria-label="Open navigation"
+              >
+                <Menu aria-hidden="true" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent
+              side="left"
+              className="overflow-y-auto bg-card px-3 pb-6"
+            >
+              <SheetHeader>
+                <SheetTitle>The Singularity</SheetTitle>
+                <SheetDescription>
+                  Test workspace · no signing authority
+                </SheetDescription>
+              </SheetHeader>
+              <nav aria-label="Mobile navigation" className="space-y-1">
+                {links}
+              </nav>
+            </SheetContent>
+          </Sheet>
           <span className="mr-auto min-w-0 text-muted-foreground">
             Custody <span className="px-2">/</span>
             <span className="text-foreground">{current.label}</span>
@@ -269,7 +324,15 @@ export default function Console() {
                 {title}
               </h1>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {pathname === "/overview" || current.href === "/transfers"
+                {[
+                  "/overview",
+                  "/vaults",
+                  "/transfers",
+                  "/approvals",
+                  "/destinations",
+                  "/operations",
+                  "/activity",
+                ].includes(current.href)
                   ? demo
                     ? "Historical treasury examples. Balances, approvals and chain outcomes are unverified."
                     : "Custody read models are not connected. Watch-only inventory does not establish balances or control."
@@ -280,7 +343,7 @@ export default function Console() {
                     : pathname === "/readiness"
                       ? "Setup progress is not production permission. Every missing control stays visible."
                       : demo
-                        ? "Sample setup and watch-only discovery. No custody service is connected."
+                        ? "Sample setup and administration requirements. No custody service is connected."
                         : "A local test workspace today. Independently verified custody before real funds."}
               </p>
             </div>
@@ -362,6 +425,55 @@ export default function Console() {
                 ))}
               {transfer && treasury && (
                 <TransferDetailView transfer={transfer} treasury={treasury} />
+              )}
+              {pathname === "/transfers/new" &&
+                (treasury ? (
+                  <TransferComposer treasury={treasury} />
+                ) : (
+                  <CustodyUnavailable />
+                ))}
+              {current.href === "/vaults" &&
+                (treasury ? (
+                  <VaultsView treasury={treasury} id={pathname.split("/")[2]} />
+                ) : (
+                  <CustodyUnavailable />
+                ))}
+              {pathname === "/approvals" &&
+                (treasury ? (
+                  <ApprovalsView treasury={treasury} />
+                ) : (
+                  <CustodyUnavailable />
+                ))}
+              {pathname === "/destinations" &&
+                (treasury ? (
+                  <DestinationsView treasury={treasury} />
+                ) : (
+                  <CustodyUnavailable />
+                ))}
+              {current.href === "/operations" &&
+                (treasury ? (
+                  <OperationsView
+                    treasury={treasury}
+                    caseId={
+                      pathname.startsWith("/cases/")
+                        ? pathname.split("/")[2]
+                        : undefined
+                    }
+                  />
+                ) : (
+                  <CustodyUnavailable />
+                ))}
+              {pathname === "/activity" &&
+                (treasury ? (
+                  <ActivityView treasury={treasury} />
+                ) : (
+                  <CustodyUnavailable />
+                ))}
+              {current.href === "/administration" && (
+                <AdministrationView
+                  snapshot={data}
+                  section={pathname.split("/")[2]}
+                />
               )}
               {pathname === "/setup" && (
                 <SetupView

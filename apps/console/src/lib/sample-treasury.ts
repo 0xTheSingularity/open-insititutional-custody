@@ -31,6 +31,7 @@ export type SampleTreasury = {
   as_of: string;
   checkpoint_sequence: string;
   holdings: {
+    id: string;
     vault: string;
     asset: SampleAsset;
     canonical_units: string;
@@ -65,6 +66,7 @@ export const sampleTreasury: SampleTreasury = {
   checkpoint_sequence: "184",
   holdings: [
     {
+      id: "sample-evm-vault",
       vault: "Operating treasury",
       asset: eth,
       canonical_units: "10000000000000000000",
@@ -72,6 +74,7 @@ export const sampleTreasury: SampleTreasury = {
       available_units: "9874957999999999999",
     },
     {
+      id: "sample-sol-vault",
       vault: "Research treasury",
       asset: sol,
       canonical_units: "17345678910",

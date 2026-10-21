@@ -230,21 +230,7 @@
     margin-left: 0;
   }
   .console-rail {
-    position: static;
-    width: auto;
-    padding: 0 12px;
-    border-right: 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .console-rail nav {
-    display: flex;
-    gap: 4px;
-    overflow-x: auto;
-  }
-  .console-nav-link {
-    width: auto;
-    padding: 0 12px;
-    margin-bottom: 8px;
+    display: none;
   }
   .console-main {
     padding: 24px;
@@ -256,13 +242,6 @@
     min-height: 56px;
     gap: 12px;
     padding: 6px 16px;
-  }
-  .console-nav-link {
-    flex: 1;
-    justify-content: center;
-    gap: 0;
-    padding: 0 4px;
-    font-size: 12px;
   }
   .console-main {
     padding: 24px 16px;
