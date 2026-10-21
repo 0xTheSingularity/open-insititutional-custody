@@ -43,6 +43,20 @@ It ends on the receipt and the signed audit log.
 > generate it with [`docs/assets/record-demo.sh`](docs/assets/record-demo.sh)
 > (needs `asciinema`+`agg` or `vhs`), then embed `docs/assets/oic-demo.gif` here.
 
+### Zero install — open it in your browser
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/0xTheSingularity/open-insititutional-custody?quickstart=1)
+
+One click opens the repo in a GitHub Codespace with Rust 1.95 and the build
+tools ready. The first launch pre-builds the workspace (a few minutes on the
+recommended 4-core/8 GB machine), then run:
+
+```sh
+cargo run -p oic-cli -- demo
+```
+
+See [`.devcontainer/README.md`](.devcontainer/README.md) for details.
+
 ### 1. Download, verify, then run (recommended)
 
 The security-minded path: download the installer, read it, let it **verify the

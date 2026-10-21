@@ -1,0 +1,19 @@
+{
+  "name": "Open Institutional Custody",
+  "image": "mcr.microsoft.com/devcontainers/rust:1-bookworm",
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "32gb"
+  },
+  "onCreateCommand": "sudo apt-get update && sudo apt-get install -y --no-install-recommends build-essential cmake mold pkg-config clang curl jq && sudo rm -rf /var/lib/apt/lists/*",
+  "postCreateCommand": "rustup toolchain install 1.95 && rustup default 1.95 && rustc --version && CARGO_PROFILE_DEV_DEBUG=0 cargo build -p oic-cli",
+  "postAttachCommand": "echo 'Run the custody demo:  cargo run -p oic-cli -- demo'",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer"
+      ]
+    }
+  }
+}
