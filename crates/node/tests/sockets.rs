@@ -6,7 +6,7 @@ use commonware_p2p::{
     Address, AddressableManager as _, Receiver as _, Recipients, Sender as _, authenticated::lookup,
 };
 use commonware_runtime::{
-    Handle, IoBuf, Quota, Runner as _, Spawner as _, Supervisor as _, tokio as runtime,
+    Handle, IoBuf, Network as _, Quota, Runner as _, Spawner as _, Supervisor as _, tokio as runtime,
 };
 use commonware_utils::ordered::Map;
 use ed25519_dalek::{Signer as _, SigningKey};
@@ -337,14 +337,19 @@ fn real_socket_mpc_is_opaque_named_bounded_rate_limited_and_shutdown_releases_so
         assert_eq!(sender.send(&id(1), 20, vec![1]).await.unwrap_err().code, ErrorCode::PeerNotAdmitted);
         let _ = b.send(&id(0), 20, payload.to_vec()).await;
         assert!(timeout(Duration::from_millis(300), a.recv()).await.is_err(), "blocked peer cannot deliver");
+        for node in &roster.body.nodes[..2] {
+            assert!(context.bind(node.address).await.is_err(), "live listener unexpectedly allowed a second bind");
+        }
         a.shutdown().await.unwrap();
         b.shutdown().await.unwrap();
         assert!(sender.send(&id(1), 20, vec![1]).await.is_err());
         timeout(Duration::from_secs(3), async {
             loop {
+                // Match Commonware's reuse-enabled bind: TCP TIME_WAIT alone
+                // must not be confused with a surviving listener.
                 if let (Ok(_a), Ok(_b)) = (
-                    TcpListener::bind(roster.body.nodes[0].address),
-                    TcpListener::bind(roster.body.nodes[1].address),
+                    context.bind(roster.body.nodes[0].address).await,
+                    context.bind(roster.body.nodes[1].address).await,
                 ) {
                     break;
                 }

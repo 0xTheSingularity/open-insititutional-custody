@@ -5,7 +5,7 @@
 mod common;
 
 use common::{World, authority_key_id, env_id, inst, now, policy, rule, vault_id};
-use commonware_runtime::{Runner as _, Supervisor as _, tokio as runtime};
+use commonware_runtime::{Network as _, Runner as _, Supervisor as _, tokio as runtime};
 use ed25519_dalek::{Signer as _, SigningKey, VerifyingKey};
 use oic_authorization_state::{
     ReceiptExpectation, ReservationState, ReserveRequest, SignedCheckpoint, checkpoint_hash, verify_checkpoint, verify_receipt,
@@ -533,6 +533,9 @@ fn real_socket_public_consumer_rejects_bad_frames_and_full_extension_does_not_bl
         assert_eq!(timeout(Duration::from_secs(3), drain_count).await.unwrap().unwrap(), EXTENSION_MAILBOX_CAPACITY);
         println!("slow extension: {sent} submitted; exactly {} buffered", EXTENSION_MAILBOX_CAPACITY);
 
+        for address in &addresses {
+            assert!(context.bind(*address).await.is_err(), "live listener unexpectedly allowed a second bind");
+        }
         stop_gateway.send(()).unwrap();
         timeout(Duration::from_secs(10), gateway_task).await.unwrap().unwrap().unwrap();
         assert_eq!(live.load(Ordering::SeqCst), 0, "extension task outlived bridge shutdown");
@@ -543,7 +546,8 @@ fn real_socket_public_consumer_rejects_bad_frames_and_full_extension_does_not_bl
         timeout(Duration::from_secs(10), authority_task).await.unwrap().unwrap().unwrap();
         producer.shutdown().await.unwrap();
         for address in addresses {
-            TcpListener::bind(address).expect("transport listener survived clean shutdown");
+            // Match the runtime's reuse-enabled bind, not std's TIME_WAIT check.
+            drop(context.bind(address).await.expect("transport listener survived clean shutdown"));
         }
         assert_eq!(mutations.load(Ordering::SeqCst), 1, "mutation was retried");
     });

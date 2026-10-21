@@ -24,17 +24,26 @@ cargo test -p oic-service-signer-net --test network --locked
 Three scenarios run. A fourth test is an ignored child-process entrypoint that
 the scenarios invoke explicitly, not an unimplemented acceptance test.
 
-Loopback startup can take several minutes under Commonware's production per-IP
-handshake limits and retry cooldowns. Read-only readiness probes share a five-minute
-budget. Mutation RPCs keep their ten-second deadline and are never retried.
+Loopback startup retains Commonware's production per-IP handshake limits.
+Read-only readiness probes share a five-minute budget. Mutation RPCs keep their
+ten-second deadline and are never retried.
 
-The D2 consensus/signing tests and live browser example explicitly use
+The D1 process tests, D2 consensus/signing tests and live browser example use
 `Transport::start_loopback(context, config, PaddingProfile::Disabled)`. It rejects
 any roster containing a non-loopback address and lowers only the peer connection
 cooldown to one second. Authentication, IP checks, handshake/channel quotas and
-all deadlines stay unchanged. This avoids long local reservation/retry collisions;
-it is not a production startup fix or qualification. `start` and
-`start_with_padding` retain Commonware's recommended production cooldown.
+all deadlines stay unchanged. This shortens retry waits but does not guarantee
+convergence within the readiness budget. Concurrent D1 fixture runs have still
+hit that budget; isolated and concurrent retries have also passed. The precise
+cause of every timeout is not established. This is not production startup
+qualification. `start` and `start_with_padding` retain Commonware's recommended
+production cooldown.
+
+Shutdown probes bind through `commonware_runtime::Network`, matching the actual
+Tokio listener's address-reuse behavior. They also reject a second bind while
+the listener is live. On Linux a plain `std::net::TcpListener::bind` can fail
+because of TCP `TIME_WAIT` even after clean shutdown; that alone is not evidence
+that a listener leaked.
 
 | Scenario | Assertions |
 | --- | --- |

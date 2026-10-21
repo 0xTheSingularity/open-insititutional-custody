@@ -18,7 +18,7 @@ use oic_membership::{
     Activation, AdminTrust, ChannelSpec, Committee, CommitteeKind, Node, PeerClass, Role,
     RosterBody, SignedRoster, TrustDomain, roster_hash,
 };
-use oic_node::{Config, Transport};
+use oic_node::{Config, PaddingProfile, Transport};
 use oic_one_time_state_ledger::FileLedger;
 use oic_peer_wire::{AuthorityRequest, FrameKind, MAX_BODY_LEN, PeerFrameV1, SessionControl};
 use oic_service_authority_rpc::{AuthorityEndpoint, AuthorityRpcClient, AuthorityRpcServer};
@@ -530,7 +530,7 @@ impl Network {
                 let mut signer_senders = Vec::new();
                 for index in 0..5 {
                     let hash = roster_hash(&roster.body).unwrap();
-                    let transport = Transport::start(
+                    let transport = Transport::start_loopback(
                         context.child("node").with_attribute("index", index),
                         Config {
                             roster: roster.clone(),
@@ -544,6 +544,7 @@ impl Network {
                             node_id: node_id(index),
                             transport_key: key(120 + index as u8),
                         },
+                        PaddingProfile::Disabled,
                     )
                     .unwrap();
                     let send = transport.sender();
@@ -627,10 +628,9 @@ impl Network {
         }
     }
     fn ready(&self, fault: Fault) {
-        // The production lookup preset admits one handshake per IP per five
-        // seconds and backs failed dials off by 60 seconds plus jitter. All
-        // fixture nodes share loopback, so allow several connection attempts
-        // without weakening transport limits or the mutation RPC deadline.
+        // The all-loopback startup profile shortens only connection cooldown;
+        // the one-handshake-per-IP/five-seconds quota remains. Allow multiple
+        // attempts without changing admission checks or the mutation RPC deadline.
         let started = Instant::now();
         let deadline = started + Duration::from_secs(300);
         for index in 0..3 {
