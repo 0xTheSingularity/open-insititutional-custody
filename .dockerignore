@@ -1,0 +1,36 @@
+# Keep the Docker build context to just the Cargo workspace sources.
+# Without this, `docker build .` ships the entire repo — including the multi-GB
+# `target/` directory and `.git` — as build context, which is slow and can leak
+# host-built artifacts into the image.
+
+# Rust / build output (the image rebuilds from source inside the builder stage)
+target/
+**/target/
+
+# VCS and tooling
+.git/
+.github/
+.gitignore
+
+# JS / console app deps and build output (not needed by `cargo build -p oic-cli`)
+**/node_modules/
+**/.next/
+**/bun.lock
+**/dist/
+
+# Local agent / editor / env state
+.omc/
+**/.omc/
+.gstack/
+.claude/
+.agents/
+.amp/
+.vercel/
+
+# Docs assets and recordings (not needed to build the binary)
+docs/assets/*.gif
+docs/assets/*.cast
+
+# Editor noise
+*.swp
+.DS_Store

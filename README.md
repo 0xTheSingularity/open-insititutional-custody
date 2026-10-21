@@ -22,20 +22,84 @@ Signers check the bytes, rules, and receipts before producing signature output.
 > **Development preview.** Rust libraries and an approval CLI, with real signatures
 > and simulated chains. A complete production deployment is still under development.
 
-## Try it locally
+## 5-minute quickstart
 
-Run an ERC-20 transfer without funds or RPC credentials. Install
-[Git, Rust/Cargo, and platform build tools](docs/getting-started.md#prerequisites), then run:
+Run the whole custody flow on your own machine — no accounts, no RPC
+credentials, no prompts. `oic demo` blocks a theft (a destination swapped after
+approval is refused by the independent signer), then settles two transfers:
+
+- **EVM** — a development **single-key** secp256k1 signer (1-of-1, *not*
+  threshold).
+- **Solana** — a **FROST ed25519 2-of-3** threshold signature.
+
+It ends on the receipt and the signed audit log.
+
+<!-- GIF PLACEHOLDER: recording tools (asciinema+agg / vhs) were not available
+     on the build host, so the <=20s demo GIF is not yet committed. Generate it
+     with docs/assets/record-demo.sh, then uncomment the <img> below.
+<p><img src="docs/assets/oic-demo.gif" alt="oic demo: a theft is blocked, then an EVM single-key and a Solana FROST 2-of-3 transfer settle." width="900"></p>
+-->
+> **Demo recording pending.** The ≤20s `oic demo` GIF is not yet committed —
+> generate it with [`docs/assets/record-demo.sh`](docs/assets/record-demo.sh)
+> (needs `asciinema`+`agg` or `vhs`), then embed `docs/assets/oic-demo.gif` here.
+
+### 1. Download, verify, then run (recommended)
+
+The security-minded path: download the installer, read it, let it **verify the
+SHA-256 checksum (and the cosign signature) before it runs anything**, then it
+runs `oic demo`.
 
 ```sh
-git clone https://github.com/0xTheSingularity/oss-wallet-insitutional.git
-cd oss-wallet-insitutional
-cargo test -p oic-service-coordinator --locked --test coordinator \
-  evm_erc20_end_to_end_signs_and_mines_in_the_simulator -- --exact
+# Download the installer and read it first
+curl -fsSLO https://raw.githubusercontent.com/0xTheSingularity/open-insititutional-custody/main/install.sh
+
+# Run it: downloads the oic binary for your platform, verifies the SHA-256
+# (fail-closed on mismatch) and the cosign signature when cosign is installed,
+# then runs `oic demo`.
+sh ./install.sh
 ```
 
-The test approves, signs, and mines a transfer locally. Expected result: **1 passed, 0 failed**.
-The EVM demo uses a development single-key signer.
+Verify the signature yourself, before trusting the binary:
+
+```sh
+# For your platform's tarball (e.g. oic-0.1.0-aarch64-apple-darwin.tar.gz),
+# download the .sha256, .sha256.sig and .sha256.pem from the GitHub release, then:
+cosign verify-blob \
+  --certificate   oic-0.1.0-<target>.tar.gz.sha256.pem \
+  --signature     oic-0.1.0-<target>.tar.gz.sha256.sig \
+  --certificate-identity-regexp '^https://github.com/0xTheSingularity/open-insititutional-custody/\.github/workflows/release\.yml@refs/tags/' \
+  --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
+  oic-0.1.0-<target>.tar.gz.sha256
+```
+
+### 2. `curl | sh` (convenience fallback)
+
+Faster, but you are piping a remote script into your shell. The installer still
+enforces the SHA-256 check before running:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/0xTheSingularity/open-insititutional-custody/main/install.sh | sh
+```
+
+### 3. `docker run` (any OS, no toolchain)
+
+The published GHCR image runs `oic demo` as its default command:
+
+```sh
+docker run --rm ghcr.io/0xthesingularity/open-insititutional-custody:latest
+```
+
+---
+
+Prefer to build from source? Install
+[Git, Rust/Cargo, and platform build tools](docs/getting-started.md#prerequisites),
+then run the demo straight from the workspace:
+
+```sh
+git clone https://github.com/0xTheSingularity/open-insititutional-custody.git
+cd open-insititutional-custody
+cargo run -p oic-cli -- demo
+```
 
 [Try Solana 2-of-3 signing](docs/getting-started.md#run-solana-threshold-signing) · [Start the local HTTP stack](docs/local-stack.md) · [Run the full suite](docs/getting-started.md#run-the-full-suite)
 
@@ -100,7 +164,7 @@ cargo test --locked -p oic-service-api --test http_flow
 
 Start with the [development guide](docs/development.md). For setup problems, use
 [troubleshooting](docs/getting-started.md#troubleshooting). For a question or bug,
-[open an issue](https://github.com/0xTheSingularity/oss-wallet-insitutional/issues)
+[open an issue](https://github.com/0xTheSingularity/open-insititutional-custody/issues)
 with the commit, command, toolchain, expected result, and error output.
 Keep keys, shares, passphrases, and secret files out of reports.
 
