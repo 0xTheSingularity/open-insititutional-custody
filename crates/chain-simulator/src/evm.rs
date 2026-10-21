@@ -1006,6 +1006,30 @@ impl EvmSimulator {
         lock(&self.inner).blocks.get(usize::try_from(height).ok()?).cloned()
     }
 
+    /// Holdings at an exact canonical block, not at the current head. A
+    /// concurrent reorg invalidates the reference instead of mixing checkpoints.
+    /// Returns wei for native currency or base units for ERC-20 tokens; absent
+    /// holdings are zero. Missing or mismatched blocks return `StaleEvidence`,
+    /// malformed contract addresses return `InvalidRequest`, and other asset
+    /// kinds return `UnsupportedCapability`. The commitment label is not checked.
+    pub fn balance_at(&self, state: &StateReference, address: &Address, asset: &AssetKind) -> OicResult<Amount> {
+        let g = lock(&self.inner);
+        let h = usize::try_from(state.height).map_err(|_| OicError::stale_evidence("block height out of range"))?;
+        let block = g.blocks.get(h).ok_or_else(|| OicError::stale_evidence("block missing"))?;
+        if block.hash.as_slice() != state.hash.as_slice() {
+            return Err(OicError::stale_evidence("block is no longer canonical"));
+        }
+        let snapshot = &g.snapshots[h];
+        match asset {
+            AssetKind::Native => Ok(Amount(snapshot.balance(address))),
+            AssetKind::Erc20 { contract } => {
+                let contract: Address = contract.as_slice().try_into().map_err(|_| OicError::invalid_request("ERC-20 contract length"))?;
+                Ok(Amount(snapshot.tokens.get(&contract).and_then(|t| t.balances.get(address)).copied().unwrap_or(0)))
+            }
+            _ => Err(OicError::unsupported("EVM balance asset")),
+        }
+    }
+
     /// Receipt of a canonically included transaction.
     pub fn receipt(&self, id: &ChainTxId) -> OicResult<Option<EvmReceipt>> {
         let h = parse_tx_id(id)?;

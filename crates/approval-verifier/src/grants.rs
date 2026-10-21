@@ -36,7 +36,11 @@ pub fn sign_grant(key: &SigningKey, body: ApprovalGrantBody) -> OicResult<Approv
 
 /// Verify one grant against the enrolled approver roster: the credential must
 /// be enrolled, its role must equal the role claimed in the body, the
-/// signature must verify, and the grant must be unexpired at `now`.
+/// signature must verify, and `issued_at <= now < expires_at` in Unix seconds.
+/// Returns `InvalidRequest` for a nonpositive validity interval,
+/// `PolicyDenied` at or after expiry, and `StaleEvidence` before issuance.
+/// Unknown credentials or invalid signatures return `InvalidSignature`; a role
+/// mismatch returns `ScopeMismatch`. Grant hashing errors propagate.
 pub fn verify_grant(grant: &ApprovalGrant, approvers: &[ApproverCredential], now: UnixSeconds) -> OicResult<()> {
     let b = &grant.body;
     let cred = approvers
@@ -52,7 +56,7 @@ pub fn verify_grant(grant: &ApprovalGrant, approvers: &[ApproverCredential], now
     if b.expires_at <= b.issued_at {
         return Err(OicError::invalid_request("grant expiry is not after issuance"));
     }
-    if now > b.expires_at {
+    if now >= b.expires_at {
         return Err(OicError::policy_denied(format!("grant {} expired at {}", b.grant_id, b.expires_at.0)));
     }
     if now < b.issued_at {
@@ -136,6 +140,8 @@ mod tests {
         let g = sign_grant(&key(1), body("a", ApprovalRole::Administrator)).unwrap();
         assert_eq!(verify_grant(&g, &roster(), UnixSeconds(150)).unwrap_err().code, ErrorCode::ScopeMismatch);
         let g = sign_grant(&key(1), body("a", ApprovalRole::TreasuryApprover)).unwrap();
+        assert!(verify_grant(&g, &roster(), UnixSeconds(199)).is_ok());
+        assert_eq!(verify_grant(&g, &roster(), UnixSeconds(200)).unwrap_err().code, ErrorCode::PolicyDenied);
         assert_eq!(verify_grant(&g, &roster(), UnixSeconds(201)).unwrap_err().code, ErrorCode::PolicyDenied);
         assert_eq!(verify_grant(&g, &roster(), UnixSeconds(99)).unwrap_err().code, ErrorCode::StaleEvidence);
         let ok = sign_grant(&key(1), body("a", ApprovalRole::TreasuryApprover)).unwrap();

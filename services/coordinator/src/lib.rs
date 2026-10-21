@@ -71,7 +71,7 @@ pub struct SigningJob {
 }
 
 /// A completed issuance.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct Issuance {
     pub envelope: AuthorizationEnvelope,
     pub release_receipt: AuthorityReceipt,

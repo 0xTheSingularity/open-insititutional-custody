@@ -1,0 +1,99 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OIC development custody API",
+    "version": "1.0.0",
+    "license": { "name": "Apache-2.0", "identifier": "Apache-2.0" },
+    "description": "One institution/environment per deployment. TLS termination and credential provisioning are domain-local. Bearer capabilities are vault-scoped and never replace independent signed approvals. HTTP success is not chain finality. No arbitrary-signing, key-import, or administrative-update endpoint is exposed. See spec/protocol-v1.md for the canonical security encoding and current production limitations."
+  },
+  "servers": [{ "url": "/", "description": "Institution-controlled TLS origin" }],
+  "security": [{ "bearerAuth": [] }],
+  "paths": {
+    "/v1/intents": {
+      "post": {
+        "operationId": "createIntent",
+        "summary": "Build an immutable direct-transfer intent (propose capability)",
+        "description": "Requires a nonblank external_reference, schema_version 1, and proposer_credential_id matching the bearer credential. Idempotency is scoped to institution and route and retained for the operation lifecycle. Same key/different canonical intent conflicts. Success returns a built candidate, not authorization or submission.",
+        "parameters": [{ "name": "Idempotency-Key", "in": "header", "required": true, "schema": { "type": "string", "minLength": 1, "maxLength": 128 } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Intent" } } } },
+        "responses": { "200": { "$ref": "#/components/responses/IntentRecord" }, "default": { "$ref": "#/components/responses/Error" } }
+      }
+    },
+    "/v1/intents/{id}": {
+      "parameters": [{ "$ref": "#/components/parameters/Id" }],
+      "get": { "operationId": "getIntent", "summary": "Read stored candidate, grants, and completed issuance (read capability)", "responses": { "200": { "$ref": "#/components/responses/IntentRecord" }, "default": { "$ref": "#/components/responses/Error" } } }
+    },
+    "/v1/intents/{id}/preview": {
+      "parameters": [{ "$ref": "#/components/parameters/Id" }],
+      "get": { "operationId": "getPreview", "summary": "Read independent ApprovalPackage inputs (read capability)", "description": "The approval client must verify trust roots and decode native bytes itself; display text from this API is not authorization.", "responses": { "200": { "description": "ApprovalPackage from oic-domain-types, independently verified by oic-approve", "content": { "application/json": { "schema": { "type": "object" } } } }, "default": { "$ref": "#/components/responses/Error" } } }
+    },
+    "/v1/intents/{id}/approvals": {
+      "parameters": [{ "$ref": "#/components/parameters/Id" }],
+      "post": { "operationId": "addApproval", "summary": "Store an independent signed grant (approve capability)", "description": "Signer, intent, and institution/environment/vault bindings and signature/expiry are checked. Submission and signers re-evaluate applicability and quorum. Recording a grant does not claim the operation is approved. Same grant ID/body is idempotent while accepting grants; conflicting reuse fails.", "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApprovalGrant" } } } }, "responses": { "200": { "$ref": "#/components/responses/IntentRecord" }, "default": { "$ref": "#/components/responses/Error" } } }
+    },
+    "/v1/intents/{id}/submit": {
+      "parameters": [{ "$ref": "#/components/parameters/Id" }],
+      "post": { "operationId": "submitIntent", "summary": "Authorize, sign, and record a broadcast attempt (submit capability)", "description": "200 promises durable completed issuance evidence, not RPC acknowledgement, inclusion, or finality. Follow getOperation and refreshOperation. Lost ACK retries reuse exactly the signed bytes. Dispatching without completed issuance returns ISSUANCE_UNCERTAIN and never automatically signs again.", "responses": { "200": { "$ref": "#/components/responses/IntentRecord" }, "default": { "$ref": "#/components/responses/Error" } } }
+    },
+    "/v1/intents/{id}/cancel": {
+      "parameters": [{ "$ref": "#/components/parameters/Id" }],
+      "post": { "operationId": "cancelIntent", "summary": "Cancel only before API dispatch (propose capability)", "description": "Idempotent after cancellation. Never revokes an already issued native signature; a started or ambiguous dispatch cannot be cancelled.", "responses": { "200": { "$ref": "#/components/responses/IntentRecord" }, "default": { "$ref": "#/components/responses/Error" } } }
+    },
+    "/v1/operations/{id}": {
+      "parameters": [{ "$ref": "#/components/parameters/Id" }],
+      "get": { "operationId": "getOperation", "summary": "Read operational lifecycle and submission evidence (read capability)", "responses": { "200": { "description": "Latest stored state; no RPC polling is implied", "content": { "application/json": { "schema": { "type": "object", "required": ["operation_family_id", "lifecycle", "issuance", "submission"], "properties": { "operation_family_id": { "type": "string" }, "lifecycle": { "$ref": "#/components/schemas/LifecycleState" }, "issuance": { "type": ["object", "null"], "description": "Coordinator transition summary, not a release receipt" }, "submission": { "type": ["object", "null"], "description": "Broadcaster record with attempts and observation evidence" } } } } } }, "default": { "$ref": "#/components/responses/Error" } } }
+    },
+    "/v1/operations/{id}/refresh": {
+      "parameters": [{ "$ref": "#/components/parameters/Id" }],
+      "post": { "operationId": "refreshOperation", "summary": "Poll configured chain evidence and record observed lifecycle (submit capability)", "responses": { "200": { "description": "Observed lifecycle; only FINALIZED_SUCCESS denotes final success under the enrolled profile", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LifecycleState" } } } }, "default": { "$ref": "#/components/responses/Error" } } }
+    },
+    "/v1/operations/{id}/evidence": {
+      "parameters": [{ "$ref": "#/components/parameters/Id" }],
+      "get": { "operationId": "getOperationEvidence", "summary": "Read API intent, candidate, grants, envelope, receipt and signed bytes (read capability)", "responses": { "200": { "$ref": "#/components/responses/IntentRecord" }, "default": { "$ref": "#/components/responses/Error" } } }
+    },
+    "/v1/wallets/{id}/balances": {
+      "parameters": [{ "$ref": "#/components/parameters/Id" }],
+      "get": { "operationId": "getBalances", "summary": "Read monitored holdings minus outstanding reservations (read capability)", "description": "Holdings are not policy allowance or proof of beneficial ownership. Missing monitoring/cursor is not a live-chain balance assertion.", "responses": { "200": { "description": "Per-enrolled-asset holdings and indexing context", "content": { "application/json": { "schema": { "type": "object", "required": ["chain_wallet_id", "balances", "cursor"], "properties": { "chain_wallet_id": { "type": "string" }, "balances": { "type": "array", "items": { "type": "object" } }, "cursor": { "type": ["object", "null"] } } } } } }, "default": { "$ref": "#/components/responses/Error" } } }
+    },
+    "/v1/events": {
+      "get": {
+        "operationId": "replayEvents", "summary": "Replay signed operational observations (read access to all catalog vaults)",
+        "description": "Ascending institution-global sequence strictly after the supplied cursor. Verify signatures against independently pinned event keys, persist cursor after processing, deduplicate repeats, and replay gaps. These are observations, not a transactional issuance audit; webhook push/key rotation are not implemented.",
+        "parameters": [
+          { "name": "after", "in": "query", "schema": { "type": "integer", "minimum": 0, "maximum": 18446744073709551615, "default": 0 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 1000, "default": 100 } }
+        ],
+        "responses": { "200": { "description": "Empty array at the current end; cursor is the last processed body.sequence", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/LifecycleEvent" } } } } }, "default": { "$ref": "#/components/responses/Error" } }
+      }
+    },
+    "/v1/export": {
+      "get": { "operationId": "exportOperations", "summary": "Export operational journal/evidence and authority checkpoint (read access to all catalog vaults)", "description": "Contains no custody shares. Full reconstruction additionally needs individual API operation evidence, other producers' issuance records, and the declared chain evidence. This is not a cross-store atomic backup or a recovery package.", "responses": { "200": { "description": "Versioned OperationsExport and signed authority checkpoint", "content": { "application/json": { "schema": { "type": "object", "required": ["schema_version", "operations", "authority"], "properties": { "schema_version": { "const": 1 }, "operations": { "type": "object" }, "authority": { "type": "object" } } } } } }, "default": { "$ref": "#/components/responses/Error" } } }
+    }
+  },
+  "components": {
+    "securitySchemes": { "bearerAuth": { "type": "http", "scheme": "bearer", "description": "Random capability token, provisioned/revoked domain-locally; SHA-256 hash stored by the API. Not an approval signature." } },
+    "parameters": { "Id": { "name": "id", "in": "path", "required": true, "description": "Intent ID, operation-family ID, or chain-wallet ID as named by the route", "schema": { "type": "string" } } },
+    "responses": {
+      "IntentRecord": { "description": "Stored candidate/approval/dispatch evidence, not a finality assertion", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IntentRecord" } } } },
+      "Error": { "description": "400 invalid input, 401 invalid bearer, 403 forbidden scope/signature, 404 absent resource, 409 conflict/policy/uncertainty, 503 storage/recovery unavailable, or 500 internal failure. Inspect operation evidence before retrying a mutation.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+    },
+    "schemas": {
+      "Intent": { "$ref": "../../tests/golden-vectors/schemas/protocol-v1.json#/$defs/Intent" },
+      "ApprovalGrant": { "$ref": "../../tests/golden-vectors/schemas/protocol-v1.json#/$defs/ApprovalGrant" },
+      "LifecycleEvent": { "$ref": "../../tests/golden-vectors/schemas/protocol-v1.json#/$defs/LifecycleEvent" },
+      "LifecycleState": { "$ref": "../../tests/golden-vectors/schemas/protocol-v1.json#/$defs/LifecycleState" },
+      "Error": { "type": "object", "required": ["code", "detail"], "properties": { "code": { "type": "string" }, "detail": { "type": "string" } } },
+      "IntentRecord": {
+        "type": "object", "required": ["intent", "built", "approvals", "dispatch", "issuance", "last_error"],
+        "properties": {
+          "intent": { "$ref": "#/components/schemas/Intent" },
+          "built": { "type": "object", "description": "BuiltCandidate: native candidate, verified effects, ApprovalPackage and preview commitment; typed source is oic-service-builder" },
+          "approvals": { "type": "array", "maxItems": 64, "items": { "$ref": "#/components/schemas/ApprovalGrant" } },
+          "dispatch": { "enum": ["ready", "dispatching", "signed", "cancelled"] },
+          "issuance": { "type": ["object", "null"], "description": "Completed coordinator Issuance: envelope, release_receipt, issuance_record, signed (verified signed native transaction)" },
+          "last_error": { "anyOf": [{ "$ref": "#/components/schemas/Error" }, { "type": "null" }] }
+        }
+      }
+    }
+  }
+}

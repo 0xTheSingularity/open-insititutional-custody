@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oic.invalid/protocol/v1",
+  "title": "OIC v1 public producer representations",
+  "description": "Structural JSON contract, not a signature, enrollment, policy or chain-evidence validator. Amount values also require checked u128 parsing. Canonical CBOR, not JSON bytes, is signed.",
+  "oneOf": [
+    { "$ref": "#/$defs/Intent" },
+    { "$ref": "#/$defs/ApprovalGrantBody" },
+    { "$ref": "#/$defs/ApprovalGrant" },
+    { "$ref": "#/$defs/LifecycleEventBody" },
+    { "$ref": "#/$defs/LifecycleEvent" }
+  ],
+  "$defs": {
+    "Id": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[!-~]+$" },
+    "Amount": { "type": "string", "pattern": "^(0|[1-9][0-9]{0,38})$", "maxLength": 39, "description": "Base-unit u128, canonical decimal. Maximum 340282366920938463463374607431768211455 is enforced by the typed decoder." },
+    "U64": { "type": "integer", "minimum": 0, "maximum": 18446744073709551615 },
+    "U32": { "type": "integer", "minimum": 0, "maximum": 4294967295 },
+    "U8": { "type": "integer", "minimum": 0, "maximum": 255 },
+    "Hash32": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "Bytes": { "type": "string", "pattern": "^0x([0-9a-f]{2})*$", "maxLength": 2097154 },
+    "Signature": {
+      "type": "object", "required": ["scheme", "bytes"], "additionalProperties": false,
+      "properties": {
+        "scheme": { "const": "ed25519_pure" },
+        "bytes": { "type": "string", "pattern": "^0x[0-9a-f]{128}$" }
+      }
+    },
+    "Intent": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_version", "intent_id", "institution_id", "environment_id", "vault_id", "chain_wallet_id", "chain_profile_id", "operation", "constraints", "purpose", "external_reference", "proposer_credential_id", "created_at"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "intent_id": { "$ref": "#/$defs/Id" },
+        "institution_id": { "$ref": "#/$defs/Id" },
+        "environment_id": { "$ref": "#/$defs/Id" },
+        "vault_id": { "$ref": "#/$defs/Id" },
+        "chain_wallet_id": { "$ref": "#/$defs/Id" },
+        "chain_profile_id": { "$ref": "#/$defs/Id" },
+        "operation": {
+          "type": "object", "required": ["asset_transfer"], "additionalProperties": false,
+          "properties": { "asset_transfer": {
+            "type": "object", "required": ["asset_id", "amount_base_units", "destination_id", "destination_version"], "additionalProperties": false,
+            "properties": {
+              "asset_id": { "$ref": "#/$defs/Id" },
+              "amount_base_units": { "$ref": "#/$defs/Amount" },
+              "destination_id": { "$ref": "#/$defs/Id" },
+              "destination_version": { "$ref": "#/$defs/U32" }
+            }
+          } }
+        },
+        "constraints": {
+          "type": "object", "required": ["max_network_fee_base_units", "approval_mode", "maximum_successful_payments"], "additionalProperties": false,
+          "properties": {
+            "max_network_fee_base_units": { "$ref": "#/$defs/Amount" },
+            "approval_mode": { "enum": ["exact_candidate", "bounded_direct_transfer"] },
+            "maximum_successful_payments": { "$ref": "#/$defs/U8" }
+          }
+        },
+        "purpose": { "enum": ["settlement", "treasury", "payroll", "fees", "internal", "other"] },
+        "external_reference": { "type": "string" },
+        "proposer_credential_id": { "$ref": "#/$defs/Id" },
+        "created_at": { "$ref": "#/$defs/U64" }
+      }
+    },
+    "ApprovalGrantBody": {
+      "type": "object", "additionalProperties": false,
+      "required": ["grant_id", "institution_id", "environment_id", "vault_id", "intent_id", "intent_hash", "policy_id", "policy_epoch", "scope", "approver_credential_id", "approver_role", "issued_at", "expires_at"],
+      "properties": {
+        "grant_id": { "$ref": "#/$defs/Id" },
+        "institution_id": { "$ref": "#/$defs/Id" },
+        "environment_id": { "$ref": "#/$defs/Id" },
+        "vault_id": { "$ref": "#/$defs/Id" },
+        "intent_id": { "$ref": "#/$defs/Id" },
+        "intent_hash": { "$ref": "#/$defs/Hash32" },
+        "policy_id": { "$ref": "#/$defs/Id" },
+        "policy_epoch": { "$ref": "#/$defs/U64" },
+        "scope": { "oneOf": [
+          {
+            "type": "object", "required": ["exact_candidate"], "additionalProperties": false,
+            "properties": { "exact_candidate": {
+              "type": "object", "required": ["candidate_id", "candidate_revision", "preview_hash"], "additionalProperties": false,
+              "properties": {
+                "candidate_id": { "$ref": "#/$defs/Id" },
+                "candidate_revision": { "$ref": "#/$defs/U32" },
+                "preview_hash": { "$ref": "#/$defs/Hash32" }
+              }
+            } }
+          },
+          {
+            "type": "object", "required": ["bounded_direct_transfer"], "additionalProperties": false,
+            "properties": { "bounded_direct_transfer": {
+              "type": "object", "required": ["template"], "additionalProperties": false,
+              "properties": { "template": {
+                "type": "object", "additionalProperties": false,
+                "required": ["chain_wallet_id", "network_id", "asset_id", "amount_base_units", "destination_id", "destination_version", "destination_address", "max_native_fee_base_units", "maximum_successful_payments", "fillable"],
+                "properties": {
+                  "chain_wallet_id": { "$ref": "#/$defs/Id" },
+                  "network_id": { "$ref": "#/$defs/Id" },
+                  "asset_id": { "$ref": "#/$defs/Id" },
+                  "amount_base_units": { "$ref": "#/$defs/Amount" },
+                  "destination_id": { "$ref": "#/$defs/Id" },
+                  "destination_version": { "$ref": "#/$defs/U32" },
+                  "destination_address": { "$ref": "#/$defs/Bytes" },
+                  "max_native_fee_base_units": { "$ref": "#/$defs/Amount" },
+                  "maximum_successful_payments": { "$ref": "#/$defs/U8" },
+                  "fillable": { "type": "array", "items": { "enum": ["solana_recent_blockhash", "evm_nonce", "evm_fee_fields", "evm_gas_limit"] } }
+                }
+              } }
+            } }
+          }
+        ] },
+        "approver_credential_id": { "$ref": "#/$defs/Id" },
+        "approver_role": { "enum": ["treasury_approver", "security_approver", "administrator", "automated"] },
+        "issued_at": { "$ref": "#/$defs/U64" },
+        "expires_at": { "$ref": "#/$defs/U64" }
+      }
+    },
+    "ApprovalGrant": {
+      "type": "object", "required": ["body", "signature"], "additionalProperties": false,
+      "properties": { "body": { "$ref": "#/$defs/ApprovalGrantBody" }, "signature": { "$ref": "#/$defs/Signature" } }
+    },
+    "LifecycleState": { "enum": ["DRAFT", "BUILT", "VERIFIED", "POLICY_EVALUATED", "AWAITING_APPROVAL", "RESERVED", "AUTHORIZED", "ISSUANCE_COMMITTED", "SIGNING", "SIGNATURE_OBSERVED", "SUBMITTED", "INCLUDED", "FINALIZED_SUCCESS", "FINALIZED_FAILURE", "REJECTED", "APPROVAL_EXPIRED", "ABORTED_BEFORE_ISSUANCE", "ISSUANCE_UNKNOWN", "SUBMISSION_UNKNOWN", "REORGED", "REPLACEMENT_PENDING", "DEFINITIVELY_INVALIDATED"] },
+    "WorkflowState": { "oneOf": [
+      { "enum": ["pending", "running", "complete"] },
+      { "type": "object", "required": ["paused"], "additionalProperties": false, "properties": { "paused": {
+        "type": "object", "required": ["reason", "detail"], "additionalProperties": false,
+        "properties": { "reason": { "enum": ["fee_ceiling", "uncertain_issuance", "stale_evidence", "insufficient_funds", "policy_conflict", "approval_pending"] }, "detail": { "type": "string" } }
+      } } },
+      { "type": "object", "required": ["exhausted"], "additionalProperties": false, "properties": { "exhausted": {
+        "type": "object", "required": ["case_id"], "additionalProperties": false, "properties": { "case_id": { "$ref": "#/$defs/Id" } }
+      } } },
+      { "type": "object", "required": ["failed"], "additionalProperties": false, "properties": { "failed": {
+        "type": "object", "required": ["reason"], "additionalProperties": false, "properties": { "reason": { "type": "string" } }
+      } } }
+    ] },
+    "LifecycleEventBody": {
+      "type": "object", "required": ["event_id", "sequence", "institution_id", "environment_id", "at", "kind"], "additionalProperties": false,
+      "properties": {
+        "event_id": { "$ref": "#/$defs/Id" },
+        "sequence": { "allOf": [{ "$ref": "#/$defs/U64" }, { "minimum": 1 }] },
+        "institution_id": { "$ref": "#/$defs/Id" },
+        "environment_id": { "$ref": "#/$defs/Id" },
+        "at": { "$ref": "#/$defs/U64" },
+        "kind": {
+          "type": "object", "minProperties": 1, "maxProperties": 1, "additionalProperties": false,
+          "properties": {
+            "operation_state_changed": {
+              "type": "object", "required": ["intent_id", "operation_family_id", "candidate_id", "candidate_revision", "from", "to", "tx_id"], "additionalProperties": false,
+              "properties": {
+                "intent_id": { "$ref": "#/$defs/Id" },
+                "operation_family_id": { "$ref": "#/$defs/Id" },
+                "candidate_id": { "anyOf": [{ "$ref": "#/$defs/Id" }, { "type": "null" }] },
+                "candidate_revision": { "anyOf": [{ "$ref": "#/$defs/U32" }, { "type": "null" }] },
+                "from": { "anyOf": [{ "$ref": "#/$defs/LifecycleState" }, { "type": "null" }] },
+                "to": { "$ref": "#/$defs/LifecycleState" },
+                "tx_id": { "anyOf": [{ "$ref": "#/$defs/Id" }, { "type": "null" }] }
+              }
+            },
+            "movement_observed": {
+              "type": "object", "required": ["movement_id", "acceptance"], "additionalProperties": false,
+              "properties": { "movement_id": { "$ref": "#/$defs/Id" }, "acceptance": { "enum": ["observed", "accepted", "quarantined", "reversed"] } }
+            },
+            "case_opened": {
+              "type": "object", "required": ["case_id", "kind"], "additionalProperties": false,
+              "properties": { "case_id": { "$ref": "#/$defs/Id" }, "kind": { "enum": ["unknown_asset", "dust", "wrong_network", "missing_routing_reference", "retired_address", "inactive_address", "nonstandard_asset", "reorged", "reconciliation_difference", "workflow_exhausted"] } }
+            },
+            "case_resolved": { "type": "object", "required": ["case_id"], "additionalProperties": false, "properties": { "case_id": { "$ref": "#/$defs/Id" } } },
+            "workflow_state_changed": {
+              "type": "object", "required": ["workflow_id", "state"], "additionalProperties": false,
+              "properties": { "workflow_id": { "$ref": "#/$defs/Id" }, "state": { "$ref": "#/$defs/WorkflowState" } }
+            },
+            "checkpoint_published": {
+              "type": "object", "required": ["checkpoint_id", "consistent"], "additionalProperties": false,
+              "properties": { "checkpoint_id": { "$ref": "#/$defs/Id" }, "consistent": { "type": "boolean" } }
+            },
+            "policy_activated": {
+              "type": "object", "required": ["policy_id", "policy_epoch"], "additionalProperties": false,
+              "properties": { "policy_id": { "$ref": "#/$defs/Id" }, "policy_epoch": { "$ref": "#/$defs/U64" } }
+            },
+            "destination_activated": {
+              "type": "object", "required": ["destination_id", "version"], "additionalProperties": false,
+              "properties": { "destination_id": { "$ref": "#/$defs/Id" }, "version": { "$ref": "#/$defs/U32" } }
+            }
+          }
+        }
+      }
+    },
+    "LifecycleEvent": {
+      "type": "object", "required": ["body", "signing_key_id", "signature"], "additionalProperties": false,
+      "properties": { "body": { "$ref": "#/$defs/LifecycleEventBody" }, "signing_key_id": { "$ref": "#/$defs/Id" }, "signature": { "$ref": "#/$defs/Signature" } }
+    }
+  }
+}

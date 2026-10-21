@@ -967,6 +967,12 @@ impl ChainAdapter for SolanaAdapter {
         Ok(VerifiedSignedTransaction { signed: signed.clone(), verified_signers: vec![Bytes(pk.to_vec())] })
     }
 
+    /// Read inclusion or finality from scoped signature-status evidence.
+    /// `fee_paid` includes both network fees and actual token-account funding in
+    /// lamports. Returns `Finalized` at or above the profile's finality commitment,
+    /// otherwise `Included`, including for failed execution. Profile, evidence,
+    /// and transaction-ID validation errors propagate; missing evidence is an
+    /// error rather than a not-yet-visible result.
     fn observe(&self, tx_id: &ChainTxId, profile: &ChainProfile, evidence: &EvidenceBundle) -> OicResult<ChainObservation> {
         check_profile(profile)?;
         check_evidence_scope(profile, evidence, None)?;
@@ -975,17 +981,20 @@ impl ChainAdapter for SolanaAdapter {
         let rank = commitment_rank(&obs.commitment).ok_or_else(|| OicError::stale_evidence("unknown commitment"))?;
         let final_rank = commitment_rank(&profile.finality_commitment).ok_or_else(|| OicError::unsupported("unknown profile commitment"))?;
         let state = StateReference { height: obs.slot, hash: obs.block_hash.clone(), commitment: obs.commitment.clone() };
+        // The reserved native ceiling includes ATA rent. Settling just the
+        // RPC fee would incorrectly replenish allowance already spent on rent.
+        let native_cost = Amount(obs.fee as u128 + obs.account_funding as u128);
         if rank >= final_rank {
             let raw = get_item(evidence, &tx_key(&sig))?;
             Ok(ChainObservation::Finalized {
                 tx_id: tx_id.clone(),
                 state,
                 execution_success: obs.success,
-                fee_paid: to_amount(obs.fee),
+                fee_paid: native_cost,
                 effects_hash: oic_canonical_encoding::sha256(raw),
             })
         } else {
-            Ok(ChainObservation::Included { tx_id: tx_id.clone(), state, execution_success: obs.success, fee_paid: to_amount(obs.fee) })
+            Ok(ChainObservation::Included { tx_id: tx_id.clone(), state, execution_success: obs.success, fee_paid: native_cost })
         }
     }
 

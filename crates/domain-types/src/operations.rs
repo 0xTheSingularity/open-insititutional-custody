@@ -416,16 +416,30 @@ pub struct ReconciledBalance {
     pub asset_id: AssetId,
     /// Independently obtained chain holdings at the checkpoint state.
     pub chain_balance: Amount,
-    /// Journal settled holdings at the checkpoint sequence.
+    /// Journal settled holdings at the checkpoint sequence; zero when the
+    /// journal position is negative (see `journal_shortfall`).
     pub journal_balance: Amount,
+    /// Magnitude by which journal debits exceed credits. Nonzero only when the
+    /// journal position is negative, for example after eligible spends against
+    /// quarantined receipts; `journal_balance` is then zero. The pair keeps the
+    /// signed journal position representable without signed amounts.
+    #[serde(default)]
+    pub journal_shortfall: Amount,
     pub reserved: Amount,
     pub pending_inbound: Amount,
 }
 
 impl ReconciledBalance {
-    /// Signed difference `chain - journal` as (is_negative, magnitude).
+    /// Signed difference `chain - (journal_balance - journal_shortfall)` as
+    /// (is_negative, magnitude). A shortfall means the authorized repair is a
+    /// credit of `chain + shortfall`; the magnitude saturates rather than wraps.
     pub fn difference(&self) -> (bool, Amount) {
-        if self.chain_balance.0 >= self.journal_balance.0 {
+        if !self.journal_shortfall.is_zero() {
+            (
+                false,
+                Amount(self.chain_balance.0.saturating_add(self.journal_shortfall.0)),
+            )
+        } else if self.chain_balance.0 >= self.journal_balance.0 {
             (false, Amount(self.chain_balance.0 - self.journal_balance.0))
         } else {
             (true, Amount(self.journal_balance.0 - self.chain_balance.0))
@@ -433,7 +447,7 @@ impl ReconciledBalance {
     }
 
     pub fn is_consistent(&self) -> bool {
-        self.chain_balance == self.journal_balance
+        self.journal_shortfall.is_zero() && self.chain_balance == self.journal_balance
     }
 }
 
@@ -760,10 +774,26 @@ mod tests {
             asset_id: AssetId::unchecked("a"),
             chain_balance: Amount(5),
             journal_balance: Amount(8),
+            journal_shortfall: Amount::ZERO,
             reserved: Amount::ZERO,
             pending_inbound: Amount::ZERO,
         };
         assert_eq!(b.difference(), (true, Amount(3)));
+        assert!(!b.is_consistent());
+    }
+
+    #[test]
+    fn reconciled_shortfall_repairs_with_a_credit_of_chain_plus_shortfall() {
+        let b = ReconciledBalance {
+            chain_wallet_id: ChainWalletId::unchecked("w"),
+            asset_id: AssetId::unchecked("a"),
+            chain_balance: Amount(5),
+            journal_balance: Amount::ZERO,
+            journal_shortfall: Amount(3),
+            reserved: Amount::ZERO,
+            pending_inbound: Amount::ZERO,
+        };
+        assert_eq!(b.difference(), (false, Amount(8)));
         assert!(!b.is_consistent());
     }
 }

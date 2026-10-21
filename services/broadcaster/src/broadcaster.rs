@@ -6,6 +6,7 @@ use crate::store::{AttemptOutcome, SubmissionAttempt, SubmissionRecord, Submissi
 use oic_adapter_api::*;
 use oic_authorization_state::{Authority, AuthorityStore, Clock};
 use oic_domain_types::*;
+use parking_lot::Mutex;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
@@ -35,6 +36,11 @@ pub struct Broadcaster<S: AuthorityStore> {
     profiles: BTreeMap<ChainProfileId, ChainProfile>,
     store: Arc<dyn SubmissionStore>,
     clock: Arc<dyn Clock>,
+    /// Per-family claim serializing every load-mutate-store sequence. A caller
+    /// that waits here reloads the newest record, so a delayed submit cannot
+    /// overwrite newer inclusion or finality evidence and concurrent submits
+    /// cannot lose each other's attempt history.
+    locks: Mutex<BTreeMap<OperationFamilyId, Arc<Mutex<()>>>>,
 }
 
 fn not_found(detail: impl Into<String>) -> OicError {
@@ -43,7 +49,13 @@ fn not_found(detail: impl Into<String>) -> OicError {
 
 impl<S: AuthorityStore> Broadcaster<S> {
     pub fn new(authority: Arc<Authority<S>>, store: Arc<dyn SubmissionStore>, clock: Arc<dyn Clock>) -> Self {
-        Broadcaster { authority, clients: BTreeMap::new(), adapters: BTreeMap::new(), profiles: BTreeMap::new(), store, clock }
+        Broadcaster { authority, clients: BTreeMap::new(), adapters: BTreeMap::new(), profiles: BTreeMap::new(), store, clock, locks: Mutex::new(BTreeMap::new()) }
+    }
+
+    /// The claim for one family's record. Public mutating entry points hold it
+    /// across their whole read-modify-write sequence.
+    fn family_claim(&self, family: &OperationFamilyId) -> Arc<Mutex<()>> {
+        self.locks.lock().entry(family.clone()).or_default().clone()
     }
 
     /// Register a network. The client must serve the profile's network and
@@ -108,6 +120,8 @@ impl<S: AuthorityStore> Broadcaster<S> {
     pub fn register_possibly_issued(&self, family: &OperationFamilyId, candidate: &Candidate, signed: &SignedTransaction, profile_id: &ChainProfileId) -> OicResult<SubmissionRecord> {
         Self::check_binding(candidate, signed, family, profile_id)?;
         let net = self.network(profile_id)?;
+        let claim = self.family_claim(family);
+        let _claimed = claim.lock();
         if let Some(existing) = self.store.get(family)? {
             if existing.candidate == *candidate && existing.signed == *signed {
                 return Ok(existing);
@@ -136,17 +150,34 @@ impl<S: AuthorityStore> Broadcaster<S> {
     /// Durably record a pending attempt, hand the bytes to the chain, then
     /// record the acknowledgement and report `Submitted` to the authority.
     /// A client error leaves the submission `SUBMISSION_UNKNOWN` (A18).
+    ///
+    /// Holds the per-family claim for the whole sequence: concurrent submits
+    /// serialize, each reloads the newest record, and a record that already
+    /// shows inclusion or a terminal lifecycle is returned without another
+    /// network hand-off, so stored evidence never regresses.
     pub fn submit(&self, family: &OperationFamilyId, candidate: &Candidate, signed: &VerifiedSignedTransaction, profile_id: &ChainProfileId) -> OicResult<SubmissionRecord> {
         let signed = &signed.signed;
         Self::check_binding(candidate, signed, family, profile_id)?;
         let net = self.network(profile_id)?;
+        let claim = self.family_claim(family);
+        let _claimed = claim.lock();
+        // Read quarantine state under the claim: a concurrent poll can
+        // quarantine the family, and the check must see that outcome.
         let fam = self.authority.family(family)?;
         if fam.quarantined {
             return Err(OicError::new(ErrorCode::IssuanceUncertain, "operation family is quarantined by conflicting chain evidence"));
         }
         let now = self.clock.now();
         let mut rec = match self.store.get(family)? {
-            Some(existing) if existing.candidate == *candidate && existing.signed == *signed => existing,
+            Some(existing) if existing.quarantined => {
+                return Err(OicError::new(ErrorCode::IssuanceUncertain, "operation family is quarantined by conflicting chain evidence"));
+            }
+            Some(existing) if existing.candidate == *candidate && existing.signed == *signed => {
+                if existing.lifecycle.terminal_released() || existing.last_inclusion.is_some() {
+                    return Ok(existing);
+                }
+                existing
+            }
             Some(_) => return Err(OicError::new(ErrorCode::Conflict, "family already has a different recorded candidate; resolve it before broadcasting a replacement")),
             None => SubmissionRecord {
                 operation_family_id: family.clone(),
@@ -171,6 +202,8 @@ impl<S: AuthorityStore> Broadcaster<S> {
     /// new signature can be created here). Used after a reorg dropped the
     /// transaction or after an unacknowledged attempt.
     pub fn rebroadcast(&self, family: &OperationFamilyId) -> OicResult<SubmissionRecord> {
+        let claim = self.family_claim(family);
+        let _claimed = claim.lock();
         let mut rec = self.load(family)?;
         if rec.quarantined || self.authority.family(family)?.quarantined {
             return Err(OicError::new(ErrorCode::IssuanceUncertain, "operation family is quarantined by conflicting chain evidence"));
@@ -222,7 +255,13 @@ impl<S: AuthorityStore> Broadcaster<S> {
     /// Returns the affected families.
     pub fn recover(&self) -> OicResult<Vec<OperationFamilyId>> {
         let mut out = Vec::new();
-        for mut rec in self.store.list()? {
+        for rec in self.store.list()? {
+            let claim = self.family_claim(&rec.operation_family_id);
+            let _claimed = claim.lock();
+            // Reload under the claim; another caller may have advanced it.
+            let Some(mut rec) = self.store.get(&rec.operation_family_id)? else {
+                continue;
+            };
             let mut touched = false;
             for a in rec.attempts.iter_mut().filter(|a| a.outcome == AttemptOutcome::Pending) {
                 a.outcome = AttemptOutcome::Interrupted { recovered_at: self.clock.now() };
@@ -302,6 +341,8 @@ impl<S: AuthorityStore> Broadcaster<S> {
     /// observation to the authority. Disagreement quarantines the family; a
     /// quarantined family is never fed again (no release, A30).
     pub fn poll(&self, family: &OperationFamilyId) -> OicResult<LifecycleState> {
+        let claim = self.family_claim(family);
+        let _claimed = claim.lock();
         let mut rec = self.load(family)?;
         self.poll_record(&mut rec)?;
         Ok(rec.lifecycle)
@@ -355,6 +396,8 @@ impl<S: AuthorityStore> Broadcaster<S> {
     /// at the finality view of every source. Only unanimous `Definitive`
     /// proofs release the reservation; anything else stays unknown.
     pub fn resolve_unknown(&self, family: &OperationFamilyId) -> OicResult<LifecycleState> {
+        let claim = self.family_claim(family);
+        let _claimed = claim.lock();
         let mut rec = self.load(family)?;
         self.poll_record(&mut rec)?;
         if rec.quarantined || rec.lifecycle.terminal_released() || rec.last_inclusion.is_some() {

@@ -928,6 +928,9 @@ impl Inner {
         }
     }
 
+    /// Return signature status only if included at or before slot `view`.
+    /// Commitment reflects current finality; account funding sums the post-execution
+    /// lamports of token accounts absent from the transaction's pre-token balances.
     fn observation(&self, view: u64, sig: &[u8; 64]) -> Option<TxObservation> {
         let &(slot, i) = self.sig_index.get(sig)?;
         if slot > view {
@@ -941,6 +944,10 @@ impl Inner {
             commitment: self.commitment_of(slot).to_string(),
             success: r.success,
             fee: r.fee,
+            account_funding: r.post_token_balances.iter()
+                .filter(|post| !r.pre_token_balances.iter().any(|pre| pre.account == post.account))
+                .map(|post| r.post_lamports[post.account_index])
+                .sum(),
             err: r.err.clone(),
         })
     }
@@ -1234,6 +1241,35 @@ impl SolanaSimulator {
 
     pub fn block(&self, slot: u64) -> Option<SolanaBlock> {
         lock(&self.inner).blocks.get(usize::try_from(slot).ok()?).cloned()
+    }
+
+    /// Holdings at an exact canonical slot. SPL holdings aggregate initialized
+    /// classic-token accounts owned by `owner`; rent is not spendable SOL.
+    /// Returns lamports or token base units, with zero for absent holdings.
+    /// Missing or mismatched slots return `StaleEvidence`, malformed mints
+    /// return `InvalidRequest`, unsupported assets or token programs return
+    /// `UnsupportedCapability`, and token-total overflow returns
+    /// `UnverifiableTransaction`. The commitment label is not checked.
+    pub fn balance_at(&self, state: &StateReference, owner: &Pubkey, asset: &AssetKind) -> OicResult<Amount> {
+        let g = lock(&self.inner);
+        let h = usize::try_from(state.height).map_err(|_| OicError::stale_evidence("slot out of range"))?;
+        let block = g.blocks.get(h).ok_or_else(|| OicError::stale_evidence("slot missing"))?;
+        if block.blockhash.as_slice() != state.hash.as_slice() {
+            return Err(OicError::stale_evidence("slot is no longer canonical"));
+        }
+        let snapshot = &g.snapshots[h];
+        match asset {
+            AssetKind::Native => Ok(Amount(snapshot.lamports(owner) as u128)),
+            AssetKind::SplToken { mint, token_program } if token_program.as_slice() == TOKEN_PROGRAM_ID => {
+                let mint: Pubkey = mint.as_slice().try_into().map_err(|_| OicError::invalid_request("SPL mint length"))?;
+                let amount = snapshot.accounts.values().filter_map(token_account_of)
+                    .filter(|t| t.owner == *owner && t.mint == mint)
+                    .try_fold(0u128, |a, t| a.checked_add(t.amount as u128))
+                    .ok_or_else(|| OicError::unverifiable("SPL holdings overflow"))?;
+                Ok(Amount(amount))
+            }
+            _ => Err(OicError::unsupported("Solana balance asset")),
+        }
     }
 
     pub fn account(&self, k: &Pubkey) -> Option<SolanaAccount> {

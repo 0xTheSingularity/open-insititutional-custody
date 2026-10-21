@@ -879,6 +879,7 @@ pub fn reconciliation_body() -> ReconciliationCheckpointBody {
             asset_id: AssetId::unchecked("sepolia-usdc"),
             chain_balance: Amount(1_500_000),
             journal_balance: Amount(1_400_000),
+            journal_shortfall: Amount(0),
             reserved: Amount(0),
             pending_inbound: Amount(0),
         }],
