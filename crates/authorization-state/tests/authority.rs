@@ -109,11 +109,7 @@ fn intent(n: u32) -> Intent {
             destination_id: DestinationId::unchecked("dest-1"),
             destination_version: 1,
         },
-        constraints: IntentConstraints {
-            max_network_fee_base_units: Amount(100),
-            approval_mode: ApprovalMode::ExactCandidate,
-            maximum_successful_payments: 1,
-        },
+        constraints: IntentConstraints { max_network_fee_base_units: Amount(100), approval_mode: ApprovalMode::ExactCandidate, maximum_successful_payments: 1 },
         purpose: OperationPurpose::Settlement,
         external_reference: format!("ref-{n}"),
         proposer_credential_id: CredentialId::unchecked("cred-proposer"),
@@ -160,7 +156,11 @@ impl Env {
     fn register(&self, n: u32) -> RegisteredIntent {
         let i = intent(n);
         self.auth
-            .register_intent(&i, intent_hash(&i).unwrap(), IdempotencyKey { institution_id: inst(), route: "POST /v1/intents".into(), key: format!("idem-{n}") })
+            .register_intent(
+                &i,
+                intent_hash(&i).unwrap(),
+                IdempotencyKey { institution_id: inst(), route: "POST /v1/intents".into(), key: format!("idem-{n}") },
+            )
             .unwrap()
     }
 
@@ -227,6 +227,51 @@ fn code<T>(r: OicResult<T>) -> ErrorCode {
 }
 
 // ---------------------------------------------------------------------------
+
+#[test]
+fn keyless_transition_replays_canonical_commands_and_orders_freeze_against_release() {
+    let e = setup();
+    let registered = e.register(91);
+    let request = e.request(&registered, "pure-candidate", 3, evm_claims(17, 373, 29));
+    let initial = e.store.snapshot();
+    let command = AuthorityCommand::Reserve { request: request.clone() };
+    let encoded = oic_canonical_encoding::canonical_bytes(&command).unwrap();
+    let decoded: AuthorityCommand = oic_canonical_encoding::from_canonical_bytes(&encoded).unwrap();
+    let first = apply(&config(), initial.clone(), command, UnixSeconds(T0 + 7)).unwrap();
+    let replay = apply(&config(), initial.clone(), decoded, UnixSeconds(T0 + 7)).unwrap();
+    assert_eq!(first, replay);
+    let (reserved, result, events) = first;
+    let AuthorityOutput::Reserved { reservation, receipt } = result else { panic!("reserve output") };
+    assert_eq!(reservation.created_at, UnixSeconds(T0 + 7), "only the explicit time enters the transition");
+    assert_eq!(receipt.issued_at, UnixSeconds(T0 + 7));
+    assert_eq!(receipt.envelope_body_hash, request.envelope_body_hash);
+    assert_eq!(receipt.signer_session_id, request.signer_session_id);
+    assert_eq!(reserved.outstanding(&vault(), &BudgetKey::Asset { asset_id: usdc() }), Some(Amount(373)));
+    assert_eq!(events, vec![AuthorityEvent::Reserved { reservation_id: reservation.reservation_id.clone(), commit_sequence: initial.commit_sequence + 1 }]);
+    assert_eq!(e.store.snapshot(), initial, "pure application does not touch the source store");
+
+    let responder = responder();
+    let proposal = FreezeProposal::new(inst(), env(), FreezeScope::Global, responder.0.clone(), "incident");
+    let signature = sign_cred(&responder, &proposal.hash().unwrap()).signature;
+    let freeze = AuthorityCommand::Freeze { scope: FreezeScope::Global, by: responder.0, reason: "incident".into(), signature };
+    let release = AuthorityCommand::Release { request: e.release_req(&request) };
+    let (frozen, _, _) = apply(&config(), reserved.clone(), freeze.clone(), UnixSeconds(T0 + 8)).unwrap();
+    assert_eq!(code(apply(&config(), frozen, release.clone(), UnixSeconds(T0 + 9))), ErrorCode::Frozen);
+
+    let (released, output, _) = apply(&config(), reserved, release.clone(), UnixSeconds(T0 + 8)).unwrap();
+    let AuthorityOutput::Released { receipt, issuance } = output else { panic!("release output") };
+    assert_eq!(receipt.expires_at, UnixSeconds(T0 + 68));
+    assert_eq!(issuance.committed_at, UnixSeconds(T0 + 8));
+    assert_eq!(issuance.commit_sequence, initial.commit_sequence + 2);
+    let (frozen_after, _, _) = apply(&config(), released, freeze, UnixSeconds(T0 + 9)).unwrap();
+    assert_eq!(frozen_after.issuance.len(), 1);
+    assert_eq!(frozen_after.outstanding(&vault(), &BudgetKey::Asset { asset_id: usdc() }), Some(Amount(373)));
+    let (repeated, output, events) = apply(&config(), frozen_after.clone(), release, UnixSeconds(T0 + 10)).unwrap();
+    let AuthorityOutput::Released { issuance: repeated_issuance, .. } = output else { panic!("idempotent release output") };
+    assert_eq!(repeated_issuance, issuance, "a later freeze cannot erase committed issuance");
+    assert_eq!(repeated, frozen_after);
+    assert!(events.is_empty());
+}
 
 #[test]
 fn reserve_release_receipts_verify() {
@@ -546,13 +591,17 @@ fn a36_outstanding_exposure_survives_window_reset() {
     // finalization moves outstanding to settled without double charging
     assert_eq!(
         e.auth
-            .record_observation(&f1.operation_family_id, &r1.candidate_id, ChainObservation::Finalized {
-                tx_id: ChainTxId::unchecked("0xabc"),
-                state: StateReference { height: 10, hash: Bytes(vec![1; 32]), commitment: "finalized".into() },
-                execution_success: true,
-                fee_paid: Amount(7),
-                effects_hash: Hash32([0; 32]),
-            })
+            .record_observation(
+                &f1.operation_family_id,
+                &r1.candidate_id,
+                ChainObservation::Finalized {
+                    tx_id: ChainTxId::unchecked("0xabc"),
+                    state: StateReference { height: 10, hash: Bytes(vec![1; 32]), commitment: "finalized".into() },
+                    execution_success: true,
+                    fee_paid: Amount(7),
+                    effects_hash: Hash32([0; 32]),
+                }
+            )
             .unwrap(),
         LifecycleState::FinalizedSuccess
     );
@@ -608,11 +657,23 @@ fn reorg_and_invalidation() {
     let st = StateReference { height: 5, hash: Bytes(vec![5; 32]), commitment: "latest".into() };
     let fam = &f1.operation_family_id;
     assert_eq!(
-        e.auth.record_observation(fam, &r1.candidate_id, ChainObservation::Submitted { tx_id: ChainTxId::unchecked("t"), source: EvidenceSourceId::unchecked("node"), at: e.clock.now() }).unwrap(),
+        e.auth
+            .record_observation(
+                fam,
+                &r1.candidate_id,
+                ChainObservation::Submitted { tx_id: ChainTxId::unchecked("t"), source: EvidenceSourceId::unchecked("node"), at: e.clock.now() }
+            )
+            .unwrap(),
         LifecycleState::Submitted
     );
     assert_eq!(
-        e.auth.record_observation(fam, &r1.candidate_id, ChainObservation::Included { tx_id: ChainTxId::unchecked("t"), state: st.clone(), execution_success: true, fee_paid: Amount(1) }).unwrap(),
+        e.auth
+            .record_observation(
+                fam,
+                &r1.candidate_id,
+                ChainObservation::Included { tx_id: ChainTxId::unchecked("t"), state: st.clone(), execution_success: true, fee_paid: Amount(1) }
+            )
+            .unwrap(),
         LifecycleState::Included
     );
     assert_eq!(
@@ -626,24 +687,51 @@ fn reorg_and_invalidation() {
     assert_eq!(e.view(), (Amount(0), Amount(500)));
     // definitive invalidation releases exposure and the nonce
     assert_eq!(
-        e.auth.record_observation(fam, &r1.candidate_id, ChainObservation::DefinitivelyInvalidated { reason: "nonce consumed by other tx".into(), state: st.clone() }).unwrap(),
+        e.auth
+            .record_observation(
+                fam,
+                &r1.candidate_id,
+                ChainObservation::DefinitivelyInvalidated { reason: "nonce consumed by other tx".into(), state: st.clone() }
+            )
+            .unwrap(),
         LifecycleState::DefinitivelyInvalidated
     );
     assert_eq!(e.view(), (Amount(0), Amount(0)));
     let f2 = e.register(2);
     e.auth.reserve(e.request(&f2, "c2", 1, evm_claims(1, 100, 1))).unwrap();
     // observations require a possibly issued candidate
-    assert_eq!(code(e.auth.record_observation(&f2.operation_family_id, &CandidateId::unchecked("c2"), ChainObservation::DefinitivelyInvalidated { reason: "x".into(), state: st.clone() })), ErrorCode::NotFound);
+    assert_eq!(
+        code(e.auth.record_observation(
+            &f2.operation_family_id,
+            &CandidateId::unchecked("c2"),
+            ChainObservation::DefinitivelyInvalidated { reason: "x".into(), state: st.clone() }
+        )),
+        ErrorCode::NotFound
+    );
     // reorg after finality needs manual recovery
     let f3 = e.register(3);
     let r3 = e.request(&f3, "c3", 1, evm_claims(3, 100, 1));
     e.auth.reserve(r3.clone()).unwrap();
     e.auth.release(e.release_req(&r3)).unwrap();
     e.auth
-        .record_observation(&f3.operation_family_id, &r3.candidate_id, ChainObservation::Finalized { tx_id: ChainTxId::unchecked("t3"), state: st.clone(), execution_success: true, fee_paid: Amount(1), effects_hash: Hash32::ZERO })
+        .record_observation(
+            &f3.operation_family_id,
+            &r3.candidate_id,
+            ChainObservation::Finalized {
+                tx_id: ChainTxId::unchecked("t3"),
+                state: st.clone(),
+                execution_success: true,
+                fee_paid: Amount(1),
+                effects_hash: Hash32::ZERO,
+            },
+        )
         .unwrap();
     assert_eq!(
-        code(e.auth.record_observation(&f3.operation_family_id, &r3.candidate_id, ChainObservation::Reorged { tx_id: ChainTxId::unchecked("t3"), previous_state: st })),
+        code(e.auth.record_observation(
+            &f3.operation_family_id,
+            &r3.candidate_id,
+            ChainObservation::Reorged { tx_id: ChainTxId::unchecked("t3"), previous_state: st }
+        )),
         ErrorCode::RecoveryRequired
     );
 }
@@ -685,13 +773,17 @@ fn evm_nonce_replacements_reserve_max_not_sum() {
     assert_eq!(code(e.auth.reserve(e.request(&g, "c-g", 1, evm_claims(5, 1, 1)))), ErrorCode::ResourceConflict);
     // replacement lands: original definitively invalid, 700 settled, nonce free
     e.auth
-        .record_observation(&f.operation_family_id, &bump.candidate_id, ChainObservation::Finalized {
-            tx_id: ChainTxId::unchecked("0xb"),
-            state: StateReference { height: 2, hash: Bytes(vec![2; 32]), commitment: "finalized".into() },
-            execution_success: true,
-            fee_paid: Amount(15),
-            effects_hash: Hash32::ZERO,
-        })
+        .record_observation(
+            &f.operation_family_id,
+            &bump.candidate_id,
+            ChainObservation::Finalized {
+                tx_id: ChainTxId::unchecked("0xb"),
+                state: StateReference { height: 2, hash: Bytes(vec![2; 32]), commitment: "finalized".into() },
+                execution_success: true,
+                fee_paid: Amount(15),
+                effects_hash: Hash32::ZERO,
+            },
+        )
         .unwrap();
     let rid_orig = reservation_id_for(&f.operation_family_id, &orig.candidate_id, 1).unwrap();
     assert!(matches!(e.auth.reservation(&rid_orig).unwrap().state, ReservationState::Invalidated { issuance_id: Some(_) }));
@@ -954,7 +1046,13 @@ fn file_store_round_trip_and_rollback_refusal() {
     assert_eq!(code(FileAuthorityStore::open_with_witness(&path, &forged, &pk)), ErrorCode::InvalidSignature);
     // same sequence but different content -> divergence detected
     let mut diverged = newest.clone();
-    diverged.ledger.push(LedgerEntry { vault_id: vault(), budget: BudgetKey::Asset { asset_id: usdc() }, amount: Amount(1), at: UnixSeconds(T0), reservation_id: rid });
+    diverged.ledger.push(LedgerEntry {
+        vault_id: vault(),
+        budget: BudgetKey::Asset { asset_id: usdc() },
+        amount: Amount(1),
+        at: UnixSeconds(T0),
+        reservation_id: rid,
+    });
     drop(ok);
     let fake_dir = TempDir::new("diverged");
     let fake = fake_dir.0.join("authority.state");

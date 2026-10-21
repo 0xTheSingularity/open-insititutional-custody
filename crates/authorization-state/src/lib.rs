@@ -24,12 +24,14 @@ mod clock;
 mod receipts;
 mod state;
 mod store;
+mod transition;
 
 pub use authority::*;
 pub use clock::*;
 pub use receipts::*;
 pub use state::*;
 pub use store::*;
+pub use transition::*;
 
 /// Domain tags local to the authority. Never chain-native signing domains.
 pub mod authority_domains {
