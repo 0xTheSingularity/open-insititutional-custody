@@ -18,6 +18,8 @@ members = [
     "crates/signer",
     "models/authorization-state-machine",
     "services/broadcaster",
+    "services/reconciler",
+    "services/api",
     "tests/golden-vectors",
     "services/builder",
     "services/coordinator",

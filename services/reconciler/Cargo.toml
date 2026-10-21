@@ -1,0 +1,33 @@
+[package]
+name = "oic-service-reconciler"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Finality-aware deposits, immutable money journal, reconciliation and bounded treasury workflows"
+
+[dependencies]
+oic-domain-types.workspace = true
+oic-canonical-encoding.workspace = true
+oic-adapter-api.workspace = true
+oic-adapter-evm.workspace = true
+oic-adapter-solana.workspace = true
+oic-chain-simulator.workspace = true
+oic-authorization-state.workspace = true
+ed25519-dalek.workspace = true
+parking_lot.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tempfile.workspace = true
+fs2 = "=0.4.3"
+
+[dev-dependencies]
+oic-policy-kernel.workspace = true
+oic-approval-verifier.workspace = true
+oic-crypto-provider.workspace = true
+oic-crypto-provider-dev.workspace = true
+oic-crypto-provider-frost-ed25519.workspace = true
+oic-one-time-state-ledger.workspace = true
+oic-signer.workspace = true
+oic-service-builder.workspace = true
+oic-service-coordinator.workspace = true
+oic-service-broadcaster.workspace = true

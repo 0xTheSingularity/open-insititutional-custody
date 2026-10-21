@@ -251,7 +251,7 @@ fn spl_transfer_with_ata_create_idempotent_reconciles() {
     assert_eq!((post.owner, post.mint, rec.account_keys[post.account_index]), (dest_owner, mint, dest_ata));
 
     sim.advance_slots(4).unwrap();
-    assert!(matches!(observe(&sim, &id).unwrap(), ChainObservation::Finalized { execution_success: true, fee_paid, .. } if fee_paid == Amount(FEE as u128)));
+    assert!(matches!(observe(&sim, &id).unwrap(), ChainObservation::Finalized { execution_success: true, fee_paid, .. } if fee_paid == Amount(FEE as u128 + RENT_EXEMPT_TOKEN_ACCOUNT as u128)));
 
     // Destination now exists: evidence carries it and the adapter omits the create.
     let mut t2 = spl_transfer(&sim, &sk, mint, 6, dest_owner, 500_000);
@@ -550,7 +550,7 @@ fn conflicting_sources_a30() {
     let sig = parse_tx_id(&id).unwrap();
     let liar = EvidenceSourceId::unchecked("devsim-solana-liar");
     let head = sim.head();
-    let lie = TxObservation { slot: head.height, block_hash: head.hash.clone(), commitment: "finalized".into(), success: true, fee: 5_000, err: None };
+    let lie = TxObservation { slot: head.height, block_hash: head.hash.clone(), commitment: "finalized".into(), success: true, fee: 5_000, account_funding: 0, err: None };
     sim.set_lie(&liar, sig, lie.clone()).unwrap();
     assert_eq!(sim.set_lie(&EvidenceSourceId::unchecked(SOURCE_ID), sig, lie).unwrap_err().code, ErrorCode::InvalidRequest);
     let q = SolanaEvidenceQuery::processed().signature(sig);

@@ -613,6 +613,7 @@ fn tx_obs(success: bool, commitment: &str) -> Bytes {
         commitment: commitment.into(),
         success,
         fee: 5_000,
+        account_funding: 0,
         err: if success { None } else { Some("InstructionError(0, Custom(1))".into()) },
     })
 }
@@ -857,6 +858,7 @@ fn observe_maps_lifecycle() {
         commitment: "finalized".into(),
         success: true,
         fee: 1,
+        account_funding: 0,
         err: Some("x".into()),
     });
     ev.items.insert(tx_key(&sig), inconsistent);

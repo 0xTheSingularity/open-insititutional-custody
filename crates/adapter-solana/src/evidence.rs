@@ -91,6 +91,10 @@ pub struct TxObservation {
     pub success: bool,
     /// Fee charged in lamports.
     pub fee: u64,
+    /// Actual lamports spent creating supported token accounts. Required
+    /// separately from the network fee; zero on failed execution. Together
+    /// these settle the adapter's native-fee claim, which includes rent.
+    pub account_funding: u64,
     pub err: Option<String>,
 }
 
@@ -182,6 +186,9 @@ pub fn get_tx_observation(ev: &EvidenceBundle, signature: &[u8; 64]) -> OicResul
     }
     if obs.success != obs.err.is_none() {
         return Err(OicError::stale_evidence(format!("evidence item `{key}` is inconsistent: success must hold exactly when err is absent")));
+    }
+    if !obs.success && obs.account_funding != 0 {
+        return Err(OicError::stale_evidence("failed execution cannot create funded accounts"));
     }
     Ok(obs)
 }

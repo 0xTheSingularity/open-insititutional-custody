@@ -66,11 +66,21 @@ Read the [payment walkthrough](docs/payment-flow.md) for responsibilities and fa
 | **EVM** | Native value and registered ERC-20 transfers | Development single-key ECDSA |
 | **Solana** | SOL and classic SPL transfers with FROST Ed25519 | In-process threshold signing; no authenticated signer transport |
 | **Payment controls** | Independent approvals, policy rules, shared exposure, fee limits, and freezes | Off-chain authorization components |
-| **Recovery and audit** | File-backed state, recorded submissions, signed audit events, and checkpoints | Chain clients use simulators; complete reconciliation is pending |
+| **Operations** | Durable deposits/backfill, reorg reversals, fee/rent journal, reconciliation, and bounded gas-funding/sweeps | Deterministic chain simulators; no live indexer |
+| **Integration** | Vault-scoped HTTP intents, independent grants, crash-safe dispatch, status/evidence, and signed event replay | Embeddable Axum library; no production launcher |
+| **Recovery and audit** | File-backed state, recorded submissions, signed audit events, and checkpoints | Whole-host rollback needs an independent retained checkpoint |
 
 Production threshold ECDSA, live-chain clients, arbitrary contract calls, and a complete
-API/deployment stack need further implementation. See the
+deployment stack need further implementation. The [protocol v1 contract](spec/protocol-v1.md)
+documents the executable RFC002 behavior and remaining production gates. See the
 [capability details](docs/getting-started.md#current-product-boundary) before integrating.
+
+Exercise both zero-gas token funding/sweep loops and both HTTP approval flows:
+
+```sh
+cargo test --locked -p oic-service-reconciler --test money_loop
+cargo test --locked -p oic-service-api --test http_flow
+```
 
 ## Go deeper
 
