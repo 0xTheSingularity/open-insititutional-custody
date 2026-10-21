@@ -43,15 +43,26 @@ pub struct FollowerConfig {
     pub local_now: UnixSeconds,
 }
 
-#[derive(Serialize, Deserialize)]
+/// Confidential, portable evidence, not a serialized VerifiedLog capability.
+/// Readers must authenticate the certificate and re-execute every linked block.
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-struct Entry {
-    block: Bytes,
-    finalization: Bytes,
+pub struct FinalizedEntry {
+    pub block: Bytes,
+    pub finalization: Bytes,
     // Old single-block entries retain their exact encoding. A checkpoint's
     // certificate authenticates block and, through parent hashes, ancestors.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    ancestors: Vec<Bytes>,
+    pub ancestors: Vec<Bytes>,
+}
+
+/// One bounded journal checkpoint per page. `tip` certifies this page, not an
+/// unsigned remote head. Continue from its verified floor while `more` is true.
+#[derive(Serialize)]
+pub struct FinalizedPage {
+    pub entries: Vec<FinalizedEntry>,
+    pub tip: FinalizedEntry,
+    pub more: bool,
 }
 
 /// A single-writer, keyless finalization consumer. Journal replay verifies real
@@ -70,6 +81,9 @@ pub struct Follower<E: Storage + Metrics> {
     // acknowledgements catch up, including after restart. Earlier checkpoints
     // must already have been acknowledged before this one could be delivered.
     checkpoint: BTreeMap<u64, commonware_cryptography::sha256::Digest>,
+    // Derived from verified journal records, rebuilt on open. Values are byte
+    // offsets, not duplicated confidential bodies or a second durable store.
+    history: BTreeMap<u64, u64>,
 }
 
 impl<E: Storage + Metrics + BufferPooler> Follower<E> {
@@ -120,12 +134,13 @@ impl<E: Storage + Metrics + BufferPooler> Follower<E> {
         let mut state = genesis_state;
         let mut latest_finalization = None;
         let mut checkpoint = BTreeMap::new();
+        let mut history = BTreeMap::new();
         while let Some(record) = replay.next().await {
-            let (section, _, _, bytes) = record.map_err(storage)?;
+            let (section, offset, _, bytes) = record.map_err(storage)?;
             if section != 0 {
                 return Err(recovery("unexpected finalized journal section"));
             }
-            let entry: Entry = from_canonical_bytes(&bytes)?;
+            let entry: FinalizedEntry = from_canonical_bytes(&bytes)?;
             let block = AuthorityBlock::decode(entry.block.as_slice())
                 .map_err(|_| recovery("invalid persisted block"))?;
             let finalization = AuthorityFinalization::decode_cfg(
@@ -157,6 +172,7 @@ impl<E: Storage + Metrics + BufferPooler> Follower<E> {
             checkpoint.insert(block.height().get(), block.digest());
             tip = block;
             latest_finalization = Some(finalization);
+            history.insert(tip.height().get(), offset);
         }
         if tip.height().get() < minimum_floor.height {
             return Err(recovery(
@@ -173,6 +189,7 @@ impl<E: Storage + Metrics + BufferPooler> Follower<E> {
             finalization: latest_finalization,
             anchor,
             checkpoint,
+            history,
         })
     }
 
@@ -214,7 +231,7 @@ impl<E: Storage + Metrics + BufferPooler> Follower<E> {
         if blocks.is_empty() && block.digest() == self.tip.digest() {
             return Ok(false);
         }
-        let bytes = canonical_bytes(&Entry {
+        let bytes = canonical_bytes(&FinalizedEntry {
             ancestors: blocks
                 .iter()
                 .map(|ancestor| ancestor.encode().to_vec().into())
@@ -241,13 +258,100 @@ impl<E: Storage + Metrics + BufferPooler> Follower<E> {
             .journal
             .take()
             .ok_or_else(|| recovery("follower requires reopen"))?;
-        let (journal, _, _) = journal.append(0, &bytes).await.map_err(storage)?;
+        let (journal, offset, _) = journal.append(0, &bytes).await.map_err(storage)?;
         self.journal = Some(journal.sync_all().await.map_err(storage)?);
         self.tip = block;
         self.state = state;
         self.finalization = Some(finalization);
         self.checkpoint = checkpoint;
+        self.history.insert(self.tip.height().get(), offset);
         Ok(true)
+    }
+
+    /// Read only synced history. The supplied cursor must match the exact
+    /// block, including a floor inside a descendant-certified checkpoint.
+    /// Each read is bounded to two existing records; it never replays, consumes
+    /// or repairs the journal, and never changes the signing capability.
+    pub async fn read_page(&self, after: FinalizedFloor) -> OicResult<FinalizedPage> {
+        let journal = self
+            .journal
+            .as_ref()
+            .ok_or_else(|| recovery("follower storage requires reopen"))?;
+        let certificate = self
+            .finalization
+            .as_ref()
+            .ok_or_else(|| recovery("no synced finalization"))?;
+        if after.height > self.tip.height().get()
+            || (after.height == 0 && after.digest != self.anchor.genesis)
+        {
+            return Err(recovery("finalized log cursor is outside this history"));
+        }
+        if after == self.floor() {
+            return Ok(FinalizedPage {
+                entries: Vec::new(),
+                tip: FinalizedEntry {
+                    block: self.tip.encode().to_vec().into(),
+                    finalization: certificate.encode().to_vec().into(),
+                    ancestors: Vec::new(),
+                },
+                more: false,
+            });
+        }
+        let (&height, &offset) = self
+            .history
+            .range(after.height..)
+            .next()
+            .ok_or_else(|| recovery("finalized cursor record missing"))?;
+        let mut entry: FinalizedEntry =
+            from_canonical_bytes(&journal.get(0, offset).await.map_err(storage)?)?;
+        if after.height > 0 {
+            let mut matched = false;
+            for bytes in entry.ancestors.iter().chain(std::iter::once(&entry.block)) {
+                let block = AuthorityBlock::decode(bytes.as_slice())
+                    .map_err(|_| recovery("invalid indexed block"))?;
+                if block.height().get() == after.height {
+                    matched = FinalizedFloor::at(&block) == after;
+                    break;
+                }
+            }
+            if !matched {
+                return Err(recovery(
+                    "finalized cursor digest differs from synced history",
+                ));
+            }
+        }
+        let page_height = if height == after.height {
+            let (&height, &offset) = self
+                .history
+                .range((
+                    std::ops::Bound::Excluded(height),
+                    std::ops::Bound::Unbounded,
+                ))
+                .next()
+                .ok_or_else(|| recovery("finalized suffix record missing"))?;
+            entry = from_canonical_bytes(&journal.get(0, offset).await.map_err(storage)?)?;
+            height
+        } else {
+            height
+        };
+        let mut ancestors = Vec::new();
+        for bytes in entry.ancestors {
+            let block = AuthorityBlock::decode(bytes.as_slice())
+                .map_err(|_| recovery("invalid indexed ancestor"))?;
+            if block.height().get() > after.height {
+                ancestors.push(bytes);
+            }
+        }
+        entry.ancestors = ancestors;
+        let tip = FinalizedEntry {
+            ancestors: Vec::new(),
+            ..entry.clone()
+        };
+        Ok(FinalizedPage {
+            entries: vec![entry],
+            tip,
+            more: page_height < self.tip.height().get(),
+        })
     }
 
     pub(crate) fn checkpoint_contains(&self, block: &AuthorityBlock) -> bool {

@@ -14,7 +14,7 @@ use oic_canonical_encoding::{domain_hash, sha256};
 use oic_crypto_provider::ProtocolStep;
 use oic_domain_types::*;
 use oic_membership::{Role, roster_hash};
-use oic_node::{Config, Transport};
+use oic_node::{Config, PaddingProfile, Transport};
 use oic_peer_wire::{FrameKind, PeerFrameV1, RosterState, SessionControl, SessionResult};
 use oic_replicated_authority::{Command, FinalityTrust, FinalizedFloor, Follower, FollowerConfig, ReplicatedState};
 use oic_service_coordinator::SignerEndpoint;
@@ -109,7 +109,7 @@ fn follower(contract: &Contract, index: usize, floor: FinalizedFloor) -> Followe
 
 async fn boot(context: &runtime::Context, contract: &Contract, index: usize, floor: FinalizedFloor) -> ConsensusHost {
     let node = &contract.committee.roster.body.nodes[index];
-    let transport = Transport::start(
+    let transport = Transport::start_loopback(
         context.child("transport").with_attribute("index", index),
         Config {
             roster: contract.committee.roster.clone(),
@@ -123,6 +123,7 @@ async fn boot(context: &runtime::Context, contract: &Contract, index: usize, flo
             node_id: node.node_id.clone(),
             transport_key: SigningKey::from_bytes(&[if index < 4 { 110 + index as u8 } else { 120 + index as u8 - 4 }; 32]),
         },
+        PaddingProfile::Disabled,
     )
     .unwrap();
     let context = context.child("consensus").with_attribute("index", index);

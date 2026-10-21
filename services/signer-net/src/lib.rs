@@ -3,6 +3,7 @@
 //! coordinator/client calls in `spawn_blocking`, not on this bridge's reactor.
 
 pub mod consensus;
+pub mod http;
 pub mod witness;
 
 use oic_canonical_encoding::from_canonical_bytes;

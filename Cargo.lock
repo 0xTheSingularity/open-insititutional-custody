@@ -4548,6 +4548,8 @@ dependencies = [
 name = "oic-service-signer-net"
 version = "0.1.0"
 dependencies = [
+ "axum",
+ "base64 0.22.1",
  "commonware-actor",
  "commonware-codec",
  "commonware-consensus",
@@ -4561,6 +4563,7 @@ dependencies = [
  "oic-adapter-evm",
  "oic-adapter-solana",
  "oic-approval-verifier",
+ "oic-approver-client",
  "oic-audit",
  "oic-authorization-state",
  "oic-canonical-encoding",
@@ -4582,11 +4585,16 @@ dependencies = [
  "oic-service-signer-core",
  "oic-service-witness",
  "oic-signer",
+ "oic-webauthn",
+ "p256 0.13.2",
  "rand 0.8.8",
  "rand_core 0.10.1",
  "serde",
+ "serde_json",
+ "sha2 0.10.9",
  "tempfile",
  "tokio",
+ "tower",
 ]
 
 [[package]]

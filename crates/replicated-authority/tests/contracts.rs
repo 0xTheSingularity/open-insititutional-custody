@@ -920,6 +920,22 @@ fn follower_sync_reopen_independent_floor_and_gap_replay_contract() {
                 follower.finalization().unwrap().proposal.payload,
                 third.digest()
             );
+            // Ordinary journal records paginate without fabricating ancestor
+            // certificates or changing the already-synced authorization state.
+            let mut cursor = FinalizedFloor::at(&genesis);
+            for (index, expected) in [&first, &second, &third].into_iter().enumerate() {
+                let page = follower.read_page(cursor).await.unwrap();
+                assert_eq!(page.entries.len(), 1);
+                assert!(page.entries[0].ancestors.is_empty());
+                assert_eq!(page.entries[0].block.as_slice(), expected.encode().as_ref());
+                assert_eq!(page.tip.block, page.entries[0].block);
+                assert_eq!(page.more, index < 2);
+                cursor = FinalizedFloor::at(expected);
+            }
+            let page = follower.read_page(cursor).await.unwrap();
+            assert!(page.entries.is_empty());
+            assert!(!page.more);
+            assert_eq!(follower.state(), &state3);
             drop(follower);
             let wrong_floor = FinalizedFloor {
                 height: floor3.height,
@@ -1004,6 +1020,41 @@ fn follower_sync_reopen_independent_floor_and_gap_replay_contract() {
                 .unwrap()
                 .authorize(&fixture.proof().envelope)
                 .unwrap();
+            for (floor, remaining) in [
+                (FinalizedFloor::at(&genesis), 2),
+                (FinalizedFloor::at(&first), 1),
+                (FinalizedFloor::at(&second), 0),
+            ] {
+                let page = caught_up.read_page(floor).await.unwrap();
+                assert_eq!(page.entries.len(), 1);
+                assert_eq!(page.entries[0].ancestors.len(), remaining);
+                assert_eq!(page.entries[0].block.as_slice(), third.encode().as_ref());
+                assert_eq!(
+                    page.entries[0].finalization.as_slice(),
+                    committee.certify(&third).encode().as_ref()
+                );
+                assert!(!page.more);
+            }
+            for floor in [
+                FinalizedFloor {
+                    height: 0,
+                    digest: Hash32([81; 32]),
+                },
+                FinalizedFloor {
+                    height: 2,
+                    digest: Hash32([81; 32]),
+                },
+                FinalizedFloor {
+                    height: 3,
+                    digest: Hash32([81; 32]),
+                },
+                FinalizedFloor {
+                    height: 4,
+                    digest: Hash32([81; 32]),
+                },
+            ] {
+                assert!(caught_up.read_page(floor).await.is_err());
+            }
             drop(caught_up);
             // An independent floor can fall inside the certified ancestry, not
             // just at a journal checkpoint. Replay must check its exact digest.
@@ -1025,6 +1076,15 @@ fn follower_sync_reopen_independent_floor_and_gap_replay_contract() {
                 .unwrap()
                 .authorize(&fixture.proof().envelope)
                 .unwrap();
+            let page = caught_up
+                .read_page(FinalizedFloor::at(&first))
+                .await
+                .unwrap();
+            assert_eq!(
+                page.entries[0].ancestors,
+                vec![second.encode().to_vec().into()]
+            );
+            assert_eq!(page.entries[0].block.as_slice(), third.encode().as_ref());
             drop(caught_up);
             let wrong_middle = FinalizedFloor {
                 height: second.height().get(),

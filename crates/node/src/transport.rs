@@ -171,6 +171,22 @@ impl Transport {
     /// sends, never grow implicitly. Receivers reject mixed profiles before
     /// event delivery. Restart both endpoints to enable or disable the profile.
     pub fn start_with_padding(context: Context, config: Config, padding: PaddingProfile) -> OicResult<Self> {
+        Self::start_configured(context, config, padding, false)
+    }
+
+    /// Explicit single-machine development profile. Every signed roster address
+    /// must be loopback. Only the peer reservation/retry cooldown becomes one
+    /// second: authentication, IP checks, handshake/channel quotas, admission,
+    /// convergence and padding are identical to the normal constructors.
+    /// This does not qualify production startup or change its recommended limits.
+    pub fn start_loopback(context: Context, config: Config, padding: PaddingProfile) -> OicResult<Self> {
+        if config.roster.body.nodes.iter().any(|node| !node.address.ip().is_loopback()) {
+            return Err(OicError::invalid_request("local retry profile requires an entirely loopback roster"));
+        }
+        Self::start_configured(context, config, padding, true)
+    }
+
+    fn start_configured(context: Context, config: Config, padding: PaddingProfile, loopback: bool) -> OicResult<Self> {
         validate_roster(
             &config.roster,
             &config.admins,
@@ -223,6 +239,9 @@ impl Transport {
         let max_size = sizes.values().copied().max().unwrap() + PREFIX_LEN;
         let mut lookup =
             lookup::Config::recommended(crypto, &config.roster.namespace()?, local.address, NonZeroUsize::new(peers.len()).unwrap(), max_size as u32);
+        if loopback {
+            lookup.peer_connection_cooldown = Duration::from_secs(1);
+        }
         lookup.allow_private_ips = true;
         lookup.allow_dns = false; // Signed rosters currently contain SocketAddr only.
         lookup.bypass_ip_check = false;

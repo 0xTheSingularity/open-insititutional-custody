@@ -4,27 +4,37 @@
 #[path = "../../../crates/replicated-authority/tests/common/mod.rs"]
 mod common;
 
+use axum::{
+    Router,
+    body::{Body, to_bytes},
+    http::{Request, StatusCode},
+};
 use common::{Chain, Committee, Fixture, admin_signatures, authority, signer};
 use commonware_codec::DecodeExt as _;
 use commonware_cryptography::ed25519::PrivateKey;
 use commonware_runtime::{Runner as _, Supervisor as _, tokio as runtime};
 use ed25519_dalek::SigningKey;
 use oic_approval_verifier::sign_grant;
-use oic_authorization_state::{AuthorityCommand, ReleaseRequest};
-use oic_canonical_encoding::domain_hash;
+use oic_authorization_state::{AuthorityCommand, ReleaseRequest, SystemClock};
+use oic_canonical_encoding::{domain_hash, sha256};
 use oic_domain_types::*;
 use oic_membership::{PeerClass, Role, TrustDomain, roster_hash};
-use oic_node::{Config, SendHandle, Transport};
+use oic_node::{Config, PaddingProfile, SendHandle, Transport};
 use oic_peer_wire::{ConsensusFrame, FrameKind, PeerFrameV1, RosterState};
 use oic_replicated_authority::{Command, FinalityTrust, FinalizedFloor, Follower, FollowerConfig, ReplicatedState, ReserveCandidate};
-use oic_service_signer_net::consensus::ConsensusHost;
+use oic_service_signer_net::{
+    consensus::ConsensusHost,
+    http::{NodeApi, NodeCredential},
+};
 use std::{
     collections::{BTreeMap, BTreeSet},
     future::Future,
     net::TcpListener,
+    sync::Arc,
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 use tokio::time::{Instant, sleep, timeout};
+use tower::ServiceExt as _;
 
 fn now() -> UnixSeconds {
     UnixSeconds(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs())
@@ -134,7 +144,9 @@ fn follower(fixture: &Fixture, committee: &Committee, index: usize, floor: Final
 }
 
 async fn boot(context: &runtime::Context, fixture: &Fixture, committee: &Committee, index: usize, floor: FinalizedFloor) -> ConsensusHost {
-    let transport = Transport::start(context.child("transport").with_attribute("index", index), config(committee, index)).unwrap();
+    let transport =
+        Transport::start_loopback(context.child("transport").with_attribute("index", index), config(committee, index), PaddingProfile::Disabled)
+            .unwrap();
     ConsensusHost::start(
         context.child("consensus").with_attribute("index", index),
         transport,
@@ -146,7 +158,7 @@ async fn boot(context: &runtime::Context, fixture: &Fixture, committee: &Committ
 }
 
 async fn boot_follower(context: &runtime::Context, fixture: &Fixture, committee: &Committee, floor: FinalizedFloor) -> ConsensusHost {
-    let transport = Transport::start(context.child("keyless_transport"), config(committee, 4)).unwrap();
+    let transport = Transport::start_loopback(context.child("keyless_transport"), config(committee, 4), PaddingProfile::Disabled).unwrap();
     ConsensusHost::start_follower(context.child("keyless"), transport, follower(fixture, committee, 4, floor)).await.unwrap()
 }
 
@@ -228,6 +240,23 @@ async fn ready(hosts: &mut [ConsensusHost], committee: &Committee) {
     println!("all {} directed authenticated TCP paths converged (distinct transport/vote keys)", seen.len());
 }
 
+const APPROVER_TOKEN: &str = "test-only-first-approver-node-session";
+const OTHER_TOKEN: &str = "test-only-second-approver-node-session";
+const READER_TOKEN: &str = "test-only-full-institution-log-reader";
+const INSTALLED_ORIGIN: &str = "https://approver.example.test";
+
+async fn node_request(router: &Router, method: &str, path: &str, token: Option<&str>, body: Option<&Command>) -> axum::response::Response {
+    let mut request = Request::builder().method(method).uri(path).header("origin", INSTALLED_ORIGIN).header("content-type", "application/json");
+    if let Some(token) = token {
+        request = request.header("authorization", format!("Bearer {token}"));
+    }
+    router
+        .clone()
+        .oneshot(request.body(Body::from(body.map(|command| serde_json::to_vec(command).unwrap()).unwrap_or_default())).unwrap())
+        .await
+        .unwrap()
+}
+
 #[test]
 fn four_replicas_and_late_keyless_signer_finalize_catch_up_and_reopen() {
     run(|context| async move {
@@ -257,9 +286,139 @@ fn four_replicas_and_late_keyless_signer_finalize_catch_up_and_reopen() {
             assert!(host.runtime().verified_log.borrow().as_ref().is_none_or(|log| log.authorize(&proof.envelope).is_err()));
         }
 
-        // Submit once to one actual replica. Its next leader turn must carry
-        // the batch; the adapter never retries an uncertain mutation.
-        hosts[0].runtime().proposer.as_ref().unwrap().submit(commands).unwrap();
+        // Bootstrap through the trusted host. Browser intake cannot administer,
+        // reserve or release; only enrolled, signed Approve commands may enter.
+        hosts[0].runtime().proposer.as_ref().unwrap().submit(fixture.bootstrap()).unwrap();
+        wait_for(|| hosts.iter().all(|host| host.runtime().progress.borrow().state.authority.policy.is_some())).await;
+        let api = NodeApi::new(
+            hosts[0].runtime(),
+            fixture.executor.clone(),
+            vec![
+                NodeCredential {
+                    token_hash: sha256(APPROVER_TOKEN.as_bytes()),
+                    approver: Some(fixture.grants[0].body.approver_credential_id.clone()),
+                },
+                NodeCredential { token_hash: sha256(OTHER_TOKEN.as_bytes()), approver: Some(fixture.grants[1].body.approver_credential_id.clone()) },
+                NodeCredential { token_hash: sha256(READER_TOKEN.as_bytes()), approver: None },
+            ],
+            INSTALLED_ORIGIN.into(),
+            Arc::new(SystemClock),
+        )
+        .unwrap()
+        .router();
+        let log_path = format!("/v1/node/log?after_height=0&after_digest={}", floor.digest);
+        assert_eq!(node_request(&api, "GET", &log_path, None, None).await.status(), StatusCode::UNAUTHORIZED);
+        assert_eq!(
+            node_request(&api, "GET", &log_path, Some("unprovisioned-token-at-least-32-characters"), None).await.status(),
+            StatusCode::UNAUTHORIZED
+        );
+        assert_eq!(
+            node_request(&api, "GET", "/v1/node/log?after_height=0&after_digest=invalid", Some(READER_TOKEN), None).await.status(),
+            StatusCode::BAD_REQUEST
+        );
+        let wrong_cursor = format!("/v1/node/log?after_height=0&after_digest={}", Hash32::ZERO);
+        assert_eq!(node_request(&api, "GET", &wrong_cursor, Some(READER_TOKEN), None).await.status(), StatusCode::SERVICE_UNAVAILABLE);
+        let response = node_request(&api, "GET", &log_path, Some(READER_TOKEN), None).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(response.headers()["cache-control"], "no-store");
+        assert_eq!(response.headers()["x-frame-options"], "DENY");
+        assert_eq!(response.headers()["access-control-allow-origin"], INSTALLED_ORIGIN);
+        let page: serde_json::Value = serde_json::from_slice(&to_bytes(response.into_body(), 16 * 1024 * 1024).await.unwrap()).unwrap();
+        assert_eq!(page["entries"].as_array().unwrap().len(), 1);
+        assert!(page["tip"]["finalization"].as_str().is_some_and(|bytes| !bytes.is_empty()));
+        // The HttpOnly session-cookie path and strict origin/carrier failures
+        // are observable HTTP contracts, independent of private auth helpers.
+        for (origin, cookie, bearer, expected) in [
+            (Some(INSTALLED_ORIGIN), true, false, StatusCode::OK),
+            (Some("https://attacker.example.test"), true, false, StatusCode::FORBIDDEN),
+            (Some(INSTALLED_ORIGIN), true, true, StatusCode::UNAUTHORIZED),
+        ] {
+            let mut request = Request::builder().uri(&log_path);
+            if let Some(origin) = origin {
+                request = request.header("origin", origin);
+            }
+            if cookie {
+                request = request.header("cookie", format!("oic_node_session={READER_TOKEN}"));
+            }
+            if bearer {
+                request = request.header("authorization", format!("Bearer {READER_TOKEN}"));
+            }
+            assert_eq!(api.clone().oneshot(request.body(Body::empty()).unwrap()).await.unwrap().status(), expected);
+        }
+        let approvals = fixture.approvals();
+        let path = "/v1/node/approvals";
+        for (method, fields, expected) in [
+            ("POST", "content-type, authorization", StatusCode::NO_CONTENT),
+            ("DELETE", "content-type", StatusCode::FORBIDDEN),
+            ("POST", "content-type, x-admin-key", StatusCode::FORBIDDEN),
+        ] {
+            let request = Request::builder()
+                .method("OPTIONS")
+                .uri(path)
+                .header("origin", INSTALLED_ORIGIN)
+                .header("access-control-request-method", method)
+                .header("access-control-request-headers", fields)
+                .body(Body::empty())
+                .unwrap();
+            let response = api.clone().oneshot(request).await.unwrap();
+            assert_eq!(response.status(), expected);
+            if expected == StatusCode::NO_CONTENT {
+                assert_eq!(response.headers()["access-control-allow-credentials"], "true");
+            }
+        }
+        assert_eq!(node_request(&api, "POST", path, Some(READER_TOKEN), Some(&approvals[0])).await.status(), StatusCode::FORBIDDEN);
+        assert_eq!(node_request(&api, "POST", path, Some(OTHER_TOKEN), Some(&approvals[0])).await.status(), StatusCode::FORBIDDEN);
+        assert_eq!(
+            node_request(&api, "POST", path, Some(APPROVER_TOKEN), Some(&Command::Reserve(Box::new(proof.clone())))).await.status(),
+            StatusCode::FORBIDDEN
+        );
+        let body = serde_json::to_vec(&approvals[0]).unwrap();
+        let mut oversized = vec![b' '; 1024 * 1024];
+        oversized.extend_from_slice(&body);
+        let request = Request::builder()
+            .method("POST")
+            .uri(path)
+            .header("origin", INSTALLED_ORIGIN)
+            .header("authorization", format!("Bearer {APPROVER_TOKEN}"))
+            .header("content-type", "application/json")
+            .body(Body::from(oversized))
+            .unwrap();
+        assert_eq!(api.clone().oneshot(request).await.unwrap().status(), StatusCode::PAYLOAD_TOO_LARGE);
+        for origins in [vec![], vec![INSTALLED_ORIGIN, "https://attacker.example.test"]] {
+            let mut request = Request::builder()
+                .method("POST")
+                .uri(path)
+                .header("authorization", format!("Bearer {APPROVER_TOKEN}"))
+                .header("content-type", "application/json");
+            for origin in origins {
+                request = request.header("origin", origin);
+            }
+            assert_eq!(api.clone().oneshot(request.body(Body::from(body.clone())).unwrap()).await.unwrap().status(), StatusCode::FORBIDDEN);
+        }
+        let mut forged = approvals[0].clone();
+        let Command::Authority(inner) = &mut forged else { unreachable!() };
+        let AuthorityCommand::Approve { grant, .. } = inner.as_mut() else { unreachable!() };
+        grant.signature.bytes = vec![0; 64].into();
+        assert_eq!(node_request(&api, "POST", path, Some(APPROVER_TOKEN), Some(&forged)).await.status(), StatusCode::FORBIDDEN);
+        assert!(hosts[0].runtime().progress.borrow().state.authority.ordered_approvals.as_ref().unwrap().grants.is_empty());
+        for (command, token) in approvals.iter().zip([APPROVER_TOKEN, OTHER_TOKEN]) {
+            assert_eq!(node_request(&api, "POST", path, Some(token), Some(command)).await.status(), StatusCode::ACCEPTED);
+        }
+        wait_for(|| {
+            hosts.iter().all(|host| {
+                host.runtime()
+                    .progress
+                    .borrow()
+                    .state
+                    .authority
+                    .ordered_approvals
+                    .as_ref()
+                    .is_some_and(|state| state.grants.values().map(BTreeMap::len).sum::<usize>() == 2)
+            })
+        })
+        .await;
+        println!("authenticated HTTP approval intake rejects wrong scopes/origins/signatures; real Simplex finalized both accepted grants");
+        hosts[0].runtime().proposer.as_ref().unwrap().submit(vec![Command::Reserve(Box::new(proof.clone()))]).unwrap();
         wait_for(|| hosts.iter().all(|host| host.runtime().progress.borrow().state.authority.reservations.len() == 1)).await;
         for host in &hosts {
             assert!(host.runtime().progress.borrow().state.authority.issuance.is_empty());
@@ -334,6 +493,11 @@ fn four_replicas_and_late_keyless_signer_finalize_catch_up_and_reopen() {
         for host in hosts {
             host.shutdown().await.unwrap();
         }
+        assert_eq!(node_request(&api, "GET", &log_path, Some(READER_TOKEN), None).await.status(), StatusCode::SERVICE_UNAVAILABLE);
+        assert_eq!(
+            node_request(&api, "POST", "/v1/node/approvals", Some(APPROVER_TOKEN), Some(&fixture.approvals()[0])).await.status(),
+            StatusCode::SERVICE_UNAVAILABLE
+        );
         // Listener reuse is exercised by the actual production Transport, not
         // merely by a bare OS port probe. Local floor comes from outside replay.
         let restarted = boot(&context, &fixture, &committee, 0, floors[0]).await;
@@ -413,7 +577,7 @@ fn authenticated_malformed_certificates_cannot_advance_keyless_log() {
         let floor = FinalizedFloor::at(&fixture.genesis(&committee));
         // No voting engine runs here, so even honest empty finalizations cannot
         // mask false progress caused by an authenticated but invalid carrier.
-        let mut peer = Transport::start(context.child("raw_replica"), config(&committee, 0)).unwrap();
+        let mut peer = Transport::start_loopback(context.child("raw_replica"), config(&committee, 0), PaddingProfile::Disabled).unwrap();
         let mut keyless = boot_follower(&context, &fixture, &committee, floor).await;
         let replica_id = &committee.keys[0].0;
         let signer_id = &committee.roster.body.nodes[4].node_id;

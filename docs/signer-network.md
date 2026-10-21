@@ -28,6 +28,14 @@ Loopback startup can take several minutes under Commonware's production per-IP
 handshake limits and retry cooldowns. Read-only readiness probes share a five-minute
 budget. Mutation RPCs keep their ten-second deadline and are never retried.
 
+The D2 consensus/signing tests and live browser example explicitly use
+`Transport::start_loopback(context, config, PaddingProfile::Disabled)`. It rejects
+any roster containing a non-loopback address and lowers only the peer connection
+cooldown to one second. Authentication, IP checks, handshake/channel quotas and
+all deadlines stay unchanged. This avoids long local reservation/retry collisions;
+it is not a production startup fix or qualification. `start` and
+`start_with_padding` retain Commonware's recommended production cooldown.
+
 | Scenario | Assertions |
 | --- | --- |
 | Native SOL transfer | Two selected child cores each produce one share after release; the third produces none. The simulator verifies the assembled transaction and credits the recipient. Durable ledgers bind consumption to the native payload; signed core audit chains verify. |
@@ -257,10 +265,62 @@ It confirms approval only after the exact grant appears in verified ordered
 state, not after a gateway acknowledgement. See its [build, trust and HTTP
 contracts](../apps/approver-client/README.md).
 
-The Chromium harness uses a virtual authenticator and a native fixture bridge
-that executes real `Approve` commands and constructs real quorum certificates.
-It is not live Simplex-to-browser integration. Production witness/gateway HTTP
-adapters, independently authenticated installation, retained-floor provisioning,
+### Embed the authenticated node HTTP API
+
+`oic_service_signer_net::http::NodeApi` exposes a running D2 node's synced
+history and approval-only proposal intake. Construct it with the node's `Running`
+handle, the same independently pinned `Executor`, provisioned `NodeCredential`s,
+the exact installed approver origin, and an `oic_authorization_state::Clock`
+(`SystemClock` for wall time). Its `router()` returns an Axum router; it does not
+start a listener, terminate TLS, enroll users, or issue sessions.
+
+| Request | Contract |
+| --- | --- |
+| `GET /v1/node/log?after_height=H&after_digest=D` | Authenticated read of one synced journal checkpoint after an exact cursor. Returns `{entries, tip, more}`. Each entry contains hex `block`, hex `finalization`, and optional oldest-first `ancestors`. |
+| `POST /v1/node/approvals` | JSON encoding of the existing `Command::Authority(Approve)` only. Requires the session's bound credential, a valid native grant, current local ordered state, and the exact installed `Origin`. `202 {"accepted":true}` means local proposal-queue acceptance, not ordering or approval confirmation. |
+
+Advance the cursor only after authenticating the certificate and replaying every
+linked block locally. `tip` certifies the returned page, not an unsigned remote
+head. Continue from that verified floor while `more` is true; paginate the second
+source as well before comparing rollback floors. A checkpoint holds at most 256
+blocks and 4 MiB of canonical journal data. Reads borrow at most two journal
+records and never consume replay or mint a signing capability. The offset index
+is rebuilt from authenticated replay and grows with the retained journal.
+
+Each session grants access to the **entire confidential institutional log**.
+Do not reuse a vault-scoped console token. Provision an unpredictable ASCII token
+of 32–512 characters outside the router and give it only the SHA-256 token hash.
+`NodeCredential::approver = None` permits reads only; `Some(credential_id)` also
+permits submission of that enrolled credential's signed approvals. Enrollment,
+signature, policy, freeze and freshness checks still run in native execution and
+again during consensus execution. The router cannot Reserve, Release, sign a
+transaction, or accept an unsigned state snapshot.
+
+Send one `Authorization: Bearer` token or one `oic_node_session` cookie, never
+both. The host owns session issuance, expiry and revocation; configure cookies as
+HttpOnly, Secure and SameSite=Strict with a narrow path. Put production listeners
+behind operator-managed mTLS/HTTPS. HTTP origins are accepted only for localhost
+development. The router sends no-store and anti-framing headers and permits
+credentialed CORS only for the configured exact origin. It bounds request bodies,
+history queues and concurrent native preflights; a stopped runtime fails closed.
+On an ambiguous POST response, reconcile verified history instead of retrying
+the mutation automatically.
+
+The default Chromium harness uses a native fixture bridge; it does not run
+Simplex. The [opt-in live harness](../apps/approver-client/README.md#live-simplex--native-http--wasm--webauthn)
+instead runs four real TCP consensus hosts and two independently replaying HTTP
+nodes. Both EVM and Solana journeys verify actual endpoint checkpoints in WASM,
+submit a virtual-WebAuthn approval once, and confirm only after its genuine
+certificate is published. A barrier in the test proxy proves HTTP 202 and four
+durable replica approvals alone cannot confirm the browser view. The native
+example then reopens two actual journals against retained floors and verifies
+the exact browser grant, state hash and genuine 3-of-4 certificates.
+
+Browser refreshes stop after 64 pages. Cold installations can require repeated
+explicit Verify actions, each continuing from the already-verified floor;
+non-advancing pagination fails closed. These are development tests with virtual
+authenticators and simulator evidence, not live-chain transfers or production
+deployment. Independently authenticated installation, retained-floor provisioning,
 physical authenticator validation and committee transitions remain required.
 
 ## Checks and current limits
@@ -282,7 +342,7 @@ dependency requires a newer compiler. Use 1.95 or newer for this composition.
 | N3: attestations and audit | Signed attestations/quorums, fsynced signer evidence, Commonware witness journal, authenticated TCP checkpoint following, and offline export reconstruction. D1 checkpoint comparisons detect attributable conflicts, not consensus safety. |
 | N4: D2 authority | Pure native re-execution, Simplex/marshal simulation and authenticated TCP, independent keyless followers, synced capabilities, IPC/FROST signing, and bounded Stateright composition. Fixed committee only; committee handoff and independently verified chain observations remain unfinished. |
 | N5: hardening/extensions | Bounded public extension API, reference receipt consumer, real TCP flood/RPC tests, and opt-in fixed-bucket content/MPC padding. No TEE profile, traffic-analysis safety result, generic confidential extension grants, or upgrade/rollback qualification. |
-| N6: browser approver | Provisioned Rust/WASM client, ordered enrollment, native candidate verification and Chromium virtual-WebAuthn journey with real certificates. Fixture bridge only; no production witness/gateway HTTP adapter, live Simplex-to-browser proof, signed installer or physical-device qualification. |
+| N6: browser approver | Provisioned Rust/WASM client, ordered enrollment, native candidate verification, authenticated D2 history/approval HTTP adapter, and live TCP Simplex-to-Chromium virtual-WebAuthn EVM/Solana journeys with actual journal replay. Signed installation, session/TLS provisioning and physical-device qualification remain outside these libraries. |
 
 No security audit, consensus-safety result, production performance claim, or
 production deployment follows from these tests. Production threshold ECDSA and

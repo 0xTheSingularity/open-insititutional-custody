@@ -271,6 +271,23 @@ fn startup_authenticates_admin_anchor_and_local_key_before_starting_network() {
                 .code,
             ErrorCode::ApprovalRequired
         );
+        let mut cfg = config(&roster, 0);
+        cfg.roster.signatures.clear();
+        assert_eq!(
+            Transport::start_loopback(context.child("local_bad_admin"), cfg, PaddingProfile::Disabled).err().unwrap().code,
+            ErrorCode::ApprovalRequired
+        );
+        for index in [0, 1] {
+            let mut remote = roster.body.clone();
+            remote.nodes[index].address = "192.0.2.1:12345".parse().unwrap();
+            let cfg = config(&sign(remote), 0);
+            assert_eq!(
+                Transport::start_loopback(context.child("nonlocal").with_attribute("index", index), cfg, PaddingProfile::Disabled)
+                    .err().unwrap().code,
+                ErrorCode::InvalidRequest,
+                "local retry must reject both a remote local address and a remote peer address"
+            );
+        }
     });
 }
 
@@ -278,8 +295,8 @@ fn startup_authenticates_admin_anchor_and_local_key_before_starting_network() {
 fn real_socket_mpc_is_opaque_named_bounded_rate_limited_and_shutdown_releases_sockets() {
     run(|context| async move {
         let roster = fixture();
-        let mut a = Transport::start(context.child("a"), config(&roster, 0)).unwrap();
-        let mut b = Transport::start(context.child("b"), config(&roster, 1)).unwrap();
+        let mut a = Transport::start_loopback(context.child("a"), config(&roster, 0), PaddingProfile::Disabled).unwrap();
+        let mut b = Transport::start_loopback(context.child("b"), config(&roster, 1), PaddingProfile::Disabled).unwrap();
         let mut payload = [0x7b; 32]; // Exactly the channel limit, not CBOR or a PeerMessage.
         payload[..4].copy_from_slice(&[0xff, 0, 0x93, 0x81]);
         let event = deliver(&a, &mut b, 1, 20, &payload).await;

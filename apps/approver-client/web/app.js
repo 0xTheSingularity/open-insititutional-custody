@@ -41,16 +41,22 @@ async function read(url) {
 }
 async function follow(url) {
   // Entries are atomic certified checkpoints with optional ancestors. The tip
-  // marker is only the certified block/certificate, never a state snapshot.
-  const floor = JSON.parse(client.floor());
-  url.searchParams.set('after_height', String(floor.height));
-  url.searchParams.set('after_digest', floor.digest);
-  const log = JSON.parse(await read(url));
-  if (!Array.isArray(log.entries) || log.entries.length > 256 || !log.tip) throw new Error('Invalid or oversized finalized log suffix');
-  for (const entry of log.entries) client.apply(JSON.stringify(entry), now());
-  const { block, finalization } = log.tip;
-  client.apply(JSON.stringify({ block, finalization }), now());
-  return JSON.parse(client.floor());
+  // certifies this page, not a claimed remote head. Never skip to an unsigned
+  // cursor: the next request uses only the floor produced by native replay.
+  for (let page = 0; page < 64; page++) {
+    const floor = JSON.parse(client.floor());
+    url.searchParams.set('after_height', String(floor.height));
+    url.searchParams.set('after_digest', floor.digest);
+    const log = JSON.parse(await read(url));
+    if (!Array.isArray(log.entries) || log.entries.length > 256 || !log.tip || typeof log.more !== 'boolean') throw new Error('Invalid or oversized finalized log page');
+    for (const entry of log.entries) client.apply(JSON.stringify(entry), now());
+    const { block, finalization } = log.tip;
+    client.apply(JSON.stringify({ block, finalization }), now());
+    const next = JSON.parse(client.floor());
+    if (!log.more) return next;
+    if (next.height <= floor.height) throw new Error('Finalized pagination did not advance');
+  }
+  throw new Error('Finalized history exceeds 64 pages; verify again to continue from the retained floor');
 }
 async function refresh() {
   const primary = endpoint('log-url'), second = endpoint('witness-url');
@@ -103,6 +109,7 @@ $('load').addEventListener('submit', async event => {
 $('approve').addEventListener('click', async () => {
   if (busy || !prepared) return;
   busy = true; $('approve').disabled = true; $('verify').disabled = true;
+  const deadline = BigInt(Math.min(prepared.expires_at, prepared.view_expires_at));
   try {
     // Never use a server-supplied challenge, role, grant body, RP or key.
     const credential = await navigator.credentials.get({ publicKey: {
@@ -119,7 +126,7 @@ $('approve').addEventListener('click', async () => {
       headers: { 'Content-Type': 'application/json' }, body: command, signal: AbortSignal.timeout(15000) });
     if (!sent.ok) throw new Error(`Gateway rejected approval (${sent.status}); reconcile the finalized log before retrying`);
     // No automatic resubmission after an ambiguous network failure.
-    for (let attempt = 0; attempt < 30; attempt++) {
+    for (let attempt = 0; attempt < 300 && now() < deadline; attempt++) {
       await refresh();
       if (client.confirmed(now())) {
         clearTimeout(expiryTimer); prepared = undefined;

@@ -4,8 +4,8 @@
 //! partitions contain Class C data and require an encrypted storage deployment.
 
 use crate::{
-    AuthorityBlock, FinalizedFloor, Follower, FollowerConfig, Proposer, ReplicaApplication,
-    ReplicatedState, VerifiedLog,
+    AuthorityBlock, FinalizedFloor, FinalizedPage, Follower, FollowerConfig, Proposer,
+    ReplicaApplication, ReplicatedState, VerifiedLog,
 };
 use commonware_actor::Feedback;
 use commonware_broadcast::buffered;
@@ -46,7 +46,7 @@ use std::{
     sync::Arc,
     time::{Duration, UNIX_EPOCH},
 };
-use tokio::sync::watch;
+use tokio::sync::{mpsc as queries, oneshot as response, watch};
 
 /// All five channels must be isolated, bounded, authenticated and ACL-checked
 /// by the host. Signer/witness followers receive no vote key and run no engine.
@@ -78,12 +78,35 @@ pub struct FinalizedSnapshot {
     pub state: Arc<ReplicatedState>,
 }
 
+struct ReadRequest {
+    after: FinalizedFloor,
+    reply: response::Sender<OicResult<FinalizedPage>>,
+}
+
+/// Bounded, read-only access to the follower's synced journal. This exposes
+/// portable confidential evidence, never a signing capability or live writer.
+#[derive(Clone)]
+pub struct FinalizedReader(queries::Sender<ReadRequest>);
+
+impl FinalizedReader {
+    pub async fn read_page(&self, after: FinalizedFloor) -> OicResult<FinalizedPage> {
+        let (reply, receive) = response::channel();
+        self.0
+            .try_send(ReadRequest { after, reply })
+            .map_err(|_| unavailable("finalized history read queue unavailable"))?;
+        receive
+            .await
+            .map_err(|_| unavailable("finalized history reader stopped"))?
+    }
+}
+
 pub struct Running {
     pub proposer: Option<Proposer>,
     pub progress: watch::Receiver<FinalizedSnapshot>,
     /// Process-local authorization capability, minted only by the synced
     /// re-executing follower. Genesis has no finalized log and publishes None.
     pub verified_log: watch::Receiver<Option<VerifiedLog>>,
+    pub history: FinalizedReader,
     stop: oneshot::Sender<()>,
     task: Handle<OicResult<()>>,
 }
@@ -154,6 +177,7 @@ where
 {
     let (ready, started) = oneshot::channel();
     let (stop, mut stopping) = oneshot::channel();
+    let (read, mut reads) = queries::channel::<ReadRequest>(8);
     let task = context.spawn(move |mut context| async move {
         let trust = config.follower.trust.clone();
         let genesis = config.follower.genesis.clone();
@@ -234,6 +258,12 @@ where
                 _ = &mut broadcast_task => return Err(unavailable("block broadcast stopped")),
                 _ = &mut marshal_task => return Err(unavailable("marshal stopped")),
                 _ = &mut consensus_task => return Err(unavailable("consensus or certificate follower stopped")),
+                request = reads.recv() => {
+                    let Some(request) = request else { return Err(unavailable("history reader stopped")); };
+                    if !request.reply.is_closed() {
+                        let _ = request.reply.send(follower.read_page(request.after).await);
+                    }
+                },
                 update = delivered.recv() => {
                     let Some(Update::Block(block, ack)) = update else { return Err(unavailable("marshal delivery stopped")); };
                     if block.height().is_zero() && block.digest() == genesis.digest() {
@@ -279,6 +309,7 @@ where
             proposer,
             progress,
             verified_log,
+            history: FinalizedReader(read),
             stop,
             task,
         }),

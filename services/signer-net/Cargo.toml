@@ -24,6 +24,9 @@ commonware-utils = { version = "=2026.9.0", features = ["std"] }
 commonware-cryptography = { version = "=2026.9.0", features = ["std"] }
 commonware-codec = "=2026.9.0"
 tokio.workspace = true
+axum.workspace = true
+serde.workspace = true
+serde_json.workspace = true
 
 [dev-dependencies]
 commonware-consensus = "=2026.9.0"
@@ -46,5 +49,10 @@ oic-adapter-api.workspace = true
 oic-adapter-evm.workspace = true
 oic-adapter-solana.workspace = true
 ed25519-dalek.workspace = true
-serde.workspace = true
 tempfile.workspace = true
+oic-approver-client = { path = "../../apps/approver-client" }
+oic-webauthn.workspace = true
+sha2.workspace = true
+base64 = "=0.22.1"
+p256 = { version = "=0.13.2", default-features = false, features = ["ecdsa", "std"] }
+tower = { workspace = true, features = ["util"] }

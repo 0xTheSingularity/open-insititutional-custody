@@ -104,7 +104,7 @@ files **before serving/opening them**, using the independent manifest. A
 manifest downloaded beside the application is not an independent trust anchor.
 Unprovisioned WASM builds compile but refuse to construct a browser client.
 
-## HTTP integration contract (not a production endpoint implementation)
+## HTTP integration contract
 
 The form accepts two distinct witness URLs, an approval-package URL, an approval
 gateway URL and the ordered approval identity. Endpoints require HTTPS except
@@ -131,11 +131,12 @@ The JSON response is:
     "block": "0x<Commonware-encoded-certified-tip>",
     "finalization": "0x<Commonware-encoded-Finalization-of-tip>"
   }],
-  "tip": {"block": "0x<Commonware-encoded-AuthorityBlock>", "finalization": "0x<Commonware-encoded-Finalization>"}
+  "tip": {"block": "0x<Commonware-encoded-AuthorityBlock>", "finalization": "0x<Commonware-encoded-Finalization>"},
+  "more": false
 }
 ```
 
-`entries` must be the contiguous suffix after the requested floor, with at most
+`entries` must be a contiguous suffix page after the requested floor, with at most
 256 checkpoint entries per response. `ancestors` is optional and omitted when
 empty, preserving the single-block encoding. A checkpoint contains at most 256
 blocks including its certified tip, and its canonical encoding must be at most
@@ -146,15 +147,18 @@ WASM authenticates the actual tip, reexecutes every block against private cloned
 state, checks any retained floor inside the ancestry, and publishes the new
 state/floor only when the **entire checkpoint** passes.
 
-The mandatory response `tip` is a head marker containing just a certified block
-and its certificate. After applying checkpoint entries, the client authenticates
+The mandatory response `tip` marks the **certified page tip**, not an unsigned
+claim about the latest remote head. It contains a certified block and its
+certificate. After applying checkpoint entries, the client authenticates
 that marker as an exact repeat of its verified tip. An ahead marker without its
 ancestry or an older marker fails; an empty suffix with the current marker is
 valid. HTTP responses are bounded to 10 MiB and WASM checkpoint JSON to 9 MiB
 to allow hex-encoded transport of the 4 MiB canonical record. Missing/reordered/
 altered ancestors, wrong digests or an over-limit response block approval. There
-is no skip-to-tip or trusted-state checkpoint import. A large initial backlog
-needs bounded suffix reads/retries; the UI does not automatically paginate.
+is no skip-to-tip or trusted-state checkpoint import. `more` must be a boolean;
+when true, the client continues from its WASM-verified height/digest. Each refresh
+is limited to 64 pages. A non-advancing page with `more: true` fails closed.
+After the limit, explicit verification continues from the retained verified floor.
 
 Both sources are checked through the same verifier. The second may advance the
 client, but cannot roll it back. Distinct URLs do not prove independent hosting;
@@ -167,6 +171,14 @@ serialized `Command::Authority(AuthorityCommand::Approve { intent, grant })`
 with `Content-Type: application/json`. A successful HTTP response means only
 accepted for processing. The UI polls witnesses and confirms only after
 verified ordering; timeout means reconcile the log before retrying.
+
+`oic-service-signer-net::http::NodeApi` implements these log/approval routes at
+`/v1/node/log` and `/v1/node/approvals`. The host embeds the router and provisions
+unpredictable full-institution-log sessions externally. Bearer and
+`oic_node_session` cookie are alternatives, never simultaneous. An approval
+session binds one ordered credential; read-only sessions cannot submit. Exact
+installed Origin is required on POST. HTTP 202 is local enqueue only. This is
+not a login service, TLS terminator, package server, or general proposer API.
 
 ## Validation
 
@@ -201,10 +213,60 @@ to exercise atomic browser replay and confirmation. Missing, reordered and
 altered ancestors are rejected without advancing the floor in native and WASM
 checks.
 
-**This fixture bridge is not a live Simplex network or an implemented witness
-service.** Production witness/gateway adapters and live Simplex-to-browser E2E
-verification remain integration work outside this app. Native tests exercise
+**This default fixture bridge is not a live Simplex network.** Native tests exercise
 non-roster/epoch/body/state/rollback rejection, pinned configuration, native
 addresses/amounts, WebAuthn scope/UV, stale/frozen/removed/self/duplicate approval
 and changed policy/destination rejection. These checks are not a claim that all
 RFC003 deployment requirements are complete.
+
+### Live Simplex → native HTTP → WASM → WebAuthn
+
+The opt-in harness uses four actual `ConsensusHost`s over TCP with distinct
+transport and vote keys. Bootstrap, credential enrollment and the browser grant
+are proposed once to an actual engine; Simplex produces all certificates.
+Two independently replaying nodes serve the real `NodeApi` routers. No
+`Committee::certify` call occurs on this path. Current-clock fixture inputs have
+a bounded 900-second evidence window; freshness checks remain enabled.
+
+The example explicitly selects `Transport::start_loopback`: every admitted address
+must be loopback, and only the connection retry cooldown is shortened to one second.
+Identity/IP checks and handshake/channel quotas remain enabled. This local startup
+profile does not qualify production connection timing or change normal defaults.
+
+Use a **new directory per run**. In one terminal start:
+
+```sh
+eto-build env RUSTFLAGS='-C link-arg=-fuse-ld=mold' \
+  cargo +1.95.0 run -p oic-service-signer-net --example approver_network \
+  --locked --offline -- "$PWD/.amp/in/approver-live-evm" evm
+```
+
+As soon as `provision.json` exists, build the matching WASM installation:
+
+```sh
+apps/approver-client/build-web.sh "$PWD/.amp/in/approver-live-evm/provision.json" \
+  "$(sha256sum .amp/in/approver-live-evm/provision.json | cut -d' ' -f1)" \
+  "$PWD/.amp/in/approver-live-evm-web"
+# Wait for endpoints.json (all four replicas have synced enrollment).
+PLAYWRIGHT_MODULE=/absolute/path/to/playwright/index.mjs \
+  node apps/approver-client/tests/browser.mjs .amp/in/approver-live-evm \
+  .amp/in/approver-live-evm-web .amp/in/artifacts/approver-live/evm evm --live
+```
+
+Repeat using `solana` and fresh directories. The proxy forwards actual native
+HTTP responses and records them without the session token. Its test-only
+publication barrier retains the last genuine certified tip after POST: even
+after HTTP 202 and four native replicas durably order the exact grant, the
+browser must stay pending. Releasing the barrier exposes actual endpoint
+checkpoints and permits confirmation. No publication barrier exists in NodeApi.
+Live mode uses the real browser clock, not the fixed fixture clock.
+
+The browser writes a `stop` file on exit. The native example then shuts down
+all hosts, reopens two actual retained follower journals, verifies their genuine
+3-of-4 certificates and confirms approval survives disk replay. Keep
+`approval-observed.json`, `journal-replay.json`, the recorded HTTP responses,
+browser JSON evidence and inspected screenshots together. Test keys, local HTTP,
+virtual user verification and provision generation are **development evidence**,
+not production deployment, independently trusted distribution, or physical
+authenticator attestation. These sessions authorize the full confidential log;
+the local test proxy does not implement a production authentication service.
