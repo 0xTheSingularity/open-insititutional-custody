@@ -95,9 +95,10 @@ impl Reconciler {
     /// New addresses start inactive. `dust_threshold` is in each supported
     /// asset's base units; inbound amounts strictly below it are quarantined at
     /// acceptance. Rejects scope or asset mismatches and conflicting address,
-    /// wallet, or asset identities. Matching address, wallet, and supported-asset
-    /// lists under an existing ID leave the enrollment unchanged. Store errors
-    /// propagate.
+    /// wallet, or asset identities. A retry under an existing ID is idempotent
+    /// only when every operational field matches, including the vault, network,
+    /// profile, custody, routing reference, and dust threshold; any difference
+    /// is a conflict rather than a silent no-op. Store errors propagate.
     pub fn enroll(
         &self,
         mut address: DepositAddress,
@@ -124,21 +125,32 @@ impl Reconciler {
         address.state = DepositAddressState::Inactive;
         self.store.transact(|s| {
             if let Some(old) = s.enrollments.get(&address.deposit_address_id) {
+                // A retry is idempotent only when nothing operational changed;
+                // a differing configuration must never silently keep the old one.
                 if old.address.address == address.address
+                    && old.address.address_display == address.address_display
                     && old.address.chain_wallet_id == address.chain_wallet_id
                     && old.address.supported_assets == address.supported_assets
+                    && old.address.vault_id == address.vault_id
+                    && old.address.chain_profile_id == address.chain_profile_id
+                    && old.address.network_id == address.network_id
+                    && old.address.custody == address.custody
+                    && old.address.routing_reference == address.routing_reference
+                    && old.dust_threshold == dust_threshold
                 {
                     return Ok(());
                 }
                 return Err(OicError::resource_conflict(
-                    "enrollment identity already exists",
+                    "enrollment configuration is immutable under an existing identity",
                 ));
             }
+            // Addresses are unique per network; a controlled wallet identity is
+            // unique across every network so journal postings cannot pick the
+            // wrong enrollment by iteration order.
             if s.enrollments.values().any(|e| {
-                e.address.network_id == address.network_id
-                    && (e.address.address == address.address
-                        || address.chain_wallet_id.is_some()
-                            && e.address.chain_wallet_id == address.chain_wallet_id)
+                e.address.network_id == address.network_id && e.address.address == address.address
+                    || address.chain_wallet_id.is_some()
+                        && e.address.chain_wallet_id == address.chain_wallet_id
             }) {
                 return Err(OicError::resource_conflict(
                     "address or wallet already enrolled",
@@ -230,9 +242,11 @@ impl Reconciler {
     }
 
     /// Bind a transaction to an operation before accepting its indexed effects.
-    /// Repeating the same binding is allowed. Returns `ResourceConflict` if the
-    /// transaction or an accepted movement is already associated differently;
-    /// store errors propagate.
+    /// Repeating the same binding is allowed. A late link also attaches the
+    /// family to canonical movements that were already observed but not yet
+    /// accepted, so acceptance classifies them as the operation's own legs.
+    /// Returns `ResourceConflict` if the transaction or an accepted movement is
+    /// already associated differently; store errors propagate.
     pub fn link_operation(&self, tx: ChainTxId, family: OperationFamilyId) -> OicResult<()> {
         self.store.transact(|s| {
             if s.operations.get(&tx).is_some_and(|f| f != &family) {
@@ -248,6 +262,13 @@ impl Reconciler {
                 return Err(OicError::resource_conflict(
                     "link issued operation before indexing finality",
                 ));
+            }
+            for r in s.movements.values_mut().filter(|r| {
+                r.movement.tx_id == tx
+                    && r.movement.acceptance == MovementAcceptance::Observed
+                    && r.movement.canonicality == Canonicality::Canonical
+            }) {
+                r.movement.operation_family_id = Some(family.clone());
             }
             s.operations.insert(tx, family);
             Ok(())
@@ -267,13 +288,13 @@ impl Reconciler {
         self.sync_from(source, None)
     }
 
-    /// Catch up to the source head, optionally rescanning from an earlier height.
-    /// Reconcile forks and finality in the same store transaction as the cursor;
-    /// propagate scan or persistence errors.
+    /// Catch up to the source head, or rescan exactly the supplied inclusive
+    /// backfill range. Reconcile forks and finality in the same store
+    /// transaction as the cursor; propagate scan or persistence errors.
     fn sync_from(
         &self,
         source: &dyn BlockSource,
-        backfill_from: Option<u64>,
+        backfill: Option<(u64, u64)>,
     ) -> OicResult<IndexCursor> {
         let profile = source.profile();
         let head = source.head();
@@ -285,11 +306,24 @@ impl Reconciler {
                 .get(&profile.chain_profile_id)
                 .cloned()
                 .unwrap_or_default();
+            // Any ancestor change also changes every descendant hash, so an
+            // unchanged scanned tip proves the whole retained range unchanged.
+            // Only a diverging or vanished tip triggers the ascending walk for
+            // the first replaced height; a wrong finality assumption is still
+            // detected rather than trusted.
+            let tip_changed = match previous.last_key_value() {
+                None => false,
+                Some((height, hash)) => {
+                    *height > head.height || source.block(*height)?.state.hash != *hash
+                }
+            };
             let mut fork = None;
-            for (height, hash) in &previous {
-                if *height > head.height || source.block(*height)?.state.hash != *hash {
-                    fork = Some(*height);
-                    break;
+            if tip_changed {
+                for (height, hash) in &previous {
+                    if *height > head.height || source.block(*height)?.state.hash != *hash {
+                        fork = Some(*height);
+                        break;
+                    }
                 }
             }
             if let Some(height) = fork {
@@ -329,18 +363,31 @@ impl Reconciler {
                     .map(|(h, _)| h + 1)
                     .unwrap_or(0)
             };
-            let start = backfill_from.map(|from| from.min(start)).unwrap_or(start);
-            for height in start..=head.height {
+            let start = backfill.map(|(from, _)| from.min(start)).unwrap_or(start);
+            // A bounded backfill scans only its requested range; its durable
+            // side effects must match the recorded job.
+            let end = backfill
+                .map(|(_, to)| to.min(head.height))
+                .unwrap_or(head.height);
+            for height in start..=end {
                 let block = source.block(height)?;
-                if height > 0
-                    && s.scanned_blocks
+                if height > 0 {
+                    let recorded = s
+                        .scanned_blocks
                         .get(&profile.chain_profile_id)
                         .and_then(|b| b.get(&(height - 1)))
-                        != Some(&block.parent_hash)
-                {
-                    return Err(OicError::stale_evidence(
-                        "noncontiguous chain; backfill required",
-                    ));
+                        .cloned();
+                    let parent = match recorded {
+                        Some(hash) => hash,
+                        // The parent record can be pruned below finality;
+                        // re-fetch the immutable block to verify continuity.
+                        None => source.block(height - 1)?.state.hash,
+                    };
+                    if parent != block.parent_hash {
+                        return Err(OicError::stale_evidence(
+                            "noncontiguous chain; backfill required",
+                        ));
+                    }
                 }
                 for effect in block.effects {
                     self.observe(s, &profile, &block.state, effect, source.source_id(), now)?;
@@ -367,12 +414,24 @@ impl Reconciler {
             if source.head() != head || source.finalized() != finality {
                 return Err(OicError::stale_evidence("chain changed during scan; retry"));
             }
+            // Heights strictly below finality are immutable and no longer part
+            // of fork detection; `reconcile` reads the finalized height itself,
+            // which is retained.
+            if let Some(blocks) = s.scanned_blocks.get_mut(&profile.chain_profile_id) {
+                blocks.retain(|h, _| *h >= finality.height);
+            }
+            let (last_scanned_height, last_scanned_hash) = s
+                .scanned_blocks
+                .get(&profile.chain_profile_id)
+                .and_then(|b| b.last_key_value())
+                .map(|(h, hash)| (Some(*h), Some(hash.clone())))
+                .unwrap_or((None, None));
             let cursor = IndexCursor {
                 cursor_id: CursorId::unchecked(profile.chain_profile_id.to_string()),
                 chain_profile_id: profile.chain_profile_id.clone(),
                 network_id: profile.network_id.clone(),
-                last_scanned_height: Some(head.height),
-                last_scanned_hash: Some(head.hash.clone()),
+                last_scanned_height,
+                last_scanned_hash,
                 finalized_height: finality.height,
                 monitored_addresses: s
                     .enrollments
@@ -389,8 +448,9 @@ impl Reconciler {
 
     /// A durable job records uncertainty before attempting the catch-up scan.
     ///
-    /// `from` and `to` are inclusive heights or slots used for the job's movement
-    /// count; the rescan can begin earlier and continues through the current head.
+    /// `from` and `to` are inclusive heights or slots. The rescan can begin
+    /// earlier than `from` when the durable cursor requires it, but never scans
+    /// above `to`, so the job's side effects match the requested range.
     /// An invalid range returns `InvalidRequest`. Scan errors become a returned
     /// job with `Failed` state; job persistence errors still propagate.
     pub fn backfill(&self, source: &dyn BlockSource, from: u64, to: u64) -> OicResult<BackfillJob> {
@@ -411,7 +471,7 @@ impl Reconciler {
             });
             Ok(id)
         })?;
-        let result = self.sync_from(source, Some(from));
+        let result = self.sync_from(source, Some((from, to)));
         self.store.transact(|s| {
             let count = s
                 .movements
@@ -1082,9 +1142,11 @@ impl Reconciler {
     ///
     /// Persist and return a signed balance checkpoint, opening cases for
     /// differences. `reserved` supplies wallet/asset reservations in base units;
-    /// missing pairs use zero. Returns `StaleEvidence` when indexing is behind
-    /// finality or finality changes during comparison. Balance reads, holdings
-    /// calculation, hashing, and store errors propagate.
+    /// missing pairs use zero. A negative journal position is recorded as a
+    /// checkpoint shortfall with a difference case instead of an error, keeping
+    /// the quorum correction path reachable. Returns `StaleEvidence` when
+    /// indexing is behind finality or finality changes during comparison.
+    /// Balance reads, journal sums, hashing, and store errors propagate.
     pub fn reconcile(
         &self,
         source: &dyn BlockSource,
@@ -1120,15 +1182,16 @@ impl Reconciler {
             for e in enrollments {
                 for asset_id in &e.address.supported_assets {
                     let wallet = e.address.chain_wallet_id.clone().expect("controlled");
-                    let held = holdings(
-                        s,
-                        &wallet,
-                        asset_id,
-                        reserved
-                            .get(&(wallet.clone(), asset_id.clone()))
-                            .copied()
-                            .unwrap_or_default(),
-                    )?;
+                    // Tolerate a negative journal position here: the checkpoint
+                    // records the shortfall and opens a difference case so the
+                    // quorum-authorized correction path stays reachable, and one
+                    // affected balance does not abort the whole reconciliation.
+                    let (credits, debits) = journal_position(s, &wallet, asset_id)?;
+                    let (journal_balance, journal_shortfall) = if credits >= debits {
+                        (Amount(credits - debits), Amount::ZERO)
+                    } else {
+                        (Amount::ZERO, Amount(debits - credits))
+                    };
                     let balance = ReconciledBalance {
                         chain_wallet_id: wallet.clone(),
                         asset_id: asset_id.clone(),
@@ -1137,9 +1200,13 @@ impl Reconciler {
                             &e.address.address,
                             &s.assets[asset_id].asset,
                         )?,
-                        journal_balance: held.settled,
-                        reserved: held.reserved,
-                        pending_inbound: held.pending_inbound,
+                        journal_balance,
+                        journal_shortfall,
+                        reserved: reserved
+                            .get(&(wallet.clone(), asset_id.clone()))
+                            .copied()
+                            .unwrap_or_default(),
+                        pending_inbound: Amount(pending_inbound(s, &wallet, asset_id)?),
                     };
                     if !balance.is_consistent() {
                         let case_id =
@@ -1158,8 +1225,10 @@ impl Reconciler {
                                 asset_id: Some(asset_id.clone()),
                                 amount_base_units: Some(balance.difference().1),
                                 detail: format!(
-                                    "chain={} journal={}; investigation required",
-                                    balance.chain_balance, balance.journal_balance
+                                    "chain={} journal={} shortfall={}; investigation required",
+                                    balance.chain_balance,
+                                    balance.journal_balance,
+                                    balance.journal_shortfall
                                 ),
                                 owner: "treasury-operations".into(),
                                 state: CaseState::Open,
@@ -1211,16 +1280,13 @@ impl Reconciler {
     }
 }
 
-/// Calculate settled credits minus debits and canonical, observed inbound
-/// amounts for a wallet/asset pair. Supplied reservations reduce availability
-/// to a minimum of zero. Overflow returns `UnverifiableTransaction`; negative
-/// settled holdings require recovery.
-fn holdings(
+/// Sum journal credits and debits for a wallet/asset pair in base units.
+/// Overflow returns `UnverifiableTransaction`.
+fn journal_position(
     s: &OperationsExport,
     wallet: &ChainWalletId,
     asset: &AssetId,
-    reserved: Amount,
-) -> OicResult<Holdings> {
+) -> OicResult<(u128, u128)> {
     let mut credits = 0u128;
     let mut debits = 0u128;
     for e in s
@@ -1237,14 +1303,17 @@ fn holdings(
             .checked_add(e.body.amount_base_units.0)
             .ok_or_else(|| OicError::unverifiable("journal amount overflow"))?;
     }
-    let settled = credits.checked_sub(debits).ok_or_else(|| {
-        OicError::new(
-            ErrorCode::RecoveryRequired,
-            "journal has negative holdings; investigate opening balance or missing receipts",
-        )
-    })?;
-    let pending = s
-        .movements
+    Ok((credits, debits))
+}
+
+/// Sum canonical, observed inbound amounts for a wallet/asset pair.
+/// Overflow returns `UnverifiableTransaction`.
+fn pending_inbound(
+    s: &OperationsExport,
+    wallet: &ChainWalletId,
+    asset: &AssetId,
+) -> OicResult<u128> {
+    s.movements
         .values()
         .filter(|r| {
             r.movement.chain_wallet_id.as_ref() == Some(wallet)
@@ -1254,7 +1323,27 @@ fn holdings(
                 && r.movement.canonicality == Canonicality::Canonical
         })
         .try_fold(0u128, |a, r| a.checked_add(r.movement.amount_base_units.0))
-        .ok_or_else(|| OicError::unverifiable("pending amount overflow"))?;
+        .ok_or_else(|| OicError::unverifiable("pending amount overflow"))
+}
+
+/// Calculate settled credits minus debits and canonical, observed inbound
+/// amounts for a wallet/asset pair. Supplied reservations reduce availability
+/// to a minimum of zero. Overflow returns `UnverifiableTransaction`; negative
+/// settled holdings require recovery.
+fn holdings(
+    s: &OperationsExport,
+    wallet: &ChainWalletId,
+    asset: &AssetId,
+    reserved: Amount,
+) -> OicResult<Holdings> {
+    let (credits, debits) = journal_position(s, wallet, asset)?;
+    let settled = credits.checked_sub(debits).ok_or_else(|| {
+        OicError::new(
+            ErrorCode::RecoveryRequired,
+            "journal has negative holdings; reconcile and authorize a correction",
+        )
+    })?;
+    let pending = pending_inbound(s, wallet, asset)?;
     Ok(Holdings {
         chain_wallet_id: Some(wallet.clone()),
         asset_id: Some(asset.clone()),

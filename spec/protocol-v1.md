@@ -37,7 +37,7 @@ objects in OpenAPI; this is not complete generated-SDK coverage.
 
 | Profile | Executable backend | Issuance-enabling output | Limits |
 |---|---|---|---|
-| EVM development | `oic-crypto-provider-dev`, `k256` secp256k1 ECDSA | Complete signature, low-s `r || s || recovery_id` (65 bytes), over the adapter's Keccak-256 digest | Exactly 1-of-1; **no threshold security** |
+| EVM development | `oic-crypto-provider-dev`, `k256` secp256k1 ECDSA | Complete signature, low-s `r \|\| s \|\| recovery_id` (65 bytes), over the adapter's Keccak-256 digest | Exactly 1-of-1; **no threshold security** |
 | Solana development | `oic-crypto-provider-frost-ed25519`, FROST(Ed25519, SHA-512), pure Ed25519 output | FROST round-2 signature share | 2-of-3 acceptance tests; any permitted threshold subset; standard 64-byte Ed25519 signature |
 
 `Cargo.lock` freezes registry versions and source checksums. The FROST provider's

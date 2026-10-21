@@ -251,13 +251,32 @@ async fn balances<S: AuthorityStore + 'static>(
     }).await
 }
 
-/// Require read access to every catalog vault for institution-wide responses.
-/// An empty vault catalog is rejected with `ScopeMismatch`.
+/// Require read access to every vault represented in an institution-wide
+/// response, not only the current catalog: the reconciler and authority stores
+/// can retain records for a vault a partial or stale catalog omits. An empty
+/// vault set is rejected with `ScopeMismatch`.
 fn institution_read<S: AuthorityStore>(api: &Api<S>, p: &ApiCredential) -> OicResult<()> {
-    if api.catalog.vaults.is_empty() {
+    let mut vaults: std::collections::BTreeSet<VaultId> =
+        api.catalog.vaults.keys().cloned().collect();
+    let data = api.reconciler.export()?;
+    vaults.extend(data.enrollments.values().map(|e| e.address.vault_id.clone()));
+    vaults.extend(data.journal.iter().map(|e| e.body.vault_id.clone()));
+    vaults.extend(data.workflows.values().map(|w| w.vault_id.clone()));
+    vaults.extend(
+        api.coordinator
+            .authority()
+            .store()
+            .read(|s| {
+                s.families
+                    .values()
+                    .map(|f| f.vault_id.clone())
+                    .collect::<Vec<_>>()
+            })?,
+    );
+    if vaults.is_empty() {
         return Err(OicError::scope("institution has no enrolled vaults"));
     }
-    for vault in api.catalog.vaults.keys() {
+    for vault in &vaults {
         api.authorize(p, vault, Scope::Read)?;
     }
     Ok(())

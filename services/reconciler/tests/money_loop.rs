@@ -539,6 +539,68 @@ fn token_without_gas_is_funded_once_through_policy_then_swept_and_both_legs_reco
         .code,
         ErrorCode::BudgetExceeded
     );
+    // A gas source whose enrollment does not support the native asset would
+    // have its own fee/transfer effects quarantined at acceptance.
+    let nonative = evm_wallet(
+        &world,
+        sim.clone(),
+        83,
+        "funding-nonative",
+        asset.clone(),
+        destinations[0].clone(),
+    );
+    let nonative_id = DepositAddressId::unchecked("funding-nonative");
+    r.enroll(
+        DepositAddress {
+            deposit_address_id: nonative_id.clone(),
+            institution_id: inst(),
+            environment_id: env_id(),
+            vault_id: vault_id(),
+            chain_wallet_id: Some(nonative.wallet.chain_wallet_id.clone()),
+            chain_profile_id: profile.chain_profile_id.clone(),
+            network_id: profile.network_id.clone(),
+            address: nonative.wallet.address.clone(),
+            address_display: nonative.wallet.address_display.clone(),
+            custody: AddressCustody::Controlled,
+            supported_assets: vec![asset.asset_id.clone()],
+            routing_reference: None,
+            state: DepositAddressState::Active,
+            created_at: now(),
+            retired_at: None,
+        },
+        std::slice::from_ref(&asset),
+        Amount(100),
+    )
+    .unwrap();
+    let step = Some(ActivationStep {
+        committed_at: now(),
+        commitment: Hash32([2; 32]),
+        actor: "domain-operator".into(),
+    });
+    r.activate(AddressActivation {
+        deposit_address_id: nonative_id,
+        public_key_agreement: step.clone(),
+        asset_network_configuration: step.clone(),
+        recovery_metadata: step.clone(),
+        monitoring_registration: step,
+    })
+    .unwrap();
+    let mut denied = gas.clone();
+    denied.source_wallet_id = nonative.wallet.chain_wallet_id.clone();
+    assert_eq!(
+        r.plan_sweep(
+            &source,
+            &movement,
+            &denied,
+            &sweep,
+            &destinations,
+            CredentialId::unchecked("automation")
+        )
+        .unwrap_err()
+        .code,
+        ErrorCode::PolicyDenied,
+        "gas source must support the configured native asset"
+    );
     let w = r
         .plan_sweep(
             &source,
@@ -1491,4 +1553,356 @@ fn file_store_refuses_concurrent_writer_and_old_snapshot() {
         OperationsStore::open(&path).err().unwrap().code,
         ErrorCode::RecoveryRequired
     );
+}
+
+fn deposit_address(c: &Chain, native: &Asset) -> DepositAddress {
+    DepositAddress {
+        deposit_address_id: DepositAddressId::unchecked(c.wallet.chain_wallet_id.to_string()),
+        institution_id: inst(),
+        environment_id: env_id(),
+        vault_id: vault_id(),
+        chain_wallet_id: Some(c.wallet.chain_wallet_id.clone()),
+        chain_profile_id: c.profile.chain_profile_id.clone(),
+        network_id: c.profile.network_id.clone(),
+        address: c.wallet.address.clone(),
+        address_display: c.wallet.address_display.clone(),
+        custody: AddressCustody::Controlled,
+        supported_assets: vec![native.asset_id.clone(), c.asset.asset_id.clone()],
+        routing_reference: None,
+        state: DepositAddressState::Active,
+        created_at: now(),
+        retired_at: None,
+    }
+}
+
+#[test]
+fn enrollment_retry_must_match_configuration_and_wallet_ids_are_global() {
+    let world = World::new();
+    let evm = evm_chain(&world);
+    let c = &evm.chain;
+    let native = native(c);
+    let r = reconciler(Arc::new(OperationsStore::memory()));
+    enroll(&r, c, &native); // dust threshold = 100 base units, then activated
+    let assets = [native.clone(), c.asset.clone()];
+    let address = deposit_address(c, &native);
+    // An identical retry is idempotent and keeps the activated state.
+    r.enroll(address.clone(), &assets, Amount(100)).unwrap();
+    let id = address.deposit_address_id.clone();
+    assert_eq!(
+        r.export().unwrap().enrollments[&id].address.state,
+        DepositAddressState::Active
+    );
+    // A changed dust threshold must not silently keep the old configuration.
+    assert_eq!(
+        r.enroll(address.clone(), &assets, Amount(1_000))
+            .unwrap_err()
+            .code,
+        ErrorCode::ResourceConflict
+    );
+    // A changed routing reference is a conflict, not an idempotent retry.
+    let mut routed = address.clone();
+    routed.routing_reference = Some("memo-1".into());
+    assert_eq!(
+        r.enroll(routed, &assets, Amount(100)).unwrap_err().code,
+        ErrorCode::ResourceConflict
+    );
+    // A changed vault is a conflict.
+    let mut moved = address.clone();
+    moved.vault_id = VaultId::unchecked("vault-other");
+    assert_eq!(
+        r.enroll(moved, &assets, Amount(100)).unwrap_err().code,
+        ErrorCode::ResourceConflict
+    );
+    // A controlled wallet identity is unique across networks, so journal
+    // postings can never resolve the wrong enrollment by iteration order.
+    let other_native = Asset {
+        asset_id: AssetId::unchecked("native-other"),
+        network_id: NetworkId::unchecked("net-other"),
+        asset: AssetKind::Native,
+        decimals: 9,
+        symbol: "OTH".into(),
+        behavior: AssetBehaviorProfile::Standard,
+    };
+    let mut cross = address.clone();
+    cross.deposit_address_id = DepositAddressId::unchecked("cross-network");
+    cross.chain_profile_id = ChainProfileId::unchecked("profile-other");
+    cross.network_id = other_native.network_id.clone();
+    cross.address = Bytes(vec![9; 20]);
+    cross.address_display = "0x0909".into();
+    cross.supported_assets = vec![other_native.asset_id.clone()];
+    assert_eq!(
+        r.enroll(cross, &[other_native], Amount(0)).unwrap_err().code,
+        ErrorCode::ResourceConflict
+    );
+}
+
+#[test]
+fn linking_after_observation_classifies_the_operation_legs() {
+    let world = World::new();
+    let evm = evm_chain(&world);
+    let c = &evm.chain;
+    let native = native(c);
+    let r = reconciler(Arc::new(OperationsStore::memory()));
+    enroll(&r, c, &native);
+    let source = EvmBlocks(evm.sim.clone());
+    evm.sim.mine_blocks(4).unwrap();
+    r.sync(&source).unwrap();
+    let pol = world.sign_policy(policy(1, vec![rule(&c.asset.asset_id, 1, 10_000_000)]));
+    let intent = c.intent(
+        "late-link",
+        1_234,
+        10u128.pow(16),
+        ApprovalMode::ExactCandidate,
+    );
+    world.register(&pol, &intent);
+    let coord = coordinator(
+        &world,
+        c,
+        in_process(&c.nodes),
+        Arc::new(InMemoryOperationStore::new()),
+    );
+    let j = job(&world, c, &pol, &intent, "candidate-late-link", 1, vec![pid(1)]);
+    let family = j.built.candidate.operation_family_id.clone();
+    let candidate = j.built.candidate.clone();
+    let issuance = coord.execute(j).unwrap();
+    let tx = issuance.signed.signed.chain_tx_id.clone();
+    let mut broadcaster = Broadcaster::new(
+        world.authority.clone(),
+        Arc::new(MemorySubmissionStore::new()),
+        world.clock.clone(),
+    );
+    broadcaster
+        .register_network(
+            c.profile.clone(),
+            c.adapter.clone(),
+            Arc::new(EvmSimulatorClient::new(evm.sim.clone())),
+        )
+        .unwrap();
+    broadcaster
+        .submit(&family, &candidate, &issuance.signed, &c.profile.chain_profile_id)
+        .unwrap();
+    // Indexing observes the mined transaction before the operation is linked.
+    evm.sim.mine().unwrap();
+    r.sync(&source).unwrap();
+    r.link_operation(tx.clone(), family.clone()).unwrap();
+    evm.sim.mine_blocks(3).unwrap();
+    r.sync(&source).unwrap();
+    let export = r.export().unwrap();
+    let movement = export
+        .movements()
+        .into_iter()
+        .find(|m| m.tx_id == tx && m.direction == MovementDirection::Outbound)
+        .unwrap();
+    assert_eq!(movement.acceptance, MovementAcceptance::Accepted);
+    assert_eq!(movement.operation_family_id.as_ref(), Some(&family));
+    assert!(
+        export.journal.iter().all(|e| match &e.body.kind {
+            JournalEntryKind::NetworkFee {
+                operation_family_id,
+                ..
+            }
+            | JournalEntryKind::OutgoingMovement {
+                operation_family_id,
+                ..
+            } => operation_family_id == &family,
+            _ => true,
+        }),
+        "a late link must not journal operation legs under a synthetic external family: {:?}",
+        export.journal
+    );
+}
+
+#[test]
+fn backfill_honors_the_requested_end_height() {
+    let world = World::new();
+    let evm = evm_chain(&world);
+    let c = &evm.chain;
+    let native = native(c);
+    let r = reconciler(Arc::new(OperationsStore::memory()));
+    enroll(&r, c, &native);
+    let address = c.wallet.address.as_slice().try_into().unwrap();
+    evm.sim.fund(address, 11_111).unwrap();
+    evm.sim.mine().unwrap();
+    let bounded_to = EvmBlocks(evm.sim.clone()).head().height;
+    let late = evm.sim.fund(address, 22_222).unwrap();
+    evm.sim.mine_blocks(4).unwrap();
+    let source = EvmBlocks(evm.sim.clone());
+    let job = r.backfill(&source, 0, bounded_to).unwrap();
+    assert!(matches!(job.state, BackfillState::Complete { .. }), "{job:?}");
+    let export = r.export().unwrap();
+    assert!(
+        !export.movements().iter().any(|m| m.tx_id == late),
+        "a bounded backfill must not ingest effects above the requested range"
+    );
+    let cursor = &export.cursors[&c.profile.chain_profile_id];
+    assert!(
+        cursor.last_scanned_height.unwrap_or(0) <= bounded_to,
+        "a bounded backfill must not advance the live cursor to the head: {cursor:?}"
+    );
+    // The ordinary sync still catches up without duplicating earlier credits.
+    r.sync(&source).unwrap();
+    let export = r.export().unwrap();
+    assert!(export.movements().iter().any(|m| m.tx_id == late));
+    assert_eq!(
+        r.holdings(&c.wallet.chain_wallet_id, &native.asset_id, Amount::ZERO)
+            .unwrap()
+            .settled,
+        Amount(10u128.pow(18) + 11_111 + 22_222)
+    );
+}
+
+/// Scripted observation source: fixed effects per height, fixed balances,
+/// everything final. Used to drive journal states the simulators cannot
+/// produce directly.
+struct Scripted {
+    profile: ChainProfile,
+    effects: Vec<Vec<ChainEffect>>,
+    native_balance: u128,
+}
+impl Scripted {
+    fn state(&self, height: u64) -> StateReference {
+        StateReference {
+            height,
+            hash: Bytes(vec![height as u8 + 1; 32]),
+            commitment: self.profile.finality_commitment.clone(),
+        }
+    }
+}
+impl BlockSource for Scripted {
+    fn profile(&self) -> ChainProfile {
+        self.profile.clone()
+    }
+    fn source_id(&self) -> EvidenceSourceId {
+        EvidenceSourceId::unchecked("scripted")
+    }
+    fn now(&self) -> UnixSeconds {
+        now()
+    }
+    fn head(&self) -> StateReference {
+        self.state(self.effects.len() as u64 - 1)
+    }
+    fn finalized(&self) -> StateReference {
+        self.head()
+    }
+    fn block(&self, height: u64) -> OicResult<IndexedBlock> {
+        let effects = self
+            .effects
+            .get(height as usize)
+            .ok_or_else(|| OicError::stale_evidence("missing scripted block"))?
+            .clone();
+        Ok(IndexedBlock {
+            state: self.state(height),
+            parent_hash: if height == 0 {
+                Bytes(vec![0; 32])
+            } else {
+                self.state(height - 1).hash
+            },
+            effects,
+        })
+    }
+    fn balance(
+        &self,
+        _state: &StateReference,
+        _address: &Bytes,
+        asset: &AssetKind,
+    ) -> OicResult<Amount> {
+        Ok(Amount(if *asset == AssetKind::Native {
+            self.native_balance
+        } else {
+            0
+        }))
+    }
+}
+
+#[test]
+fn spending_against_quarantined_credits_reconciles_with_a_shortfall_and_quorum_repair() {
+    use ed25519_dalek::Signer as _;
+    let world = World::new();
+    let evm = evm_chain(&world);
+    let c = &evm.chain;
+    let native = native(c);
+    let r = reconciler(Arc::new(OperationsStore::memory()));
+    enroll(&r, c, &native); // dust threshold = 100 base units
+    let effect = |tx: &str, direction, amount: u128| ChainEffect {
+        tx_id: ChainTxId::unchecked(tx),
+        index: 0,
+        address: c.wallet.address.clone(),
+        counterparty: Bytes(vec![0xcc; 20]),
+        direction,
+        asset: AssetKind::Native,
+        amount: Amount(amount),
+        mechanism: DiscoveryMechanism::EvmTransactionValue,
+        kind: oic_service_reconciler::EffectKind::Transfer,
+    };
+    // 99 is quarantined as dust (no credit), 1_000 is credited, and the
+    // outbound 1_050 posts a debit: the journal position is now -50 while the
+    // chain still holds 49.
+    let source = Scripted {
+        profile: c.profile.clone(),
+        effects: vec![
+            vec![
+                effect("dust-in", MovementDirection::Inbound, 99),
+                effect("real-in", MovementDirection::Inbound, 1_000),
+            ],
+            vec![effect("spend-out", MovementDirection::Outbound, 1_050)],
+        ],
+        native_balance: 49,
+    };
+    r.sync(&source).unwrap();
+    assert_eq!(
+        r.holdings(&c.wallet.chain_wallet_id, &native.asset_id, Amount::ZERO)
+            .unwrap_err()
+            .code,
+        ErrorCode::RecoveryRequired,
+        "spend paths must not operate on a negative journal"
+    );
+    // Reconciliation records the shortfall and opens a difference case
+    // instead of failing, so the quorum repair path stays reachable.
+    let checkpoint = r.reconcile(&source, &BTreeMap::new()).unwrap();
+    assert!(!checkpoint.body.is_consistent());
+    let balance = checkpoint
+        .body
+        .balances
+        .iter()
+        .find(|b| b.asset_id == native.asset_id)
+        .unwrap();
+    assert_eq!(balance.journal_balance, Amount::ZERO);
+    assert_eq!(balance.journal_shortfall, Amount(50));
+    assert_eq!(balance.difference(), (false, Amount(49 + 50)));
+    assert_eq!(checkpoint.body.cases_opened.len(), 1);
+    let correction = JournalCorrection {
+        institution_id: inst(),
+        environment_id: env_id(),
+        case_id: checkpoint.body.cases_opened[0].clone(),
+        checkpoint_id: checkpoint.body.checkpoint_id.clone(),
+        chain_wallet_id: c.wallet.chain_wallet_id.clone(),
+        asset_id: native.asset_id.clone(),
+        side: EntrySide::Credit,
+        amount: Amount(99),
+        reason: "Quarantined receipts were spent on chain; evidence EX-99".into(),
+    };
+    let signatures: Vec<_> = world.admins[..2]
+        .iter()
+        .map(|(id, key)| CredentialSignature {
+            credential_id: id.clone(),
+            signature: SignatureBytes {
+                scheme: SchemeId::Ed25519Pure,
+                bytes: Bytes(key.sign(&correction.hash().unwrap().0).to_bytes().to_vec()),
+            },
+        })
+        .collect();
+    r.resolve_difference(&correction, &signatures, world.authority.as_ref(), now())
+        .unwrap();
+    assert_eq!(
+        r.holdings(&c.wallet.chain_wallet_id, &native.asset_id, Amount::ZERO)
+            .unwrap()
+            .settled,
+        Amount(49),
+        "the authorized credit restores the journal to the chain position"
+    );
+    assert!(r
+        .reconcile(&source, &BTreeMap::new())
+        .unwrap()
+        .body
+        .is_consistent());
 }

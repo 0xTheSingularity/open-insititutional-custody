@@ -640,3 +640,66 @@ async fn solana_http_approval_frost_execution_and_rent_budget() {
         "API never invents monitoring activation or a reconciliation checkpoint"
     );
 }
+
+#[tokio::test]
+async fn institution_exports_require_access_to_vaults_missing_from_the_catalog() {
+    let world = World::new();
+    let evm = evm_chain(&world);
+    let c = &evm.chain;
+    let dir = tempfile::tempdir().unwrap();
+    let api = api(
+        &world,
+        c,
+        Arc::new(EvmSimulatorClient::new(evm.sim.clone())),
+        &dir.path().join("api.json"),
+    );
+    let app = router(api.clone());
+    // The reader credential covers every catalog vault, so institution-wide
+    // replay and export work.
+    assert_eq!(
+        call(&app, "GET", "/v1/events?after=0&limit=10", "reader", None)
+            .await
+            .0,
+        StatusCode::OK
+    );
+    assert_eq!(
+        call(&app, "GET", "/v1/export", "reader", None).await.0,
+        StatusCode::OK
+    );
+    // The reconciler store now retains records for a vault the catalog omits.
+    // Institution-wide responses include that vault's data, so a credential
+    // scoped only to the catalog vaults must be refused.
+    api.reconciler
+        .enroll(
+            DepositAddress {
+                deposit_address_id: DepositAddressId::unchecked("omitted-vault-deposit"),
+                institution_id: inst(),
+                environment_id: env_id(),
+                vault_id: VaultId::unchecked("vault-omitted"),
+                chain_wallet_id: None,
+                chain_profile_id: c.profile.chain_profile_id.clone(),
+                network_id: c.profile.network_id.clone(),
+                address: Bytes(vec![0xee; 20]),
+                address_display: "0xee..".into(),
+                custody: AddressCustody::WatchOnly,
+                supported_assets: vec![c.asset.asset_id.clone()],
+                routing_reference: None,
+                state: DepositAddressState::Active,
+                created_at: now(),
+                retired_at: None,
+            },
+            std::slice::from_ref(&c.asset),
+            Amount(0),
+        )
+        .unwrap();
+    assert_eq!(
+        call(&app, "GET", "/v1/events?after=0&limit=10", "reader", None)
+            .await
+            .0,
+        StatusCode::FORBIDDEN
+    );
+    assert_eq!(
+        call(&app, "GET", "/v1/export", "reader", None).await.0,
+        StatusCode::FORBIDDEN
+    );
+}

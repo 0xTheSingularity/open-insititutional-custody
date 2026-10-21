@@ -72,6 +72,10 @@ impl Reconciler {
                 if destination.network_id != profile.network_id || destination.address != wallet.address.address || !destination.allowed_assets.is_empty() && !destination.allowed_assets.contains(&gas.native_asset_id) { return Err(OicError::scope("gas may fund only the exact approved token wallet")); }
                 let funding = s.enrollments.values().find(|e| e.address.chain_wallet_id.as_ref() == Some(&gas.source_wallet_id)).ok_or_else(|| OicError::scope("gas source wallet"))?;
                 if funding.address.state != DepositAddressState::Active || funding.address.network_id != profile.network_id || funding.address.custody != AddressCustody::Controlled || gas.source_wallet_id == sweep.source_wallet_id { return Err(OicError::policy_denied("gas source is not an active controlled source on this network")); }
+                // The funding transaction debits the source's native fee and
+                // transfer effects; an unsupported native asset would quarantine
+                // them at acceptance and leave the source journal overstated.
+                if !funding.address.supported_assets.contains(&gas.native_asset_id) { return Err(OicError::policy_denied("gas source enrollment must support the configured native asset")); }
                 refill = Amount(gas.target_balance.0 - balance.0);
                 if refill > gas.max_refill_per_operation { return Err(OicError::budget("refill operation ceiling")); }
                 let allocated = s.workflow_contexts.values().filter(|c| c.gas_rule_id == gas.rule_id && c.period == now.0 / gas.period_seconds).try_fold(0u128, |a, c| a.checked_add(c.allocated_refill.0)).ok_or_else(|| OicError::budget("refill period overflow"))?;
