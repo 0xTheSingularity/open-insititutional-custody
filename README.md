@@ -9,7 +9,7 @@
 
 # Open Institutional Custody
 
-An open-source project by [The Singularity](https://github.com/0xTheSingularity).
+An open-source project by [The Singularity](https://thesingularity.so/).
 
 **Rust components for institutional payment authorization and signing.**
 
