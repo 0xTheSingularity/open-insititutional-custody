@@ -1,0 +1,38 @@
+[package]
+name = "oic-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "OpenInstitutionalCustody command-line interface (DEVELOPMENT-ONLY `oic demo` quickstart)"
+
+[[bin]]
+name = "oic"
+path = "src/main.rs"
+
+[dependencies]
+# internal — demo drives the real dev stack, verifier, and reconciler export
+oic-domain-types.workspace = true
+oic-adapter-api.workspace = true
+oic-adapter-evm.workspace = true
+oic-adapter-solana.workspace = true
+oic-authorization-state.workspace = true
+oic-approval-verifier.workspace = true
+oic-service-api.workspace = true
+oic-service-reconciler.workspace = true
+oic-service-local-stack.workspace = true
+
+# external
+clap.workspace = true
+tokio.workspace = true
+axum.workspace = true
+reqwest.workspace = true
+serde_json.workspace = true
+ed25519-dalek.workspace = true
+rand_core.workspace = true
+hex.workspace = true
+tempfile.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies]
+# the e2e test shells out to the built `oic` binary
