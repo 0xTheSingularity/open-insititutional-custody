@@ -486,6 +486,12 @@ pub fn sol_dest_owner() -> [u8; 32] {
 /// Solana simulator with a FROST 2-of-3 wallet holding SOL; with `spl`, also
 /// a registered SPL mint and a funded source ATA (destination ATA absent).
 pub fn sol_chain(world: &World, spl: bool) -> SolChain {
+    sol_chain_with_sealed_shares(world, spl).0
+}
+
+/// Offline provisioning seam for process-separated signer integration tests.
+/// Callers drop the fixture's local signers before starting network processes.
+pub fn sol_chain_with_sealed_shares(world: &World, spl: bool) -> (SolChain, Vec<(ParticipantId, Bytes)>) {
     let sim = Arc::new(SolanaSimulator::new(SolanaSimConfig::with_seed([3; 32]), SimClock::new(UnixSeconds(T0))).unwrap());
     let profile = sim.profile();
     let ids: Vec<ParticipantId> = (1..=3).map(pid).collect();
@@ -553,7 +559,7 @@ pub fn sol_chain(world: &World, spl: bool) -> SolChain {
         }
     }
     let chain = Chain { profile, adapter, source: Arc::new(SolanaSimulatorEvidence(sim.clone())), key, wallet, asset, destination, nodes };
-    SolChain { chain, sim, mint }
+    (SolChain { chain, sim, mint }, dkg.sealed_shares)
 }
 
 // ---------------------------------------------------------------------------

@@ -41,10 +41,16 @@ They assemble a working transfer before you explore each package.
 | `crates/signer`, `crates/crypto-provider*`, `crates/one-time-state-ledger` | Key material, signing protocol, and one-time state |
 | `crates/approval-verifier`, `apps/independent-approval-client` | Independent payment review and CLI |
 | `services/builder`, `services/coordinator`, `services/broadcaster` | Prepare, orchestrate, and deliver payments |
+| `crates/membership`, `crates/peer-wire`, `crates/node` | Signed roster, bounded wire objects, and authenticated D1 Commonware transport |
+| `services/signer-core`, `services/signer-net`, `services/authority-rpc` | Process-separated signer sessions, network bridge, and D1 authority endpoint |
 | `crates/audit`, `crates/chain-simulator` | Signed history and reproducible test chains |
 | `tests/golden-vectors`, `models/authorization-state-machine` | Protocol compatibility and bounded state exploration |
 
 ## Verification commands
+
+Use Rust 1.95 or newer for the full workspace, including the network packages.
+The [D1 network guide](signer-network.md) describes the Commonware BETA build
+gate, process tests, provisioning responsibilities, and incomplete RFC003 phases.
 
 ```sh
 cargo test --workspace --locked
@@ -66,6 +72,7 @@ release, clippy or coverage gate was not run for this documentation task.
 | Signer and one-time state | `cargo test -p oic-signer -p oic-one-time-state-ledger --locked` |
 | Independent approval | `cargo test -p oic-approval-verifier -p oic-approval-client --locked` |
 | Orchestration and finality | `cargo test -p oic-service-builder -p oic-service-coordinator -p oic-service-broadcaster --locked` |
+| D1 real sockets and separate signer processes | `cargo test -p oic-service-signer-net --test network --locked` |
 | Audit | `cargo test -p oic-audit --locked` |
 | Test-chain behavior | `cargo test -p oic-chain-simulator --locked` |
 

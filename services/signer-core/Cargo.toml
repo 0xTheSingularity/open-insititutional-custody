@@ -1,0 +1,34 @@
+[package]
+name = "oic-service-signer-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Process-separated, participant-authenticated D1 signing sessions"
+
+[dependencies]
+oic-domain-types.workspace = true
+oic-canonical-encoding.workspace = true
+oic-crypto-provider.workspace = true
+oic-crypto-provider-dev.workspace = true
+oic-crypto-provider-frost-ed25519.workspace = true
+oic-signer.workspace = true
+oic-membership.workspace = true
+oic-peer-wire.workspace = true
+oic-authorization-state.workspace = true
+oic-audit.workspace = true
+oic-service-coordinator.workspace = true
+ed25519-dalek.workspace = true
+parking_lot.workspace = true
+serde.workspace = true
+tempfile.workspace = true
+
+[dev-dependencies]
+oic-service-builder.workspace = true
+oic-service-broadcaster.workspace = true
+oic-chain-simulator.workspace = true
+oic-policy-kernel.workspace = true
+oic-approval-verifier.workspace = true
+oic-one-time-state-ledger.workspace = true
+oic-adapter-api.workspace = true
+oic-adapter-evm.workspace = true
+oic-adapter-solana.workspace = true

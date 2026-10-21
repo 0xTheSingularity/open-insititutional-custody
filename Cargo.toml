@@ -16,6 +16,9 @@ members = [
     "crates/crypto-provider-dev",
     "crates/crypto-provider-frost-ed25519",
     "crates/signer",
+    "crates/membership",
+    "crates/peer-wire",
+    "crates/node",
     "models/authorization-state-machine",
     "services/broadcaster",
     "services/reconciler",
@@ -23,6 +26,9 @@ members = [
     "tests/golden-vectors",
     "services/builder",
     "services/coordinator",
+    "services/signer-core",
+    "services/authority-rpc",
+    "services/signer-net",
     "apps/independent-approval-client",
 ]
 
@@ -60,6 +66,12 @@ oic-service-coordinator = { path = "services/coordinator" }
 oic-service-broadcaster = { path = "services/broadcaster" }
 oic-service-reconciler = { path = "services/reconciler" }
 oic-service-api = { path = "services/api" }
+oic-membership = { path = "crates/membership" }
+oic-peer-wire = { path = "crates/peer-wire" }
+oic-node = { path = "crates/node" }
+oic-service-signer-core = { path = "services/signer-core" }
+oic-service-authority-rpc = { path = "services/authority-rpc" }
+oic-service-signer-net = { path = "services/signer-net" }
 
 # external, pinned
 serde = { version = "1.0", features = ["derive"] }

@@ -14,11 +14,13 @@ without RPC credentials or a funded wallet.
 If Rust is new to you, use the
 [official installation guide](https://rust-lang.org/learn/get-started/#installing-rust),
 including its platform build tools. Cargo is Rust's build and package tool.
-A workspace groups related packages under one build. This workspace has 21 packages.
+A workspace groups related packages under one build; see the root `Cargo.toml`
+for current members.
 
-The workspace declares Rust 1.85 and edition 2021. The current lockfile and tests
-were verified with Rust/Cargo 1.99.0 on macOS. The declared minimum was not
-separately verified. Dependency compatibility can require a newer toolchain.
+Use Rust 1.95 or newer for the full workspace. The Commonware network packages
+require 1.95 and edition 2024; other packages retain edition 2021. The inherited
+workspace Rust 1.85 declaration is not a verified minimum for the locked dependency
+graph. Network builds also require CMake and a native C/C++ toolchain on Linux.
 
 ```sh
 git clone https://github.com/0xTheSingularity/oss-wallet-insitutional.git
@@ -61,7 +63,8 @@ cargo test -p oic-service-coordinator --locked --test coordinator \
 Expected result: `1 passed; 0 failed`. The test repeats the transfer with all
 three possible two-participant subsets of a three-participant FROST key. It checks
 native acceptance and recipient lamports. DKG and signer endpoints run in process.
-The example does not start the proposed institution peer network.
+For separate signer processes and Commonware TCP, use the
+[D1 signer-network tests](signer-network.md).
 
 For submission-to-finality behavior and recovery scenarios:
 
@@ -125,18 +128,19 @@ unauthenticated external API. They rely on surrounding verification.
 | --- | --- |
 | EVM transfers | Native value and registered standard ERC-20 `transfer` calls. Builds EIP-1559 transactions and verifies profile-enabled EIP-155 legacy transactions. |
 | Solana transfers | SOL and classic SPL `TransferChecked`, checked destination token-account creation, and legacy/v0 message verification. Builder emits legacy messages. |
-| Threshold signing | FROST Ed25519 with real DKG and threshold signing. No authenticated network transport, share refresh, or recover/replace yet. |
+| Threshold signing | FROST Ed25519 with real DKG and threshold signing, plus D1 network integration tests. No network DKG, share refresh, or recover/replace yet. |
 | EVM signing backend | Development single-key ECDSA. Production threshold ECDSA is not integrated. |
 | Authorization | Policy rules, independent approvals, shared exposure, resource reservations, policy versions, and freezes. |
 | Delivery and recovery | Recorded submission attempts, simulated chain clients, source disagreement handling, reorgs, and invalidation proofs. |
 | Durable state and audit | File-backed stores, one-time-state consumption, signer generations, signed audit events, and checkpoints. |
-| Product and networking | API, complete accounting/reconciliation workflows, deployment distribution, Commonware networking, and browser light client remain proposed work. |
+| Product and networking | Embeddable HTTP intake and reconciliation/workflow services; roster-admitted Commonware D1 libraries. No production launcher, D2 consensus, or browser light client. |
 
 There is no API-server or complete product deployment launcher in the current
-workspace. Live-chain clients, a full reconciler/journal/workflow controller,
-production threshold ECDSA, Commonware transport/ordering, and browser passkey
-approval remain separate implementation work. Operational schemas and proposed
-RFC interfaces do not make those services executable.
+workspace. Live-chain clients, production threshold ECDSA, replicated Commonware
+ordering, and browser passkey approval remain separate implementation work.
+The [D1 guide](signer-network.md#checks-and-current-limits) lists the remaining
+RFC003 phases; the [protocol v1 contract](../spec/protocol-v1.md) describes RFC002
+behavior and its production limits.
 
 The simulator suites do not establish a production deployment or independent
 security audit. The [chain concepts guide](concepts.md#how-evm-and-solana-express-a-transfer)

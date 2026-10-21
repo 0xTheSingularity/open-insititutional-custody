@@ -90,7 +90,13 @@ pub struct KeygenCeremony {
 /// Authenticated protocol message between participants (§6.4). Transport
 /// authenticates sender/recipient; the backend additionally binds
 /// session, round, and sequence.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+/// General-purpose serialization is deliberately unavailable for Class S.
+/// ```compile_fail
+/// use oic_crypto_provider::PeerMessage;
+/// fn encode<T: serde::Serialize>(_: &T) {}
+/// fn broadcast(message: &PeerMessage) { encode(message); }
+/// ```
+#[derive(Clone, PartialEq, Eq)]
 pub struct PeerMessage {
     pub session_id: SigningSessionId,
     pub key_id: KeyId,
@@ -107,8 +113,13 @@ pub struct PeerMessage {
     pub payload: Bytes,
 }
 
-/// Result of advancing a protocol by one message.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+/// Result of advancing a protocol by one message. May contain Class S.
+/// ```compile_fail
+/// use oic_crypto_provider::ProtocolStep;
+/// fn encode<T: serde::Serialize>(_: &T) {}
+/// fn record(step: &ProtocolStep) { encode(step); }
+/// ```
+#[derive(Clone, PartialEq, Eq)]
 pub enum ProtocolStep {
     /// Messages this participant must send next.
     Send(Vec<PeerMessage>),
@@ -120,6 +131,18 @@ pub enum ProtocolStep {
     Complete(SignatureBytes),
     /// Protocol aborted; one-time state consumed and never reusable.
     Aborted(String),
+}
+
+impl fmt::Debug for PeerMessage {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("PeerMessage([REDACTED])")
+    }
+}
+
+impl fmt::Debug for ProtocolStep {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("ProtocolStep([REDACTED])")
+    }
 }
 
 /// Record of a one-time secret's identity and durable consumption state (§6.3).
@@ -148,11 +171,23 @@ pub trait OneTimeStateLedger: Send + Sync {
     fn tombstone_generations_before(&self, key_id: &KeyId, generation: Epoch) -> OicResult<u64>;
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+/// Ceremony output contains Class S sealed shares, not just its public descriptor.
+/// ```compile_fail
+/// use oic_crypto_provider::DistributedKeyResult;
+/// fn encode<T: serde::Serialize>(_: &T) {}
+/// fn publish(result: &DistributedKeyResult) { encode(result); }
+/// ```
+#[derive(Clone, PartialEq, Eq)]
 pub struct DistributedKeyResult {
     pub descriptor: KeyDescriptor,
     /// Per-participant opaque sealed share material. Never logged.
     pub sealed_shares: Vec<(ParticipantId, Bytes)>,
+}
+
+impl fmt::Debug for DistributedKeyResult {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("DistributedKeyResult([REDACTED])")
+    }
 }
 
 /// A participant-local backend instance. One instance holds at most one

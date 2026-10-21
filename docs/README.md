@@ -12,6 +12,7 @@ Use [core concepts](concepts.md) when a custody term is unfamiliar.
 | Learn the vocabulary through a treasury payment | [Custody concepts from first principles](concepts.md) |
 | Install prerequisites and run the current code | [Getting started](getting-started.md) |
 | Set up local approval trust and credentials | [Approval client](approval-client.md) |
+| Exercise separate signer processes over Commonware TCP | [D1 signer network](signer-network.md) |
 | Choose tests, check vectors and run the authority model | [Development](development.md) |
 | Find a subsystem or trace its behavior | [OpenWiki quickstart](../openwiki/quickstart.md) |
 

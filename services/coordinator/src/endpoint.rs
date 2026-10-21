@@ -24,6 +24,17 @@ pub trait SignerEndpoint: Send + Sync {
     /// Verify the envelope and start the backend protocol.
     fn open_session(&self, envelope: &AuthorizationEnvelope, materials: &SigningMaterials, now: UnixSeconds) -> OicResult<ProtocolStep>;
 
+    /// Networked cores exchange authenticated MPC rounds directly. Such an
+    /// endpoint returns no MPC messages to the coordinator and waits here for
+    /// every core to have buffered the share-producing round before release.
+    fn exchanges_peer_messages(&self) -> bool {
+        false
+    }
+
+    fn await_prepared(&self, _session_id: &SigningSessionId) -> OicResult<()> {
+        Err(OicError::unsupported("endpoint does not exchange peer messages"))
+    }
+
     /// Deliver one peer or coordinator message.
     fn receive(&self, session_id: &SigningSessionId, message: &PeerMessage) -> OicResult<ProtocolStep>;
 

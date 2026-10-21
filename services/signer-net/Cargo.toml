@@ -1,0 +1,39 @@
+[package]
+name = "oic-service-signer-net"
+version.workspace = true
+edition = "2024"
+rust-version = "1.95"
+license.workspace = true
+description = "D1 Commonware transport to process-separated signer-core and authority RPC"
+
+[dependencies]
+oic-domain-types.workspace = true
+oic-canonical-encoding.workspace = true
+oic-node.workspace = true
+oic-peer-wire.workspace = true
+oic-service-signer-core.workspace = true
+oic-service-authority-rpc.workspace = true
+tokio.workspace = true
+
+[dev-dependencies]
+oic-audit.workspace = true
+oic-membership.workspace = true
+oic-authorization-state.workspace = true
+oic-service-coordinator.workspace = true
+oic-service-builder.workspace = true
+oic-service-broadcaster.workspace = true
+oic-signer.workspace = true
+oic-crypto-provider.workspace = true
+oic-crypto-provider-dev.workspace = true
+oic-crypto-provider-frost-ed25519.workspace = true
+oic-chain-simulator.workspace = true
+oic-policy-kernel.workspace = true
+oic-approval-verifier.workspace = true
+oic-one-time-state-ledger.workspace = true
+oic-adapter-api.workspace = true
+oic-adapter-evm.workspace = true
+oic-adapter-solana.workspace = true
+ed25519-dalek.workspace = true
+serde.workspace = true
+tempfile.workspace = true
+commonware-runtime = "=2026.9.0"

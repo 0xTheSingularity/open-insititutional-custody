@@ -268,6 +268,53 @@ fn b_signer_failing_after_release_leaves_issuance_unknown_and_exposure_retained(
 }
 
 #[test]
+fn lost_authority_release_reply_never_aborts_or_releases_exposure() {
+    use oic_authorization_state::{Authority, ReleaseRequest, ReserveRequest};
+    use oic_service_authority_rpc::AuthorityEndpoint;
+
+    struct LoseReleaseReply(Arc<Authority<InMemoryAuthorityStore>>);
+    impl AuthorityEndpoint for LoseReleaseReply {
+        fn reserve(&self, request: ReserveRequest) -> OicResult<(Reservation, AuthorityReceipt)> {
+            self.0.reserve(request)
+        }
+        fn release(&self, request: ReleaseRequest) -> OicResult<(AuthorityReceipt, IssuanceRecord)> {
+            self.0.release(request)?;
+            Err(OicError::new(ErrorCode::IssuanceUncertain, "release reply lost after commit"))
+        }
+        fn abort_before_issuance(&self, id: &ReservationId) -> OicResult<u64> {
+            self.0.abort_before_issuance(id)
+        }
+    }
+
+    let world = World::new();
+    let sol = sol_chain(&world, false);
+    let c = &sol.chain;
+    let pol = signed_policy(&world, &c.asset, 1, 10_000_000);
+    let intent = c.intent("intent-lost-release", 1_000_000, 10_000_000, ApprovalMode::ExactCandidate);
+    world.register(&pol, &intent);
+    let store = mem_store();
+    let coord = SigningCoordinator::new(
+        Arc::new(LoseReleaseReply(world.authority.clone())),
+        in_process(&c.nodes),
+        vec![c.adapter.clone()],
+        world.clock.clone(),
+        store.clone(),
+    )
+    .unwrap();
+    let j = job(&world, c, &pol, &intent, "cand-lost-release", 1, vec![pid(1), pid(2)]);
+    let family = j.built.candidate.operation_family_id.clone();
+    assert_eq!(coord.execute(j).unwrap_err().code, ErrorCode::IssuanceUncertain);
+    let record = store.operation(&family).unwrap();
+    assert_eq!(record.lifecycle, LifecycleState::IssuanceUnknown);
+    assert!(matches!(world.authority.reservation(record.reservation_id.as_ref().unwrap()).unwrap().state, ReservationState::Released { .. }));
+    assert_eq!(outstanding(&world, &c.asset.asset_id), Amount(1_000_000));
+    for node in &c.nodes[..2] {
+        assert!(!node.aborted(record.session_id.as_ref().unwrap()), "a lost reply does not prove a release failed");
+        assert_eq!(node.shares_produced(), 0, "the coordinator did not receive a receipt to forward");
+    }
+}
+
+#[test]
 fn c_two_jobs_within_limit_alone_exceed_it_together_and_the_second_fails_at_reserve() {
     let world = World::new();
     let sol = sol_chain(&world, false);

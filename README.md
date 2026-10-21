@@ -64,7 +64,8 @@ Read the [payment walkthrough](docs/payment-flow.md) for responsibilities and fa
 | Area | Implemented | Boundary |
 | --- | --- | --- |
 | **EVM** | Native value and registered ERC-20 transfers | Development single-key ECDSA |
-| **Solana** | SOL and classic SPL transfers with FROST Ed25519 | In-process threshold signing; no authenticated signer transport |
+| **Solana** | SOL and classic SPL transfers with FROST Ed25519 | Simulator-backed signing; no live-chain client |
+| **Signer network** | Roster-admitted Commonware transport, separate signer cores, and D1 authority RPC | [D1 integration tests](docs/signer-network.md); no production launcher or D2 consensus |
 | **Payment controls** | Independent approvals, policy rules, shared exposure, fee limits, and freezes | Off-chain authorization components |
 | **Operations** | Durable deposits/backfill, reorg reversals, fee/rent journal, reconciliation, and bounded gas-funding/sweeps | Deterministic chain simulators; no live indexer |
 | **Integration** | Vault-scoped HTTP intents, independent grants, crash-safe dispatch, status/evidence, and signed event replay | Embeddable Axum library; no production launcher |
@@ -89,6 +90,7 @@ cargo test --locked -p oic-service-api --test http_flow
 | [Payment walkthrough](docs/payment-flow.md) | One treasury payment, from request to settlement |
 | [Core concepts](docs/concepts.md) | Keys, shares, approvals, exposure, and finality |
 | [Approval client](docs/approval-client.md) | Review and approve payments with `oic-approve` |
+| [Signer network](docs/signer-network.md) | Separate-process D1 signing tests, embedding contracts, and remaining RFC003 work |
 | [Development](docs/development.md) | Workspace map, focused tests, protocol vectors, and bounded state exploration |
 | [Documentation index](docs/README.md) | Subsystem references and design RFCs |
 

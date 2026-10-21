@@ -1,0 +1,14 @@
+[package]
+name = "oic-membership"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Signed institution signer-network rosters and channel admission (RFC 0003)"
+
+[dependencies]
+oic-domain-types = { workspace = true }
+oic-canonical-encoding = { workspace = true }
+oic-crypto-provider = { workspace = true }
+ed25519-dalek = { workspace = true }
+serde = { workspace = true }

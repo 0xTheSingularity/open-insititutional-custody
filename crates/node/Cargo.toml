@@ -1,0 +1,26 @@
+[package]
+name = "oic-node"
+version.workspace = true
+edition = "2024"
+rust-version = "1.95"
+license.workspace = true
+description = "Isolated Commonware transport for institution-operated custody nodes"
+
+[dependencies]
+oic-domain-types.workspace = true
+oic-canonical-encoding.workspace = true
+oic-membership.workspace = true
+oic-peer-wire.workspace = true
+commonware-codec = "=2026.9.0"
+commonware-cryptography = { version = "=2026.9.0", features = ["std"] }
+commonware-p2p = "=2026.9.0"
+commonware-runtime = "=2026.9.0"
+commonware-utils = { version = "=2026.9.0", features = ["std"] }
+serde.workspace = true
+ed25519-dalek.workspace = true
+tokio.workspace = true
+
+[dev-dependencies]
+oic-crypto-provider.workspace = true
+oic-crypto-provider-dev.workspace = true
+serde_json.workspace = true

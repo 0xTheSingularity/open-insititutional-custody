@@ -48,10 +48,11 @@ pub use endpoint::*;
 pub use store::*;
 
 use oic_adapter_api::{ChainAdapter, ChainProfile, VerifiedSignedTransaction};
-use oic_authorization_state::{Authority, AuthorityStore, Clock, ReleaseRequest, ReserveRequest};
+use oic_authorization_state::{Authority, Clock, ReleaseRequest, ReserveRequest};
 use oic_crypto_provider::ProtocolStep;
 use oic_domain_types::*;
 use oic_policy_kernel::{policy_hash, Decision};
+use oic_service_authority_rpc::AuthorityEndpoint;
 use oic_service_builder::{envelope_body, signing_materials, BuiltCandidate, Evaluation};
 use oic_signer::envelope_body_hash;
 use std::collections::{BTreeMap, BTreeSet};
@@ -79,9 +80,12 @@ pub struct Issuance {
     pub signed: VerifiedSignedTransaction,
 }
 
-/// The coordinator. See the crate docs.
-pub struct Coordinator<S: AuthorityStore> {
-    authority: Arc<Authority<S>>,
+/// Existing in-process authority API, preserved for API/broadcaster callers.
+pub type Coordinator<S> = SigningCoordinator<Authority<S>>;
+
+/// The same issuance flow with either a local or authenticated RPC authority.
+pub struct SigningCoordinator<A: AuthorityEndpoint + ?Sized> {
+    authority: Arc<A>,
     signers: BTreeMap<ParticipantId, Arc<dyn SignerEndpoint>>,
     adapters: BTreeMap<AdapterId, Arc<dyn ChainAdapter>>,
     clock: Arc<dyn Clock>,
@@ -125,11 +129,11 @@ fn exposure_limits(rule: &PolicyRule, claims: &ResourceClaims) -> Vec<(AssetId, 
     out
 }
 
-impl<S: AuthorityStore> Coordinator<S> {
+impl<A: AuthorityEndpoint + ?Sized> SigningCoordinator<A> {
     /// Endpoints are keyed by their participant id and adapters by their
     /// manifest id; duplicates are refused.
     pub fn new(
-        authority: Arc<Authority<S>>,
+        authority: Arc<A>,
         signers: Vec<Arc<dyn SignerEndpoint>>,
         adapters: Vec<Arc<dyn ChainAdapter>>,
         clock: Arc<dyn Clock>,
@@ -149,14 +153,14 @@ impl<S: AuthorityStore> Coordinator<S> {
                 return Err(OicError::invalid_request(format!("two adapters with id {id}")));
             }
         }
-        Ok(Coordinator { authority, signers: by_participant, adapters: by_adapter, clock, store })
+        Ok(SigningCoordinator { authority, signers: by_participant, adapters: by_adapter, clock, store })
     }
 
     pub fn store(&self) -> &Arc<dyn OperationStore> {
         &self.store
     }
 
-    pub fn authority(&self) -> &Arc<Authority<S>> {
+    pub fn authority(&self) -> &Arc<A> {
         &self.authority
     }
 
@@ -230,6 +234,9 @@ impl<S: AuthorityStore> Coordinator<S> {
                 .iter()
                 .map(|p| self.signers.get(p).cloned().map(|e| (p.clone(), e)).ok_or_else(|| OicError::new(ErrorCode::NotFound, format!("no signer endpoint for participant {p}"))))
                 .collect::<OicResult<Vec<_>>>()?;
+            if endpoints.iter().any(|(_, e)| e.exchanges_peer_messages()) && endpoints.iter().any(|(_, e)| !e.exchanges_peer_messages()) {
+                return Err(OicError::unsupported("mixed local and peer-network protocol drivers"));
+            }
             let session_id = SigningSessionId::new(format!("sess-{}", uuid::Uuid::new_v4())).ok_or_else(|| OicError::internal("session id"))?;
             let body = envelope_body(built, adapter.as_ref(), &job.profile, job.grants.clone(), session_id, job.participant_set.clone(), job.issuance_deadline)?;
             let payload = match body.native_signing_payloads.iter().filter(|p| p.required_key_id == key.key_id && p.scheme_id == key.scheme).collect::<Vec<_>>().as_slice() {
@@ -293,6 +300,13 @@ impl<S: AuthorityStore> Coordinator<S> {
         });
         let (release_receipt, issuance_record) = match released {
             Ok(r) => r,
+            Err(e) if e.code == ErrorCode::IssuanceUncertain => {
+                // An RPC timeout can hide a committed release. Neither retry
+                // nor abort can establish that issuance did not happen.
+                let err = uncertain(&jr.reservation_id, &jr.session_id, &e);
+                let recorded = self.record(&jr, LifecycleState::IssuanceUnknown, None, None, Some(e));
+                return Err(with_note(err, recorded.err().map(|e| format!("lifecycle log append failed: {}", e.detail))));
+            }
             Err(e) => return Err(self.abort_before_issuance(&jr, &opened, e)),
         };
 
@@ -338,6 +352,15 @@ impl<S: AuthorityStore> Coordinator<S> {
                 other => return Err(OicError::internal(format!("{p} answered open_session with {other:?}"))),
             };
             round1.insert(p.clone(), msgs);
+        }
+        if endpoints.iter().all(|(_, e)| e.exchanges_peer_messages()) {
+            if round1.values().any(|messages| !messages.is_empty()) {
+                return Err(OicError::internal("network endpoint exposed an MPC round"));
+            }
+            for (_, ep) in endpoints {
+                ep.await_prepared(session_id)?;
+            }
+            return Ok(());
         }
         let ctx = SessionContext { session_id, key: &materials.key, payload, participants: &envelope.body.participant_set, generations: &generations };
         let deliveries = driver.relay_round1(&ctx, &round1)?.into_iter().chain(driver.round2(&ctx, &round1)?);

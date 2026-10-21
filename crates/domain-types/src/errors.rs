@@ -25,6 +25,13 @@ pub enum ErrorCode {
     Conflict,
     InvalidRequest,
     Internal,
+    RosterMismatch,
+    PeerNotAdmitted,
+    StaleGeneration,
+    AttestationDisagreement,
+    SessionRejected,
+    NodeHalted,
+    OrderingUnavailable,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Error, Serialize, Deserialize)]

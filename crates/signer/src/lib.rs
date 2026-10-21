@@ -173,7 +173,7 @@ pub struct TrustRoots {
 }
 
 /// The objects an envelope commits to, delivered alongside it.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SigningMaterials {
     pub intent: Intent,
     pub candidate: Candidate,
@@ -344,6 +344,11 @@ impl Signer {
 
     pub fn generation(&self) -> Epoch {
         self.generation
+    }
+
+    /// The local backend's capabilities, never supplied by a network peer.
+    pub fn backend(&self) -> &BackendDescriptor {
+        &self.backend
     }
 
     /// This instance's participant identity (configured at open).

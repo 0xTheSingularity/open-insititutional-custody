@@ -1,0 +1,18 @@
+[package]
+name = "oic-service-authority-rpc"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Typed D1 authority RPC endpoint, roster admission, and fail-closed client (RFC 0003)"
+
+[dependencies]
+oic-authorization-state = { workspace = true }
+oic-domain-types = { workspace = true }
+oic-membership = { workspace = true }
+oic-peer-wire = { workspace = true }
+
+[dev-dependencies]
+oic-canonical-encoding = { workspace = true }
+oic-policy-kernel = { workspace = true }
+ed25519-dalek = { workspace = true }

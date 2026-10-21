@@ -16,7 +16,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@1.95.0
     - name: Build
-      run: cargo build --verbose
+      run: cargo build --workspace --locked
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo test --workspace --locked
+    - name: Reject ALPHA APIs in the production network
+      env:
+        RUSTFLAGS: --cfg commonware_stability_BETA
+      run: cargo check -p oic-service-signer-net --lib --locked

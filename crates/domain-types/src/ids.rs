@@ -96,6 +96,10 @@ id_type!(#[doc = "Workflow instance above the intent API (RFC 0002 §5)."] Workf
 id_type!(#[doc = "Durable workflow trigger identity (RFC 0002 §5)."] TriggerId);
 id_type!(#[doc = "Webhook subscription (RFC 0001 §13.4)."] WebhookSubscriptionId);
 id_type!(#[doc = "Lifecycle/webhook event identity (RFC 0001 §13.4)."] EventId);
+// RFC 0003 institution-operated networks.
+id_type!(#[doc = "Roster-admitted network node."] NodeId);
+id_type!(#[doc = "Independent administrative and failure domain."] TrustDomainId);
+id_type!(#[doc = "Roster-defined key, verification, authority, or witness committee."] CommitteeId);
 
 /// Monotonic epoch counter used for keys, policies, and signer generations.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize, Default)]

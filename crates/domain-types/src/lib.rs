@@ -49,4 +49,9 @@ pub mod domains {
     /// Webhook event signing (RFC 0001 §13.4).
     pub const WEBHOOK: &str = "OIC/WEBHOOK/v1";
     pub const SIGNER_FENCE: &str = "OIC/SIGNER_FENCE/v1";
+    pub const NETWORK_ROSTER: &str = "OIC/NETWORK_ROSTER/v1";
+    pub const VERIFY_ATTESTATION: &str = "OIC/VERIFY_ATTESTATION/v1";
+    pub const PEER_MESSAGE: &str = "OIC/PEER_MESSAGE/v1";
+    pub const AUTHORITY_BLOCK: &str = "OIC/AUTHORITY_BLOCK/v1";
+    pub const P2P: &str = "OIC/P2P/v1";
 }
