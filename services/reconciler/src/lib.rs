@@ -28,6 +28,8 @@ pub struct JournalCorrection {
 }
 
 impl JournalCorrection {
+    /// Return the domain-separated hash administrators sign to authorize this
+    /// exact correction. Canonical encoding errors propagate.
     pub fn hash(&self) -> OicResult<Hash32> {
         domain_hash(domains::CONFIG_PROPOSAL, &("journal-correction", self))
     }
@@ -42,6 +44,11 @@ pub struct Reconciler {
 }
 
 impl Reconciler {
+    /// Verify stored journal, event, and checkpoint evidence with the service key,
+    /// then bind an unscoped store to this institution and environment.
+    /// Returns `ScopeMismatch` for a different stored binding; integrity,
+    /// signature, and store errors propagate. The supplied key signs future
+    /// operational events and checkpoints.
     pub fn open(
         store: Arc<OperationsStore>,
         institution: InstitutionId,
@@ -76,6 +83,7 @@ impl Reconciler {
         })
     }
 
+    /// Return a snapshot of operational records, propagating store recovery errors.
     pub fn export(&self) -> OicResult<OperationsExport> {
         self.store.export()
     }
@@ -83,6 +91,13 @@ impl Reconciler {
     /// Trusted domain-local enrollment, not a custody activation shortcut.
     /// Callers must commit independent key/recovery/monitoring evidence before
     /// `activate`. Signer verification remains the authority over chain output.
+    ///
+    /// New addresses start inactive. `dust_threshold` is in each supported
+    /// asset's base units; inbound amounts strictly below it are quarantined at
+    /// acceptance. Rejects scope or asset mismatches and conflicting address,
+    /// wallet, or asset identities. Matching address, wallet, and supported-asset
+    /// lists under an existing ID leave the enrollment unchanged. Store errors
+    /// propagate.
     pub fn enroll(
         &self,
         mut address: DepositAddress,
@@ -156,6 +171,11 @@ impl Reconciler {
         })
     }
 
+    /// Persist activation evidence and return active only when every step is
+    /// present; partial evidence leaves the address inactive. Supplied steps need
+    /// nonzero commitments and nonempty actors. Returns `NotFound` for an unknown
+    /// address, `InvalidRequest` for invalid steps, or `ResourceConflict` for a
+    /// retired address or changes to completed activation. Store errors propagate.
     pub fn activate(&self, activation: AddressActivation) -> OicResult<DepositAddressState> {
         self.store.transact(|s| {
             let e = s
@@ -194,6 +214,9 @@ impl Reconciler {
         })
     }
 
+    /// Mark an enrolled address retired at `at` and retain its monitoring history.
+    /// Returns `NotFound` for an unknown address; store errors propagate. Later
+    /// retirement calls replace the retirement timestamp.
     pub fn retire(&self, id: &DepositAddressId, at: UnixSeconds) -> OicResult<()> {
         self.store.transact(|s| {
             let e = s
@@ -206,6 +229,10 @@ impl Reconciler {
         })
     }
 
+    /// Bind a transaction to an operation before accepting its indexed effects.
+    /// Repeating the same binding is allowed. Returns `ResourceConflict` if the
+    /// transaction or an accepted movement is already associated differently;
+    /// store errors propagate.
     pub fn link_operation(&self, tx: ChainTxId, family: OperationFamilyId) -> OicResult<()> {
         self.store.transact(|s| {
             if s.operations.get(&tx).is_some_and(|f| f != &family) {
@@ -229,10 +256,20 @@ impl Reconciler {
 
     /// Scan all missed heights in one atomic commit. Re-check the source's
     /// head before commit, so a moving fork cannot splice two histories.
+    ///
+    /// Deduplicates effects, reverses removed canonical movements, and accepts or
+    /// quarantines observations through source finality. New address enrollments
+    /// trigger a historical rescan. Returns the committed cursor; discontinuous
+    /// or changing history returns `StaleEvidence`. Source, effect-validation,
+    /// and hashing errors abort the scan. Store errors propagate and can leave
+    /// persistence uncertain.
     pub fn sync(&self, source: &dyn BlockSource) -> OicResult<IndexCursor> {
         self.sync_from(source, None)
     }
 
+    /// Catch up to the source head, optionally rescanning from an earlier height.
+    /// Reconcile forks and finality in the same store transaction as the cursor;
+    /// propagate scan or persistence errors.
     fn sync_from(
         &self,
         source: &dyn BlockSource,
@@ -351,6 +388,11 @@ impl Reconciler {
     }
 
     /// A durable job records uncertainty before attempting the catch-up scan.
+    ///
+    /// `from` and `to` are inclusive heights or slots used for the job's movement
+    /// count; the rescan can begin earlier and continues through the current head.
+    /// An invalid range returns `InvalidRequest`. Scan errors become a returned
+    /// job with `Failed` state; job persistence errors still propagate.
     pub fn backfill(&self, source: &dyn BlockSource, from: u64, to: u64) -> OicResult<BackfillJob> {
         if from > to || to > source.head().height {
             return Err(OicError::invalid_request("backfill range"));
@@ -398,6 +440,10 @@ impl Reconciler {
         })
     }
 
+    /// Record an enrolled address's effect once under its network/transaction/leg
+    /// identity and append an observation event. Ignore unmonitored addresses;
+    /// reject conflicting canonical effects with `UnverifiableTransaction`.
+    /// Hashing and event errors propagate to the surrounding transaction.
     fn observe(
         &self,
         s: &mut OperationsExport,
@@ -491,6 +537,9 @@ impl Reconciler {
         )
     }
 
+    /// Accept a finalized observation or quarantine it with a case. Accepted
+    /// controlled-wallet movements post journal entries; watch-only movements do
+    /// not. Append the resulting acceptance event; posting errors propagate.
     fn accept(&self, s: &mut OperationsExport, id: &MovementId, now: UnixSeconds) -> OicResult<()> {
         let r = s.movements.get(id).expect("movement").clone();
         let m = &r.movement;
@@ -637,6 +686,9 @@ impl Reconciler {
         )
     }
 
+    /// Reverse a removed canonical movement with compensating journal entries,
+    /// a reorg case, and an event, retaining original postings. Posting and event
+    /// errors propagate to the surrounding transaction.
     fn reverse(
         &self,
         s: &mut OperationsExport,
@@ -706,6 +758,9 @@ impl Reconciler {
         )
     }
 
+    /// Append a hash-linked journal entry for an enrolled wallet and return its ID.
+    /// Amounts are asset base units. An unenrolled wallet returns `ScopeMismatch`;
+    /// hashing errors propagate. The caller commits the containing snapshot.
     pub(crate) fn post(
         &self,
         s: &mut OperationsExport,
@@ -750,6 +805,8 @@ impl Reconciler {
         Ok(id)
     }
 
+    /// Append a sequenced, service-signed lifecycle event to the supplied snapshot.
+    /// Hashing errors propagate; the caller is responsible for committing it.
     pub(crate) fn event(
         &self,
         s: &mut OperationsExport,
@@ -773,6 +830,8 @@ impl Reconciler {
         Ok(())
     }
 
+    /// Insert a case and its signed opening event, leaving an existing case ID
+    /// unchanged. Event errors propagate to the surrounding transaction.
     pub(crate) fn case(&self, s: &mut OperationsExport, case: DepositCase) -> OicResult<()> {
         if s.cases.contains_key(&case.case_id) {
             return Ok(());
@@ -789,6 +848,7 @@ impl Reconciler {
         Ok(())
     }
 
+    /// Sign the supplied hash bytes with the reconciler's Ed25519 service key.
     pub(crate) fn sign(&self, hash: Hash32) -> SignatureBytes {
         SignatureBytes {
             scheme: SchemeId::Ed25519Pure,
@@ -857,6 +917,9 @@ impl Reconciler {
         })
     }
 
+    /// Return at most `limit` signed events in sequence order, strictly after
+    /// `sequence`. Zero starts from the first event. Limits outside 1 through
+    /// 1000 return `InvalidRequest`; store recovery errors propagate.
     pub fn events_since(&self, sequence: u64, limit: usize) -> OicResult<Vec<LifecycleEvent>> {
         if limit == 0 || limit > 1000 {
             return Err(OicError::invalid_request("event limit must be 1..1000"));
@@ -870,6 +933,12 @@ impl Reconciler {
             .collect())
     }
 
+    /// Return journal-settled and pending inbound holdings in asset base units.
+    /// `reserved` is supplied by the caller and reduces available holdings with
+    /// a floor of zero; pending inbound does not increase availability. Unknown
+    /// wallet/asset pairs have zero journal holdings. Arithmetic overflow returns
+    /// `UnverifiableTransaction`, negative settled holdings return
+    /// `RecoveryRequired`, and store recovery errors propagate.
     pub fn holdings(
         &self,
         wallet: &ChainWalletId,
@@ -881,6 +950,14 @@ impl Reconciler {
 
     /// Explicit, scoped correction. The admin quorum signs the explanation
     /// and exact entry; a reconciliation difference never balances itself.
+    ///
+    /// Post the exact signed checkpoint difference, resolve its open case, and
+    /// publish a resolution event atomically, returning the new journal entry ID.
+    /// Invalid or insufficient administrator signatures return `InvalidSignature`;
+    /// mismatched correction scope or amounts return `ScopeMismatch`. Missing
+    /// cases/checkpoints return `NotFound`, resolved cases return `ResourceConflict`,
+    /// and an advanced journal or checkpoint returns `StaleEvidence`. Hashing,
+    /// journal posting, and store errors propagate.
     pub fn resolve_difference<S: AuthorityStore>(
         &self,
         correction: &JournalCorrection,
@@ -1002,6 +1079,12 @@ impl Reconciler {
 
     /// Compare only a fully indexed finalized checkpoint. Independent balance
     /// reads cannot silently create journal adjustments (C19).
+    ///
+    /// Persist and return a signed balance checkpoint, opening cases for
+    /// differences. `reserved` supplies wallet/asset reservations in base units;
+    /// missing pairs use zero. Returns `StaleEvidence` when indexing is behind
+    /// finality or finality changes during comparison. Balance reads, holdings
+    /// calculation, hashing, and store errors propagate.
     pub fn reconcile(
         &self,
         source: &dyn BlockSource,
@@ -1128,6 +1211,10 @@ impl Reconciler {
     }
 }
 
+/// Calculate settled credits minus debits and canonical, observed inbound
+/// amounts for a wallet/asset pair. Supplied reservations reduce availability
+/// to a minimum of zero. Overflow returns `UnverifiableTransaction`; negative
+/// settled holdings require recovery.
 fn holdings(
     s: &OperationsExport,
     wallet: &ChainWalletId,
@@ -1181,6 +1268,12 @@ fn holdings(
 
 /// Conservative wallet-local reservations. Mutually exclusive candidates may
 /// over-reserve here; the authority remains the source of policy exposure.
+///
+/// Sum active asset outflows and native fees by source wallet and asset in
+/// base units. `native_assets` maps fee networks to their native asset IDs;
+/// fees without a mapping are omitted. An unmatched source wallet returns
+/// `ScopeMismatch`, sum overflow returns `UnverifiableTransaction`, and
+/// authority-store read errors propagate.
 pub fn outstanding_reservations<S: AuthorityStore>(
     store: &S,
     wallets: &[ChainWallet],

@@ -12,6 +12,7 @@ pub struct ApiStore {
     environment: EnvironmentId,
 }
 
+/// Convert database or serialization failures to `AuthorityUnavailable`.
 fn storage(error: impl std::fmt::Display) -> OicError {
     OicError::new(
         ErrorCode::AuthorityUnavailable,
@@ -20,6 +21,10 @@ fn storage(error: impl std::fmt::Display) -> OicError {
 }
 
 impl ApiStore {
+    /// Open or initialize a SQLite intake store bound to one institution and
+    /// environment. Creates its tables and requests WAL with full synchronization.
+    /// Returns `ScopeMismatch` for an existing database with another binding;
+    /// database setup errors return `AuthorityUnavailable`.
     pub fn open(
         path: impl AsRef<Path>,
         institution: InstitutionId,
@@ -57,6 +62,8 @@ impl ApiStore {
         })
     }
 
+    /// Reject an authority binding different from this store's institution or
+    /// environment with `ScopeMismatch`.
     pub(crate) fn check_scope(
         &self,
         institution: &InstitutionId,
@@ -68,6 +75,8 @@ impl ApiStore {
         Ok(())
     }
 
+    /// Load an intent by ID. Returns `NotFound` if absent, `RecoveryRequired`
+    /// if its JSON is corrupt, or `AuthorityUnavailable` on a database error.
     pub fn get(&self, id: &IntentId) -> OicResult<IntentRecord> {
         let body: Option<String> = self
             .db
@@ -83,6 +92,10 @@ impl ApiStore {
             .map_err(|_| OicError::new(ErrorCode::RecoveryRequired, "API intent record is corrupt"))
     }
 
+    /// Insert an intent record or return the existing record for the same intent.
+    /// Existing candidate and dispatch state are preserved. A different intent
+    /// body under the same ID returns `Conflict`; serialization, database, and
+    /// record-read errors propagate.
     pub(crate) fn insert(&self, record: &IntentRecord) -> OicResult<IntentRecord> {
         let body = serde_json::to_string(record).map_err(storage)?;
         self.db
@@ -104,6 +117,8 @@ impl ApiStore {
 
     /// Compare-and-swap prevents two API processes from dropping approvals or
     /// starting two coordinators. Dispatch is committed before any signer call.
+    /// Returns `Conflict` if the old record is absent or no longer matches;
+    /// serialization and database errors return `AuthorityUnavailable`.
     pub(crate) fn replace(&self, old: &IntentRecord, new: &IntentRecord) -> OicResult<()> {
         let old_body = serde_json::to_string(old).map_err(storage)?;
         let new_body = serde_json::to_string(new).map_err(storage)?;

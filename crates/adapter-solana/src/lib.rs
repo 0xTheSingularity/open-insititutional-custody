@@ -967,6 +967,12 @@ impl ChainAdapter for SolanaAdapter {
         Ok(VerifiedSignedTransaction { signed: signed.clone(), verified_signers: vec![Bytes(pk.to_vec())] })
     }
 
+    /// Read inclusion or finality from scoped signature-status evidence.
+    /// `fee_paid` includes both network fees and actual token-account funding in
+    /// lamports. Returns `Finalized` at or above the profile's finality commitment,
+    /// otherwise `Included`, including for failed execution. Profile, evidence,
+    /// and transaction-ID validation errors propagate; missing evidence is an
+    /// error rather than a not-yet-visible result.
     fn observe(&self, tx_id: &ChainTxId, profile: &ChainProfile, evidence: &EvidenceBundle) -> OicResult<ChainObservation> {
         check_profile(profile)?;
         check_evidence_scope(profile, evidence, None)?;

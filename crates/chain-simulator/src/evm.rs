@@ -1008,6 +1008,10 @@ impl EvmSimulator {
 
     /// Holdings at an exact canonical block, not at the current head. A
     /// concurrent reorg invalidates the reference instead of mixing checkpoints.
+    /// Returns wei for native currency or base units for ERC-20 tokens; absent
+    /// holdings are zero. Missing or mismatched blocks return `StaleEvidence`,
+    /// malformed contract addresses return `InvalidRequest`, and other asset
+    /// kinds return `UnsupportedCapability`. The commitment label is not checked.
     pub fn balance_at(&self, state: &StateReference, address: &Address, asset: &AssetKind) -> OicResult<Amount> {
         let g = lock(&self.inner);
         let h = usize::try_from(state.height).map_err(|_| OicError::stale_evidence("block height out of range"))?;

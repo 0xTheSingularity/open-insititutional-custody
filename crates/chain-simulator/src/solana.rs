@@ -928,6 +928,9 @@ impl Inner {
         }
     }
 
+    /// Return signature status only if included at or before slot `view`.
+    /// Commitment reflects current finality; account funding sums the post-execution
+    /// lamports of token accounts absent from the transaction's pre-token balances.
     fn observation(&self, view: u64, sig: &[u8; 64]) -> Option<TxObservation> {
         let &(slot, i) = self.sig_index.get(sig)?;
         if slot > view {
@@ -1242,6 +1245,11 @@ impl SolanaSimulator {
 
     /// Holdings at an exact canonical slot. SPL holdings aggregate initialized
     /// classic-token accounts owned by `owner`; rent is not spendable SOL.
+    /// Returns lamports or token base units, with zero for absent holdings.
+    /// Missing or mismatched slots return `StaleEvidence`, malformed mints
+    /// return `InvalidRequest`, unsupported assets or token programs return
+    /// `UnsupportedCapability`, and token-total overflow returns
+    /// `UnverifiableTransaction`. The commitment label is not checked.
     pub fn balance_at(&self, state: &StateReference, owner: &Pubkey, asset: &AssetKind) -> OicResult<Amount> {
         let g = lock(&self.inner);
         let h = usize::try_from(state.height).map_err(|_| OicError::stale_evidence("slot out of range"))?;

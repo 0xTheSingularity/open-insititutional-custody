@@ -34,6 +34,7 @@ pub(crate) enum StoredEffectKind {
 }
 
 impl From<EffectKind> for StoredEffectKind {
+    /// Preserve the discovered effect kind in the persisted movement record.
     fn from(k: EffectKind) -> Self {
         match k {
             EffectKind::Transfer => Self::Transfer,
@@ -65,6 +66,7 @@ pub struct OperationsExport {
 }
 
 impl OperationsExport {
+    /// Return copies of all movement records, including quarantined and reversed movements.
     pub fn movements(&self) -> Vec<ObservedMovement> {
         self.movements
             .values()
@@ -72,6 +74,10 @@ impl OperationsExport {
             .collect()
     }
 
+    /// Check journal hashes and sequence links, event sequences and signatures,
+    /// and checkpoint signatures and journal commitments using the service key.
+    /// Returns `RecoveryRequired` for broken chains or commitments and
+    /// `InvalidSignature` for invalid service signatures; hashing errors propagate.
     pub fn verify(&self, key: &VerifyingKey) -> OicResult<()> {
         let mut previous = Hash32::ZERO;
         for (i, entry) in self.journal.iter().enumerate() {
@@ -123,6 +129,9 @@ impl OperationsExport {
     }
 }
 
+/// Verify an Ed25519 service signature over the supplied hash bytes.
+/// Returns `InvalidSignature` for a different scheme, malformed signature,
+/// or verification failure.
 pub fn verify_signature(
     key: &VerifyingKey,
     hash: Hash32,
@@ -139,6 +148,7 @@ pub fn verify_signature(
         .map_err(|_| OicError::invalid_signature("service signature invalid"))
 }
 
+/// Convert persistence failures to `AuthorityUnavailable`.
 fn io_error(e: impl std::fmt::Display) -> OicError {
     OicError::new(
         ErrorCode::AuthorityUnavailable,
@@ -156,6 +166,7 @@ pub struct OperationsStore {
 }
 
 impl OperationsStore {
+    /// Create an empty operations store without file persistence or writer fencing.
     pub fn memory() -> Self {
         Self {
             inner: Mutex::new(Some(OperationsExport::default())),
@@ -164,6 +175,12 @@ impl OperationsStore {
         }
     }
 
+    /// Open a snapshot while holding an exclusive sidecar writer lock.
+    /// A missing snapshot starts empty. Returns `ResourceConflict` when the writer
+    /// lock cannot be acquired, `RecoveryRequired` for unreadable snapshot data,
+    /// a corrupt high-water mark, or a revision below that mark, and
+    /// `AuthorityUnavailable` for I/O failures. Cryptographic integrity is checked
+    /// separately when opening the reconciler.
     pub fn open(path: impl AsRef<Path>) -> OicResult<Self> {
         let path = path.as_ref().to_path_buf();
         let lock = OpenOptions::new()
@@ -209,6 +226,8 @@ impl OperationsStore {
         })
     }
 
+    /// Return a copy of the current snapshot. Returns `RecoveryRequired` if an
+    /// ambiguous persistence failure has poisoned the store; reopen it to recover.
     pub fn export(&self) -> OicResult<OperationsExport> {
         self.inner.lock().clone().ok_or_else(|| {
             OicError::new(
@@ -218,6 +237,11 @@ impl OperationsStore {
         })
     }
 
+    /// Apply a closure to a snapshot copy and commit only successful changes.
+    /// Unchanged snapshots do not advance the revision. Closure errors propagate
+    /// without committing. File persistence errors return `AuthorityUnavailable`
+    /// and poison the store because the durable outcome is uncertain; subsequent
+    /// access returns `RecoveryRequired`. Revision overflow returns `Internal`.
     pub(crate) fn transact<T>(
         &self,
         f: impl FnOnce(&mut OperationsExport) -> OicResult<T>,
@@ -256,6 +280,8 @@ impl OperationsStore {
     }
 }
 
+/// Replace a snapshot through a temporary file and sync the file and directory.
+/// Returns `AuthorityUnavailable` on I/O failure, possibly after replacement.
 fn atomic_write(path: &Path, bytes: &[u8]) -> OicResult<()> {
     let parent = path
         .parent()

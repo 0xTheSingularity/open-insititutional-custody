@@ -174,7 +174,10 @@ pub fn commitment_rank(c: &str) -> Option<u8> {
     }
 }
 
-/// Validated transaction observation.
+/// Decode and validate the signature's transaction observation.
+/// Returns `StaleEvidence` for missing or noncanonical evidence, an invalid
+/// block hash or commitment, inconsistent success/error fields, or nonzero
+/// account funding on failed execution.
 pub fn get_tx_observation(ev: &EvidenceBundle, signature: &[u8; 64]) -> OicResult<TxObservation> {
     let key = tx_key(signature);
     let obs: TxObservation = canonical(ev, &key, "TxObservation")?;

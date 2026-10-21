@@ -35,12 +35,25 @@ pub struct IndexedBlock {
 }
 
 pub trait BlockSource: Send + Sync {
+    /// Return the chain profile used to interpret blocks and finality.
     fn profile(&self) -> ChainProfile;
+    /// Identify the observation source recorded in movements and checkpoints.
     fn source_id(&self) -> EvidenceSourceId;
+    /// Return source time in Unix seconds for observation timestamps and freshness.
     fn now(&self) -> UnixSeconds;
+    /// Return the current canonical head, which may change between calls.
     fn head(&self) -> StateReference;
+    /// Return the checkpoint considered final under the source profile.
     fn finalized(&self) -> StateReference;
+    /// Read canonical effects and parent linkage at a block height or slot.
+    /// Missing history returns `StaleEvidence`; malformed discovered effects can
+    /// return `UnverifiableTransaction` in the simulator sources.
     fn block(&self, height: u64) -> OicResult<IndexedBlock>;
+    /// Read holdings in asset base units at an exact canonical checkpoint.
+    /// Simulator sources reject wrong address lengths with `InvalidRequest` and
+    /// propagate balance validation errors, including `StaleEvidence` for a
+    /// missing or replaced checkpoint and `UnsupportedCapability` for an
+    /// unsupported asset.
     fn balance(
         &self,
         state: &StateReference,
@@ -49,6 +62,7 @@ pub trait BlockSource: Send + Sync {
     ) -> OicResult<Amount>;
 }
 
+/// Report unavailable chain history as stale evidence requiring backfill.
 fn missing() -> OicError {
     OicError::stale_evidence("missing block; backfill required")
 }
@@ -86,6 +100,11 @@ impl BlockSource for EvmBlocks {
             asset,
         )
     }
+    /// Discover nonzero fee, successful transaction-value, and classic ERC-20
+    /// Transfer legs, plus simulator token deployment supplies. Failed execution
+    /// contributes only fees. Missing blocks return `StaleEvidence`; malformed
+    /// Transfer logs or unrepresentable effect indices return
+    /// `UnverifiableTransaction`.
     fn block(&self, height: u64) -> OicResult<IndexedBlock> {
         let b = self.0.block(height).ok_or_else(missing)?;
         let state = StateReference {
@@ -266,6 +285,10 @@ impl BlockSource for SolanaBlocks {
             asset,
         )
     }
+    /// Discover lamport and classic-token deltas, separating fees and newly
+    /// funded token-account rent from transfers. Includes simulator mint setup.
+    /// Missing slots return `StaleEvidence`; rent overflow or an unresolved
+    /// setup account owner returns `UnverifiableTransaction`.
     fn block(&self, height: u64) -> OicResult<IndexedBlock> {
         let b = self.0.block(height).ok_or_else(missing)?;
         let state = StateReference {

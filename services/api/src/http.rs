@@ -10,6 +10,7 @@ use serde_json::json;
 
 pub struct HttpError(StatusCode, OicError);
 impl From<OicError> for HttpError {
+    /// Map a domain error to its HTTP status while preserving the error body.
     fn from(error: OicError) -> Self {
         let status = match error.code {
             ErrorCode::NotFound => StatusCode::NOT_FOUND,
@@ -27,11 +28,14 @@ impl From<OicError> for HttpError {
     }
 }
 impl IntoResponse for HttpError {
+    /// Serialize the domain error as JSON with its assigned HTTP status.
     fn into_response(self) -> Response {
         (self.0, Json(self.1)).into_response()
     }
 }
 
+/// Authenticate a bearer token with the exact `Bearer ` header-value prefix.
+/// Missing, malformed, and unknown credentials all become HTTP 401.
 fn principal<S: AuthorityStore>(
     api: &Api<S>,
     headers: &HeaderMap,
@@ -48,6 +52,9 @@ fn principal<S: AuthorityStore>(
     })
 }
 
+/// Run synchronous custody work off the async worker and return JSON.
+/// Domain errors retain their HTTP mapping; a stopped worker becomes HTTP 500.
+/// A worker failure does not establish whether the operation took effect.
 async fn blocking<T: Serialize + Send + 'static>(
     f: impl FnOnce() -> OicResult<T> + Send + 'static,
 ) -> Result<Json<T>, HttpError> {
@@ -79,6 +86,7 @@ pub fn router<S: AuthorityStore + 'static>(api: Arc<Api<S>>) -> Router {
         .with_state(api)
 }
 
+/// Create an intent using a required Idempotency-Key header and propose access.
 async fn create<S: AuthorityStore + 'static>(
     State(api): State<Arc<Api<S>>>,
     headers: HeaderMap,
@@ -94,6 +102,7 @@ async fn create<S: AuthorityStore + 'static>(
         .to_string();
     blocking(move || api.create(&p, intent, &key)).await
 }
+/// Return the stored intent record with read access to its vault.
 async fn intent<S: AuthorityStore + 'static>(
     State(api): State<Arc<Api<S>>>,
     headers: HeaderMap,
@@ -102,6 +111,7 @@ async fn intent<S: AuthorityStore + 'static>(
     let p = principal(&api, &headers)?;
     blocking(move || api.get(&p, &IntentId::unchecked(id), Scope::Read)).await
 }
+/// Return the stored approval package with read access to its vault.
 async fn preview<S: AuthorityStore + 'static>(
     State(api): State<Arc<Api<S>>>,
     headers: HeaderMap,
@@ -116,6 +126,7 @@ async fn preview<S: AuthorityStore + 'static>(
     })
     .await
 }
+/// Accept a signed approval grant using the authenticated approver identity.
 async fn approve<S: AuthorityStore + 'static>(
     State(api): State<Arc<Api<S>>>,
     headers: HeaderMap,
@@ -127,6 +138,7 @@ async fn approve<S: AuthorityStore + 'static>(
         body.map_err(|_| OicError::invalid_request("invalid approval JSON or request size"))?;
     blocking(move || api.approve(&p, &IntentId::unchecked(id), grant)).await
 }
+/// Dispatch or retry an intent through the API submission path with submit access.
 async fn submit<S: AuthorityStore + 'static>(
     State(api): State<Arc<Api<S>>>,
     headers: HeaderMap,
@@ -135,6 +147,7 @@ async fn submit<S: AuthorityStore + 'static>(
     let p = principal(&api, &headers)?;
     blocking(move || api.submit(&p, &IntentId::unchecked(id))).await
 }
+/// Cancel an intent before dispatch using propose access to its vault.
 async fn cancel<S: AuthorityStore + 'static>(
     State(api): State<Arc<Api<S>>>,
     headers: HeaderMap,
@@ -144,6 +157,7 @@ async fn cancel<S: AuthorityStore + 'static>(
     blocking(move || api.cancel(&p, &IntentId::unchecked(id))).await
 }
 
+/// Resolve an operation family and require the requested access to its vault.
 fn operation_scope<S: AuthorityStore>(
     api: &Api<S>,
     p: &ApiCredential,
@@ -160,6 +174,7 @@ fn operation_scope<S: AuthorityStore>(
     api.authorize(p, &vault, scope)?;
     Ok(id)
 }
+/// Return lifecycle, coordinator issuance, and broadcast evidence with read access.
 async fn operation<S: AuthorityStore + 'static>(
     State(api): State<Arc<Api<S>>>,
     headers: HeaderMap,
@@ -171,6 +186,9 @@ async fn operation<S: AuthorityStore + 'static>(
         Ok(json!({ "operation_family_id": id, "lifecycle": api.lifecycle(&id)?, "issuance": api.coordinator.store().operation(&id), "submission": api.broadcaster.record(&id)? }))
     }).await
 }
+/// Poll chain evidence with submit access and publish the updated operation state.
+/// An absent intake record skips publication; other lookup and publication
+/// errors propagate.
 async fn refresh<S: AuthorityStore + 'static>(
     State(api): State<Arc<Api<S>>>,
     headers: HeaderMap,
@@ -194,6 +212,7 @@ async fn refresh<S: AuthorityStore + 'static>(
     })
     .await
 }
+/// Return an operation's persisted intent and issuance evidence with read access.
 async fn evidence<S: AuthorityStore + 'static>(
     State(api): State<Arc<Api<S>>>,
     headers: HeaderMap,
@@ -212,6 +231,8 @@ async fn evidence<S: AuthorityStore + 'static>(
     .await
 }
 
+/// Return journal holdings after active reservations and the indexing cursor
+/// for a wallet with read access; these balances do not represent policy allowance.
 async fn balances<S: AuthorityStore + 'static>(
     State(api): State<Arc<Api<S>>>,
     headers: HeaderMap,
@@ -230,6 +251,8 @@ async fn balances<S: AuthorityStore + 'static>(
     }).await
 }
 
+/// Require read access to every catalog vault for institution-wide responses.
+/// An empty vault catalog is rejected with `ScopeMismatch`.
 fn institution_read<S: AuthorityStore>(api: &Api<S>, p: &ApiCredential) -> OicResult<()> {
     if api.catalog.vaults.is_empty() {
         return Err(OicError::scope("institution has no enrolled vaults"));
@@ -246,9 +269,12 @@ struct Replay {
     #[serde(default = "default_limit")]
     limit: usize,
 }
+/// Use 100 events per replay page when the query omits a limit.
 fn default_limit() -> usize {
     100
 }
+/// Replay signed events after the exclusive sequence cursor, requiring read
+/// access to every catalog vault. Invalid queries or limits return HTTP 400.
 async fn events<S: AuthorityStore + 'static>(
     State(api): State<Arc<Api<S>>>,
     headers: HeaderMap,
@@ -263,6 +289,8 @@ async fn events<S: AuthorityStore + 'static>(
     })
     .await
 }
+/// Return operational records and an authority checkpoint with read access
+/// to every catalog vault; checkpoint and export errors propagate.
 async fn export<S: AuthorityStore + 'static>(
     State(api): State<Arc<Api<S>>>,
     headers: HeaderMap,

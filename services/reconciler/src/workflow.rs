@@ -16,6 +16,12 @@ pub(crate) struct WorkflowContext {
 impl Reconciler {
     /// Plan only from an accepted, controlled, supported deposit. All children
     /// are ordinary intents; gas funding never inherits the token's limits.
+    ///
+    /// Persist one workflow per deposit trigger, returning it on later calls
+    /// without replanning. The sweep uses the wallet's available journal token
+    /// balance; finalized native holdings determine whether a bounded refill is
+    /// needed. Invalid bounds, ineligible deposits or destinations, another active
+    /// sweep, and refill ceilings are rejected. Source and store errors propagate.
     pub fn plan_sweep(
         &self,
         source: &dyn BlockSource,
@@ -89,6 +95,15 @@ impl Reconciler {
     /// Returns the same immutable child intent after a lost acknowledgement.
     /// Nothing signs here. The caller submits it through the ordinary intent
     /// API, builder, approval, reserve, signer, and broadcast path.
+    ///
+    /// Refresh and persist workflow progress from authority state before
+    /// returning the next eligible child. `estimated_fee` is in native base units
+    /// and is checked against that child's fee ceiling. `None` can mean completion,
+    /// failure, exhaustion, a pause, or no eligible step; inspect the stored state.
+    /// Pauses include uncertain issuance, stale indexing, policy conflicts, high
+    /// fees, and insufficient funds. These conditions are recorded rather than
+    /// returned as errors. Missing workflows return `NotFound`; authority reads,
+    /// source balance checks, arithmetic, hashing, and store errors propagate.
     pub fn next_intent<S: AuthorityStore>(
         &self,
         id: &WorkflowId,
@@ -172,6 +187,9 @@ impl Reconciler {
         })
     }
 
+    /// Check finalized source balances after active wallet reservations against
+    /// the child's amount and native ceiling. Returns false for insufficient
+    /// funds; missing enrollment, arithmetic, and source balance errors propagate.
     fn workflow_funds_available(
         &self,
         s: &crate::OperationsExport,

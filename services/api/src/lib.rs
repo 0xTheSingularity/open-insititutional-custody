@@ -87,11 +87,15 @@ pub struct Api<S: AuthorityStore> {
     pub clock: Arc<dyn Clock>,
 }
 
+/// Construct a not-found error for an absent catalog or operation record.
 fn missing(what: &str) -> OicError {
     OicError::new(ErrorCode::NotFound, what)
 }
 
 impl<S: AuthorityStore> Api<S> {
+    /// Resolve a bearer token against the configured credential digests.
+    /// Returns `ScopeMismatch` if no credential matches; vault and permission
+    /// checks are performed separately by `authorize`.
     pub fn authenticate(&self, token: &str) -> OicResult<ApiCredential> {
         let hash = sha256(token.as_bytes());
         self.credentials
@@ -101,6 +105,10 @@ impl<S: AuthorityStore> Api<S> {
             .ok_or_else(|| OicError::scope("invalid API credential"))
     }
 
+    /// Check the active credential roster for the requested vault and permission.
+    /// Returns `ScopeMismatch` if the store and authority scopes differ or the
+    /// credential no longer has access. Retained copies of a credential do not
+    /// preserve access after removal from the roster.
     pub fn authorize(
         &self,
         principal: &ApiCredential,
@@ -125,6 +133,9 @@ impl<S: AuthorityStore> Api<S> {
         Ok(())
     }
 
+    /// Return a stored intent after checking access to its vault for `scope`.
+    /// Propagates store errors, including `NotFound` and `RecoveryRequired` for
+    /// corrupt records, and authorization errors.
     pub fn get(
         &self,
         principal: &ApiCredential,
@@ -136,6 +147,15 @@ impl<S: AuthorityStore> Api<S> {
         Ok(record)
     }
 
+    /// Build and persist an intent, register it with the authority, and publish
+    /// its current operation state. Requires propose access to the intent's vault.
+    ///
+    /// `idempotency_key` must contain 1 through 128 bytes and is scoped to the
+    /// institution and create route. Repeating the same intent returns its stored
+    /// candidate; conflicting intent or idempotency bindings fail. Invalid scope,
+    /// version, proposer, or request fields are rejected before building.
+    /// Builder, authority, storage, and event publication errors propagate; an
+    /// error can occur after the intent has been registered or persisted.
     pub fn create(
         &self,
         principal: &ApiCredential,
@@ -191,6 +211,9 @@ impl<S: AuthorityStore> Api<S> {
         Ok(record)
     }
 
+    /// Return the broadcaster's stored lifecycle when present, otherwise the
+    /// authority's lifecycle. Authority lookup and submission-store errors
+    /// propagate; an absent broadcaster record is the only fallback.
     pub fn lifecycle(&self, family: &OperationFamilyId) -> OicResult<LifecycleState> {
         let authorized = self.coordinator.authority().family(family)?.lifecycle;
         Ok(self
@@ -200,6 +223,9 @@ impl<S: AuthorityStore> Api<S> {
             .unwrap_or(authorized))
     }
 
+    /// Publish the current operation lifecycle with any stored transaction ID.
+    /// Lifecycle lookup and reconciler errors propagate. An unchanged observation
+    /// is deduplicated by the reconciler.
     pub fn publish_operation(&self, record: &IntentRecord) -> OicResult<()> {
         let family = &record.built.candidate.operation_family_id;
         let state = self.lifecycle(family)?;
@@ -215,6 +241,9 @@ impl<S: AuthorityStore> Api<S> {
         )
     }
 
+    /// Build the first candidate from the trusted catalog, active policy, and
+    /// latest source evidence. Missing configuration returns `NotFound`;
+    /// authority reads, evidence collection, and builder errors propagate.
     fn build(&self, intent: &Intent) -> OicResult<BuiltCandidate> {
         let c = &self.catalog;
         let IntentOperation::AssetTransfer {
@@ -286,6 +315,11 @@ impl<S: AuthorityStore> Api<S> {
         )
     }
 
+    /// Verify and store a grant belonging to this principal and immutable intent.
+    /// Requires approve access and a ready intent. An identical grant ID and body
+    /// returns the current record; reusing the ID with different content returns
+    /// `Conflict`. Invalid binding, grant verification, grant-count limits, and
+    /// concurrent updates fail without adding the grant; store errors propagate.
     pub fn approve(
         &self,
         principal: &ApiCredential,
@@ -330,6 +364,20 @@ impl<S: AuthorityStore> Api<S> {
         Ok(new)
     }
 
+    /// Evaluate approvals and policy, durably mark dispatch, obtain issuance,
+    /// and persist the signed result before attempting broadcast.
+    ///
+    /// Requires submit access. A stored issuance is retried using its exact signed
+    /// bytes. Cancelled intents return `ResourceConflict`; dispatch without a
+    /// stored issuance returns `IssuanceUncertain`. Missing approvals return
+    /// `ApprovalRequired`, and a denied evaluation returns `PolicyDenied`.
+    ///
+    /// Success returns the persisted intent record after a recorded broadcast
+    /// attempt; it does not imply acknowledgment or finality. The broadcaster
+    /// records chain-client errors in submission evidence rather than returning
+    /// them. Authority, evaluation, coordinator, storage, and reconciler errors
+    /// propagate. A coordinator error is saved when possible, and dispatch remains
+    /// marked; later errors can also occur after signatures or a broadcast exist.
     pub fn submit(&self, principal: &ApiCredential, id: &IntentId) -> OicResult<IntentRecord> {
         let old = self.get(principal, id, Scope::Submit)?;
         let family = old.built.candidate.operation_family_id.clone();
@@ -450,6 +498,10 @@ impl<S: AuthorityStore> Api<S> {
         Ok(signed)
     }
 
+    /// Persist cancellation while an intent is ready, requiring propose access.
+    /// Repeating cancellation returns the cancelled record. Once dispatch has
+    /// started, returns `IssuanceUncertain`; concurrent updates and store or
+    /// access errors propagate. No chain transaction is cancelled here.
     pub fn cancel(&self, principal: &ApiCredential, id: &IntentId) -> OicResult<IntentRecord> {
         let old = self.get(principal, id, Scope::Propose)?;
         if old.dispatch == DispatchState::Cancelled {

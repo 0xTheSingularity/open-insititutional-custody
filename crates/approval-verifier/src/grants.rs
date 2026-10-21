@@ -36,7 +36,11 @@ pub fn sign_grant(key: &SigningKey, body: ApprovalGrantBody) -> OicResult<Approv
 
 /// Verify one grant against the enrolled approver roster: the credential must
 /// be enrolled, its role must equal the role claimed in the body, the
-/// signature must verify, and the grant must be unexpired at `now`.
+/// signature must verify, and `issued_at <= now < expires_at` in Unix seconds.
+/// Returns `InvalidRequest` for a nonpositive validity interval,
+/// `PolicyDenied` at or after expiry, and `StaleEvidence` before issuance.
+/// Unknown credentials or invalid signatures return `InvalidSignature`; a role
+/// mismatch returns `ScopeMismatch`. Grant hashing errors propagate.
 pub fn verify_grant(grant: &ApprovalGrant, approvers: &[ApproverCredential], now: UnixSeconds) -> OicResult<()> {
     let b = &grant.body;
     let cred = approvers
