@@ -6,6 +6,7 @@ import { keccak_256 } from "@noble/hashes/sha3.js";
 import bs58 from "bs58";
 import { consoleRequestAllowed } from "./boundary";
 import type { Setup, Snapshot, Preview } from "./contracts";
+import { sampleTreasury } from "./sample-treasury";
 
 const MAX_BODY = 128 * 1024;
 const now = () => Math.floor(Date.now() / 1000);
@@ -32,6 +33,7 @@ function snapshot(setup: Setup, demo = false): Snapshot {
     mode: demo ? "demo" : "local",
     local_only: !demo,
     setup,
+    sample_treasury: demo ? sampleTreasury : null,
     preflight: {
       os: process.platform,
       architecture: process.arch,
@@ -389,7 +391,7 @@ export async function handle(
         kind: "watch_only_inventory",
         exported_at: now(),
         source: demo ? "public_sample_fixtures" : "operator_public_address_csv",
-        snapshot: snapshot(setup, demo),
+        snapshot: { ...snapshot(setup, demo), sample_treasury: null },
         limitations: [
           demo
             ? "Read-only sample fixtures; no user data is saved. Not a custody audit."

@@ -1,3 +1,5 @@
+import type { SampleTreasury } from "./sample-treasury";
+
 export type Address = {
   network: string;
   address: string;
@@ -18,6 +20,7 @@ export type Snapshot = {
   mode: "local" | "demo";
   local_only: boolean;
   setup: Setup;
+  sample_treasury: SampleTreasury | null;
   preflight: {
     os: string;
     architecture: string;

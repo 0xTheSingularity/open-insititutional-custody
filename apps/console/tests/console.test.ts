@@ -68,6 +68,7 @@ test("watch-only discovery previews exclusions, persists valid rows, and resumes
   assert.equal(saved.body.setup.inventory[0].label, "Treasury, source A");
   // Every call opens a fresh SQLite connection, so this is a disk reload, not a cache assertion.
   assert.deepEqual((await call("setup")).body.setup, saved.body.setup);
+  assert.equal((await call("setup")).body.sample_treasury, null);
   assert.equal(
     (await call<Preview>("inventory/preview", "POST", { csv })).body.importable,
     0,
@@ -231,6 +232,19 @@ test("public demo serves only sample fixtures, previews without persistence, and
   assert.equal(before.preflight.durable_state, false);
   assert.equal(before.production_ready, false);
   assert.equal(before.setup.inventory.length, 2);
+  assert.equal(before.sample_treasury?.source, "illustrative_fixtures");
+  const uncertain = before.sample_treasury?.transfers.find(
+    (transfer) => transfer.id === "sample-eth-042",
+  );
+  assert.equal(uncertain?.state, "SubmissionUnknown");
+  assert.equal(uncertain?.amount_units, "125000000000000001");
+  assert.equal(uncertain?.reserved_units, "125042000000000001");
+  assert.equal(uncertain?.reconciliation, "pending");
+  const finalized = before.sample_treasury?.transfers.find(
+    (transfer) => transfer.id === "sample-sol-040",
+  );
+  assert.equal(finalized?.state, "FinalizedSuccess");
+  assert.equal(finalized?.reconciliation, "pending");
   const csv = `network,address,label\nethereum-sepolia,0x000000000000000000000000000000000000dead,New example\nethereum-sepolia,${evm},Duplicate`;
   const previewResponse = await call("inventory/preview", "POST", { csv });
   assert.equal(previewResponse.status, 200);
@@ -282,6 +296,7 @@ test("public demo serves only sample fixtures, previews without persistence, and
   const report = await (await call("export")).json();
   assert.equal(report.source, "public_sample_fixtures");
   assert.equal(report.snapshot.mode, "demo");
+  assert.equal(report.snapshot.sample_treasury, null);
   assert.doesNotMatch(JSON.stringify(report), /New example|Intruder/);
   assert.equal(
     readFileSync(store, "utf8"),

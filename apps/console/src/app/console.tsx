@@ -10,6 +10,8 @@ import {
   List,
   RotateCw,
   CircleAlert,
+  ArrowLeftRight,
+  PanelsTopLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +23,8 @@ import { SetupView } from "@/components/setup";
 import { InventoryView } from "@/components/inventory";
 import { ReadinessView } from "@/components/readiness";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { TreasuryView, CustodyUnavailable } from "@/components/treasury";
+import { TransferListView, TransferDetailView } from "@/components/transfers";
 import type { Snapshot, Preview } from "@/lib/contracts";
 
 class RequestError extends Error {
@@ -65,6 +69,18 @@ async function api<T>(
 
 const navigation = [
   {
+    href: "/overview",
+    label: "Overview",
+    mobileLabel: "Overview",
+    icon: PanelsTopLeft,
+  },
+  {
+    href: "/transfers",
+    label: "Transfers",
+    mobileLabel: "Transfers",
+    icon: ArrowLeftRight,
+  },
+  {
     href: "/setup",
     label: "Getting started",
     mobileLabel: "Setup",
@@ -87,9 +103,15 @@ const navigation = [
 export default function Console() {
   const pathname = usePathname();
   const current =
-    navigation.find((item) => item.href === pathname) ?? navigation[0];
+    navigation.find(
+      (item) => item.href === pathname || pathname.startsWith(`${item.href}/`),
+    ) ?? navigation[2];
   const [data, setData] = useState<Snapshot | null>(null);
   const demo = data?.mode === "demo";
+  const treasury = data?.sample_treasury;
+  const transfer = treasury?.transfers.find(
+    (item) => pathname === `/transfers/${item.id}`,
+  );
   const [busy, setBusy] = useState(false);
   const [stale, setStale] = useState(false);
   const [error, setError] = useState("");
@@ -139,17 +161,23 @@ export default function Console() {
   }, [reload]);
 
   const title =
-    pathname === "/inventory"
-      ? demo
-        ? "Explore sample inventory."
-        : "Observe your existing treasury."
-      : pathname === "/readiness"
-        ? "Evidence before funding."
-        : demo
-          ? "Explore the custody console."
-          : data?.setup.workspace_name
-            ? "Pick up where you left off."
-            : "Start with a safe first step.";
+    pathname === "/overview"
+      ? "Know what needs attention."
+      : pathname === "/transfers"
+        ? "Follow every transfer."
+        : pathname.startsWith("/transfers/")
+          ? "Follow one business intent."
+          : pathname === "/inventory"
+            ? demo
+              ? "Explore sample inventory."
+              : "Observe your existing treasury."
+            : pathname === "/readiness"
+              ? "Evidence before funding."
+              : demo
+                ? "Explore the custody console."
+                : data?.setup.workspace_name
+                  ? "Pick up where you left off."
+                  : "Start with a safe first step.";
 
   return (
     <>
@@ -188,12 +216,12 @@ export default function Console() {
             <Button
               key={item.href}
               asChild
-              variant={pathname === item.href ? "secondary" : "ghost"}
+              variant={current.href === item.href ? "secondary" : "ghost"}
               className="h-11 gap-2 px-3 text-xs aria-[current=page]:font-semibold aria-[current=page]:underline aria-[current=page]:underline-offset-4 md:justify-start md:text-sm"
             >
               <Link
                 href={item.href}
-                aria-current={pathname === item.href ? "page" : undefined}
+                aria-current={current.href === item.href ? "page" : undefined}
               >
                 <item.icon
                   className="hidden size-4 md:block"
@@ -249,15 +277,19 @@ export default function Console() {
             <div>
               <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                {pathname === "/inventory"
+                {pathname === "/overview" || current.href === "/transfers"
                   ? demo
-                    ? "Sample public identifiers. Balances and ownership are not verified."
-                    : "Read-only inventory. Your current custodian keeps control."
-                  : pathname === "/readiness"
-                    ? "Setup progress is not production permission. Every missing control stays visible."
-                    : demo
-                      ? "Sample setup and watch-only discovery. No custody service is connected."
-                      : "A local test workspace today. Independently verified custody before real funds."}
+                    ? "Illustrative treasury scenarios. No balances, approvals or chain outcomes are verified."
+                    : "Custody read models are not connected. Watch-only inventory does not establish balances or control."
+                  : pathname === "/inventory"
+                    ? demo
+                      ? "Sample public identifiers. Balances and ownership are not verified."
+                      : "Read-only inventory. Your current custodian keeps control."
+                    : pathname === "/readiness"
+                      ? "Setup progress is not production permission. Every missing control stays visible."
+                      : demo
+                        ? "Sample setup and watch-only discovery. No custody service is connected."
+                        : "A local test workspace today. Independently verified custody before real funds."}
               </p>
             </div>
             <Button
@@ -275,9 +307,10 @@ export default function Console() {
               <ShieldCheck aria-hidden="true" />
               <AlertTitle>Public sample. No real custody.</AlertTitle>
               <AlertDescription>
-                Inventory is example data. Saving and custody actions are
-                unavailable. CSV previews are temporary; use public test
-                addresses only. Do not enter keys, credentials or private data.
+                Balances, transfers and inventory are examples. Saving and
+                custody actions are unavailable. CSV previews are temporary; use
+                public test addresses only. Do not enter keys, credentials or
+                private data.
               </AlertDescription>
             </Alert>
           )}
@@ -324,6 +357,21 @@ export default function Console() {
           )}
           {data && (
             <>
+              {pathname === "/overview" &&
+                (treasury ? (
+                  <TreasuryView treasury={treasury} />
+                ) : (
+                  <CustodyUnavailable />
+                ))}
+              {pathname === "/transfers" &&
+                (treasury ? (
+                  <TransferListView treasury={treasury} />
+                ) : (
+                  <CustodyUnavailable />
+                ))}
+              {transfer && treasury && (
+                <TransferDetailView transfer={transfer} treasury={treasury} />
+              )}
               {pathname === "/setup" && (
                 <SetupView
                   snapshot={data}

@@ -1,12 +1,12 @@
 # Institution console
 
-RFC004's initial setup and watch-only discovery slice, built with Next.js App
-Router, React, Tailwind CSS and generated shadcn/ui components. The default is a
-local source-build application, not a production custody control plane.
+RFC004's setup, watch-only discovery and read-only operator sample, built with
+Next.js App Router, React, Tailwind CSS and generated shadcn/ui components. The
+default is a local source-build application, not a production custody control plane.
 
 ## Run locally
 
-Requires Node.js 22.18 or newer and npm. Node 22 emits an experimental warning
+Requires Node.js 22.18 or newer within the Node 22 release line, and npm. Node 22 emits an experimental warning
 for its built-in SQLite API.
 
 From `apps/console`:
@@ -45,6 +45,22 @@ Previews are not persisted. Use public test addresses only, never private data,
 keys or credentials. This does not supply institution authentication or custody
 integration. Without `OIC_CONSOLE_DEMO=1`, the loopback-only boundary still
 applies.
+
+The hosted sample also has `/overview`, `/transfers` and stable
+`/transfers/sample-…` detail URLs. These show historical illustrative holdings
+and four transfers, not simulator runs or live API observations. The fixture
+snapshot supplies a fixed as-of time and an unverified sample sequence; reload
+does not advance it. No signed grants, transaction bytes, policy epoch, expiry
+or verified checkpoints are supplied. Approval and custody controls stay disabled.
+
+The examples distinguish awaiting approvals, uncertain submission, chain
+finality and journal reconciliation. Uncertain submission retains principal and
+maximum fee exposure without a blind retry or cancellation. Native ETH/SOL
+quantities stay decimal base-unit strings and render without floating-point
+conversion. Search/status filters survive detail navigation and Back through
+non-secret URL parameters. The watch-only inventory export deliberately excludes
+treasury illustrations; it is not an audit export. In local mode, these operator
+screens show a service-unavailable explanation rather than sample balances.
 
 ## Supported now
 
@@ -92,7 +108,7 @@ console is stopped. Corrupt storage reports an error rather than replacing it.
 ## Not implemented
 
 There is no chain discovery, observed balance, ownership verification,
-institution login, transfer workflow, approval, signer provisioning, migration
+institution login, live transfer workflow, approval, signer provisioning, migration
 canary or production readiness certification. Watch-only imports neither enroll
 authority nor activate receiving addresses. The export is not a signed audit or
 reconciliation checkpoint.
