@@ -159,14 +159,19 @@ impl<S: AuthorityStore> Broadcaster<S> {
         let signed = &signed.signed;
         Self::check_binding(candidate, signed, family, profile_id)?;
         let net = self.network(profile_id)?;
+        let claim = self.family_claim(family);
+        let _claimed = claim.lock();
+        // Read quarantine state under the claim: a concurrent poll can
+        // quarantine the family, and the check must see that outcome.
         let fam = self.authority.family(family)?;
         if fam.quarantined {
             return Err(OicError::new(ErrorCode::IssuanceUncertain, "operation family is quarantined by conflicting chain evidence"));
         }
-        let claim = self.family_claim(family);
-        let _claimed = claim.lock();
         let now = self.clock.now();
         let mut rec = match self.store.get(family)? {
+            Some(existing) if existing.quarantined => {
+                return Err(OicError::new(ErrorCode::IssuanceUncertain, "operation family is quarantined by conflicting chain evidence"));
+            }
             Some(existing) if existing.candidate == *candidate && existing.signed == *signed => {
                 if existing.lifecycle.terminal_released() || existing.last_inclusion.is_some() {
                     return Ok(existing);

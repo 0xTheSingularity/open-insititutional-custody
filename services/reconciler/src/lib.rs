@@ -371,23 +371,18 @@ impl Reconciler {
                 .unwrap_or(head.height);
             for height in start..=end {
                 let block = source.block(height)?;
-                if height > 0 {
-                    let recorded = s
-                        .scanned_blocks
+                // Fail closed against durable history: a rescan whose parent is
+                // not the recorded hash is never verified against the source
+                // being rescanned.
+                if height > 0
+                    && s.scanned_blocks
                         .get(&profile.chain_profile_id)
                         .and_then(|b| b.get(&(height - 1)))
-                        .cloned();
-                    let parent = match recorded {
-                        Some(hash) => hash,
-                        // The parent record can be pruned below finality;
-                        // re-fetch the immutable block to verify continuity.
-                        None => source.block(height - 1)?.state.hash,
-                    };
-                    if parent != block.parent_hash {
-                        return Err(OicError::stale_evidence(
-                            "noncontiguous chain; backfill required",
-                        ));
-                    }
+                        != Some(&block.parent_hash)
+                {
+                    return Err(OicError::stale_evidence(
+                        "noncontiguous chain; backfill required",
+                    ));
                 }
                 for effect in block.effects {
                     self.observe(s, &profile, &block.state, effect, source.source_id(), now)?;
@@ -414,12 +409,9 @@ impl Reconciler {
             if source.head() != head || source.finalized() != finality {
                 return Err(OicError::stale_evidence("chain changed during scan; retry"));
             }
-            // Heights strictly below finality are immutable and no longer part
-            // of fork detection; `reconcile` reads the finalized height itself,
-            // which is retained.
-            if let Some(blocks) = s.scanned_blocks.get_mut(&profile.chain_profile_id) {
-                blocks.retain(|h, _| *h >= finality.height);
-            }
+            // Recorded block hashes are kept for the whole scanned range:
+            // they are the durable anchor that keeps rescans and fork
+            // detection fail-closed instead of trusting the current source.
             let (last_scanned_height, last_scanned_hash) = s
                 .scanned_blocks
                 .get(&profile.chain_profile_id)
