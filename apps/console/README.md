@@ -1,6 +1,6 @@
 # Institution console
 
-RFC004's setup, watch-only discovery and read-only operator sample, built with
+RFC004's setup, watch-only discovery, local simulator workflow and read-only sample, built with
 Next.js App Router, React, Tailwind CSS and generated shadcn/ui components. The
 default is a local source-build application, not a production custody control plane.
 
@@ -61,9 +61,9 @@ quantities stay decimal base-unit strings and render without floating-point
 conversion. Search/status filters survive detail navigation and Back through
 non-secret URL parameters. The watch-only inventory export deliberately excludes
 treasury illustrations; it is not an audit export. In local mode, these operator
-screens show a service-unavailable explanation rather than sample balances.
+screens use the local custody bridge below or show an unavailable connection.
 
-`/transfers/new` explores source/destination selection, exact decimal input and
+In the hosted sample, `/transfers/new` explores source/destination selection, exact decimal input and
 review without creating a request. It rejects zero amounts, excess precision,
 duplicate sample references and amount-plus-fee exposure above the sample
 available balance. Switching networks clears amount and fee. Review displays
@@ -84,6 +84,83 @@ preserve the applicable list filters on Back. Activity downloads include the
 current filter, fixture provenance and explicit unsigned/incomplete markers.
 They are scenario notes, not sequenced events or audit proof. The mobile shell
 uses a shadcn Sheet with keyboard dismissal and the same navigation as desktop.
+
+## Local simulator operator workflow
+
+`/custody-api/v1/*` connects the local operator screens to the runnable D1
+development stack described in [local-stack.md](../../docs/local-stack.md).
+It uses actual persisted intents, enrolled wallets/destinations, reconciled
+holdings and operation lifecycles. There are no fallback sample balances.
+
+Bootstrap and start that stack separately, then, from `apps/console`, load
+**only** its console handoff into the Next server:
+
+```bash
+set -a
+. "$INSTALL/handoff/console.env"
+set +a
+OIC_CONSOLE_STATE_DIR="$HOME/.local/state/oic-console" npm start
+```
+
+The local flow is:
+
+1. Inspect enrolled receiving addresses and settled/reserved/available holdings
+   in Overview or Vaults. Receive test funds and fund native fees through the
+   stack's separate operator terminal, then refresh custody state.
+2. Create a native EVM/Solana request with a business reference, exact amount,
+   versioned beneficiary and fee ceiling. Review full addresses and base units.
+3. Download the approval package from the transfer detail. Use the separately
+   trusted `oic-approve` client and approval capability outside Next/browser.
+4. Refresh to observe the signed grant. Request local submission, then use the
+   operator terminal to advance simulator finality. Submission is not finality.
+5. Refresh holdings/checkpoints and download operation evidence or the custody
+   export. Restart the same stack stores without creating replacement intents.
+
+Before creation, the console retains the immutable intent and idempotency key
+under versioned browser storage, scoped to the installation's public event key.
+Web Locks coordinate tabs on the same origin; fresh intent discovery checks for
+an existing business reference. An unknown create outcome retains its identity
+through reload and provides inspection, not retry/replacement. Only an acknowledged
+or subsequently discovered exact record lets the operator explicitly prepare a
+new request. This browser aid is not an atomic global reference registry: other
+API clients, browsers or origins must coordinate their own requests.
+
+The retained request contains public test payment details, not a credential.
+Do not clear browser storage to bypass an unknown outcome. Signed/uncertain
+operations have no new-signing retry or cancellation control. Cancellation is
+confirmed explicitly and is only available before dispatch.
+
+Configure `OIC_CONSOLE_CUSTODY_TOKEN` on the Next server only, using the stack's
+scoped Read/Propose/Submit credential. `OIC_CONSOLE_CUSTODY_ORIGIN` defaults to
+`http://127.0.0.1:8787`; only an IPv4 loopback HTTP origin without a path, query,
+or embedded credentials is accepted. Never use a `NEXT_PUBLIC_` variable or
+configure these values in the Vercel project. All bridge routes return 403 when
+`OIC_CONSOLE_DEMO=1` or `VERCEL` is set, even if a token is configured.
+
+The route allowlist covers catalog/intents/status reads, immutable intent creation,
+preview, pre-dispatch cancellation, submission, operation/evidence reads,
+refresh, balances, event replay, and export. It deliberately excludes approval
+grant ingestion, simulator operator controls, and administrative updates. The
+independent verifier, encrypted approval key, and approval bearer remain outside
+Next and the browser. The bridge provides no institution login: local processes
+can access the development operator capability through the loopback console.
+
+Intent creation requires a caller-retained `Idempotency-Key`; the bridge never
+generates one or retries a request. Any failed mutation response marks the
+outcome unknown and instructs the operator to inspect existing records first.
+Redirects are not followed. JSON is forwarded without reserialization so u64
+sequences and signed material do not lose precision. Display models reject unsafe
+JavaScript integers, malformed quantities and mismatched identity bindings.
+The browser does not verify signatures. Use independently pinned trust for
+approval/evidence verification. Event download is limited to the first 1,000
+events; the UI does not claim a complete verified event stream. The service export
+is not a cross-store atomic backup.
+
+Browser validation exercised both chains through creation, independent CLI
+approval, submission, full-stack restart while pending, finality, fee/payment
+accounting and evidence download. A lost browser create acknowledgment recovered
+the original Solana intent on reload without another create. This is a D1/local
+test-money trial, not production or complete RFC004 acceptance.
 
 ## Supported now
 
@@ -135,15 +212,17 @@ console is stopped. Corrupt storage reports an error rather than replacing it.
 
 ## Not implemented
 
-There is no chain discovery, observed balance, ownership verification,
-institution login, live transfer workflow, approval, signer provisioning, migration
-canary or production readiness certification. Watch-only imports neither enroll
-authority nor activate receiving addresses. The export is not a signed audit or
-reconciliation checkpoint.
+There is no real-RPC chain discovery, ownership verification, institution login,
+production transfer workflow, browser approval, signer provisioning, migration
+canary or production readiness certification. The native EVM simulator uses a
+development 1-of-1 key; Solana uses co-resident 2-of-3 FROST. Watch-only imports
+neither enroll authority nor activate receiving addresses. The watch-only export
+is unsigned metadata, distinct from local-stack operation/journal evidence.
 
-`/console-api/v1/*` owns this local metadata only. The RFC002/RFC003 custody API
-and independently distributed verifier remain separate integration work. Never
-add private-key collection, an approval vote or a generic Sign control here.
+`/console-api/v1/*` owns this local metadata only. The separate local custody
+bridge supplies local simulator records but is not an independent verifier.
+Never add private-key collection, an approval vote or a generic Sign control
+to either API.
 
 ## Check
 

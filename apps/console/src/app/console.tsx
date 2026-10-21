@@ -42,6 +42,7 @@ import {
 } from "@/components/workbench";
 import { TransferComposer } from "@/components/transfer-composer";
 import { AdministrationView } from "@/components/administration";
+import { CustodyWorkspace } from "@/components/custody-workspace";
 import {
   Sheet,
   SheetContent,
@@ -137,7 +138,18 @@ export default function Console() {
     ) ?? navigation[0];
   const [menuOpen, setMenuOpen] = useState(false);
   const [data, setData] = useState<Snapshot | null>(null);
+  const [custodyConnected, setCustodyConnected] = useState(false);
+  const [custodyRefresh, setCustodyRefresh] = useState(0);
   const demo = data?.mode === "demo";
+  const operator = [
+    "/overview",
+    "/vaults",
+    "/transfers",
+    "/approvals",
+    "/destinations",
+    "/operations",
+    "/activity",
+  ].includes(current.href);
   const treasury = data?.sample_treasury;
   const transfer = treasury?.transfers.find(
     (item) => pathname === `/transfers/${item.id}`,
@@ -177,6 +189,7 @@ export default function Console() {
   const reload = useCallback(async () => {
     await perform(async () => {
       setData(await api<Snapshot>("setup"));
+      setCustodyRefresh((value) => value + 1);
       setStale(false);
     });
   }, [perform]);
@@ -194,7 +207,9 @@ export default function Console() {
     pathname === "/overview"
       ? "Treasury overview"
       : pathname === "/transfers/new"
-        ? "Explore transfer review"
+        ? demo
+          ? "Explore transfer review"
+          : "New local transfer"
         : pathname.startsWith("/transfers/")
           ? "Transfer details"
           : pathname.startsWith("/cases/")
@@ -263,7 +278,9 @@ export default function Console() {
             <p className="leading-relaxed">
               {demo
                 ? "Read-only examples. No saving, approvals or fund movement."
-                : "Public-address metadata only. No approvals or fund movement."}
+                : custodyConnected
+                  ? "Local test-money proposals and submission. Independent approval stays outside the console."
+                  : "Setup metadata and optional local simulator connection. No approval authority."}
             </p>
           </div>
         </div>
@@ -308,7 +325,11 @@ export default function Console() {
               className="size-1.5 rounded-full border border-current"
               aria-hidden="true"
             />
-            {demo ? "Read-only sample" : "Local test"}
+            {demo
+              ? "Read-only sample"
+              : custodyConnected
+                ? "Local simulators"
+                : "Local test"}
           </Badge>
           <ThemeToggle />
         </header>
@@ -335,7 +356,7 @@ export default function Console() {
                 ].includes(current.href)
                   ? demo
                     ? "Historical treasury examples. Balances, approvals and chain outcomes are unverified."
-                    : "Custody read models are not connected. Watch-only inventory does not establish balances or control."
+                    : "Local simulator records require the private server handoff. Watch-only imports remain separate from custody enrollment."
                   : pathname === "/inventory"
                     ? demo
                       ? "Sample public identifiers. Balances and ownership are not verified."
@@ -411,64 +432,81 @@ export default function Console() {
           )}
           {data && (
             <>
-              {pathname === "/overview" &&
-                (treasury ? (
-                  <TreasuryView treasury={treasury} />
-                ) : (
-                  <CustodyUnavailable />
-                ))}
-              {pathname === "/transfers" &&
-                (treasury ? (
-                  <TransferListView treasury={treasury} />
-                ) : (
-                  <CustodyUnavailable />
-                ))}
-              {transfer && treasury && (
-                <TransferDetailView transfer={transfer} treasury={treasury} />
+              {!demo && operator && (
+                <CustodyWorkspace
+                  pathname={pathname}
+                  refreshKey={custodyRefresh}
+                  onConnection={setCustodyConnected}
+                />
               )}
-              {pathname === "/transfers/new" &&
-                (treasury ? (
-                  <TransferComposer treasury={treasury} />
-                ) : (
-                  <CustodyUnavailable />
-                ))}
-              {current.href === "/vaults" &&
-                (treasury ? (
-                  <VaultsView treasury={treasury} id={pathname.split("/")[2]} />
-                ) : (
-                  <CustodyUnavailable />
-                ))}
-              {pathname === "/approvals" &&
-                (treasury ? (
-                  <ApprovalsView treasury={treasury} />
-                ) : (
-                  <CustodyUnavailable />
-                ))}
-              {pathname === "/destinations" &&
-                (treasury ? (
-                  <DestinationsView treasury={treasury} />
-                ) : (
-                  <CustodyUnavailable />
-                ))}
-              {current.href === "/operations" &&
-                (treasury ? (
-                  <OperationsView
-                    treasury={treasury}
-                    caseId={
-                      pathname.startsWith("/cases/")
-                        ? pathname.split("/")[2]
-                        : undefined
-                    }
-                  />
-                ) : (
-                  <CustodyUnavailable />
-                ))}
-              {pathname === "/activity" &&
-                (treasury ? (
-                  <ActivityView treasury={treasury} />
-                ) : (
-                  <CustodyUnavailable />
-                ))}
+              {demo && (
+                <>
+                  {pathname === "/overview" &&
+                    (treasury ? (
+                      <TreasuryView treasury={treasury} />
+                    ) : (
+                      <CustodyUnavailable />
+                    ))}
+                  {pathname === "/transfers" &&
+                    (treasury ? (
+                      <TransferListView treasury={treasury} />
+                    ) : (
+                      <CustodyUnavailable />
+                    ))}
+                  {transfer && treasury && (
+                    <TransferDetailView
+                      transfer={transfer}
+                      treasury={treasury}
+                    />
+                  )}
+                  {pathname === "/transfers/new" &&
+                    (treasury ? (
+                      <TransferComposer treasury={treasury} />
+                    ) : (
+                      <CustodyUnavailable />
+                    ))}
+                  {current.href === "/vaults" &&
+                    (treasury ? (
+                      <VaultsView
+                        treasury={treasury}
+                        id={pathname.split("/")[2]}
+                      />
+                    ) : (
+                      <CustodyUnavailable />
+                    ))}
+                  {pathname === "/approvals" &&
+                    (treasury ? (
+                      <ApprovalsView treasury={treasury} />
+                    ) : (
+                      <CustodyUnavailable />
+                    ))}
+                  {pathname === "/destinations" &&
+                    (treasury ? (
+                      <DestinationsView treasury={treasury} />
+                    ) : (
+                      <CustodyUnavailable />
+                    ))}
+                  {current.href === "/operations" &&
+                    (treasury ? (
+                      <OperationsView
+                        treasury={treasury}
+                        caseId={
+                          pathname.startsWith("/cases/")
+                            ? pathname.split("/")[2]
+                            : undefined
+                        }
+                      />
+                    ) : (
+                      <CustodyUnavailable />
+                    ))}
+                  {pathname === "/activity" &&
+                    (treasury ? (
+                      <ActivityView treasury={treasury} />
+                    ) : (
+                      <CustodyUnavailable />
+                    ))}
+                </>
+              )}
               {current.href === "/administration" && (
                 <AdministrationView
                   snapshot={data}

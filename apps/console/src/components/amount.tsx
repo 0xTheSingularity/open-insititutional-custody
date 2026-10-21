@@ -5,7 +5,7 @@ export function Amount({
   asset,
 }: {
   units: string;
-  asset: SampleAsset;
+  asset: Pick<SampleAsset, "decimals" | "symbol">;
 }) {
   // Base units never pass through Number, including values beyond 2^53.
   const digits = BigInt(units)

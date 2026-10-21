@@ -9,8 +9,9 @@ export default async function TransferPage({
 }) {
   const { id } = await params;
   if (
-    process.env.OIC_CONSOLE_DEMO !== "1" ||
-    !sampleTreasury.transfers.some((transfer) => transfer.id === id)
+    process.env.OIC_CONSOLE_DEMO === "1"
+      ? !sampleTreasury.transfers.some((transfer) => transfer.id === id)
+      : !/^[A-Za-z0-9_-]{1,128}$/.test(id)
   )
     notFound();
   return <Console />;

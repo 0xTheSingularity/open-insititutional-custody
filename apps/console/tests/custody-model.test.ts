@@ -1,0 +1,345 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import {
+  readCatalog,
+  readIntentRecord,
+  readOperation,
+  readStatus,
+} from "../src/lib/custody-model";
+import {
+  prepareIntent,
+  readPending,
+  sameIntent,
+} from "../src/lib/custody-draft";
+
+function fixture() {
+  const catalog = readCatalog({
+    schema_version: 1,
+    profile: "DEVELOPMENT-ONLY test fixture",
+    institution_id: "institution",
+    environment_id: "dev",
+    proposer_credential_id: "proposer",
+    event_verifying_key: "ab".repeat(32),
+    vaults: [
+      { vault_id: "vault", display_name: "Local vault", policy_id: "policy" },
+    ],
+    wallets: [
+      {
+        chain_wallet_id: "evm-wallet",
+        vault_id: "vault",
+        chain_profile_id: "evm",
+        network_id: "evm-test",
+        address_display: "source-evm",
+        key_id: "evm-key",
+        active: true,
+      },
+      {
+        chain_wallet_id: "sol-wallet",
+        vault_id: "vault",
+        chain_profile_id: "sol",
+        network_id: "sol-test",
+        address_display: "source-sol",
+        key_id: "sol-key",
+        active: true,
+      },
+    ],
+    assets: [
+      {
+        asset_id: "eth",
+        network_id: "evm-test",
+        asset: "native",
+        behavior: "standard",
+        decimals: 18,
+        symbol: "DEV-ETH",
+      },
+      {
+        asset_id: "sol",
+        network_id: "sol-test",
+        asset: "native",
+        behavior: "standard",
+        decimals: 9,
+        symbol: "DEV-SOL",
+      },
+    ],
+    destinations: [
+      {
+        destination_id: "evm-payee",
+        version: 7,
+        network_id: "evm-test",
+        address_display: "payee-evm",
+        display_name: "EVM payee",
+        allowed_assets: ["eth"],
+      },
+      {
+        destination_id: "sol-payee",
+        version: 2,
+        network_id: "sol-test",
+        address_display: "payee-sol",
+        display_name: "Solana payee",
+        allowed_assets: ["sol"],
+      },
+    ],
+    profiles: [
+      {
+        chain_profile_id: "evm",
+        adapter_id: "evm",
+        network_id: "evm-test",
+        display_name: "EVM simulator",
+        network_binding: "31337",
+      },
+      {
+        chain_profile_id: "sol",
+        adapter_id: "solana",
+        network_id: "sol-test",
+        display_name: "Solana simulator",
+        network_binding: "genesis",
+      },
+    ],
+    policy: { policy_id: "policy", policy_epoch: 3, rules: [] },
+    backend_limits: { recovery: "local only" },
+  });
+  const status = readStatus({
+    balances: [
+      {
+        chain: "evm",
+        head: { height: 9, hash: "evm-block", commitment: "latest" },
+        holdings: {
+          chain_wallet_id: "evm-wallet",
+          asset_id: "eth",
+          settled: "2000000000000000000",
+          reserved: "500000000000000000",
+          available: "1500000000000000000",
+          pending_inbound: "9000000000000000000",
+          as_of_sequence: 12,
+        },
+      },
+      {
+        chain: "solana",
+        head: { height: 17, hash: "sol-block", commitment: "processed" },
+        holdings: {
+          chain_wallet_id: "sol-wallet",
+          asset_id: "sol",
+          settled: "1000000000",
+          reserved: "0",
+          available: "1000000000",
+          pending_inbound: "0",
+          as_of_sequence: 13,
+        },
+      },
+    ],
+    checkpoints: [],
+  });
+  return { catalog, status };
+}
+
+test("local native requests preserve exact quantities, source/version binding and available exposure", () => {
+  const { catalog, status } = fixture();
+  const input = {
+    walletId: "evm-wallet",
+    destination: "evm-payee:7",
+    amount: "1.490000000000000001",
+    fee: "0.009999999999999999",
+    reference: "  Invoice-42  ",
+  };
+  const prepare = (changes = {}) =>
+    prepareIntent(
+      catalog,
+      status,
+      { ...input, ...changes },
+      [],
+      "intent-42",
+      1792550000,
+    );
+  const pending = prepare();
+  assert.equal(
+    pending.intent.operation.asset_transfer.amount_base_units,
+    "1490000000000000001",
+  );
+  assert.equal(
+    pending.intent.constraints.max_network_fee_base_units,
+    "9999999999999999",
+  );
+  assert.equal(pending.intent.operation.asset_transfer.destination_version, 7);
+  assert.equal(pending.intent.chain_wallet_id, "evm-wallet");
+  assert.equal(pending.intent.external_reference, "Invoice-42");
+  assert.throws(() => prepare({ amount: "1.490000000000000002" }), /available/);
+  assert.throws(() => prepare({ amount: "2" }), /available/); // pending inbound cannot fund this payment
+  assert.throws(() => prepare({ destination: "sol-payee:2" }), /same network/);
+  assert.throws(() => prepare({ destination: "evm-payee:6" }), /enrolled/);
+  assert.throws(() => prepare({ amount: "0.0000000000000000001" }), /exact/);
+  assert.throws(() => prepare({ fee: "1e-3" }), /exact/);
+  assert.throws(() => prepare({ amount: "340282366920938463464" }), /u128/);
+  assert.throws(
+    () =>
+      prepareIntent(
+        catalog,
+        status,
+        input,
+        ["invoice-42"],
+        "intent-43",
+        1792550000,
+      ),
+    /already exists/,
+  );
+  const sol = prepare({
+    walletId: "sol-wallet",
+    destination: "sol-payee:2",
+    amount: "0.123456789",
+    fee: "0.00002",
+  });
+  assert.equal(
+    sol.intent.operation.asset_transfer.amount_base_units,
+    "123456789",
+  );
+  assert.equal(sol.intent.constraints.max_network_fee_base_units, "20000");
+});
+
+test("retained intent identity survives JSON reload and fails closed on changed installation or request", () => {
+  const { catalog, status } = fixture();
+  const pending = prepareIntent(
+    catalog,
+    status,
+    {
+      walletId: "sol-wallet",
+      destination: "sol-payee:2",
+      amount: "0.123456789",
+      fee: "0.00002",
+      reference: "Recovery-42",
+    },
+    [],
+    "intent-42",
+    1792550000,
+  );
+  const recovered = readPending(JSON.stringify(pending), catalog);
+  assert.deepEqual(recovered, pending);
+  assert.equal(sameIntent(pending.intent, recovered.intent), true);
+  const changed = structuredClone(recovered.intent);
+  changed.operation.asset_transfer.destination_version++;
+  assert.equal(sameIntent(pending.intent, changed), false);
+  assert.throws(
+    () =>
+      readPending(JSON.stringify(pending), {
+        ...catalog,
+        event_verifying_key: "cd".repeat(32),
+      }),
+    /another installation/,
+  );
+  assert.throws(
+    () =>
+      readPending(
+        JSON.stringify({
+          ...pending,
+          intent: { ...pending.intent, proposer_credential_id: "someone-else" },
+        }),
+        catalog,
+      ),
+    /scope/,
+  );
+  assert.throws(() => readPending("{partial", catalog));
+});
+
+test("read models reject rounded sequences, invalid holdings, unsupported lifecycles and mismatched candidate identity", () => {
+  const { catalog, status } = fixture();
+  for (const value of [
+    "01",
+    "-1",
+    "1.5",
+    "340282366920938463463374607431768211456",
+  ]) {
+    const bad = structuredClone(status);
+    bad.balances[0].holdings.settled = value;
+    assert.throws(() => readStatus(bad));
+  }
+  const unsafe = structuredClone(status);
+  unsafe.balances[0].holdings.as_of_sequence = 9007199254740992;
+  assert.throws(() => readStatus(unsafe));
+  const wrongAvailable = structuredClone(status);
+  wrongAvailable.balances[0].holdings.available = "2000000000000000000";
+  assert.throws(() => readStatus(wrongAvailable));
+  assert.throws(() => readCatalog({ ...catalog, environment_id: "prod" }));
+  assert.throws(() =>
+    readOperation({
+      operation_family_id: "family",
+      lifecycle: "Submitted",
+      issuance: null,
+      submission: null,
+    }),
+  );
+  assert.equal(
+    readOperation({
+      operation_family_id: "family",
+      lifecycle: "ISSUANCE_UNKNOWN",
+      issuance: null,
+      submission: null,
+    }).lifecycle,
+    "ISSUANCE_UNKNOWN",
+  );
+  const ambiguous = readOperation({
+    operation_family_id: "family",
+    lifecycle: "ISSUANCE_COMMITTED",
+    issuance: { lifecycle: "ISSUANCE_UNKNOWN" },
+    submission: null,
+  });
+  assert.equal(ambiguous.lifecycle, "ISSUANCE_COMMITTED");
+  assert.equal(ambiguous.issuance?.lifecycle, "ISSUANCE_UNKNOWN");
+  assert.throws(() =>
+    readOperation({ ...ambiguous, issuance: { lifecycle: "unknown" } }),
+  );
+  const pending = prepareIntent(
+    catalog,
+    status,
+    {
+      walletId: "evm-wallet",
+      destination: "evm-payee:7",
+      amount: "0.1",
+      fee: "0.01",
+      reference: "Read-42",
+    },
+    [],
+    "intent-42",
+    1792550000,
+  );
+  const record = {
+    intent: pending.intent,
+    built: {
+      candidate: {
+        operation_family_id: "family",
+        candidate_id: "candidate",
+        candidate_revision: 1,
+        intent_id: "intent-42",
+      },
+      package: {
+        wallet: catalog.wallets[0],
+        asset: catalog.assets[0],
+        destination: catalog.destinations[0],
+        policy: catalog.policy,
+      },
+    },
+    approvals: [],
+    dispatch: "ready",
+    issuance: null,
+    last_error: null,
+  };
+  assert.equal(readIntentRecord(record).intent.intent_id, "intent-42");
+  assert.throws(() =>
+    readIntentRecord({
+      ...record,
+      built: {
+        ...record.built,
+        candidate: { ...record.built.candidate, intent_id: "other" },
+      },
+    }),
+  );
+  assert.throws(() =>
+    readIntentRecord({
+      ...record,
+      built: {
+        ...record.built,
+        package: {
+          ...record.built.package,
+          destination: catalog.destinations[1],
+        },
+      },
+    }),
+  );
+});

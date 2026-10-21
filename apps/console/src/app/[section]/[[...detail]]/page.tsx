@@ -14,7 +14,9 @@ export default async function OperatorPage({
     detail.length <= 1 &&
     ((section === "vaults" &&
       (!id ||
-        (sample && sampleTreasury.holdings.some((item) => item.id === id)))) ||
+        (sample
+          ? sampleTreasury.holdings.some((item) => item.id === id)
+          : /^[A-Za-z0-9_-]{1,128}$/.test(id)))) ||
       (["approvals", "destinations", "operations", "activity"].includes(
         section,
       ) &&
