@@ -32,6 +32,7 @@ fn node(index: u8, role: Role) -> Node {
         domain_id: TrustDomainId::unchecked(format!("domain-{index}")),
         roles: vec![role],
         transport_key: public(10 + index),
+        consensus_key: None,
         attestation_key: matches!(role, Role::Signer | Role::Verifier).then(|| public(100 + index)),
         address: format!("127.0.0.1:{}", 9000 + u16::from(index)).parse().unwrap(),
         peer_class: if matches!(role, Role::Witness | Role::Extension) { PeerClass::Secondary } else { PeerClass::Primary },
@@ -420,9 +421,44 @@ fn d2_body() -> RosterBody {
     b.committees[1].kind = CommitteeKind::AuthorityD2 { faults: 1 };
     b.committees[1].members = replicas;
     b.committees[1].threshold = 3;
+    for (index, node) in b.nodes.iter_mut().enumerate() {
+        if b.committees[1].members.contains(&node.node_id) {
+            node.consensus_key = Some(public(150 + index as u8));
+        }
+    }
     b.channel_acl.push(acl(1, &[Role::Authority], &[Role::Authority]));
+    b.channel_acl.push(acl(2, &[Role::Authority], &[Role::Authority, Role::Signer]));
+    b.channel_acl.push(acl(3, &[Role::Authority], &[Role::Authority]));
     b.channel_acl.push(acl(4, &[Role::Authority], &[Role::Authority, Role::Signer, Role::Witness]));
+    b.channel_acl.push(acl(5, &[Role::Authority, Role::Signer], &[Role::Authority, Role::Signer]));
     b
+}
+
+#[test]
+fn independent_signer_follows_certificates_and_requests_backfill_without_voting() {
+    let signed = sign(d2_body());
+    validate(&signed, None).unwrap();
+    let replica = NodeId::unchecked("node-3");
+    let signer = NodeId::unchecked("node-0");
+    assert!(signed.node(&signer).unwrap().consensus_key.is_none());
+    for channel in [2, 4, 5] {
+        assert!(signed.allows(channel, &replica, &signer));
+    }
+    assert!(signed.allows(5, &signer, &replica));
+    for channel in [1, 2, 3, 4] {
+        assert!(!signed.allows(channel, &signer, &replica));
+    }
+    for channel in [1, 3] {
+        assert!(!signed.allows(channel, &replica, &signer));
+    }
+    for outsider in ["node-4", "node-5", "node-6", "node-7"] {
+        let outsider = NodeId::unchecked(outsider);
+        assert!(!signed.allows(2, &replica, &outsider));
+        assert!(!signed.allows(5, &outsider, &replica));
+    }
+    let mut narrower = d2_body();
+    narrower.channel_acl.iter_mut().find(|acl| acl.channel == 5).unwrap().sender_roles = vec![Role::Authority];
+    assert!(!sign(narrower).allows(5, &signer, &replica), "local ceiling cannot override signed narrower ACL");
 }
 
 #[test]
@@ -441,8 +477,22 @@ fn d2_checks_counts_and_compromise_bound_without_claiming_consensus() {
     b.committees[1].threshold = 2;
     rejected(b, None, "n=3f+1");
     let mut b = d2_body();
-    b.committees[1].members.pop();
+    let removed = b.committees[1].members.pop().unwrap();
+    b.nodes.iter_mut().find(|node| node.node_id == removed).unwrap().consensus_key = None;
     rejected(b, None, "n=3f+1");
+}
+
+#[test]
+fn d2_vote_keys_are_roster_bound_and_separate_from_other_purposes() {
+    let mut b = d2_body();
+    b.nodes[3].consensus_key = None;
+    rejected(b, None, "dedicated consensus keys");
+    let mut b = d2_body();
+    b.nodes[3].consensus_key = Some(b.nodes[3].transport_key.clone());
+    rejected(b, None, "key purposes");
+    let mut b = body();
+    b.nodes[3].consensus_key = Some(public(150));
+    rejected(b, None, "other nodes must not");
 }
 
 #[test]

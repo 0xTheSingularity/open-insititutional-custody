@@ -11,8 +11,10 @@ Use [core concepts](concepts.md) when a custody term is unfamiliar.
 | Follow one payment across the components | [Payment walkthrough](payment-flow.md) |
 | Learn the vocabulary through a treasury payment | [Custody concepts from first principles](concepts.md) |
 | Install prerequisites and run the current code | [Getting started](getting-started.md) |
+| Bootstrap and restart a development HTTP custody stack | [Local simulator stack](local-stack.md) |
 | Set up local approval trust and credentials | [Approval client](approval-client.md) |
-| Exercise separate signer processes over Commonware TCP | [D1 signer network](signer-network.md) |
+| Exercise D1 signing and D2 consensus over Commonware | [Signer network](signer-network.md) |
+| Build the separate fixed-committee WASM/passkey verifier | [Independent D2 approver](../apps/approver-client/README.md) |
 | Choose tests, check vectors and run the authority model | [Development](development.md) |
 | Find a subsystem or trace its behavior | [OpenWiki quickstart](../openwiki/quickstart.md) |
 

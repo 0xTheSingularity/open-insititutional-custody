@@ -1,6 +1,5 @@
 use oic_domain_types::{
-    AuthorityReceipt, AuthorizationEnvelope, Bytes, OicResult, ParticipantId, SignatureBytes,
-    SigningSessionId,
+    AuthorityReceipt, AuthorizationEnvelope, AuthorizationEnvelopeBody, Bytes, OicResult, ParticipantId, SignatureBytes, SigningSessionId,
 };
 use oic_signer::SigningMaterials;
 use serde::{Deserialize, Serialize};
@@ -21,6 +20,17 @@ pub enum SessionControl {
         request_id: u64,
         session_id: SigningSessionId,
         receipt: AuthorityReceipt,
+    },
+    /// No evidence/state is trusted from this request. The core must consult
+    /// its own authenticated, synced, re-executed D2 follower.
+    OpenFinalized {
+        request_id: u64,
+        body: AuthorizationEnvelopeBody,
+        materials: SigningMaterials,
+    },
+    ReleaseFinalized {
+        request_id: u64,
+        session_id: SigningSessionId,
     },
     Aggregate {
         request_id: u64,

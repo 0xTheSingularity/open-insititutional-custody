@@ -2,11 +2,12 @@
 //! participant authentication keys or a generic signer operation. Run blocking
 //! coordinator/client calls in `spawn_blocking`, not on this bridge's reactor.
 
+pub mod consensus;
 pub mod witness;
 
 use oic_canonical_encoding::from_canonical_bytes;
 use oic_domain_types::*;
-use oic_node::{Event, Transport};
+use oic_node::{Event, Extension, ExtensionHandle, ExtensionHost, Transport};
 use oic_peer_wire::{AuthorityReply, FrameKind, MAX_BODY_LEN, PeerFrameV1, SessionControl, SessionReply};
 use oic_service_authority_rpc::AuthorityRpcTransport;
 use oic_service_signer_core::{ipc, remote::ControlClient};
@@ -40,6 +41,37 @@ struct Pending {
     reply: sync::SyncSender<OicResult<Vec<u8>>>,
 }
 
+struct Publication {
+    receipt: AuthorityReceipt,
+    reply: sync::SyncSender<OicResult<()>>,
+}
+
+/// Own task cancellation even if startup fails or the bridge future is dropped.
+struct Extensions {
+    host: Option<ExtensionHost>,
+    tasks: Vec<ExtensionHandle>,
+}
+
+impl Extensions {
+    async fn shutdown(mut self) {
+        self.host.take();
+        for task in &self.tasks {
+            task.abort();
+        }
+        for task in self.tasks.drain(..) {
+            let _ = task.await;
+        }
+    }
+}
+
+impl Drop for Extensions {
+    fn drop(&mut self) {
+        for task in &self.tasks {
+            task.abort();
+        }
+    }
+}
+
 fn unavailable() -> OicError {
     OicError::new(ErrorCode::AuthorityUnavailable, "network RPC unavailable")
 }
@@ -47,6 +79,7 @@ fn unavailable() -> OicError {
 #[derive(Clone)]
 pub struct Gateway {
     commands: mpsc::Sender<Command>,
+    publications: mpsc::Sender<Publication>,
     epoch: u64,
 }
 
@@ -61,6 +94,17 @@ impl Gateway {
 
     pub fn signer(&self, node: NodeId) -> Arc<dyn ControlClient> {
         Arc::new(SignerClient { gateway: self.clone(), node })
+    }
+
+    /// Explicit host input, never inferred from a network reply. The caller must
+    /// first verify the receipt against its actual authority and ordered state.
+    /// This checks host scope/order and acknowledges publication, not consumer
+    /// processing or durable monitoring. Overflow disconnects slow consumers.
+    /// Like other synchronous Gateway calls, use spawn_blocking off the reactor.
+    pub fn publish_extension_record(&self, receipt: AuthorityReceipt) -> OicResult<()> {
+        let (reply, receive) = sync::sync_channel(1);
+        self.publications.try_send(Publication { receipt, reply }).map_err(|_| unavailable())?;
+        receive.recv_timeout(RPC_TIMEOUT).map_err(|_| unavailable())?
     }
 }
 
@@ -93,6 +137,8 @@ fn request_id(control: &SessionControl) -> u64 {
     match control {
         SessionControl::Open { request_id, .. }
         | SessionControl::Release { request_id, .. }
+        | SessionControl::OpenFinalized { request_id, .. }
+        | SessionControl::ReleaseFinalized { request_id, .. }
         | SessionControl::Aggregate { request_id, .. }
         | SessionControl::Abort { request_id, .. }
         | SessionControl::Status { request_id, .. } => *request_id,
@@ -105,6 +151,8 @@ pub struct Bridge {
     core: Option<ipc::Client>,
     authority: Option<AuthorityHandler>,
     commands: mpsc::Receiver<Command>,
+    publications: mpsc::Receiver<Publication>,
+    extensions: Option<Extensions>,
     pending: BTreeMap<(NodeId, u64, u64), Pending>,
     outbound_offset: usize,
 }
@@ -114,7 +162,35 @@ impl Bridge {
     /// No core is needed on a gateway; no authority is needed on a signer.
     pub fn new(transport: Transport, epoch: u64, core: Option<ipc::Client>, authority: Option<AuthorityHandler>) -> (Self, Gateway) {
         let (send, commands) = mpsc::channel(MAX_PENDING);
-        (Self { transport, epoch, core, authority, commands, pending: BTreeMap::new(), outbound_offset: 0 }, Gateway { commands: send, epoch })
+        let (publish, publications) = mpsc::channel(MAX_PENDING);
+        (
+            Self { transport, epoch, core, authority, commands, publications, extensions: None, pending: BTreeMap::new(), outbound_offset: 0 },
+            Gateway { commands: send, publications: publish, epoch },
+        )
+    }
+
+    /// Opt-in public-only extension startup on the active Tokio runtime. Bind
+    /// admission to this bridge's actual transport, never a caller-supplied host.
+    /// Start hooks must spawn promptly; native code is not a sandbox. No signer
+    /// or recovery participant, or bridge with a core client, can host extensions.
+    pub fn with_extensions(mut self, extensions: Vec<(String, Box<dyn Extension>)>) -> OicResult<Self> {
+        if self.extensions.is_some() {
+            return Err(OicError::new(ErrorCode::Conflict, "extensions already configured"));
+        }
+        if self.core.is_some() {
+            return Err(OicError::policy_denied("extensions cannot run beside signer-core clients"));
+        }
+        if self.epoch != self.transport.roster().body.roster_epoch {
+            return Err(OicError::new(ErrorCode::RosterMismatch, "extension bridge epoch differs from transport"));
+        }
+        let mut host = ExtensionHost::new(&self.transport)?;
+        let mut configured = Extensions { host: None, tasks: Vec::new() };
+        for (name, extension) in extensions {
+            configured.tasks.push(host.start(&name, extension)?);
+        }
+        configured.host = Some(host);
+        self.extensions = Some(configured);
+        Ok(self)
     }
 
     pub async fn run(mut self, mut stop: oneshot::Receiver<()>) -> OicResult<()> {
@@ -133,6 +209,13 @@ impl Bridge {
                         Ok(()) => { self.pending.insert(key, Pending { expires: Instant::now() + RPC_TIMEOUT, reply: command.reply }); },
                         Err(error) => { let _ = command.reply.send(Err(error)); },
                     }
+                }
+                Some(publication) = self.publications.recv() => {
+                    let result = match self.extensions.as_mut().and_then(|extensions| extensions.host.as_mut()) {
+                        Some(host) => host.publish_record(publication.receipt),
+                        None => Err(OicError::unsupported("no extension host configured")),
+                    };
+                    let _ = publication.reply.send(result);
                 }
                 event = self.transport.recv() => {
                     let Some(event) = event else { break Err(unavailable()); };
@@ -169,11 +252,22 @@ impl Bridge {
                 }
             }
         };
+        if let Some(extensions) = self.extensions.take() {
+            extensions.shutdown().await;
+        }
         self.transport.shutdown().await?;
         result
     }
 
     async fn incoming(&mut self, event: Event) {
+        if event.channel >= 1024 {
+            if let Some(host) = self.extensions.as_ref().and_then(|extensions| extensions.host.as_ref()) {
+                // Dispatch never awaits extension consumers. Malformed input,
+                // exhausted quotas and dead/full mailboxes cannot stop custody.
+                let _ = host.dispatch(&event);
+            }
+            return;
+        }
         match event.channel {
             20 => {
                 if let Some(core) = self.core.clone() {

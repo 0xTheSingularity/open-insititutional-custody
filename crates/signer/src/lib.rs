@@ -108,9 +108,11 @@
 //! * Abort sentinel = `SHA256("OIC/SIGNER_FENCE/v1" || CanonicalEncode(("session-abort", session_id)))`.
 //! * Fence key id = `"oic-signer-fence/" || hex(SHA256("OIC/SIGNER_FENCE/v1" || CanonicalEncode(participant_id)))[..32]`.
 
+mod finalized;
 mod generation;
 mod verify;
 
+pub use finalized::*;
 pub use generation::*;
 
 use ed25519_dalek::VerifyingKey;
@@ -214,7 +216,7 @@ pub type EventSink = Arc<dyn Fn(SignerEvent) + Send + Sync>;
 
 struct SessionRecord {
     envelope_body_hash: Hash32,
-    reserved: AuthorityReceiptBody,
+    authorization: SessionAuthorization,
     key_id: KeyId,
     key_epoch: Epoch,
     public_key: PublicKey,
@@ -226,6 +228,11 @@ struct SessionRecord {
     output_produced: bool,
     aborted: Option<String>,
     buffered: Vec<PeerMessage>,
+}
+
+enum SessionAuthorization {
+    D1(Box<AuthorityReceiptBody>),
+    D2(Box<AuthorizationEnvelopeBody>),
 }
 
 /// Ledger wrapper that records the allocations a backend makes during
@@ -265,6 +272,7 @@ pub struct Signer {
     keys: Mutex<BTreeMap<KeyId, KeyDescriptor>>,
     peer_generations: Mutex<BTreeMap<ParticipantId, Epoch>>,
     sessions: Mutex<BTreeMap<SigningSessionId, SessionRecord>>,
+    finalized: Option<FinalizedAuthority>,
     sink: Option<EventSink>,
 }
 
@@ -323,6 +331,7 @@ impl Signer {
             keys: Mutex::new(BTreeMap::new()),
             peer_generations: Mutex::new(BTreeMap::new()),
             sessions: Mutex::new(BTreeMap::new()),
+            finalized: None,
             sink: None,
         })
     }
@@ -367,7 +376,10 @@ impl Signer {
             return Err(OicError::scope("this signer is not a participant of the key"));
         }
         if descriptor.backend_id != self.backend.backend_id {
-            return Err(OicError::unsupported(format!("key backend {} is not this signer's backend {}", descriptor.backend_id, self.backend.backend_id)));
+            return Err(OicError::unsupported(format!(
+                "key backend {} is not this signer's backend {}",
+                descriptor.backend_id, self.backend.backend_id
+            )));
         }
         if descriptor.scheme != self.backend.scheme || descriptor.public_key.scheme != descriptor.scheme {
             return Err(OicError::unsupported("key scheme does not match the backend scheme"));
@@ -395,7 +407,10 @@ impl Signer {
     pub fn verify_envelope(&self, env: &AuthorizationEnvelope, m: &SigningMaterials, now: UnixSeconds) -> OicResult<VerifiedEnvelope> {
         match self.verify_inner(env, m, now) {
             Ok(v) => {
-                self.emit(vec![SignerEvent::EnvelopeVerified { envelope_body_hash: v.envelope_body_hash, session: env.body.signer_session_id.clone() }]);
+                self.emit(vec![SignerEvent::EnvelopeVerified {
+                    envelope_body_hash: v.envelope_body_hash,
+                    session: env.body.signer_session_id.clone(),
+                }]);
                 Ok(v)
             }
             Err(e) => {
@@ -409,7 +424,16 @@ impl Signer {
     /// payload. Returns the backend's first step (never a share).
     pub fn open_session(&self, env: &AuthorizationEnvelope, m: &SigningMaterials, now: UnixSeconds) -> OicResult<ProtocolStep> {
         let v = self.verify_envelope(env, m, now)?;
-        let b = &env.body;
+        self.open_verified_session(&env.body, m, v, SessionAuthorization::D1(Box::new(env.authorization_state_receipt.body.clone())))
+    }
+
+    fn open_verified_session(
+        &self,
+        b: &AuthorizationEnvelopeBody,
+        m: &SigningMaterials,
+        v: VerifiedEnvelope,
+        authorization: SessionAuthorization,
+    ) -> OicResult<ProtocolStep> {
         let session_id = &b.signer_session_id;
         let mut events = Vec::new();
         let result = (|| {
@@ -444,12 +468,14 @@ impl Signer {
                     for r in &allocated {
                         self.burn(&r.record_id, session_id);
                     }
-                    return Err(OicError::internal("backend did not allocate exactly one one-time record bound to this session, key, and generation"));
+                    return Err(OicError::internal(
+                        "backend did not allocate exactly one one-time record bound to this session, key, and generation",
+                    ));
                 }
             };
             let mut rec = SessionRecord {
                 envelope_body_hash: v.envelope_body_hash,
-                reserved: env.authorization_state_receipt.body.clone(),
+                authorization,
                 key_id: b.key_id.clone(),
                 key_epoch: b.key_epoch,
                 public_key: m.key.public_key.clone(),
@@ -480,7 +506,10 @@ impl Signer {
         let mut g = self.peer_generations.lock();
         let cur = g.entry(participant.clone()).or_default();
         if generation < *cur {
-            return Err(OicError::new(ErrorCode::Conflict, format!("peer generation for {participant} cannot move backwards from {cur} to {generation}")));
+            return Err(OicError::new(
+                ErrorCode::Conflict,
+                format!("peer generation for {participant} cannot move backwards from {cur} to {generation}"),
+            ));
         }
         *cur = generation;
         Ok(())
@@ -509,7 +538,10 @@ impl Signer {
         } else {
             let floor = self.peer_generations.lock().get(&msg.from).copied().unwrap_or_default();
             if msg.from_generation < floor {
-                return Err(OicError::scope(format!("message from {} has stale generation {} below known generation {floor}", msg.from, msg.from_generation)));
+                return Err(OicError::scope(format!(
+                    "message from {} has stale generation {} below known generation {floor}",
+                    msg.from, msg.from_generation
+                )));
             }
         }
         Ok(())
@@ -562,7 +594,9 @@ impl Signer {
             if rec.released {
                 return Err(OicError::new(ErrorCode::Conflict, "session already released"));
             }
-            let reserved = &rec.reserved;
+            let SessionAuthorization::D1(reserved) = &rec.authorization else {
+                return Err(OicError::new(ErrorCode::SessionRejected, "D1 receipt cannot release a D2 session"));
+            };
             self.check_receipt(
                 release_receipt,
                 &ReceiptBinding {
@@ -580,26 +614,42 @@ impl Signer {
             if release_receipt.body.freeze_epoch != reserved.freeze_epoch {
                 return Err(OicError::new(ErrorCode::Frozen, "freeze epoch changed between reservation and release"));
             }
-            rec.released = true;
-            events.push(SignerEvent::Released { session: session_id.clone(), release_commit_sequence: release_receipt.body.commit_sequence });
-            let buffered = std::mem::take(&mut rec.buffered);
-            let mut steps = Vec::with_capacity(buffered.len());
-            for m in &buffered {
-                if rec.aborted.is_some() || rec.output_produced {
-                    break;
-                }
-                let r = self.provider.advance_protocol(session_id, m, &*self.ledger);
-                steps.push(self.gate_share_round(session_id, rec, r, &mut events)?);
-            }
-            Ok(steps)
+            self.release_buffered(session_id, rec, release_receipt.body.commit_sequence, &mut events)
         })();
         self.emit(events);
         result
     }
 
+    fn release_buffered(
+        &self,
+        session_id: &SigningSessionId,
+        rec: &mut SessionRecord,
+        sequence: u64,
+        events: &mut Vec<SignerEvent>,
+    ) -> OicResult<Vec<ProtocolStep>> {
+        rec.released = true;
+        events.push(SignerEvent::Released { session: session_id.clone(), release_commit_sequence: sequence });
+        let buffered = std::mem::take(&mut rec.buffered);
+        let mut steps = Vec::with_capacity(buffered.len());
+        for message in &buffered {
+            if rec.aborted.is_some() || rec.output_produced {
+                break;
+            }
+            let result = self.provider.advance_protocol(session_id, message, &*self.ledger);
+            steps.push(self.gate_share_round(session_id, rec, result, events)?);
+        }
+        Ok(steps)
+    }
+
     /// Share-round advance: any backend error leaves the one-time state in an
     /// uncertain position, so the session is aborted.
-    fn gate_share_round(&self, session_id: &SigningSessionId, rec: &mut SessionRecord, r: OicResult<ProtocolStep>, events: &mut Vec<SignerEvent>) -> OicResult<ProtocolStep> {
+    fn gate_share_round(
+        &self,
+        session_id: &SigningSessionId,
+        rec: &mut SessionRecord,
+        r: OicResult<ProtocolStep>,
+        events: &mut Vec<SignerEvent>,
+    ) -> OicResult<ProtocolStep> {
         if let Err(e) = &r {
             self.abort_record(session_id, rec, format!("backend error in share round: {}", e.detail), events);
         }
@@ -608,7 +658,13 @@ impl Signer {
 
     /// Output gate: a share or signature leaves only if the session is
     /// released and its one-time record is durably consumed for this payload.
-    fn gate(&self, session_id: &SigningSessionId, rec: &mut SessionRecord, r: OicResult<ProtocolStep>, events: &mut Vec<SignerEvent>) -> OicResult<ProtocolStep> {
+    fn gate(
+        &self,
+        session_id: &SigningSessionId,
+        rec: &mut SessionRecord,
+        r: OicResult<ProtocolStep>,
+        events: &mut Vec<SignerEvent>,
+    ) -> OicResult<ProtocolStep> {
         let step = r?;
         match &step {
             ProtocolStep::Share(_) | ProtocolStep::Complete(_) => {
@@ -621,7 +677,9 @@ impl Signer {
                     let ok = matches!(&current, Ok(Some(r)) if r.consumed && r.bound_message_hash == Some(rec.payload_hash));
                     if !ok {
                         self.abort_record(session_id, rec, "one-time record not consumed for this payload".into(), events);
-                        return Err(OicError::internal("backend output without a durably consumed one-time record; session aborted, output withheld"));
+                        return Err(OicError::internal(
+                            "backend output without a durably consumed one-time record; session aborted, output withheld",
+                        ));
                     }
                 }
                 rec.output_produced = true;

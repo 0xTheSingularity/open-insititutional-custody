@@ -1,5 +1,5 @@
 use ed25519_dalek::SigningKey;
-use oic_canonical_encoding::{from_canonical_bytes, value, Value};
+use oic_canonical_encoding::{Value, from_canonical_bytes, value};
 use oic_crypto_provider::PeerMessage;
 use oic_domain_types::*;
 use oic_peer_wire::*;
@@ -313,9 +313,11 @@ fn oversize_is_rejected_from_header_before_body_is_present_or_parsed() {
             .is_ok()
     );
     let body_len = wire.len() - HEADER_LEN;
-    assert!(signed
-        .encode_point_to_point(FrameKind::MpcSign, body_len)
-        .is_ok());
+    assert!(
+        signed
+            .encode_point_to_point(FrameKind::MpcSign, body_len)
+            .is_ok()
+    );
     assert_eq!(
         signed
             .encode_point_to_point(FrameKind::MpcSign, body_len - 1)
@@ -488,4 +490,181 @@ fn witness_audit_carrier_roundtrips_public_commitments_but_never_audit_detail() 
         PeerFrameV1::encode_public(&confidential, 21, FrameKind::Audit, MAX_BODY_LEN).unwrap_err(),
         WireError::InvalidBody
     );
+}
+
+#[test]
+fn native_consensus_frames_bind_channel_epoch_and_exact_bounded_length() {
+    // Deliberately not CBOR: only the native consensus codec interprets bytes.
+    let payload = [0xff, 0x04, 0x81, 0x27, 0x00];
+    for (channel, kind) in [
+        (1, FrameKind::ConsensusVote),
+        (2, FrameKind::ConsensusCertificate),
+        (3, FrameKind::ConsensusResolver),
+        (4, FrameKind::MarshalBlock),
+        (5, FrameKind::MarshalBackfill),
+    ] {
+        let wire = ConsensusFrame::encode(&payload, 17, channel, payload.len()).unwrap();
+        assert_eq!(wire.len(), HEADER_LEN + payload.len());
+        assert_eq!(
+            ConsensusFrame::decode(&wire, 17, channel, payload.len())
+                .unwrap()
+                .payload(),
+            payload
+        );
+        assert_eq!(
+            ConsensusFrame::decode(&wire, 18, channel, payload.len()).unwrap_err(),
+            WireError::UnexpectedEpoch
+        );
+        let other_channel = if channel == 5 { 1 } else { channel + 1 };
+        assert_eq!(
+            ConsensusFrame::decode(&wire, 17, other_channel, payload.len()).unwrap_err(),
+            WireError::UnexpectedKind
+        );
+        assert_eq!(
+            ConsensusFrame::decode(&wire, 17, channel, payload.len() - 1).unwrap_err(),
+            WireError::TooLarge
+        );
+        assert_eq!(
+            ConsensusFrame::encode(&payload, 17, channel, payload.len() - 1).unwrap_err(),
+            WireError::TooLarge
+        );
+        assert_eq!(
+            PeerFrameV1::decode(&wire, 17, kind, payload.len()).unwrap_err(),
+            WireError::WrongCarrier
+        );
+        let public = RosterState {
+            roster_epoch: 17,
+            roster_hash: Hash32([9; 32]),
+        };
+        assert_eq!(
+            PeerFrameV1::encode_public(&public, 17, kind, MAX_BODY_LEN).unwrap_err(),
+            WireError::WrongCarrier
+        );
+        let mut truncated = wire.clone();
+        truncated.pop();
+        assert_eq!(
+            ConsensusFrame::decode(&truncated, 17, channel, payload.len()).unwrap_err(),
+            WireError::InvalidLength
+        );
+        let mut oversized_announcement = wire;
+        oversized_announcement[12..16].copy_from_slice(&u32::MAX.to_be_bytes());
+        assert_eq!(
+            ConsensusFrame::decode(&oversized_announcement, 17, channel, payload.len())
+                .unwrap_err(),
+            WireError::TooLarge
+        );
+    }
+    for channel in [0, 6, 20, 1024] {
+        assert_eq!(
+            ConsensusFrame::encode(&payload, 17, channel, payload.len()).unwrap_err(),
+            WireError::WrongCarrier
+        );
+    }
+    assert_eq!(
+        ConsensusFrame::encode(&vec![0; MAX_BODY_LEN + 1], 17, 1, usize::MAX).unwrap_err(),
+        WireError::TooLarge
+    );
+}
+
+#[test]
+fn padding_preserves_canonical_content_and_participant_signed_bytes_in_the_same_bucket() {
+    let padding = PaddingProfile::FixedBucketsV1;
+    let limit = HEADER_LEN + MAX_BODY_LEN;
+    for kind in [FrameKind::MpcSign, FrameKind::MpcCeremony] {
+        let key = SigningKey::from_bytes(&[0x51; 32]);
+        let mut sizes = Vec::new();
+        for len in [3, 217] {
+            let mut m = message();
+            m.payload = Bytes(vec![0xa7; len]);
+            let signed = SignedPeerMessage::sign(m.clone(), scope(), &key).unwrap();
+            let frame = signed.encode_point_to_point(kind, MAX_BODY_LEN).unwrap();
+            let padded = padding.encode_point_to_point(frame.clone(), 21, kind, limit).unwrap();
+            sizes.push(padded.len());
+            assert_eq!(&padded[..8], b"OIC/PAD\x01");
+            let unpadded = padding.decode_point_to_point(&padded, 21, kind, limit).unwrap();
+            assert_eq!(unpadded, frame, "padding cannot rewrite signatures or canonical CBOR");
+            let decoded = SignedPeerMessage::decode_point_to_point(unpadded, 21, kind, MAX_BODY_LEN).unwrap();
+            assert_eq!(decoded.verify(&expected(), &key.verifying_key()).unwrap(), &m);
+        }
+        assert_eq!(sizes, [1024, 1024]);
+    }
+    for id in ["short".to_owned(), "long".repeat(20)] {
+        let control = SessionControl::Status {
+            request_id: 7,
+            session_id: SigningSessionId::unchecked(id),
+        };
+        let frame = PeerFrameV1::encode_confidential(&control, 21, FrameKind::Content, MAX_BODY_LEN).unwrap();
+        let padded = padding.encode_point_to_point(frame.clone(), 21, FrameKind::Content, limit).unwrap();
+        assert_eq!(padded.len(), 1024);
+        let unpadded = padding.decode_point_to_point(&padded, 21, FrameKind::Content, limit).unwrap();
+        assert_eq!(unpadded, frame);
+        let decoded = PeerFrameV1::decode(unpadded, 21, FrameKind::Content, MAX_BODY_LEN).unwrap();
+        assert_eq!(from_canonical_bytes::<SessionControl>(decoded.body()).unwrap(), control);
+    }
+}
+
+// Structural MPC carrier with deliberately non-CBOR native bytes. Padding is
+// not a body decoder and must leave authentication to the participant codec.
+fn opaque_mpc_frame(frame_len: usize) -> Vec<u8> {
+    let mut frame = vec![0, 1, 0, 0, 0, 0, 0, 0, 0, 21, 0, 20];
+    frame.extend(((frame_len - HEADER_LEN) as u32).to_be_bytes());
+    frame.resize(frame_len, 0xff);
+    frame
+}
+
+#[test]
+fn padding_bucket_boundaries_charge_overhead_to_both_acl_and_absolute_caps() {
+    let padding = PaddingProfile::FixedBucketsV1;
+    let limit = HEADER_LEN + MAX_BODY_LEN;
+    assert_eq!(PADDING_BUCKETS_V1, [1024, 4096, 16384, 65552]);
+    // Independent boundary values include the 12-byte padding header.
+    for (frame_len, wire_len) in [(1012, 1024), (1013, 4096), (4084, 4096), (4085, 16384), (16372, 16384), (16373, 65552), (65540, 65552)] {
+        let frame = opaque_mpc_frame(frame_len);
+        let padded = padding.encode_point_to_point(frame.clone(), 21, FrameKind::MpcSign, wire_len).unwrap();
+        assert_eq!(padded.len(), wire_len);
+        assert_eq!(padding.decode_point_to_point(&padded, 21, FrameKind::MpcSign, wire_len).unwrap(), frame);
+        assert_eq!(padding.encode_point_to_point(frame, 21, FrameKind::MpcSign, wire_len - 1).unwrap_err(), WireError::TooLarge);
+        assert_eq!(padding.decode_point_to_point(&padded, 21, FrameKind::MpcSign, wire_len - 1).unwrap_err(), WireError::TooLarge);
+    }
+    assert_eq!(padding.encode_point_to_point(opaque_mpc_frame(65541), 21, FrameKind::MpcSign, usize::MAX).unwrap_err(), WireError::TooLarge);
+    let mut announcement = b"OIC/PAD\x01".to_vec();
+    announcement.extend(u32::MAX.to_be_bytes());
+    assert_eq!(padding.decode_point_to_point(&announcement, 21, FrameKind::MpcSign, usize::MAX).unwrap_err(), WireError::TooLarge);
+    assert_eq!(padding.decode_point_to_point(&vec![0; limit + 1], 21, FrameKind::MpcSign, usize::MAX).unwrap_err(), WireError::TooLarge);
+}
+
+#[test]
+fn padding_rejects_mixed_profiles_malformed_envelopes_and_other_carriers() {
+    let padding = PaddingProfile::FixedBucketsV1;
+    let limit = HEADER_LEN + MAX_BODY_LEN;
+    let frame = opaque_mpc_frame(43);
+    let padded = padding.encode_point_to_point(frame.clone(), 21, FrameKind::MpcSign, limit).unwrap();
+    let disabled = PaddingProfile::default();
+    assert_eq!(disabled, PaddingProfile::Disabled);
+    assert_eq!(disabled.encode_point_to_point(frame.clone(), 21, FrameKind::MpcSign, limit).unwrap(), frame);
+    assert_eq!(disabled.decode_point_to_point(&frame, 21, FrameKind::MpcSign, limit).unwrap(), frame);
+    assert_eq!(padding.decode_point_to_point(&frame, 21, FrameKind::MpcSign, limit).unwrap_err(), WireError::InvalidPadding);
+    assert_eq!(disabled.decode_point_to_point(&padded, 21, FrameKind::MpcSign, limit).unwrap_err(), WireError::InvalidPadding);
+    assert_eq!(disabled.encode_point_to_point(padded.clone(), 21, FrameKind::MpcSign, limit).unwrap_err(), WireError::InvalidPadding);
+    let mut cases = Vec::new();
+    for (index, byte) in [(7, 2), (8, 0xff), (11, 44), (1023, 1)] {
+        let mut bad = padded.clone();
+        bad[index] = byte;
+        cases.push(bad);
+    }
+    cases.push(padded[..11].to_vec());
+    cases.push(padded[..1023].to_vec());
+    cases.push([padded.clone(), vec![0]].concat());
+    let mut nonminimal = padded.clone();
+    nonminimal.resize(4096, 0);
+    cases.push(nonminimal);
+    for bad in cases {
+        assert!(padding.decode_point_to_point(&bad, 21, FrameKind::MpcSign, limit).is_err());
+    }
+    assert_eq!(padding.decode_point_to_point(&padded, 22, FrameKind::MpcSign, limit).unwrap_err(), WireError::UnexpectedEpoch);
+    assert_eq!(padding.decode_point_to_point(&padded, 21, FrameKind::MpcCeremony, limit).unwrap_err(), WireError::UnexpectedKind);
+    for kind in [FrameKind::Control, FrameKind::ConsensusVote, FrameKind::ConsensusCertificate, FrameKind::ConsensusResolver, FrameKind::MarshalBlock, FrameKind::MarshalBackfill, FrameKind::Attestation, FrameKind::AuthorityRpc, FrameKind::Audit] {
+        assert_eq!(padding.encode_point_to_point(frame.clone(), 21, kind, limit).unwrap_err(), WireError::WrongCarrier);
+        assert_eq!(padding.decode_point_to_point(&padded, 21, kind, limit).unwrap_err(), WireError::WrongCarrier);
+    }
 }

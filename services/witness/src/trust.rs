@@ -103,6 +103,7 @@ impl WitnessTrust {
                 for key in std::iter::once(&node.transport_key)
                     .chain(node.participant_keys.values())
                     .chain(node.attestation_key.iter())
+                    .chain(node.consensus_key.iter())
                 {
                     require(
                         !purpose_keys.iter().any(|p| key.bytes.as_slice() == p),

@@ -1,0 +1,64 @@
+[package]
+name = "oic-approver-client"
+version.workspace = true
+edition = "2024"
+rust-version = "1.95"
+license.workspace = true
+description = "Provisioned, keyless D2 approver light client for native and WASM"
+autotests = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+oic-domain-types.workspace = true
+oic-canonical-encoding.workspace = true
+oic-policy-kernel.workspace = true
+oic-authorization-state.workspace = true
+oic-approval-verifier.workspace = true
+oic-adapter-api.workspace = true
+oic-adapter-evm.workspace = true
+oic-adapter-solana.workspace = true
+oic-membership.workspace = true
+oic-webauthn.workspace = true
+oic-replicated-authority = { path = "../../crates/replicated-authority", default-features = false }
+commonware-consensus = "=2026.9.0"
+commonware-codec = "=2026.9.0"
+commonware-cryptography = "=2026.9.0"
+rand-commonware = { package = "rand", version = "=0.10.3", default-features = false, features = ["std_rng"] }
+ed25519-dalek.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+hex.workspace = true
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "=0.2.117"
+# EVM/k256 and the workspace's Ed25519 signing APIs enable rand_core 0.6.
+# This selects a real browser CSPRNG, never a dummy/custom entropy backend.
+getrandom = { version = "=0.2.17", features = ["js"] }
+
+[build-dependencies]
+sha2.workspace = true
+hex.workspace = true
+
+[dev-dependencies]
+oic-service-builder.workspace = true
+oic-crypto-provider.workspace = true
+oic-crypto-provider-dev.workspace = true
+oic-crypto-provider-frost-ed25519.workspace = true
+oic-signer.workspace = true
+oic-one-time-state-ledger.workspace = true
+commonware-parallel = "=2026.9.0"
+commonware-utils = "=2026.9.0"
+rand.workspace = true
+p256 = { version = "=0.13.2", default-features = false, features = ["ecdsa", "std"] }
+sha2.workspace = true
+base64 = "=0.22.1"
+
+[[example]]
+name = "browser-fixture"
+path = "tests/browser_fixture.rs"
+
+[[test]]
+name = "client"
+path = "tests/client.rs"

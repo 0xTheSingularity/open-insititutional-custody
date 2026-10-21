@@ -12,6 +12,7 @@ oic-crypto-provider.workspace = true
 oic-crypto-provider-dev.workspace = true
 oic-crypto-provider-frost-ed25519.workspace = true
 oic-signer.workspace = true
+oic-replicated-authority.workspace = true
 oic-membership.workspace = true
 oic-peer-wire.workspace = true
 oic-authorization-state.workspace = true
@@ -21,6 +22,7 @@ ed25519-dalek.workspace = true
 parking_lot.workspace = true
 serde.workspace = true
 tempfile.workspace = true
+tokio.workspace = true
 
 [dev-dependencies]
 oic-service-builder.workspace = true
@@ -32,3 +34,9 @@ oic-one-time-state-ledger.workspace = true
 oic-adapter-api.workspace = true
 oic-adapter-evm.workspace = true
 oic-adapter-solana.workspace = true
+rand.workspace = true
+commonware-consensus = "=2026.9.0"
+commonware-cryptography = { version = "=2026.9.0", features = ["std"] }
+commonware-parallel = "=2026.9.0"
+commonware-runtime = "=2026.9.0"
+commonware-utils = { version = "=2026.9.0", features = ["std"] }

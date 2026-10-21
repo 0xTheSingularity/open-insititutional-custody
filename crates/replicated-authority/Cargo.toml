@@ -1,0 +1,47 @@
+[package]
+name = "oic-replicated-authority"
+version.workspace = true
+edition = "2024"
+rust-version = "1.95"
+license.workspace = true
+description = "Keyless replicated authority execution and Commonware Simplex blocks"
+
+[features]
+default = ["runtime"]
+runtime = ["dep:commonware-runtime", "dep:commonware-storage", "dep:commonware-actor", "dep:commonware-macros", "dep:commonware-p2p", "dep:commonware-broadcast", "dep:tokio"]
+
+[dependencies]
+oic-domain-types.workspace = true
+oic-canonical-encoding.workspace = true
+oic-authorization-state.workspace = true
+oic-policy-kernel.workspace = true
+oic-adapter-api.workspace = true
+oic-approval-verifier.workspace = true
+oic-membership.workspace = true
+commonware-consensus = "=2026.9.0"
+commonware-codec = "=2026.9.0"
+commonware-cryptography = { version = "=2026.9.0", features = ["std"] }
+commonware-parallel = "=2026.9.0"
+commonware-utils = { version = "=2026.9.0", features = ["std"] }
+commonware-runtime = { version = "=2026.9.0", optional = true }
+commonware-storage = { version = "=2026.9.0", optional = true }
+commonware-actor = { version = "=2026.9.0", optional = true }
+commonware-macros = { version = "=2026.9.0", optional = true }
+commonware-p2p = { version = "=2026.9.0", optional = true }
+commonware-broadcast = { version = "=2026.9.0", optional = true }
+rand-core-commonware = { package = "rand_core", version = "0.10.1" }
+bytes = "1"
+serde.workspace = true
+tokio = { workspace = true, optional = true }
+
+[dev-dependencies]
+oic-service-builder.workspace = true
+oic-adapter-evm.workspace = true
+oic-adapter-solana.workspace = true
+oic-crypto-provider.workspace = true
+oic-crypto-provider-dev.workspace = true
+oic-crypto-provider-frost-ed25519.workspace = true
+oic-signer.workspace = true
+oic-one-time-state-ledger.workspace = true
+ed25519-dalek.workspace = true
+rand.workspace = true

@@ -1,10 +1,10 @@
-# Run the D1 signer-network tests
+# Run the signer-network tests
 
 Exercise a Solana transfer with three separate signer-core processes, private
 Unix sockets, and authenticated Commonware TCP connections. The chain is a local
 simulator; these tests do not contact Solana devnet or spend funds.
 
-This guide is for developers integrating the RFC003 D1 libraries. It is not a
+This guide is for developers integrating the RFC003 D1 and D2 libraries. It is not a
 production installation procedure or a claim that all RFC003 phases are complete.
 
 ## Prerequisites and command
@@ -89,6 +89,180 @@ does not authorize anything. Disagreement is sticky within a collector and retai
 both signed bodies. The caller must persist quarantine, alert, and conflict evidence.
 This remains opt-in and never replaces signer-local evaluation.
 
+## Verify replicated authorization locally
+
+Run authenticated finalization, native re-execution, and signing-boundary tests
+without a D1 receipt-signing key:
+
+```sh
+cargo +1.95.0 test -p oic-replicated-authority --test contracts --locked
+cargo +1.95.0 test -p oic-replicated-authority --test runtime --locked
+cargo +1.95.0 test -p oic-replicated-authority --test signing --locked
+cargo +1.95.0 test -p oic-service-signer-core --test finalized --locked
+cargo +1.95.0 test -p oic-service-signer-net --test consensus --locked
+cargo +1.95.0 test -p oic-service-signer-net --test finalized --locked
+```
+
+`runtime` runs four genuine Simplex engines with marshal delivery on Commonware's
+deterministic simulated network. A two-plus-two partition prevents release;
+healing three replicas permits finalization. It also checks retained-floor restart,
+keyless catch-up using an existing committee identity, and actor shutdown.
+
+The signer-net `consensus` test uses four genuine engines over authenticated
+Commonware TCP, with vote keys distinct from transport keys. A separately admitted
+Signer starts after Release and catches up from genesis without a vote key or
+committee impersonation. The signed ACL admits certificate channel 2 and
+confidential block/backfill channels 4/5 to that Signer, and only backfill channel
+5 in the reverse direction. Vote and consensus-resolver channels 1/3 remain
+committee-only. `ConsensusHost::start_follower` requires this complete path.
+
+The signer-net `finalized` test connects two independent keyless Signer followers
+directly to private IPC cores through clones of their runtimes' `verified_log`
+receivers. A reservation alone cannot start either core. After real finalization
+of Release, participant-signed MPC messages traverse the same hosts' TCP channel
+20; two cores produce a native FROST 2-of-3 Solana signature. The test independently
+verifies Ed25519 and the assembled transaction, and reopens each audit floor's
+certificate-backed history. IPC cores run in test threads here; the separate D1
+test above supplies the multi-process isolation evidence.
+
+`contracts` assembles real three-of-four certificates and rejects tampered blocks,
+false execution roots, stale/gapped histories, and lost or rolled-back journals.
+`signing` takes capabilities from a synced follower through native EVM and Solana
+signature verification. Those two native keys are development one-of-one fixtures,
+not a threshold-signing claim.
+
+For embedding, provision the genesis and roster independently, construct
+`FollowerConfig` with an independently retained `FinalizedFloor`, and consume only
+`Follower::verified_log()` or `Running::verified_log`. The latter publishes `None`
+at genesis and a process-local `VerifiedLog` after authenticated re-execution and
+sync. `Running::progress` is unsigned status and cannot authorize signing.
+
+Commonware may finalize an ancestor through a descendant certificate without
+ever producing a certificate at the ancestor's own height. The follower checks
+the real descendant certificate, every parent hash/height and each native state
+transition, then syncs the entire checkpoint before publishing its certified tip.
+The journal retains that ancestry for replay and checks independent floors even
+inside a checkpoint. Marshal redelivery must match its synced block digests.
+Checkpoints are bounded to 256 blocks and 4 MiB of canonical journal bytes;
+larger uncertified gaps fail closed rather than skipping execution. No fabricated
+per-height certificate or peer-supplied state snapshot is used.
+
+Configure a signer with `with_finalized_authority` before loading keys or opening
+sessions. Pin its `LogAnchor`, minimum floor, and maximum view age. D2 mode rejects
+D1 envelope/receipt entrypoints. `open_finalized_session` requires the exact
+finalized Release, not merely a reservation or notarization; `release_finalized`
+rechecks the current ordered approver enrollment and freshness before output.
+Signer-core receives the local watch source through `with_finalized_log`; gateways
+send `OpenFinalized`/`ReleaseFinalized`, never a claimed verified snapshot. Retain
+each accepted floor outside the signer's rollback domain.
+
+The current runtime pins one committee and execution registry. It refuses raw D1
+reservation and observation commands; a proposer's claimed Allow or settlement is
+not chain evidence. Ordered roster activation, committee handoff, verified chain
+observations, encrypted deployment storage, and production qualification remain
+unfinished. Commonware journals contain confidential candidates and grants; these
+libraries do not encrypt those journals themselves.
+
+## Public extensions are bounded host capabilities
+
+`ExtensionHost` binds extensions to the host's actual transport identity and
+signed roster. Extensions reserve exclusive channels at or above 1024, use only
+reviewed public witness messages, and have bounded nonblocking mailboxes, frame
+limits, narrower role checks, and per-peer rolling quotas. Cloned send handles
+share their quota. Shareholding nodes cannot host extensions.
+
+`Bridge::with_extensions` retains and stops extension tasks. The host may explicitly
+publish an already-verified, ordered D1 receipt through
+`Gateway::publish_extension_record`; RPC replies are never implicitly published.
+Acknowledgment means queued publication, not consumption or durable monitoring.
+`ReceiptMonitor` is the reference read-only consumer. Run its real-socket and
+flood-versus-authority-RPC contracts with:
+
+```sh
+cargo +1.95.0 test -p oic-node --test extensions --locked
+cargo +1.95.0 test -p oic-service-signer-net --test extensions --locked
+```
+
+This public profile has no proposer, custom signing, or confidential-data grant
+API. Native extension code is cooperative code, not a CPU, memory, filesystem,
+or process sandbox. A TEE, durable extension replay, and an independent composition
+review are not supplied by this API. The separate padding profile below does not
+pad extension channels or grant extensions access to confidential/MPC data.
+
+## Optional fixed-bucket transport padding
+
+`Transport::start(context, config)` remains unpadded. Explicitly enable the local
+profile on both endpoints with:
+
+```rust
+use oic_node::{PaddingProfile, Transport};
+let transport = Transport::start_with_padding(
+    context, config, PaddingProfile::FixedBucketsV1,
+)?;
+```
+
+This wraps **only channels 10, 20 and 21**. Callers still send the original
+`PeerFrameV1`/participant-signed point-to-point bytes. `Event.bytes` contains those
+exact original bytes after transport unpadding. The inner frame version, roster
+epoch, kind and length are checked structurally; signer-core still verifies
+participant signatures, scope, generation, replay expectations and release gates.
+No canonical CBOR, signature input, payload hash, Class S trait boundary, ACL,
+quota, or native `ConsensusFrame` codec is changed. Channels 0–5, 11, 12, 30 and
+extensions remain unpadded. Only named-recipient transport sends are available.
+
+The V1 envelope is `OIC/PAD` plus version byte `0x01`, original frame length as
+big-endian u32, original encoded frame, then zero padding. Its complete size is
+the smallest fitting bucket: **1024, 4096, 16384 or 65552 bytes**. These lengths
+exclude the node's fixed 43-byte routing prefix and Commonware's encrypted stream
+overhead. The original length field is inside that encrypted stream.
+
+The **padded** length must fit the existing signed channel ACL and absolute
+65552-byte application limit on both send and receive. No cap grows implicitly.
+An ACL below 1024 cannot send padded traffic. A 1012-byte inner frame fits the
+1024-byte bucket; 1013 bytes needs 4096. The largest accepted inner frame is 65540
+bytes (65524-byte body), because the padding header consumes 12 bytes of the
+existing cap. An oversized declared length is rejected before allocation; decode
+borrows the bounded original bytes. Nonminimal buckets, trailing bytes, nonzero
+padding and wrong inner version/epoch/kind are rejected before event delivery.
+
+This is **local configuration**, not peer-supplied trust or negotiated fallback.
+Mixed padded/unpadded settings reject data before event delivery in either
+direction, even if roster convergence succeeds. `send` still acknowledges local
+submission only. Restart both endpoints with `FixedBucketsV1` to enable it, or
+use `start`/`PaddingProfile::Disabled` on both to roll it back. Do not downgrade
+automatically after a delivery timeout.
+
+Run the wire boundaries and actual encrypted TCP contracts with:
+
+```sh
+eto-build env RUSTFLAGS='-C link-arg=-fuse-ld=mold' cargo +1.95.0 test -p oic-peer-wire --locked --offline
+eto-build env RUSTFLAGS='-C link-arg=-fuse-ld=mold' cargo +1.95.0 test -p oic-node --test sockets padding --locked --offline -- --nocapture --test-threads=1
+```
+
+Tests compare unequal-sized native legacy/v0 Solana transaction vectors in equal
+wire buckets, preserve exact canonical/signed frames, and reverify participant and
+native signatures after real sockets. They also reject malformed, mixed-profile,
+oversized and unauthorized traffic while valid traffic continues. These vectors
+are not a threshold-protocol or live-chain execution test. Padding reveals bucket
+membership and does not hide timing, count, direction, peers, sessions or traffic
+correlation. No anonymity, traffic-analysis resistance, measured bandwidth budget,
+TEE assumption, independent security review, or complete D3 qualification follows.
+
+## Independent browser approval
+
+`apps/approver-client` builds a separate provisioned Rust/WASM client. It verifies
+real fixed-committee certificates, re-executes native blocks, decodes EVM/Solana
+candidates, constructs the grant challenge and checks the WebAuthn assertion.
+It confirms approval only after the exact grant appears in verified ordered
+state, not after a gateway acknowledgement. See its [build, trust and HTTP
+contracts](../apps/approver-client/README.md).
+
+The Chromium harness uses a virtual authenticator and a native fixture bridge
+that executes real `Approve` commands and constructs real quorum certificates.
+It is not live Simplex-to-browser integration. Production witness/gateway HTTP
+adapters, independently authenticated installation, retained-floor provisioning,
+physical authenticator validation and committee transitions remain required.
+
 ## Checks and current limits
 
 ```sh
@@ -103,12 +277,12 @@ dependency requires a newer compiler. Use 1.95 or newer for this composition.
 
 | RFC003 area | Current boundary |
 | --- | --- |
-| N0/N1: pinning, admission, wire, transport | Implemented libraries and real-socket tests. No seeded Commonware deterministic simulation suite. |
+| N0/N1: pinning, admission, wire, transport | Implemented libraries, seeded Commonware simulation, and real-socket admission tests. |
 | N2: D1 signing | Separate-process FROST/Solana simulator E2E plus core tamper/replay/forgery/halt checks. Not the complete A01–A12 matrix over a live chain. No production node launcher, network DKG, automatic roster activation, or ordered generation-fence integration. |
-| N3: attestations and audit | Signed attestations/quorums and fsynced signer evidence. No network witness/checkpoint follower, Commonware-journal migration, or complete independent export/reconstruction. |
-| N4: D2 authority | Roster count/placement checks only. No Simplex engine, replicated transition, marshal follower, or D2 release evidence. D1 remains a trusted single authority. |
-| N5: hardening/extensions | Channel ACLs, quotas and BETA gate exist. No extension subscription service, TEE profile, padding, or upgrade/rollback qualification. |
-| N6: browser approver | Not implemented. The existing independent approval CLI is not a WebAuthn browser light client. |
+| N3: attestations and audit | Signed attestations/quorums, fsynced signer evidence, Commonware witness journal, authenticated TCP checkpoint following, and offline export reconstruction. D1 checkpoint comparisons detect attributable conflicts, not consensus safety. |
+| N4: D2 authority | Pure native re-execution, Simplex/marshal simulation and authenticated TCP, independent keyless followers, synced capabilities, IPC/FROST signing, and bounded Stateright composition. Fixed committee only; committee handoff and independently verified chain observations remain unfinished. |
+| N5: hardening/extensions | Bounded public extension API, reference receipt consumer, real TCP flood/RPC tests, and opt-in fixed-bucket content/MPC padding. No TEE profile, traffic-analysis safety result, generic confidential extension grants, or upgrade/rollback qualification. |
+| N6: browser approver | Provisioned Rust/WASM client, ordered enrollment, native candidate verification and Chromium virtual-WebAuthn journey with real certificates. Fixture bridge only; no production witness/gateway HTTP adapter, live Simplex-to-browser proof, signed installer or physical-device qualification. |
 
 No security audit, consensus-safety result, production performance claim, or
 production deployment follows from these tests. Production threshold ECDSA and

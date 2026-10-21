@@ -47,6 +47,10 @@ pub struct Node {
     pub domain_id: TrustDomainId,
     pub roles: Vec<Role>,
     pub transport_key: PublicKey,
+    /// Dedicated Simplex vote key, required exactly for D2 authority members.
+    /// Omitted D1 fields retain their original canonical encoding and hash.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub consensus_key: Option<PublicKey>,
     /// Separate verifier credential; required exactly for signer/verifier roles.
     pub attestation_key: Option<PublicKey>,
     /// Canonical socket-address text, including IPv6 scope. Nonzero IPv6
@@ -231,8 +235,13 @@ impl SignedRoster {
         let d2 = |node: &Node| self.in_committee(node, |k| matches!(k, CommitteeKind::AuthorityD2 { .. }));
         match channel {
             0 => primary(from) && primary(to) && !from.has(Role::Extension) && !to.has(Role::Extension),
-            1..=3 => primary(from) && primary(to) && d2(from) && d2(to),
-            4..=5 => primary(from) && d2(from) && (d2(to) || to.has(Role::Signer) || to.has(Role::Witness)),
+            1 | 3 => primary(from) && primary(to) && d2(from) && d2(to),
+            2 => primary(from) && primary(to) && d2(from) && (d2(to) || to.has(Role::Signer)),
+            4 => primary(from) && d2(from) && (d2(to) || to.has(Role::Signer) || to.has(Role::Witness)),
+            5 => {
+                (primary(from) && d2(from) && (d2(to) || to.has(Role::Signer) || to.has(Role::Witness)))
+                    || (primary(from) && from.has(Role::Signer) && primary(to) && d2(to))
+            }
             10 => primary(from) && primary(to) && ((from.has(Role::Gateway) && self.verifier(to)) || (self.verifier(from) && to.has(Role::Gateway))),
             11 => primary(from) && primary(to) && self.verifier(from) && (to.has(Role::Gateway) || authority(to)),
             12 => {
@@ -380,6 +389,12 @@ pub fn validate_roster(
         )?;
         verifying_key(&node.transport_key)?;
         require(keys.insert(node.transport_key.clone()), "transport key reused across identities or administrators")?;
+        let replica = b.committees.iter().any(|committee| matches!(committee.kind, CommitteeKind::AuthorityD2 { .. }) && committee.members.contains(&node.node_id));
+        require(replica == node.consensus_key.is_some(), "D2 replicas require dedicated consensus keys; other nodes must not hold them")?;
+        if let Some(key) = &node.consensus_key {
+            verifying_key(key)?;
+            require(keys.insert(key.clone()), "consensus key reused across identities or key purposes")?;
+        }
         let participant = node.has(Role::Signer) || node.has(Role::Recovery);
         require(participant != node.participant_keys.is_empty(), "signer/recovery roles must own participant keys, and other roles must not")?;
         for (id, key) in &node.participant_keys {

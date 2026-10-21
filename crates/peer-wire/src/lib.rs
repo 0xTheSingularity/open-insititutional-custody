@@ -44,14 +44,16 @@
 //! ```
 
 mod authority;
+mod consensus;
 mod control;
 mod frame;
 mod message;
 mod witness;
 
 pub use authority::{AuthorityReply, AuthorityRequest, AuthorityResult};
+pub use consensus::ConsensusFrame;
 pub use control::{SessionControl, SessionReply, SessionResult};
-pub use frame::{ConfidentialBody, FrameKind, HEADER_LEN, MAX_BODY_LEN, PeerFrameV1, PublicBody, RosterState, WIRE_VERSION};
+pub use frame::{ConfidentialBody, FrameKind, HEADER_LEN, MAX_BODY_LEN, PADDING_BUCKETS_V1, PaddingProfile, PeerFrameV1, PublicBody, RosterState, WIRE_VERSION};
 pub use message::{ExpectedPeerMessage, MAX_PAYLOAD_LEN, MAX_PROTOCOL_VERSION_LEN, MessageScope, SignedPeerMessage};
 pub use witness::WitnessMessage;
 
@@ -65,6 +67,7 @@ pub enum WireError {
     UnexpectedKind,
     WrongCarrier,
     InvalidBody,
+    InvalidPadding,
     InvalidMessage,
     ScopeMismatch,
     SenderMismatch,

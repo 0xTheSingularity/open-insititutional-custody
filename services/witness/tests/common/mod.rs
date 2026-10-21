@@ -58,6 +58,7 @@ pub fn trust() -> WitnessTrust {
             domain_id: TrustDomainId::unchecked(format!("domain-{n}")),
             roles: vec![role],
             transport_key: public(10 + n),
+            consensus_key: None,
             attestation_key: (role == Role::Verifier).then(|| public(30 + n)),
             address: format!("127.0.0.1:{}", 9000 + i).parse().unwrap(),
             peer_class: if role == Role::Witness {

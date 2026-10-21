@@ -9,15 +9,15 @@
 
 use ed25519_dalek::{Signer as _, SigningKey, VerifyingKey};
 use oic_adapter_api::*;
-use oic_approval_verifier::{sign_grant, ApproverCredential};
+use oic_approval_verifier::{ApproverCredential, sign_grant};
 use oic_authorization_state::*;
 use oic_canonical_encoding::sha256;
 use oic_crypto_provider::*;
 use oic_crypto_provider_dev::DevSingleKeyProvider;
-use oic_crypto_provider_frost_ed25519::{build_signing_package, run_dkg, FrostEd25519Provider};
+use oic_crypto_provider_frost_ed25519::{FrostEd25519Provider, build_signing_package, run_dkg};
 use oic_domain_types::*;
 use oic_one_time_state_ledger::InMemoryLedger;
-use oic_policy_kernel::{destination_hash, intent_hash, policy_hash, preview_hash, Decision};
+use oic_policy_kernel::{Decision, destination_hash, intent_hash, policy_hash, preview_hash};
 use oic_signer::*;
 use std::collections::{BTreeMap, VecDeque};
 use std::sync::{Arc, Mutex};
@@ -68,35 +68,76 @@ pub fn authority_key_id() -> KeyId {
 impl World {
     pub fn new() -> World {
         let authority_sk = SigningKey::from_bytes(&[42; 32]);
-        let admins: Vec<(CredentialId, SigningKey)> =
-            (1..=3u8).map(|n| (CredentialId::unchecked(format!("admin-{n}")), SigningKey::from_bytes(&[n; 32]))).collect();
+        let admins: Vec<(CredentialId, SigningKey)> = (1..=3u8)
+            .map(|n| {
+                (
+                    CredentialId::unchecked(format!("admin-{n}")),
+                    SigningKey::from_bytes(&[n; 32]),
+                )
+            })
+            .collect();
         let approvers = vec![
-            (CredentialId::unchecked("approver-1"), SigningKey::from_bytes(&[61; 32]), ApprovalRole::TreasuryApprover),
-            (CredentialId::unchecked("approver-2"), SigningKey::from_bytes(&[62; 32]), ApprovalRole::SecurityApprover),
+            (
+                CredentialId::unchecked("approver-1"),
+                SigningKey::from_bytes(&[61; 32]),
+                ApprovalRole::TreasuryApprover,
+            ),
+            (
+                CredentialId::unchecked("approver-2"),
+                SigningKey::from_bytes(&[62; 32]),
+                ApprovalRole::SecurityApprover,
+            ),
         ];
         let config = AuthorityConfig {
             institution_id: inst(),
             environment_id: env_id(),
             authority_key_id: authority_key_id(),
-            admin_keys: admins.iter().map(|(c, k)| (c.clone(), k.verifying_key())).collect(),
+            admin_keys: admins
+                .iter()
+                .map(|(c, k)| (c.clone(), k.verifying_key()))
+                .collect(),
             admin_quorum: 2,
-            freeze_responders: vec![(CredentialId::unchecked("responder-1"), SigningKey::from_bytes(&[77; 32]).verifying_key())],
+            freeze_responders: vec![(
+                CredentialId::unchecked("responder-1"),
+                SigningKey::from_bytes(&[77; 32]).verifying_key(),
+            )],
             release_receipt_ttl_seconds: 60,
             max_clock_skew_seconds: 30,
         };
         let clock = Arc::new(ManualClock::new(NOW));
-        let authority = Authority::open(Arc::new(InMemoryAuthorityStore::new()), 0, config, authority_sk.clone(), clock.clone()).expect("authority open");
-        World { authority, authority_sk, admins, approvers, clock }
+        let authority = Authority::open(
+            Arc::new(InMemoryAuthorityStore::new()),
+            0,
+            config,
+            authority_sk.clone(),
+            clock.clone(),
+        )
+        .expect("authority open");
+        World {
+            authority,
+            authority_sk,
+            admins,
+            approvers,
+            clock,
+        }
     }
 
     pub fn admin_keys(&self) -> Vec<(CredentialId, VerifyingKey)> {
-        self.admins.iter().map(|(c, k)| (c.clone(), k.verifying_key())).collect()
+        self.admins
+            .iter()
+            .map(|(c, k)| (c.clone(), k.verifying_key()))
+            .collect()
     }
 
     pub fn approver_credentials(&self) -> Vec<ApproverCredential> {
         self.approvers
             .iter()
-            .map(|(c, k, r)| ApproverCredential { credential_id: c.clone(), person_id: c.clone(), verifying_key: k.verifying_key().into(), role: *r })
+            .map(|(c, k, r)| ApproverCredential {
+                credential_id: c.clone(),
+                person_id: c.clone(),
+                verifying_key: k.verifying_key().into(),
+                role: *r,
+            })
             .collect()
     }
 
@@ -112,7 +153,10 @@ impl World {
             .iter()
             .map(|(c, k)| CredentialSignature {
                 credential_id: c.clone(),
-                signature: SignatureBytes { scheme: SchemeId::Ed25519Pure, bytes: Bytes(k.sign(&h.0).to_bytes().to_vec()) },
+                signature: SignatureBytes {
+                    scheme: SchemeId::Ed25519Pure,
+                    bytes: Bytes(k.sign(&h.0).to_bytes().to_vec()),
+                },
             })
             .collect()
     }
@@ -126,8 +170,14 @@ impl World {
 
     pub fn trust_roots(&self, profiles: Vec<ChainProfile>) -> TrustRoots {
         let mut builds = BTreeMap::new();
-        builds.insert(AdapterId::unchecked("evm"), vec![oic_adapter_evm::verifier_build_hash()]);
-        builds.insert(AdapterId::unchecked("solana"), vec![oic_adapter_solana::verifier_build_hash()]);
+        builds.insert(
+            AdapterId::unchecked("evm"),
+            vec![oic_adapter_evm::verifier_build_hash()],
+        );
+        builds.insert(
+            AdapterId::unchecked("solana"),
+            vec![oic_adapter_solana::verifier_build_hash()],
+        );
         TrustRoots {
             authority_key_id: authority_key_id(),
             authority_pubkey: self.authority_sk.verifying_key(),
@@ -147,7 +197,10 @@ impl World {
         AuthorityReceipt {
             body,
             authority_key_id: authority_key_id(),
-            signature: SignatureBytes { scheme: SchemeId::Ed25519Pure, bytes: Bytes(self.authority_sk.sign(&h.0).to_bytes().to_vec()) },
+            signature: SignatureBytes {
+                scheme: SchemeId::Ed25519Pure,
+                bytes: Bytes(self.authority_sk.sign(&h.0).to_bytes().to_vec()),
+            },
         }
     }
 
@@ -176,12 +229,18 @@ pub fn rule(asset: &AssetId, required_approvals: u8) -> PolicyRule {
         purposes: vec![],
         max_amount_per_operation: Amount(1_000_000_000_000),
         max_native_fee_per_operation: Amount(10u128.pow(18)),
-        rolling_limits: vec![ExposureLimit { window_seconds: DAY, max_outflow_base_units: Amount(10_000_000_000_000) }],
+        rolling_limits: vec![ExposureLimit {
+            window_seconds: DAY,
+            max_outflow_base_units: Amount(10_000_000_000_000),
+        }],
         required_approvals,
         approval_roles: if required_approvals == 0 {
             vec![ApprovalRole::Automated]
         } else {
-            vec![ApprovalRole::TreasuryApprover, ApprovalRole::SecurityApprover]
+            vec![
+                ApprovalRole::TreasuryApprover,
+                ApprovalRole::SecurityApprover,
+            ]
         },
         exclude_proposer: true,
         operating_window: None,
@@ -215,7 +274,14 @@ pub fn vault() -> Vault {
     }
 }
 
-pub fn intent_for(wallet: &ChainWallet, asset: &Asset, dest: &CounterpartyDestination, amount: u128, max_fee: u128, mode: ApprovalMode) -> Intent {
+pub fn intent_for(
+    wallet: &ChainWallet,
+    asset: &Asset,
+    dest: &CounterpartyDestination,
+    amount: u128,
+    max_fee: u128,
+    mode: ApprovalMode,
+) -> Intent {
     Intent {
         schema_version: 1,
         intent_id: IntentId::unchecked("intent-1"),
@@ -230,7 +296,11 @@ pub fn intent_for(wallet: &ChainWallet, asset: &Asset, dest: &CounterpartyDestin
             destination_id: dest.destination_id.clone(),
             destination_version: dest.version,
         },
-        constraints: IntentConstraints { max_network_fee_base_units: Amount(max_fee), approval_mode: mode, maximum_successful_payments: 1 },
+        constraints: IntentConstraints {
+            max_network_fee_base_units: Amount(max_fee),
+            approval_mode: mode,
+            maximum_successful_payments: 1,
+        },
         purpose: OperationPurpose::Settlement,
         external_reference: "ref".into(),
         proposer_credential_id: CredentialId::unchecked("proposer-1"),
@@ -270,36 +340,81 @@ pub fn build_ctx(s: &Setup, m: &SigningMaterials) -> BuildContext {
 
 impl Setup {
     /// Register policy + intent at the authority and build the candidate.
-    pub fn new(world: &World, profile: ChainProfile, adapter: Arc<dyn ChainAdapter>, mut m: SigningMaterials) -> Setup {
+    pub fn new(
+        world: &World,
+        profile: ChainProfile,
+        adapter: Arc<dyn ChainAdapter>,
+        mut m: SigningMaterials,
+    ) -> Setup {
         world.authority.set_policy(&m.policy).expect("set_policy");
         m.destination = world.sign_destination(m.destination.clone());
         let ih = intent_hash(&m.intent).unwrap();
         let reg = world
             .authority
-            .register_intent(&m.intent, ih, IdempotencyKey { institution_id: inst(), route: "transfers".into(), key: "idem-1".into() })
+            .register_intent(
+                &m.intent,
+                ih,
+                IdempotencyKey {
+                    institution_id: inst(),
+                    route: "transfers".into(),
+                    key: "idem-1".into(),
+                },
+            )
             .expect("register intent");
         assert_eq!(reg.operation_family_id, family());
-        let mut s = Setup { profile, adapter, m: m.clone() };
-        m.candidate = s.adapter.build_candidate(&build_ctx(&s, &m)).expect("build candidate");
+        let mut s = Setup {
+            profile,
+            adapter,
+            m: m.clone(),
+        };
+        m.candidate = s
+            .adapter
+            .build_candidate(&build_ctx(&s, &m))
+            .expect("build candidate");
         s.m = m;
         s
     }
 
     pub fn vctx<'a>(&'a self, m: &'a SigningMaterials) -> VerifyContext<'a> {
-        VerifyContext { profile: &self.profile, wallet: &m.wallet, key: &m.key, asset: &m.asset, destination: &m.destination, evidence: &m.evidence }
+        VerifyContext {
+            profile: &self.profile,
+            wallet: &m.wallet,
+            key: &m.key,
+            asset: &m.asset,
+            destination: &m.destination,
+            evidence: &m.evidence,
+        }
     }
 
     pub fn verify_for(&self, m: &SigningMaterials) -> VerifiedOperation {
-        self.adapter.verify_candidate(&m.candidate, &AuthorizationTarget::Intent(&m.intent), &self.vctx(m)).expect("coordinator-side verify")
+        self.adapter
+            .verify_candidate(
+                &m.candidate,
+                &AuthorizationTarget::Intent(&m.intent),
+                &self.vctx(m),
+            )
+            .expect("coordinator-side verify")
     }
 
     pub fn verify(&self) -> VerifiedOperation {
         self.verify_for(&self.m)
     }
 
-    pub fn exact_grant(&self, world: &World, m: &SigningMaterials, verified: &VerifiedOperation, approver: usize, expires_at: u64) -> ApprovalGrant {
+    pub fn exact_grant(
+        &self,
+        world: &World,
+        m: &SigningMaterials,
+        verified: &VerifiedOperation,
+        approver: usize,
+        expires_at: u64,
+    ) -> ApprovalGrant {
         let (cred, sk, role) = &world.approvers[approver];
-        let ph = preview_hash(&m.candidate.candidate_id, m.candidate.candidate_revision, verified.decoded_operation_hash, m.candidate.evidence_bundle_hash);
+        let ph = preview_hash(
+            &m.candidate.candidate_id,
+            m.candidate.candidate_revision,
+            verified.decoded_operation_hash,
+            m.candidate.evidence_bundle_hash,
+        );
         sign_grant(
             sk,
             ApprovalGrantBody {
@@ -326,8 +441,15 @@ impl Setup {
     }
 
     /// Grants for the policy's first rule (one per required approval).
-    pub fn grants_for(&self, world: &World, m: &SigningMaterials, verified: &VerifiedOperation) -> Vec<ApprovalGrant> {
-        (0..usize::from(m.policy.rules[0].required_approvals)).map(|i| self.exact_grant(world, m, verified, i, NOW + 3600)).collect()
+    pub fn grants_for(
+        &self,
+        world: &World,
+        m: &SigningMaterials,
+        verified: &VerifiedOperation,
+    ) -> Vec<ApprovalGrant> {
+        (0..usize::from(m.policy.rules[0].required_approvals))
+            .map(|i| self.exact_grant(world, m, verified, i, NOW + 3600))
+            .collect()
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -370,13 +492,21 @@ impl Setup {
             evidence_bundle_hash: c.evidence_bundle_hash,
             destination_hash: destination_hash(&m.destination).unwrap(),
             approval_grants: grants,
-            budget_reservation_id: reservation_id_for(&c.operation_family_id, &c.candidate_id, c.candidate_revision).unwrap(),
+            budget_reservation_id: reservation_id_for(
+                &c.operation_family_id,
+                &c.candidate_id,
+                c.candidate_revision,
+            )
+            .unwrap(),
             reservation_version: 1,
             resource_reservations: verified.claims.resources.clone(),
             maximum_asset_outflows: verified.claims.asset_outflows.clone(),
             maximum_native_fees: verified.claims.native_fees.clone(),
             issuance_deadline: UnixSeconds(deadline),
-            expected_chain_validity_constraints: self.adapter.validity_constraints(c, &m.evidence).unwrap(),
+            expected_chain_validity_constraints: self
+                .adapter
+                .validity_constraints(c, &m.evidence)
+                .unwrap(),
             signer_session_id: sid(session),
             participant_set: participants,
         }
@@ -386,13 +516,22 @@ impl Setup {
     /// coordinator passes `Allow` for the policy's first rule: the authority
     /// checks binding, approver count, and limits, not native bytes — which is
     /// exactly why the signer re-verifies everything.
-    pub fn reserve(&self, world: &World, body: AuthorizationEnvelopeBody, verified: &VerifiedOperation) -> AuthorizationEnvelope {
+    pub fn reserve(
+        &self,
+        world: &World,
+        body: AuthorizationEnvelopeBody,
+        verified: &VerifiedOperation,
+    ) -> AuthorizationEnvelope {
         let rule = &self.m.policy.rules[0];
         let exposure_limits = verified
             .claims
             .asset_outflows
             .iter()
-            .flat_map(|o| rule.rolling_limits.iter().map(move |l| (o.asset_id.clone(), l.clone())))
+            .flat_map(|o| {
+                rule.rolling_limits
+                    .iter()
+                    .map(move |l| (o.asset_id.clone(), l.clone()))
+            })
             .collect();
         let (_, receipt) = world
             .authority
@@ -409,20 +548,36 @@ impl Setup {
                 envelope_body_hash: envelope_body_hash(&body).unwrap(),
                 signer_session_id: body.signer_session_id.clone(),
                 issuance_deadline: body.issuance_deadline,
-                policy_decision: Decision::Allow { rule_id: rule.rule_id.clone() },
+                policy_decision: Decision::Allow {
+                    rule_id: rule.rule_id.clone(),
+                },
                 exposure_limits,
             })
             .expect("authority reserve");
         assert_eq!(receipt.body.kind, ReceiptKind::Reserved);
-        AuthorizationEnvelope { body, authorization_state_receipt: receipt }
+        AuthorizationEnvelope {
+            body,
+            authorization_state_receipt: receipt,
+        }
     }
 
     /// Happy-path envelope for `self.m` with the grants the rule requires.
-    pub fn authorize(&self, world: &World, session: &str, participants: Vec<ParticipantId>) -> AuthorizationEnvelope {
+    pub fn authorize(
+        &self,
+        world: &World,
+        session: &str,
+        participants: Vec<ParticipantId>,
+    ) -> AuthorizationEnvelope {
         self.authorize_with_deadline(world, session, participants, DEADLINE)
     }
 
-    pub fn authorize_with_deadline(&self, world: &World, session: &str, participants: Vec<ParticipantId>, deadline: u64) -> AuthorizationEnvelope {
+    pub fn authorize_with_deadline(
+        &self,
+        world: &World,
+        session: &str,
+        participants: Vec<ParticipantId>,
+        deadline: u64,
+    ) -> AuthorizationEnvelope {
         let verified = self.verify();
         let grants = self.grants_for(world, &self.m, &verified);
         let body = self.body_for(&self.m, &verified, grants, session, participants, deadline);
@@ -449,12 +604,19 @@ impl Node {
 
     /// True when no one-time record in this node's ledger is bound to any message.
     pub fn nothing_consumed(&self) -> bool {
-        self.ledger.snapshot().iter().all(|r| r.bound_message_hash.is_none())
+        self.ledger
+            .snapshot()
+            .iter()
+            .all(|r| r.bound_message_hash.is_none())
     }
 }
 
 pub fn identity(p: &ParticipantId) -> SignerIdentity {
-    SignerIdentity { participant_id: p.clone(), institution_id: inst(), environment_id: env_id() }
+    SignerIdentity {
+        participant_id: p.clone(),
+        institution_id: inst(),
+        environment_id: env_id(),
+    }
 }
 
 pub fn open_node(
@@ -469,10 +631,23 @@ pub fn open_node(
     adapters.insert(adapter.manifest().adapter_id, adapter);
     let events = Arc::new(Mutex::new(Vec::new()));
     let ev = events.clone();
-    let signer = Signer::open(identity(p), roots, adapters, provider, ledger.clone(), store.clone())
-        .expect("signer open")
-        .with_event_sink(Arc::new(move |e| ev.lock().unwrap().push(e)));
-    Node { id: p.clone(), signer, ledger, store, events }
+    let signer = Signer::open(
+        identity(p),
+        roots,
+        adapters,
+        provider,
+        ledger.clone(),
+        store.clone(),
+    )
+    .expect("signer open")
+    .with_event_sink(Arc::new(move |e| ev.lock().unwrap().push(e)));
+    Node {
+        id: p.clone(),
+        signer,
+        ledger,
+        store,
+        events,
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -505,7 +680,9 @@ pub fn erc20_asset(contract: [u8; 20]) -> Asset {
     Asset {
         asset_id: AssetId::unchecked("sepolia-usdc"),
         network_id: NetworkId::unchecked("evm-11155111"),
-        asset: AssetKind::Erc20 { contract: Bytes(contract.to_vec()) },
+        asset: AssetKind::Erc20 {
+            contract: Bytes(contract.to_vec()),
+        },
         decimals: 6,
         symbol: "USDC".into(),
         behavior: AssetBehaviorProfile::Standard,
@@ -531,15 +708,31 @@ pub fn evm_evidence(sender: &[u8; 20], nonce: u64) -> EvidenceBundle {
     use oic_adapter_evm::evidence::*;
     let mut items = BTreeMap::new();
     items.insert(nonce_key(sender), Bytes(nonce.to_be_bytes().to_vec()));
-    items.insert(KEY_BASE_FEE.to_string(), Bytes(10_000_000_000u128.to_be_bytes().to_vec()));
-    items.insert(KEY_PRIORITY_FEE.to_string(), Bytes(1_000_000_000u128.to_be_bytes().to_vec()));
-    items.insert(KEY_GAS_LIMIT.to_string(), Bytes(65_000u64.to_be_bytes().to_vec()));
-    items.insert(KEY_CHAIN_ID.to_string(), Bytes(EVM_CHAIN_ID.to_be_bytes().to_vec()));
+    items.insert(
+        KEY_BASE_FEE.to_string(),
+        Bytes(10_000_000_000u128.to_be_bytes().to_vec()),
+    );
+    items.insert(
+        KEY_PRIORITY_FEE.to_string(),
+        Bytes(1_000_000_000u128.to_be_bytes().to_vec()),
+    );
+    items.insert(
+        KEY_GAS_LIMIT.to_string(),
+        Bytes(65_000u64.to_be_bytes().to_vec()),
+    );
+    items.insert(
+        KEY_CHAIN_ID.to_string(),
+        Bytes(EVM_CHAIN_ID.to_be_bytes().to_vec()),
+    );
     items.insert(code_key(&token_contract()), Bytes(vec![0xab; 32]));
     EvidenceBundle {
         chain_profile_id: ChainProfileId::unchecked("evm-sepolia-v1"),
         network_id: NetworkId::unchecked("evm-11155111"),
-        state: StateReference { height: 1000, hash: Bytes(vec![7; 32]), commitment: "finalized".into() },
+        state: StateReference {
+            height: 1000,
+            hash: Bytes(vec![7; 32]),
+            commitment: "finalized".into(),
+        },
         sources: vec![EvidenceSourceId::unchecked("dev-node")],
         trust_level: EvidenceTrustLevel::DevelopmentSimulator,
         observed_at: UnixSeconds(T0),
@@ -575,7 +768,9 @@ pub fn evm_key(dev: &DevSingleKeyProvider, p: &ParticipantId) -> (KeyDescriptor,
 }
 
 pub fn evm_wallet(key: &KeyDescriptor) -> ChainWallet {
-    let (address, address_display) = oic_adapter_evm::EvmAdapter.derive_address(&key.public_key).unwrap();
+    let (address, address_display) = oic_adapter_evm::EvmAdapter
+        .derive_address(&key.public_key)
+        .unwrap();
     ChainWallet {
         chain_wallet_id: ChainWalletId::unchecked("wallet-evm"),
         vault_id: vault_id(),
@@ -615,7 +810,14 @@ pub fn evm_materials(key: &KeyDescriptor, required_approvals: u8) -> SigningMate
     let wallet = evm_wallet(key);
     let asset = erc20_asset(token_contract());
     let destination = evm_destination([0xde; 20]);
-    let intent = intent_for(&wallet, &asset, &destination, 1_000_000, 10u128.pow(16), ApprovalMode::ExactCandidate);
+    let intent = intent_for(
+        &wallet,
+        &asset,
+        &destination,
+        1_000_000,
+        10u128.pow(16),
+        ApprovalMode::ExactCandidate,
+    );
     let evidence = evm_evidence(&evm_sender(&wallet), EVM_NONCE);
     let policy = policy(1, vec![rule(&asset.asset_id, required_approvals)]);
     SigningMaterials {
@@ -643,15 +845,37 @@ pub fn evm_case_with(
 ) -> EvmCase {
     let world = World::new();
     let p1 = pid(1);
-    let dev = Arc::new(DevSingleKeyProvider::with_os_rng(SchemeId::EcdsaSecp256k1Keccak256Prehashed, [9; 32]).unwrap());
+    let dev = Arc::new(
+        DevSingleKeyProvider::with_os_rng(SchemeId::EcdsaSecp256k1Keccak256Prehashed, [9; 32])
+            .unwrap(),
+    );
     let (key, sealed) = evm_key(&dev, &p1);
     let mut m = evm_materials(&key, required_approvals);
     m.policy = world.sign_policy(m.policy);
-    let setup = Setup::new(&world, evm_profile(), Arc::new(oic_adapter_evm::EvmAdapter), m);
+    let setup = Setup::new(
+        &world,
+        evm_profile(),
+        Arc::new(oic_adapter_evm::EvmAdapter),
+        m,
+    );
     let provider = wrap(dev.clone());
-    let node = open_node(&p1, world.trust_roots(vec![evm_profile()]), setup.adapter.clone(), provider, ledger, Arc::new(InMemoryGenerationStore::new()));
+    let node = open_node(
+        &p1,
+        world.trust_roots(vec![evm_profile()]),
+        setup.adapter.clone(),
+        provider,
+        ledger,
+        Arc::new(InMemoryGenerationStore::new()),
+    );
     node.signer.load_key(&key, &sealed).expect("load key");
-    EvmCase { world, setup, node, key, sealed, dev }
+    EvmCase {
+        world,
+        setup,
+        node,
+        key,
+        sealed,
+        dev,
+    }
 }
 
 /// The dev backend's single release message: SHA-256 of the payload digest.
@@ -666,7 +890,15 @@ pub fn dev_release_msg(node: &Node, env: &AuthorizationEnvelope) -> PeerMessage 
         round: 1,
         sequence: 1,
         protocol_version: oic_crypto_provider_dev::PROTOCOL_VERSION.into(),
-        payload: Bytes(sha256(env.body.native_signing_payloads[0].message_or_digest.as_slice()).0.to_vec()),
+        payload: Bytes(
+            sha256(
+                env.body.native_signing_payloads[0]
+                    .message_or_digest
+                    .as_slice(),
+            )
+            .0
+            .to_vec(),
+        ),
     }
 }
 
@@ -684,7 +916,10 @@ pub fn sol_profile() -> ChainProfile {
         network_id: NetworkId::unchecked("solana-devnet"),
         network_binding: Bytes(SOL_GENESIS.to_vec()),
         display_name: "Solana devnet".into(),
-        accepted_versions: vec![oic_adapter_solana::VERSION_LEGACY.to_string(), oic_adapter_solana::VERSION_V0.to_string()],
+        accepted_versions: vec![
+            oic_adapter_solana::VERSION_LEGACY.to_string(),
+            oic_adapter_solana::VERSION_V0.to_string(),
+        ],
         finality_commitment: "finalized".into(),
         finality_depth: 32,
         max_evidence_age_seconds: 120,
@@ -704,7 +939,9 @@ pub fn sol_asset() -> Asset {
 }
 
 pub fn sol_dest_owner() -> [u8; 32] {
-    SigningKey::from_bytes(&[0x77; 32]).verifying_key().to_bytes()
+    SigningKey::from_bytes(&[0x77; 32])
+        .verifying_key()
+        .to_bytes()
 }
 
 pub fn sol_destination() -> CounterpartyDestination {
@@ -727,14 +964,21 @@ pub fn sol_evidence() -> EvidenceBundle {
     let le = |v: u64| Bytes(v.to_le_bytes().to_vec());
     let mut items = BTreeMap::new();
     items.insert(KEY_GENESIS_HASH.to_string(), Bytes(SOL_GENESIS.to_vec()));
-    items.insert(KEY_RECENT_BLOCKHASH.to_string(), Bytes(SOL_BLOCKHASH.to_vec()));
+    items.insert(
+        KEY_RECENT_BLOCKHASH.to_string(),
+        Bytes(SOL_BLOCKHASH.to_vec()),
+    );
     items.insert(KEY_BLOCKHASH_LAST_VALID_HEIGHT.to_string(), le(1_150));
     items.insert(KEY_LAMPORTS_PER_SIGNATURE.to_string(), le(5_000));
     items.insert(KEY_RENT_TOKEN_ACCOUNT.to_string(), le(2_039_280));
     EvidenceBundle {
         chain_profile_id: ChainProfileId::unchecked("solana-devnet-v1"),
         network_id: NetworkId::unchecked("solana-devnet"),
-        state: StateReference { height: 1_000, hash: Bytes(vec![7; 32]), commitment: "finalized".into() },
+        state: StateReference {
+            height: 1_000,
+            hash: Bytes(vec![7; 32]),
+            commitment: "finalized".into(),
+        },
         sources: vec![EvidenceSourceId::unchecked("dev-node")],
         trust_level: EvidenceTrustLevel::DevelopmentSimulator,
         observed_at: UnixSeconds(T0),
@@ -745,7 +989,9 @@ pub fn sol_evidence() -> EvidenceBundle {
 }
 
 pub fn sol_wallet(key: &KeyDescriptor) -> ChainWallet {
-    let (address, address_display) = oic_adapter_solana::SolanaAdapter.derive_address(&key.public_key).unwrap();
+    let (address, address_display) = oic_adapter_solana::SolanaAdapter
+        .derive_address(&key.public_key)
+        .unwrap();
     ChainWallet {
         chain_wallet_id: ChainWalletId::unchecked("wallet-sol"),
         vault_id: vault_id(),
@@ -759,7 +1005,11 @@ pub fn sol_wallet(key: &KeyDescriptor) -> ChainWallet {
     }
 }
 
-pub fn sol_materials(key: &KeyDescriptor, required_approvals: u8, mode: ApprovalMode) -> SigningMaterials {
+pub fn sol_materials(
+    key: &KeyDescriptor,
+    required_approvals: u8,
+    mode: ApprovalMode,
+) -> SigningMaterials {
     let wallet = sol_wallet(key);
     let asset = sol_asset();
     let destination = sol_destination();
@@ -798,8 +1048,15 @@ pub fn sol_case(required_approvals: u8) -> SolCase {
 pub fn sol_case_mode(required_approvals: u8, mode: ApprovalMode) -> SolCase {
     let world = World::new();
     let ids: Vec<ParticipantId> = (1..=3).map(pid).collect();
-    let providers: Vec<Arc<FrostEd25519Provider>> =
-        ids.iter().enumerate().map(|(i, p)| Arc::new(FrostEd25519Provider::with_os_rng(p.clone(), sealing_key(i as u8 + 1)).unwrap())).collect();
+    let providers: Vec<Arc<FrostEd25519Provider>> = ids
+        .iter()
+        .enumerate()
+        .map(|(i, p)| {
+            Arc::new(
+                FrostEd25519Provider::with_os_rng(p.clone(), sealing_key(i as u8 + 1)).unwrap(),
+            )
+        })
+        .collect();
     let refs: Vec<&FrostEd25519Provider> = providers.iter().map(|p| p.as_ref()).collect();
     let dkg = run_dkg(
         &refs,
@@ -818,7 +1075,12 @@ pub fn sol_case_mode(required_approvals: u8, mode: ApprovalMode) -> SolCase {
     let key = dkg.descriptor.clone();
     let mut m = sol_materials(&key, required_approvals, mode);
     m.policy = world.sign_policy(m.policy);
-    let setup = Setup::new(&world, sol_profile(), Arc::new(oic_adapter_solana::SolanaAdapter), m);
+    let setup = Setup::new(
+        &world,
+        sol_profile(),
+        Arc::new(oic_adapter_solana::SolanaAdapter),
+        m,
+    );
     let mut nodes = Vec::new();
     for (i, p) in ids.iter().enumerate() {
         let node = open_node(
@@ -830,17 +1092,28 @@ pub fn sol_case_mode(required_approvals: u8, mode: ApprovalMode) -> SolCase {
             Arc::new(InMemoryGenerationStore::new()),
         );
         let sealed = &dkg.sealed_shares.iter().find(|(q, _)| q == p).unwrap().1;
-        node.signer.load_key(&key, sealed).expect("load FROST share");
+        node.signer
+            .load_key(&key, sealed)
+            .expect("load FROST share");
         nodes.push(node);
     }
     for a in &nodes {
         for b in &nodes {
             if a.id != b.id {
-                a.signer.set_peer_generation(&b.id, b.signer.generation()).unwrap();
+                a.signer
+                    .set_peer_generation(&b.id, b.signer.generation())
+                    .unwrap();
             }
         }
     }
-    SolCase { world, setup, nodes, providers, key, sealed: dkg.sealed_shares }
+    SolCase {
+        world,
+        setup,
+        nodes,
+        providers,
+        key,
+        sealed: dkg.sealed_shares,
+    }
 }
 
 /// In-memory authenticated transport between signer nodes: broadcast
@@ -870,7 +1143,11 @@ impl Transport {
 
     /// Deliver everything queued to `nodes` (those in `members`), returning
     /// per-delivery results.
-    pub fn pump(&mut self, nodes: &[&Node], members: &[ParticipantId]) -> Vec<(ParticipantId, OicResult<ProtocolStep>)> {
+    pub fn pump(
+        &mut self,
+        nodes: &[&Node],
+        members: &[ParticipantId],
+    ) -> Vec<(ParticipantId, OicResult<ProtocolStep>)> {
         let mut out = Vec::new();
         while let Some(m) = self.queue.pop_front() {
             for n in nodes {
@@ -889,7 +1166,12 @@ impl Transport {
 
 /// Coordinator round-2 message for `to`, relayed under the identity of
 /// another session participant `relay` (the provider requires sender != self).
-pub fn frost_round2(env: &AuthorizationEnvelope, pkg: &Bytes, to: &Node, relay: &Node) -> PeerMessage {
+pub fn frost_round2(
+    env: &AuthorizationEnvelope,
+    pkg: &Bytes,
+    to: &Node,
+    relay: &Node,
+) -> PeerMessage {
     PeerMessage {
         session_id: env.body.signer_session_id.clone(),
         key_id: env.body.key_id.clone(),
@@ -906,23 +1188,46 @@ pub fn frost_round2(env: &AuthorizationEnvelope, pkg: &Bytes, to: &Node, relay: 
 
 /// Run sessions on `signing` nodes up to (and including) delivery of the
 /// round-2 packages, which the signers buffer. Returns the signing package.
-pub fn frost_until_release(case: &SolCase, env: &AuthorizationEnvelope, signing: &[&Node]) -> Bytes {
+pub fn frost_until_release(
+    case: &SolCase,
+    env: &AuthorizationEnvelope,
+    signing: &[&Node],
+) -> Bytes {
     let members: Vec<ParticipantId> = env.body.participant_set.clone();
     let mut t = Transport::default();
     for n in signing {
-        let step = n.signer.open_session(env, &case.setup.m, now()).expect("open_session");
-        assert!(matches!(step, ProtocolStep::Send(_)), "FROST round 1 emits a commitment");
+        let step = n
+            .signer
+            .open_session(env, &case.setup.m, now())
+            .expect("open_session");
+        assert!(
+            matches!(step, ProtocolStep::Send(_)),
+            "FROST round 1 emits a commitment"
+        );
         t.post(step);
     }
     for (who, r) in t.pump(signing, &members) {
-        assert_eq!(r.unwrap_or_else(|e| panic!("{who}: {e}")), ProtocolStep::Waiting);
+        assert_eq!(
+            r.unwrap_or_else(|e| panic!("{who}: {e}")),
+            ProtocolStep::Waiting
+        );
     }
     let commitments: Vec<(ParticipantId, Bytes)> = t.commitments.clone().into_iter().collect();
-    let pkg = build_signing_package(&commitments, env.body.native_signing_payloads[0].message_or_digest.as_slice()).unwrap();
+    let pkg = build_signing_package(
+        &commitments,
+        env.body.native_signing_payloads[0]
+            .message_or_digest
+            .as_slice(),
+    )
+    .unwrap();
     for (i, n) in signing.iter().enumerate() {
         let relay = signing[(i + 1) % signing.len()];
         let msg = frost_round2(env, &pkg, n, relay);
-        assert_eq!(n.signer.receive(&msg.session_id, &msg).unwrap(), ProtocolStep::Waiting, "round 2 is withheld before release");
+        assert_eq!(
+            n.signer.receive(&msg.session_id, &msg).unwrap(),
+            ProtocolStep::Waiting,
+            "round 2 is withheld before release"
+        );
     }
     pkg
 }

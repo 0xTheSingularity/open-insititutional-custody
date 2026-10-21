@@ -10,11 +10,11 @@ use commonware_runtime::{
 };
 use commonware_utils::ordered::Map;
 use ed25519_dalek::{Signer as _, SigningKey};
-use oic_crypto_provider::{BackendDescriptor, MessageConvention, ThresholdTopology};
+use oic_crypto_provider::{BackendDescriptor, MessageConvention, PeerMessage, ThresholdTopology};
 use oic_domain_types::*;
 use oic_membership::*;
-use oic_node::{Config, Event, Transport};
-use oic_peer_wire::{FrameKind, PeerFrameV1, RosterState};
+use oic_node::{Config, Event, PaddingProfile, Transport};
+use oic_peer_wire::{ExpectedPeerMessage, FrameKind, MAX_BODY_LEN, MessageScope, PeerFrameV1, RosterState, SessionControl, SignedPeerMessage};
 use std::{
     collections::BTreeMap,
     future::Future,
@@ -96,6 +96,7 @@ fn fixture() -> SignedRoster {
             domain_id: TrustDomainId::unchecked(format!("domain-{i}")),
             roles: vec![role],
             transport_key: public(11 + i as u8),
+            consensus_key: None,
             attestation_key: (role == Role::Signer).then(|| public(41 + i as u8)),
             address: listeners[i].local_addr().unwrap(),
             peer_class: if matches!(role, Role::Witness | Role::Extension) {
@@ -277,7 +278,7 @@ fn startup_authenticates_admin_anchor_and_local_key_before_starting_network() {
 fn real_socket_mpc_is_opaque_named_bounded_rate_limited_and_shutdown_releases_sockets() {
     run(|context| async move {
         let roster = fixture();
-        let a = Transport::start(context.child("a"), config(&roster, 0)).unwrap();
+        let mut a = Transport::start(context.child("a"), config(&roster, 0)).unwrap();
         let mut b = Transport::start(context.child("b"), config(&roster, 1)).unwrap();
         let mut payload = [0x7b; 32]; // Exactly the channel limit, not CBOR or a PeerMessage.
         payload[..4].copy_from_slice(&[0xff, 0, 0x93, 0x81]);
@@ -310,6 +311,15 @@ fn real_socket_mpc_is_opaque_named_bounded_rate_limited_and_shutdown_releases_so
             }
         }
         assert!(rejected, "per-channel quota must reject a burst");
+        assert_eq!(deliver(&b, &mut a, 0, 20, &payload).await.from, id(1));
+        assert_eq!(sender.block(&id(0)).unwrap_err().code, ErrorCode::PeerNotAdmitted);
+        assert_eq!(sender.block(&NodeId::unchecked("outsider")).unwrap_err().code, ErrorCode::PeerNotAdmitted);
+        sender.block(&id(1)).unwrap();
+        // Same command queue: this send is processed after the named block,
+        // including its mapping to the authenticated Commonware transport key.
+        assert_eq!(sender.send(&id(1), 20, vec![1]).await.unwrap_err().code, ErrorCode::PeerNotAdmitted);
+        let _ = b.send(&id(0), 20, payload.to_vec()).await;
+        assert!(timeout(Duration::from_millis(300), a.recv()).await.is_err(), "blocked peer cannot deliver");
         a.shutdown().await.unwrap();
         b.shutdown().await.unwrap();
         assert!(sender.send(&id(1), 20, vec![1]).await.is_err());
@@ -351,7 +361,7 @@ impl RawPeer {
             namespace,
             node.address,
             NonZeroUsize::new(8).unwrap(),
-            1024,
+            (oic_node::MAX_MESSAGE_SIZE + 43) as u32,
         );
         let (mut network, mut oracle) = lookup::Network::new(context.child("lookup"), cfg);
         let target =
@@ -364,7 +374,7 @@ impl RawPeer {
         let (events, receive) = mpsc::channel(128);
         let mut senders = BTreeMap::new();
         let mut tasks = Vec::new();
-        for channel in [0, 10, 20, 30] {
+        for channel in [0, 10, 20, 21, 30] {
             let (sender, mut receiver) =
                 network.register(channel, Quota::per_second(NonZeroU32::new(100).unwrap()));
             senders.insert(channel, sender);
@@ -590,5 +600,224 @@ fn real_socket_unknown_key_foreign_namespace_and_unregistered_source_ip_do_not_c
             raw.shutdown().await;
             a.shutdown().await.unwrap();
         }
+    });
+}
+
+fn padding_roster() -> SignedRoster {
+    let mut body = fixture().body;
+    // A signer/gateway peer can exercise content and both named MPC channels.
+    body.nodes[1].roles.push(Role::Gateway);
+    for acl in &mut body.channel_acl {
+        if acl.channel == 10 {
+            acl.max_message_size = 4096;
+        } else if acl.channel == 20 {
+            acl.max_message_size = 1024;
+            acl.quota = 100;
+        }
+    }
+    body.channel_acl.push(ChannelSpec {
+        channel: 21,
+        sender_roles: vec![Role::Signer],
+        receiver_roles: vec![Role::Signer],
+        max_message_size: 1024,
+        quota: 100,
+    });
+    sign(body)
+}
+
+fn native_solana_bytes(version: oic_adapter_solana::message::MessageVersion) -> Vec<u8> {
+    use oic_adapter_solana::{instruction::system_transfer_data, message::*};
+    let signer = key(91);
+    let message = Message {
+        version,
+        header: MessageHeader {
+            num_required_signatures: 1,
+            num_readonly_signed_accounts: 0,
+            num_readonly_unsigned_accounts: 1,
+        },
+        account_keys: vec![signer.verifying_key().to_bytes(), [0x57; 32], [0; 32]],
+        recent_blockhash: [0xb6; 32],
+        instructions: vec![CompiledInstruction {
+            program_id_index: 2,
+            accounts: vec![0, 1],
+            data: system_transfer_data(1_234_567),
+        }],
+        address_table_lookups: vec![],
+    }.encode();
+    Transaction::encode(&[signer.sign(&message).to_bytes()], &message)
+}
+
+fn native_peer_frame(
+    roster: &SignedRoster,
+    from: u8,
+    to: u8,
+    kind: FrameKind,
+    native: &[u8],
+) -> (Vec<u8>, ExpectedPeerMessage) {
+    let scope = MessageScope {
+        institution_id: roster.body.institution_id.clone(),
+        environment_id: roster.body.environment_id.clone(),
+        roster_epoch: roster.body.roster_epoch,
+        roster_hash: roster_hash(&roster.body).unwrap(),
+    };
+    let message = PeerMessage {
+        session_id: SigningSessionId::unchecked("native-padding-vector"),
+        key_id: KeyId::unchecked("chain-key"),
+        key_epoch: Epoch(3),
+        from: ParticipantId::unchecked(format!("participant-{from}")),
+        from_generation: Epoch(7),
+        to: Some(ParticipantId::unchecked(format!("participant-{to}"))),
+        round: 2,
+        sequence: 19,
+        protocol_version: "padding-native-vector/1".into(),
+        payload: Bytes(native.to_vec()),
+    };
+    let expected = ExpectedPeerMessage {
+        scope: scope.clone(),
+        session_id: message.session_id.clone(),
+        key_id: message.key_id.clone(),
+        key_epoch: message.key_epoch,
+        from: message.from.clone(),
+        from_generation: message.from_generation,
+        to: message.to.clone().unwrap(),
+        round: message.round,
+        sequence: message.sequence,
+        protocol_version: message.protocol_version.clone(),
+    };
+    let signed = SignedPeerMessage::sign(message, scope, &key(31 + from)).unwrap();
+    (signed.encode_point_to_point(kind, MAX_BODY_LEN).unwrap(), expected)
+}
+
+async fn capture_data(
+    sender: &Transport,
+    raw: &mut RawPeer,
+    roster: &SignedRoster,
+    channel: u64,
+    frame: &[u8],
+) -> Vec<u8> {
+    timeout(Duration::from_secs(90), async {
+        loop {
+            raw.send(0, hello(roster));
+            match sender.send(&id(1), channel, frame.to_vec()).await {
+                Ok(()) => break,
+                Err(e) if matches!(e.code, ErrorCode::RosterMismatch | ErrorCode::Conflict) => {
+                    sleep(Duration::from_millis(100)).await;
+                }
+                Err(e) => panic!("unexpected padding send rejection: {e}"),
+            }
+        }
+        loop {
+            let (received_channel, bytes) = raw.receive.recv().await.unwrap();
+            if received_channel == channel && bytes.as_ref()[2] == 1 {
+                return bytes.as_ref().to_vec();
+            }
+        }
+    }).await.expect("real encrypted socket capture")
+}
+
+#[test]
+fn real_socket_padding_has_fixed_sizes_and_preserves_signed_native_solana_bytes() {
+    run(|context| async move {
+        use oic_adapter_solana::message::{MessageVersion, Transaction};
+        let roster = padding_roster();
+        let padding = PaddingProfile::FixedBucketsV1;
+        let mut a = Transport::start_with_padding(context.child("padded"), config(&roster, 0), padding).unwrap();
+        let mut raw = RawPeer::start(context.child("raw"), &roster, 1, 12, &roster.namespace().unwrap());
+        raw.connected().await;
+        for kind in [FrameKind::MpcSign, FrameKind::MpcCeremony] {
+            let mut lengths = Vec::new();
+            let mut originals = Vec::new();
+            for version in [MessageVersion::Legacy, MessageVersion::V0] {
+                // Real native signatures, not an MPC safety/threshold claim.
+                let native = native_solana_bytes(version);
+                let (frame, _) = native_peer_frame(&roster, 0, 1, kind, &native);
+                originals.push(frame.len());
+                let wire = capture_data(&a, &mut raw, &roster, kind as u64, &frame).await;
+                lengths.push(wire.len());
+                assert_eq!(padding.decode_point_to_point(&wire[43..], 0, kind, 1024).unwrap(), frame);
+
+                let (reverse, expected) = native_peer_frame(&roster, 1, 0, kind, &native);
+                let padded = padding.encode_point_to_point(reverse.clone(), 0, kind, 1024).unwrap();
+                raw.send(kind as u64, packet(&roster, 1, &padded));
+                let event = timeout(Duration::from_secs(10), a.recv()).await.unwrap().unwrap();
+                assert_eq!(event.from, id(1));
+                assert_eq!(event.channel, kind as u64);
+                assert_eq!(event.bytes, reverse);
+                let signed = SignedPeerMessage::decode_point_to_point(&event.bytes, 0, kind, MAX_BODY_LEN).unwrap();
+                let verified = signed.verify(&expected, &key(32).verifying_key()).unwrap();
+                assert_eq!(verified.payload.as_slice(), native);
+                let tx = Transaction::decode(verified.payload.as_slice()).unwrap();
+                assert_eq!(tx.message.version, version);
+                key(91).verifying_key().verify_strict(
+                    &tx.message_bytes,
+                    &ed25519_dalek::Signature::from_bytes(&tx.signatures[0]),
+                ).unwrap();
+            }
+            assert_ne!(originals[0], originals[1]);
+            assert_eq!(lengths, [1067, 1067], "43-byte routing prefix + fixed 1024-byte bucket");
+        }
+        let control = SessionControl::Status {
+            request_id: 27,
+            session_id: SigningSessionId::unchecked("content-padding-vector"),
+        };
+        let frame = PeerFrameV1::encode_confidential(&control, 0, FrameKind::Content, MAX_BODY_LEN).unwrap();
+        let wire = capture_data(&a, &mut raw, &roster, 10, &frame).await;
+        assert_eq!(wire.len(), 1067);
+        assert_eq!(padding.decode_point_to_point(&wire[43..], 0, FrameKind::Content, 4096).unwrap(), frame);
+        raw.send(10, packet(&roster, 1, &wire[43..]));
+        assert_eq!(timeout(Duration::from_secs(10), a.recv()).await.unwrap().unwrap().bytes, frame);
+        eprintln!("padding: content10/mpc20/21 over real authenticated TCP; different native legacy/v0 byte lengths share 1024-byte buckets; participant/native signatures still verify");
+        raw.shutdown().await;
+        a.shutdown().await.unwrap();
+    });
+}
+
+#[test]
+fn real_socket_padding_rejects_mixed_malformed_and_oversized_before_delivery() {
+    run(|context| async move {
+        for profile in [PaddingProfile::Disabled, PaddingProfile::FixedBucketsV1] {
+            let roster = padding_roster();
+            let mut a = Transport::start_with_padding(context.child("receiver"), config(&roster, 0), profile).unwrap();
+            let mut raw = RawPeer::start(context.child("raw"), &roster, 1, 12, &roster.namespace().unwrap());
+            raw.connected().await;
+            let native = native_solana_bytes(oic_adapter_solana::message::MessageVersion::Legacy);
+            let (forward, _) = native_peer_frame(&roster, 0, 1, FrameKind::MpcSign, &native);
+            capture_data(&a, &mut raw, &roster, 20, &forward).await;
+            let (frame, _) = native_peer_frame(&roster, 1, 0, FrameKind::MpcSign, &native);
+            let padded = PaddingProfile::FixedBucketsV1.encode_point_to_point(frame.clone(), 0, FrameKind::MpcSign, 1024).unwrap();
+            let mixed = if profile == PaddingProfile::Disabled { &padded } else { &frame };
+            raw.send(20, packet(&roster, 1, mixed));
+            absent(&mut a).await;
+            if profile == PaddingProfile::FixedBucketsV1 {
+                let mut bad_tail = padded.clone();
+                bad_tail[1023] = 1;
+                let mut bad_length = padded.clone();
+                bad_length[8..12].copy_from_slice(&u32::MAX.to_be_bytes());
+                let mut oversized = padded.clone();
+                oversized.resize(4096, 0);
+                for bad in [&padded[..1023], &bad_tail, &bad_length, &oversized] {
+                    raw.send(20, packet(&roster, 1, bad));
+                    absent(&mut a).await;
+                }
+                // The inner frame fits a 1024-byte ACL but its next bucket does not.
+                let mut near_limit = vec![0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20];
+                near_limit.extend(997u32.to_be_bytes());
+                near_limit.resize(1013, 0xff);
+                assert_eq!(a.send(&id(1), 20, near_limit).await.unwrap_err().code, ErrorCode::InvalidRequest);
+                assert_eq!(a.send(&id(4), 20, forward.clone()).await.unwrap_err().code, ErrorCode::PeerNotAdmitted);
+                // Even valid padding cannot authorize a signer to send audit to a signer.
+                raw.send(30, packet(&roster, 1, b"not-authorized"));
+                absent(&mut a).await;
+            }
+            let valid = if profile == PaddingProfile::Disabled { &frame } else { &padded };
+            raw.send(20, packet(&roster, 1, valid));
+            assert_eq!(timeout(Duration::from_secs(10), a.recv()).await.unwrap().unwrap().bytes, frame);
+            // Unaffected control remains byte-exact in either local profile.
+            raw.send(0, packet(&roster, 1, b"unchanged-control"));
+            assert_eq!(timeout(Duration::from_secs(10), a.recv()).await.unwrap().unwrap().bytes, b"unchanged-control");
+            raw.shutdown().await;
+            a.shutdown().await.unwrap();
+        }
+        eprintln!("padding: both mixed-profile directions, malformed length/tail, ACL oversize and forbidden role produce no event; valid traffic still progresses");
     });
 }

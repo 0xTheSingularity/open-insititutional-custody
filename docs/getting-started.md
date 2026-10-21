@@ -133,12 +133,17 @@ unauthenticated external API. They rely on surrounding verification.
 | Authorization | Policy rules, independent approvals, shared exposure, resource reservations, policy versions, and freezes. |
 | Delivery and recovery | Recorded submission attempts, simulated chain clients, source disagreement handling, reorgs, and invalidation proofs. |
 | Durable state and audit | File-backed stores, one-time-state consumption, signer generations, signed audit events, and checkpoints. |
-| Product and networking | Embeddable HTTP intake and reconciliation/workflow services; roster-admitted Commonware D1 libraries. No production launcher, D2 consensus, or browser light client. |
+| Product and networking | Runnable local D1 HTTP stack and roster-admitted Commonware libraries; fixed-committee D2 consensus and synced signing capabilities. No production launcher or committee handoff. |
 
-There is no API-server or complete product deployment launcher in the current
-workspace. Live-chain clients, production threshold ECDSA, replicated Commonware
-ordering, and browser passkey approval remain separate implementation work.
-The [D1 guide](signer-network.md#checks-and-current-limits) lists the remaining
+The [local-stack recipe](local-stack.md) bootstraps independent development
+approval credentials and runs authenticated HTTP payments against durable EVM
+and Solana simulators. It is a single-machine D1 trial, not a production deployment.
+The separate [Rust/WASM approver](../apps/approver-client/README.md) verifies D2
+certificates and native candidates and exercises passkeys with Chromium's virtual
+authenticator. Its HTTP fixture bridge is not a live Simplex witness service.
+Live-chain clients, production threshold ECDSA, browser witness/gateway integration
+and independently trusted client distribution remain separate implementation work.
+The [network guide](signer-network.md#checks-and-current-limits) lists the remaining
 RFC003 phases; the [protocol v1 contract](../spec/protocol-v1.md) describes RFC002
 behavior and its production limits.
 

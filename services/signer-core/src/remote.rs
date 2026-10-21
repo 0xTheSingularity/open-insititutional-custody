@@ -44,6 +44,23 @@ impl RemoteSigner {
         Self { participant, generation, client, prepare_timeout }
     }
 
+    /// The gateway supplies no D1 receipt or claimed finalized state. The
+    /// receiving core checks its own locally re-executed D2 log.
+    pub fn open_finalized(&self, body: &AuthorizationEnvelopeBody, materials: &SigningMaterials) -> OicResult<ProtocolStep> {
+        match self.call(|request_id| SessionControl::OpenFinalized { request_id, body: body.clone(), materials: materials.clone() })? {
+            SessionResult::Accepted | SessionResult::Waiting => Ok(ProtocolStep::Waiting),
+            _ => Err(OicError::new(ErrorCode::SessionRejected, "unexpected finalized signer open result")),
+        }
+    }
+
+    pub fn release_finalized(&self, session_id: &SigningSessionId) -> OicResult<Vec<ProtocolStep>> {
+        match self.call(|request_id| SessionControl::ReleaseFinalized { request_id, session_id: session_id.clone() })? {
+            SessionResult::Share(bytes) => Ok(vec![ProtocolStep::Share(bytes)]),
+            SessionResult::Complete(signature) => Ok(vec![ProtocolStep::Complete(signature)]),
+            _ => Err(OicError::new(ErrorCode::IssuanceUncertain, "signer did not return one finalized public output")),
+        }
+    }
+
     fn call(&self, make: impl FnOnce(u64) -> SessionControl) -> OicResult<SessionResult> {
         let id = REQUEST_ID.fetch_add(1, Ordering::Relaxed);
         let reply = self.client.request(make(id))?;

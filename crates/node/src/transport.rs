@@ -1,13 +1,13 @@
 use commonware_codec::DecodeExt as _;
 use commonware_cryptography::ed25519;
-use commonware_p2p::{Address, AddressableManager as _, AddressableTrackedPeers, Receiver as _, Recipients, Sender as _, authenticated::lookup};
+use commonware_p2p::{Address, AddressableManager as _, AddressableTrackedPeers, Blocker as _, Receiver as _, Recipients, Sender as _, authenticated::lookup};
 use commonware_runtime::{Handle, IoBuf, Quota, Spawner as _, Supervisor as _, tokio::Context};
 use commonware_utils::ordered::Map;
 use ed25519_dalek::SigningKey;
 use oic_domain_types::*;
 use oic_membership::{AdminTrust, PeerClass, SignedRoster, roster_hash, validate_roster};
-use oic_peer_wire::{FrameKind, PeerFrameV1, RosterState};
-use std::{collections::BTreeMap, num::NonZeroUsize, sync::Arc, time::Duration};
+use oic_peer_wire::{FrameKind, PaddingProfile, PeerFrameV1, RosterState};
+use std::{collections::{BTreeMap, BTreeSet}, num::NonZeroUsize, sync::Arc, time::Duration};
 use tokio::sync::{mpsc, oneshot};
 use tokio::time::{Instant, MissedTickBehavior};
 
@@ -61,6 +61,7 @@ struct Policy {
     peers: BTreeMap<NodeId, ed25519::PublicKey>,
     identities: BTreeMap<ed25519::PublicKey, NodeId>,
     sizes: BTreeMap<u64, usize>,
+    padding: PaddingProfile,
 }
 
 impl Policy {
@@ -85,8 +86,18 @@ impl Policy {
     }
 }
 
+fn padding_kind(channel: u64) -> Option<FrameKind> {
+    match channel {
+        10 => Some(FrameKind::Content),
+        20 => Some(FrameKind::MpcSign),
+        21 => Some(FrameKind::MpcCeremony),
+        _ => None,
+    }
+}
+
 enum Command {
     Send { to: NodeId, channel: u64, bytes: Vec<u8>, reply: oneshot::Sender<OicResult<()>> },
+    Block { to: NodeId },
     Shutdown,
 }
 
@@ -104,6 +115,18 @@ pub struct SendHandle {
 }
 
 impl SendHandle {
+    /// Queue a named peer block without waiting on the networking reactor.
+    /// Commonware disconnects the authenticated transport key and applies its
+    /// connection-block policy; the application router refuses it for the rest
+    /// of this transport's lifetime. Queue refusal is an error, not a block.
+    pub fn block(&self, to: &NodeId) -> OicResult<()> {
+        if to == &self.policy.local || !self.policy.peers.contains_key(to) {
+            return Err(OicError::new(ErrorCode::PeerNotAdmitted, "block target is not an admitted remote node"));
+        }
+        self.commands.try_send(Command::Block { to: to.clone() })
+            .map_err(|_| OicError::new(ErrorCode::Conflict, "transport block queue unavailable"))
+    }
+
     /// Named recipient only. RosterMismatch means convergence is absent/stale;
     /// Conflict means the channel quota or router queue refused submission.
     ///
@@ -119,6 +142,12 @@ impl SendHandle {
     /// ```
     pub async fn send(&self, to: &NodeId, channel: u64, bytes: Vec<u8>) -> OicResult<()> {
         self.policy.check(to, channel, bytes.len())?;
+        let bytes = match padding_kind(channel) {
+            Some(kind) => self.policy.padding.encode_point_to_point(
+                bytes, self.policy.roster.body.roster_epoch, kind, self.policy.sizes[&channel],
+            ).map_err(|_| OicError::invalid_request("invalid padded frame or padded channel size limit exceeded"))?,
+            None => bytes,
+        };
         let (reply, receive) = oneshot::channel();
         self.commands.send(Command::Send { to: to.clone(), channel, bytes, reply }).await.map_err(|_| closed())?;
         receive.await.map_err(|_| closed())?
@@ -133,6 +162,15 @@ pub struct Transport {
 
 impl Transport {
     pub fn start(context: Context, config: Config) -> OicResult<Self> {
+        Self::start_with_padding(context, config, PaddingProfile::Disabled)
+    }
+
+    /// Opt-in local profile for complete encoded frames on channels 10/20/21.
+    /// Other channels, including native consensus 1–5, remain unchanged.
+    /// Padded lengths must fit existing ACL/absolute caps; undersized ACLs fail
+    /// sends, never grow implicitly. Receivers reject mixed profiles before
+    /// event delivery. Restart both endpoints to enable or disable the profile.
+    pub fn start_with_padding(context: Context, config: Config, padding: PaddingProfile) -> OicResult<Self> {
         validate_roster(
             &config.roster,
             &config.admins,
@@ -191,7 +229,7 @@ impl Transport {
         lookup.tracked_peer_sets = NonZeroUsize::new(2).unwrap();
         let primary: Map<_, _> = primary.try_into().map_err(|_| OicError::invalid_request("duplicate primary transport key"))?;
         let secondary: Map<_, _> = secondary.try_into().map_err(|_| OicError::invalid_request("duplicate secondary transport key"))?;
-        let policy = Arc::new(Policy { roster: config.roster, local: config.node_id, hash, peers, identities, sizes });
+        let policy = Arc::new(Policy { roster: config.roster, local: config.node_id, hash, peers, identities, sizes, padding });
         let (commands, receive) = mpsc::channel(QUEUE_SIZE);
         let (events, event_receive) = mpsc::channel(QUEUE_SIZE);
         let actor_policy = policy.clone();
@@ -281,6 +319,7 @@ async fn run(
     let mut network_task = network.start();
     let mut network_finished = false;
     let mut views = BTreeMap::new();
+    let mut blocked = BTreeSet::new();
     let mut tick = tokio::time::interval(Duration::from_secs(1));
     tick.set_missed_tick_behavior(MissedTickBehavior::Skip);
     loop {
@@ -292,14 +331,16 @@ async fn run(
                 // witnesses/extensions also need to prove the active roster.
                 let hello = policy.packet(HELLO, &hello);
                 for (id, key) in &policy.peers {
-                    if id != &policy.local {
+                    if id != &policy.local && !blocked.contains(id) {
                         let _ = senders.get_mut(&0).unwrap().send(Recipients::One(key.clone()), hello.clone(), true);
                     }
                 }
             }
             command = commands.recv() => match command {
                 Some(Command::Send { to, channel, bytes, reply }) => {
-                    let result = if channel != 0 && !converged(&views, &to) {
+                    let result = if blocked.contains(&to) {
+                        Err(OicError::new(ErrorCode::PeerNotAdmitted, "recipient is blocked"))
+                    } else if channel != 0 && !converged(&views, &to) {
                         Err(OicError::new(ErrorCode::RosterMismatch, "recipient roster has not converged"))
                     } else {
                         let key = policy.peers[&to].clone();
@@ -310,10 +351,16 @@ async fn run(
                     };
                     let _ = reply.send(result);
                 }
+                Some(Command::Block { to }) => {
+                    views.remove(&to);
+                    blocked.insert(to.clone());
+                    if !oracle.block(policy.peers[&to].clone()).accepted() { break; }
+                }
                 Some(Command::Shutdown) | None => break,
             },
             Some(inbound) = receive.recv() => {
                 let Some(from) = policy.identities.get(&inbound.from) else { continue };
+                if blocked.contains(from) { continue; }
                 let bytes = inbound.bytes.as_ref();
                 let limit = policy.sizes[&inbound.channel];
                 if bytes.len() < PREFIX_LEN || bytes.len() > PREFIX_LEN + limit || bytes[..2] != 1u16.to_be_bytes() { continue; }
@@ -329,6 +376,15 @@ async fn run(
                         && payload == hello => { views.insert(from.clone(), Instant::now()); }
                     DATA if policy.roster.allows(inbound.channel, from, &policy.local)
                         && (inbound.channel == 0 || converged(&views, from)) => {
+                        let payload = match padding_kind(inbound.channel) {
+                            Some(kind) => {
+                                let Ok(frame) = policy.padding.decode_point_to_point(
+                                    payload, policy.roster.body.roster_epoch, kind, limit,
+                                ) else { continue };
+                                frame
+                            }
+                            None => payload,
+                        };
                         let _ = events.try_send(Event { from: from.clone(), channel: inbound.channel, bytes: payload.to_vec() });
                     }
                     _ => {}

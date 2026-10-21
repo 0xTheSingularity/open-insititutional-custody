@@ -26,6 +26,11 @@
 //! the authority's own tests); the writer generation, authority epoch, and
 //! the reopen's own commit are normalized out of the model state so that
 //! equivalent states deduplicate.
+//!
+//! The separate [`replication`] model extends RFC003 with finalized-prefix
+//! delivery, local halt/restart, and roster epochs under explicit assumptions.
+
+pub mod replication;
 
 use ed25519_dalek::{Signer, SigningKey};
 use oic_authorization_state::*;

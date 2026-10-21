@@ -13,6 +13,7 @@ oic-adapter-api = { workspace = true }
 oic-policy-kernel = { workspace = true }
 oic-authorization-state = { workspace = true }
 oic-approval-verifier = { workspace = true }
+oic-replicated-authority = { workspace = true }
 ed25519-dalek = { workspace = true }
 parking_lot = { workspace = true }
 serde = { workspace = true }

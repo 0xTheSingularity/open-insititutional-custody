@@ -16,10 +16,20 @@ oic-service-authority-rpc.workspace = true
 oic-service-witness.workspace = true
 oic-membership.workspace = true
 oic-authorization-state.workspace = true
+oic-replicated-authority.workspace = true
 commonware-runtime = "=2026.9.0"
+commonware-actor = "=2026.9.0"
+commonware-p2p = "=2026.9.0"
+commonware-utils = { version = "=2026.9.0", features = ["std"] }
+commonware-cryptography = { version = "=2026.9.0", features = ["std"] }
+commonware-codec = "=2026.9.0"
 tokio.workspace = true
 
 [dev-dependencies]
+commonware-consensus = "=2026.9.0"
+commonware-parallel = "=2026.9.0"
+rand-core-commonware = { package = "rand_core", version = "0.10.1" }
+rand.workspace = true
 oic-audit.workspace = true
 oic-service-coordinator.workspace = true
 oic-service-builder.workspace = true

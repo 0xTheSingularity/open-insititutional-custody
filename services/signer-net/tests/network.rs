@@ -390,6 +390,7 @@ fn roster(world: &World, chain: &Chain) -> (SignedRoster, AdminTrust) {
                 Role::Authority
             }],
             transport_key: public(120 + i as u8),
+            consensus_key: None,
             attestation_key: (i < 3).then(|| public(140 + i as u8)),
             address: listeners[i].local_addr().unwrap(),
             peer_class: PeerClass::Primary,

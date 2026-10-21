@@ -62,6 +62,7 @@ fn roster() -> SignedRoster {
             roles: vec![role],
             transport_key: public(10 + i as u8),
             attestation_key: None,
+            consensus_key: None,
             address: format!("127.0.0.1:{}", 9010 + i).parse().unwrap(),
             peer_class: if role == Role::Witness { PeerClass::Secondary } else { PeerClass::Primary },
             participant_keys: BTreeMap::new(),

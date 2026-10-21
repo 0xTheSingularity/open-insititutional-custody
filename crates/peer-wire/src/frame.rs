@@ -9,11 +9,136 @@ pub const HEADER_LEN: usize = 16;
 /// Absolute body cap; the channel ACL may impose a smaller limit on every call.
 pub const MAX_BODY_LEN: usize = 64 * 1024;
 
+/// Complete padded application-frame sizes, excluding the node routing prefix
+/// and Commonware encryption/framing. Padding never raises an ACL or wire cap.
+pub const PADDING_BUCKETS_V1: [usize; 4] = [1024, 4096, 16384, HEADER_LEN + MAX_BODY_LEN];
+const PADDING_MAGIC: &[u8; 8] = b"OIC/PAD\x01";
+const PADDING_HEADER_LEN: usize = 12;
+
+/// Explicit local transport profile, not a change to canonical or signed bytes.
+/// Enable consistently at both endpoints; no fallback or wire negotiation exists.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum PaddingProfile {
+    #[default]
+    Disabled,
+    FixedBucketsV1,
+}
+
+impl PaddingProfile {
+    /// Wrap an already encoded frame for one named recipient on channel 10,
+    /// 20 or 21 only. Returned MPC bytes remain Class S; this is not a public,
+    /// block, broadcast, extension or resolver encoder. `max_wire_len` bounds
+    /// the complete padded frame, unlike body limits on the security codecs.
+    ///
+    /// FixedBucketsV1 uses magic `OIC/PAD\x01`, the original frame length as a
+    /// big-endian u32, the unchanged frame, then zeroes to the smallest bucket.
+    /// The encrypted transport hides this length header, not bucket membership.
+    pub fn encode_point_to_point(
+        self,
+        frame: Vec<u8>,
+        expected_epoch: u64,
+        kind: FrameKind,
+        max_wire_len: usize,
+    ) -> Result<Vec<u8>, WireError> {
+        check_padding_kind(kind)?;
+        let limit = max_wire_len.min(HEADER_LEN + MAX_BODY_LEN);
+        if frame.len() > limit {
+            return Err(WireError::TooLarge);
+        }
+        if self == Self::Disabled {
+            reject_padding_marker(&frame)?;
+            return Ok(frame);
+        }
+        // Structural validation only: canonical security-body interpretation and
+        // participant authentication remain in their existing reviewed codecs.
+        decode_frame(&frame, expected_epoch, kind, MAX_BODY_LEN)?;
+        let bucket = padding_bucket(frame.len(), limit)?;
+        let mut out = Vec::with_capacity(bucket);
+        out.extend_from_slice(PADDING_MAGIC);
+        out.extend_from_slice(&(frame.len() as u32).to_be_bytes());
+        out.extend_from_slice(&frame);
+        out.resize(bucket, 0);
+        Ok(out)
+    }
+
+    /// Borrow the original frame without allocation, before parsing its body.
+    /// Reject mixed profiles, oversized announcements, nonminimal buckets,
+    /// truncated frames, nonzero padding and wrong inner version/epoch/kind.
+    /// Unpadding does not authenticate a participant or authorize a release.
+    pub fn decode_point_to_point(
+        self,
+        bytes: &[u8],
+        expected_epoch: u64,
+        kind: FrameKind,
+        max_wire_len: usize,
+    ) -> Result<&[u8], WireError> {
+        check_padding_kind(kind)?;
+        let limit = max_wire_len.min(HEADER_LEN + MAX_BODY_LEN);
+        if bytes.len() > limit {
+            return Err(WireError::TooLarge);
+        }
+        if self == Self::Disabled {
+            reject_padding_marker(bytes)?;
+            return Ok(bytes);
+        }
+        let header = bytes.get(..PADDING_HEADER_LEN).ok_or(WireError::InvalidLength)?;
+        if &header[..8] != PADDING_MAGIC {
+            return Err(WireError::InvalidPadding);
+        }
+        let len = u32::from_be_bytes(header[8..12].try_into().unwrap()) as usize;
+        // This is checked before any length-derived slice or allocation.
+        let bucket = padding_bucket(len, limit)?;
+        if bytes.len() != bucket {
+            return Err(WireError::InvalidPadding);
+        }
+        let end = PADDING_HEADER_LEN + len;
+        let frame = &bytes[PADDING_HEADER_LEN..end];
+        if bytes[end..].iter().any(|byte| *byte != 0) {
+            return Err(WireError::InvalidPadding);
+        }
+        decode_frame(frame, expected_epoch, kind, MAX_BODY_LEN)?;
+        Ok(frame)
+    }
+}
+
+fn check_padding_kind(kind: FrameKind) -> Result<(), WireError> {
+    if matches!(kind, FrameKind::Content | FrameKind::MpcSign | FrameKind::MpcCeremony) {
+        Ok(())
+    } else {
+        Err(WireError::WrongCarrier)
+    }
+}
+
+fn reject_padding_marker(bytes: &[u8]) -> Result<(), WireError> {
+    if bytes.starts_with(&PADDING_MAGIC[..7]) {
+        Err(WireError::InvalidPadding)
+    } else {
+        Ok(())
+    }
+}
+
+fn padding_bucket(frame_len: usize, limit: usize) -> Result<usize, WireError> {
+    if frame_len > (HEADER_LEN + MAX_BODY_LEN) - PADDING_HEADER_LEN {
+        return Err(WireError::TooLarge);
+    }
+    if frame_len < HEADER_LEN {
+        return Err(WireError::InvalidLength);
+    }
+    PADDING_BUCKETS_V1.into_iter()
+        .find(|bucket| *bucket >= PADDING_HEADER_LEN + frame_len && *bucket <= limit)
+        .ok_or(WireError::TooLarge)
+}
+
 /// V1 routing kinds. A kind is not a transport channel or proof of admission.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[repr(u16)]
 pub enum FrameKind {
     Control = 0,
+    ConsensusVote = 1,
+    ConsensusCertificate = 2,
+    ConsensusResolver = 3,
+    MarshalBlock = 4,
+    MarshalBackfill = 5,
     Content = 10,
     Attestation = 11,
     AuthorityRpc = 12,
@@ -23,6 +148,10 @@ pub enum FrameKind {
 }
 
 impl FrameKind {
+    pub(crate) fn is_consensus(self) -> bool {
+        matches!(self, Self::ConsensusVote | Self::ConsensusCertificate | Self::ConsensusResolver | Self::MarshalBlock | Self::MarshalBackfill)
+    }
+
     pub(crate) fn is_mpc(self) -> bool {
         matches!(self, Self::MpcSign | Self::MpcCeremony)
     }
@@ -119,9 +248,9 @@ impl<'a> PeerFrameV1<'a> {
     }
 
     /// Decode one complete frame; concatenated frames and trailing data fail.
-    /// MPC frames require `SignedPeerMessage::decode_point_to_point` instead.
+    /// Native consensus and MPC frames require their separate reviewed codecs.
     pub fn decode(bytes: &'a [u8], expected_epoch: u64, expected_kind: FrameKind, max_body_len: usize) -> Result<Self, WireError> {
-        if expected_kind.is_mpc() {
+        if expected_kind.is_mpc() || expected_kind.is_consensus() {
             return Err(WireError::WrongCarrier);
         }
         let body = decode_frame(bytes, expected_epoch, expected_kind, max_body_len)?;
@@ -132,7 +261,7 @@ impl<'a> PeerFrameV1<'a> {
     }
 
     pub fn encode_public<T: PublicBody>(body: &T, roster_epoch: u64, kind: FrameKind, max_body_len: usize) -> Result<Vec<u8>, WireError> {
-        if kind.is_mpc() || kind.is_confidential() || !T::allows_frame(kind) {
+        if kind.is_mpc() || kind.is_consensus() || kind.is_confidential() || !T::allows_frame(kind) {
             return Err(WireError::WrongCarrier);
         }
         body.validate_public()?;
@@ -140,7 +269,7 @@ impl<'a> PeerFrameV1<'a> {
     }
 
     pub fn encode_confidential<T: ConfidentialBody>(body: &T, roster_epoch: u64, kind: FrameKind, max_body_len: usize) -> Result<Vec<u8>, WireError> {
-        if !kind.is_confidential() || !T::allows_frame(kind) {
+        if kind.is_consensus() || !kind.is_confidential() || !T::allows_frame(kind) {
             return Err(WireError::WrongCarrier);
         }
         encode_security_body(body, roster_epoch, kind, max_body_len)

@@ -13,6 +13,7 @@ use oic_crypto_provider::{PeerMessage, ProtocolStep};
 use oic_domain_types::*;
 use oic_membership::{roster_hash, validate_roster, AdminTrust, CommitteeKind, Role, SignedRoster};
 use oic_peer_wire::{ExpectedPeerMessage, FrameKind, MessageScope, SessionControl, SessionReply, SessionResult, SignedPeerMessage, MAX_BODY_LEN};
+use oic_replicated_authority::VerifiedLog;
 use oic_signer::Signer;
 use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
@@ -101,6 +102,7 @@ pub struct SignerCore {
     scope: MessageScope,
     clock: Arc<dyn Clock>,
     state: Mutex<State>,
+    finalized_log: Option<tokio::sync::watch::Receiver<Option<VerifiedLog>>>,
 }
 
 fn rejected(code: ErrorCode) -> OicError {
@@ -133,6 +135,7 @@ impl SignerCore {
             || [&audit_key, &config.operator_key].into_iter().any(|key| {
                 config.roster.body.nodes.iter().any(|n| {
                     n.transport_key.bytes.as_slice() == key.as_bytes()
+                        || n.consensus_key.as_ref().is_some_and(|k| k.bytes.as_slice() == key.as_bytes())
                         || n.attestation_key.as_ref().is_some_and(|k| k.bytes.as_slice() == key.as_bytes())
                         || n.participant_keys.values().any(|k| k.bytes.as_slice() == key.as_bytes())
                 }) || config.admins.credentials.values().any(|k| k.bytes.as_slice() == key.as_bytes())
@@ -150,7 +153,10 @@ impl SignerCore {
             Ok(bytes) => {
                 let command = from_canonical_bytes::<SignedHalt>(&bytes).map_err(|_| rejected(ErrorCode::RecoveryRequired))?;
                 let signature = Signature::from_slice(command.signature.bytes.as_slice()).map_err(|_| rejected(ErrorCode::RecoveryRequired))?;
-                config.operator_key.verify_strict(halt_hash(&command.body)?.as_ref(), &signature).map_err(|_| rejected(ErrorCode::RecoveryRequired))?;
+                config
+                    .operator_key
+                    .verify_strict(halt_hash(&command.body)?.as_ref(), &signature)
+                    .map_err(|_| rejected(ErrorCode::RecoveryRequired))?;
                 if command.signature.scheme != SchemeId::Ed25519Pure || command.body.sequence < config.minimum_halt_sequence {
                     return Err(rejected(ErrorCode::RecoveryRequired));
                 }
@@ -174,9 +180,43 @@ impl SignerCore {
         if halt.institution_id != identity.institution_id || halt.environment_id != identity.environment_id || halt.node_id != config.node_id {
             return Err(rejected(ErrorCode::RecoveryRequired));
         }
-        let core = Self { signer, config, participant_key, scope, clock, state: Mutex::new(State { halt, sessions: BTreeMap::new() }) };
+        let core =
+            Self { signer, config, participant_key, scope, clock, state: Mutex::new(State { halt, sessions: BTreeMap::new() }), finalized_log: None };
         core.journal("node.roster_applied", BTreeMap::from([("roster".into(), core.scope.roster_hash)]), Epoch(0))?;
         Ok(core)
+    }
+
+    /// The receiver comes from the core's own keyless follower, not IPC or a
+    /// gateway. It carries a non-deserializable capability only after sync.
+    pub fn with_finalized_log(mut self, log: tokio::sync::watch::Receiver<Option<VerifiedLog>>) -> OicResult<Self> {
+        let anchor = self.signer.finalized_anchor().ok_or_else(|| rejected(ErrorCode::InvalidRequest))?;
+        if self.finalized_log.is_some() || !self.state.lock().sessions.is_empty() || anchor.roster != self.scope.roster_hash {
+            return Err(rejected(ErrorCode::ScopeMismatch));
+        }
+        self.finalized_log = Some(log);
+        Ok(self)
+    }
+
+    fn verified_log(&self, policy_epoch: Epoch) -> OicResult<VerifiedLog> {
+        let receiver = self.finalized_log.as_ref().ok_or_else(|| rejected(ErrorCode::StaleEvidence))?;
+        if receiver.has_changed().is_err() {
+            return Err(rejected(ErrorCode::RecoveryRequired));
+        }
+        let log = receiver.borrow().clone().ok_or_else(|| rejected(ErrorCode::StaleEvidence))?;
+        if Some(log.anchor()) != self.signer.finalized_anchor() {
+            return Err(rejected(ErrorCode::ScopeMismatch));
+        }
+        // Retain the exact source floor in the existing fsynced, independently
+        // witnessed evidence journal before any signing state can advance.
+        self.journal(
+            "authority.finalized",
+            BTreeMap::from([
+                ("block".into(), log.floor().digest),
+                ("floor".into(), domain_hash("OIC/FINALIZED_FLOOR/v1", &(log.floor().height, log.floor().digest))?),
+            ]),
+            policy_epoch,
+        )?;
+        Ok(log)
     }
 
     pub fn node_id(&self) -> &NodeId {
@@ -184,7 +224,11 @@ impl SignerCore {
     }
 
     fn journal(&self, action: &str, commitments: BTreeMap<String, Hash32>, epoch: Epoch) -> OicResult<()> {
-        self.config.audit.append(self.config.node_id.as_str(), action, commitments, epoch, "").map(|_| ()).map_err(|_| rejected(ErrorCode::RecoveryRequired))
+        self.config
+            .audit
+            .append(self.config.node_id.as_str(), action, commitments, epoch, "")
+            .map(|_| ())
+            .map_err(|_| rejected(ErrorCode::RecoveryRequired))
     }
 
     /// Local domain-operator authorization; never depends on network ordering.
@@ -235,22 +279,36 @@ impl SignerCore {
         let request_id = match control {
             SessionControl::Open { request_id, .. }
             | SessionControl::Release { request_id, .. }
+            | SessionControl::OpenFinalized { request_id, .. }
+            | SessionControl::ReleaseFinalized { request_id, .. }
             | SessionControl::Aggregate { request_id, .. }
             | SessionControl::Abort { request_id, .. }
             | SessionControl::Status { request_id, .. } => *request_id,
         };
         let result = (|| {
-            if !self.config.roster.allows(10, from, &self.config.node_id) || !self.config.roster.node(from).is_some_and(|n| n.roles.contains(&Role::Gateway)) {
+            if !self.config.roster.allows(10, from, &self.config.node_id)
+                || !self.config.roster.node(from).is_some_and(|n| n.roles.contains(&Role::Gateway))
+            {
                 return Err(rejected(ErrorCode::PeerNotAdmitted));
             }
             let mut state = self.state.lock();
             if state.halt.halted {
                 return Err(rejected(ErrorCode::NodeHalted));
             }
+            match control {
+                SessionControl::Open { .. } | SessionControl::Release { .. } if self.signer.finalized_anchor().is_some() => {
+                    return Err(rejected(ErrorCode::SessionRejected));
+                }
+                SessionControl::OpenFinalized { .. } | SessionControl::ReleaseFinalized { .. } if self.signer.finalized_anchor().is_none() => {
+                    return Err(rejected(ErrorCode::SessionRejected));
+                }
+                _ => {}
+            }
             let requested_session = match control {
-                SessionControl::Open { .. } => None,
+                SessionControl::Open { .. } | SessionControl::OpenFinalized { .. } => None,
                 SessionControl::Status { session_id, .. }
                 | SessionControl::Release { session_id, .. }
+                | SessionControl::ReleaseFinalized { session_id, .. }
                 | SessionControl::Aggregate { session_id, .. }
                 | SessionControl::Abort { session_id, .. } => Some(session_id),
             };
@@ -258,20 +316,25 @@ impl SignerCore {
                 return Err(rejected(ErrorCode::PeerNotAdmitted));
             }
             match control {
-                SessionControl::Open { envelope, materials, .. } => {
-                    let id = &envelope.body.signer_session_id;
+                SessionControl::Open { .. } | SessionControl::OpenFinalized { .. } => {
+                    let (body, materials, legacy) = match control {
+                        SessionControl::Open { envelope, materials, .. } => (&envelope.body, materials, Some(envelope)),
+                        SessionControl::OpenFinalized { body, materials, .. } => (body, materials, None),
+                        _ => unreachable!(),
+                    };
+                    let id = &body.signer_session_id;
                     if state.sessions.contains_key(id) {
                         return Err(rejected(ErrorCode::SessionRejected));
                     }
                     if state.sessions.len() >= MAX_SESSIONS {
                         return Err(rejected(ErrorCode::Conflict));
                     }
-                    if envelope.body.participant_set.len() > 16 {
+                    if body.participant_set.len() > 16 {
                         return Err(rejected(ErrorCode::UnsupportedCapability));
                     }
                     let me = &self.signer.identity().participant_id;
                     let node = self.config.roster.node(&self.config.node_id).unwrap();
-                    if !node.approved_build_hashes.contains(&envelope.body.verifier_build_hash) {
+                    if !node.approved_build_hashes.contains(&body.verifier_build_hash) {
                         return Err(rejected(ErrorCode::SessionRejected));
                     }
                     let committee = self
@@ -286,28 +349,41 @@ impl SignerCore {
                         })
                         .ok_or_else(|| rejected(ErrorCode::PeerNotAdmitted))?;
                     let CommitteeKind::Key { participants, backend, .. } = &committee.kind else { unreachable!() };
-                    if participants != &materials.key.participants || committee.threshold != materials.key.threshold || backend != self.signer.backend() {
+                    if participants != &materials.key.participants
+                        || committee.threshold != materials.key.threshold
+                        || backend != self.signer.backend()
+                    {
                         return Err(rejected(ErrorCode::ScopeMismatch));
                     }
-                    if backend.backend_id != oic_crypto_provider_dev::BACKEND_ID && backend.backend_id != oic_crypto_provider_frost_ed25519::BACKEND_ID {
+                    if backend.backend_id != oic_crypto_provider_dev::BACKEND_ID
+                        && backend.backend_id != oic_crypto_provider_frost_ed25519::BACKEND_ID
+                    {
                         return Err(rejected(ErrorCode::UnsupportedCapability));
                     }
-                    for participant in &envelope.body.participant_set {
+                    for participant in &body.participant_set {
                         let peer = self.config.roster.participant(participant).ok_or_else(|| rejected(ErrorCode::PeerNotAdmitted))?;
                         self.signer.set_peer_generation(participant, peer.signer_instance_generation)?;
                     }
-                    let verified = self.signer.verify_envelope(envelope, materials, self.clock.now())?;
-                    let step = self.signer.open_session(envelope, materials, self.clock.now())?;
+                    let (verified, step, evidence_kind, evidence_hash) = if let Some(envelope) = legacy {
+                        let verified = self.signer.verify_envelope(envelope, materials, self.clock.now())?;
+                        let step = self.signer.open_session(envelope, materials, self.clock.now())?;
+                        (verified, step, "reservation_receipt", sha256(&canonical_bytes(&envelope.authorization_state_receipt)?))
+                    } else {
+                        let log = self.verified_log(body.policy_epoch)?;
+                        let verified = self.signer.verify_finalized_envelope(body, materials, &log, self.clock.now())?;
+                        let step = self.signer.open_finalized_session(body, materials, &log, self.clock.now())?;
+                        (verified, step, "finalized_block", log.floor().digest)
+                    };
                     let mut session = NetworkSession {
                         owner: from.clone(),
                         envelope_hash: verified.envelope_body_hash,
-                        policy_epoch: envelope.body.policy_epoch,
+                        policy_epoch: body.policy_epoch,
                         key_id: materials.key.key_id.clone(),
                         key_epoch: materials.key.key_epoch,
                         backend: materials.key.backend_id.clone(),
-                        participants: envelope.body.participant_set.clone(),
+                        participants: body.participant_set.clone(),
                         payload: verified.payload,
-                        deadline: envelope.body.issuance_deadline,
+                        deadline: body.issuance_deadline,
                         commitments: BTreeMap::new(),
                         received: BTreeMap::new(),
                         package: None,
@@ -331,10 +407,7 @@ impl SignerCore {
                         };
                         self.journal(
                             "signer.session_opened",
-                            BTreeMap::from([
-                                ("envelope".into(), session.envelope_hash),
-                                ("reservation_receipt".into(), sha256(&canonical_bytes(&envelope.authorization_state_receipt)?)),
-                            ]),
+                            BTreeMap::from([("envelope".into(), session.envelope_hash), (evidence_kind.into(), evidence_hash)]),
                             session.policy_epoch,
                         )?;
                         Ok(())
@@ -356,7 +429,7 @@ impl SignerCore {
                         SessionResult::Waiting
                     }))
                 }
-                SessionControl::Release { session_id, receipt, .. } => {
+                SessionControl::Release { session_id, .. } | SessionControl::ReleaseFinalized { session_id, .. } => {
                     let session = state.sessions.get_mut(session_id).ok_or_else(|| rejected(ErrorCode::NotFound))?;
                     self.check_deadline(session_id, session)?;
                     if let Some(outcome) = &session.outcome {
@@ -380,13 +453,22 @@ impl SignerCore {
                     } else if !session.buffered_package {
                         return Err(rejected(ErrorCode::StaleEvidence));
                     }
-                    let steps = self.signer.release(session_id, receipt, self.clock.now())?;
+                    let (steps, evidence_kind, evidence_hash) = match control {
+                        SessionControl::Release { receipt, .. } => {
+                            (self.signer.release(session_id, receipt, self.clock.now())?, "release_receipt", sha256(&canonical_bytes(receipt)?))
+                        }
+                        SessionControl::ReleaseFinalized { .. } => {
+                            let log = self.verified_log(session.policy_epoch)?;
+                            (self.signer.release_finalized(session_id, &log, self.clock.now())?, "finalized_block", log.floor().digest)
+                        }
+                        _ => unreachable!(),
+                    };
                     for step in steps {
                         Self::outcome(session, step)?;
                     }
                     if let Err(error) = self.journal(
                         "signer.share_released",
-                        BTreeMap::from([("envelope".into(), session.envelope_hash), ("release_receipt".into(), sha256(&canonical_bytes(receipt)?))]),
+                        BTreeMap::from([("envelope".into(), session.envelope_hash), (evidence_kind.into(), evidence_hash)]),
                         session.policy_epoch,
                     ) {
                         self.signer.abort(session_id)?;

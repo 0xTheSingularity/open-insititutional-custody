@@ -9,6 +9,7 @@ members = [
     "crates/adapter-solana",
     "crates/policy-kernel",
     "crates/authorization-state",
+    "crates/replicated-authority",
     "crates/approval-verifier",
     "crates/webauthn",
     "crates/audit",
@@ -31,7 +32,9 @@ members = [
     "services/authority-rpc",
     "services/signer-net",
     "services/witness",
+    "services/local-stack",
     "apps/independent-approval-client",
+    "apps/approver-client",
 ]
 
 [workspace.package]
@@ -47,6 +50,7 @@ oic-domain-types = { path = "crates/domain-types" }
 oic-canonical-encoding = { path = "crates/canonical-encoding" }
 oic-policy-kernel = { path = "crates/policy-kernel" }
 oic-authorization-state = { path = "crates/authorization-state" }
+oic-replicated-authority = { path = "crates/replicated-authority" }
 oic-approval-verifier = { path = "crates/approval-verifier" }
 oic-webauthn = { path = "crates/webauthn" }
 oic-signer = { path = "crates/signer" }
