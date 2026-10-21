@@ -15,13 +15,14 @@ export type Setup = {
 export type Snapshot = {
   schema_version: 1;
   environment: "test";
-  local_only: true;
+  mode: "local" | "demo";
+  local_only: boolean;
   setup: Setup;
   preflight: {
     os: string;
     architecture: string;
     version: string;
-    durable_state: true;
+    durable_state: boolean;
     release_signature_verified: false;
   };
   production_ready: false;

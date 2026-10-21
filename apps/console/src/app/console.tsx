@@ -89,6 +89,7 @@ export default function Console() {
   const current =
     navigation.find((item) => item.href === pathname) ?? navigation[0];
   const [data, setData] = useState<Snapshot | null>(null);
+  const demo = data?.mode === "demo";
   const [busy, setBusy] = useState(false);
   const [stale, setStale] = useState(false);
   const [error, setError] = useState("");
@@ -139,12 +140,16 @@ export default function Console() {
 
   const title =
     pathname === "/inventory"
-      ? "Observe your existing treasury."
+      ? demo
+        ? "Explore sample inventory."
+        : "Observe your existing treasury."
       : pathname === "/readiness"
         ? "Evidence before funding."
-        : data?.setup.workspace_name
-          ? "Pick up where you left off."
-          : "Start with a safe first step.";
+        : demo
+          ? "Explore the custody console."
+          : data?.setup.workspace_name
+            ? "Pick up where you left off."
+            : "Start with a safe first step.";
 
   return (
     <>
@@ -172,7 +177,7 @@ export default function Console() {
         <div className="mb-6 hidden rounded-lg border bg-muted/50 p-3 text-sm break-words md:block">
           {data?.setup.workspace_name ?? "Local workspace"}
           <span className="mt-1 block text-xs text-muted-foreground">
-            Test environment
+            {demo ? "Sample data" : "Test environment"}
           </span>
         </div>
         <nav
@@ -206,8 +211,9 @@ export default function Console() {
             <LockKeyhole className="mb-3 size-4" aria-hidden="true" />
             <strong className="text-foreground">No signing authority</strong>
             <p className="mt-2 leading-relaxed">
-              This console can save public addresses. It cannot approve, sign or
-              move funds.
+              {demo
+                ? "This sample shows public examples. It cannot save data, approve, sign or move funds."
+                : "This console can save public addresses. It cannot approve, sign or move funds."}
             </p>
           </div>
         </div>
@@ -225,9 +231,11 @@ export default function Console() {
             Workspace <span className="px-2">/</span>
             {current.label}
           </span>
-          <Badge variant="secondary">Test only</Badge>
+          <Badge variant="secondary">
+            {demo ? "Sample only" : "Test only"}
+          </Badge>
           <span className="hidden text-muted-foreground sm:inline">
-            Local source build
+            {demo ? "Hosted demo" : "Local source build"}
           </span>
           <ThemeToggle />
         </header>
@@ -242,10 +250,14 @@ export default function Console() {
               <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
                 {pathname === "/inventory"
-                  ? "Read-only inventory. Your current custodian keeps control."
+                  ? demo
+                    ? "Sample public identifiers. Balances and ownership are not verified."
+                    : "Read-only inventory. Your current custodian keeps control."
                   : pathname === "/readiness"
                     ? "Setup progress is not production permission. Every missing control stays visible."
-                    : "A local test workspace today. Independently verified custody before real funds."}
+                    : demo
+                      ? "Sample setup and watch-only discovery. No custody service is connected."
+                      : "A local test workspace today. Independently verified custody before real funds."}
               </p>
             </div>
             <Button
@@ -255,9 +267,20 @@ export default function Console() {
               disabled={busy}
             >
               <RotateCw aria-hidden="true" />
-              Reload saved state
+              {demo ? "Reload sample data" : "Reload saved state"}
             </Button>
           </div>
+          {demo && (
+            <Alert className="border-primary/40 bg-secondary">
+              <ShieldCheck aria-hidden="true" />
+              <AlertTitle>Public sample. No real custody.</AlertTitle>
+              <AlertDescription>
+                Inventory is example data. Saving and custody actions are
+                unavailable. CSV previews are temporary; use public test
+                addresses only. Do not enter keys, credentials or private data.
+              </AlertDescription>
+            </Alert>
+          )}
           {error && (
             <Alert variant="destructive">
               <CircleAlert aria-hidden="true" />
@@ -283,8 +306,8 @@ export default function Console() {
               <LockKeyhole aria-hidden="true" />
               <AlertTitle>Last-known state; actions are paused.</AlertTitle>
               <AlertDescription>
-                Reload saved state to establish the latest outcome. Unsaved CSV
-                content is not stored.
+                {demo ? "Reload sample data" : "Reload saved state"} to
+                establish the latest outcome. Unsaved CSV content is not stored.
               </AlertDescription>
             </Alert>
           )}
@@ -292,7 +315,7 @@ export default function Console() {
             <Card role="status">
               <CardContent className="space-y-4">
                 <span className="text-sm text-muted-foreground">
-                  Connecting to the local console service…
+                  Connecting to the console service…
                 </span>
                 <Skeleton className="h-6 w-2/3" />
                 <Skeleton className="h-28 w-full" />
@@ -304,7 +327,7 @@ export default function Console() {
               {pathname === "/setup" && (
                 <SetupView
                   snapshot={data}
-                  disabled={busy || stale}
+                  disabled={busy || stale || demo}
                   onCreate={(name) =>
                     perform(async () => {
                       const saved = await api<Snapshot>("workspace", "PUT", {
@@ -350,9 +373,11 @@ export default function Console() {
                   No private keys. No implicit approval authority.
                 </span>
                 <span>
-                  {data.setup.updated_at
-                    ? `Saved ${new Date(data.setup.updated_at * 1000).toLocaleString()} · revision ${data.setup.revision}`
-                    : "No workspace saved yet"}
+                  {demo
+                    ? "Read-only sample · no user data is saved"
+                    : data.setup.updated_at
+                      ? `Saved ${new Date(data.setup.updated_at * 1000).toLocaleString()} · revision ${data.setup.revision}`
+                      : "No workspace saved yet"}
                 </span>
               </footer>
             </>

@@ -1,10 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { localRequestAllowed } from "./lib/boundary";
+import { consoleRequestAllowed } from "./lib/boundary";
 
 export function proxy(request: NextRequest) {
-  if (!localRequestAllowed(request)) {
+  if (!consoleRequestAllowed(request, process.env.OIC_CONSOLE_DEMO === "1")) {
     return NextResponse.json(
-      { error: "Local same-origin console requests only." },
+      { error: "Console request origin is not allowed." },
       { status: 403 },
     );
   }

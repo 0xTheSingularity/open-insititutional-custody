@@ -1,8 +1,8 @@
 # Institution console
 
 RFC004's initial setup and watch-only discovery slice, built with Next.js App
-Router, React, Tailwind CSS and generated shadcn/ui components. This is a local
-source-build application, not a production custody control plane.
+Router, React, Tailwind CSS and generated shadcn/ui components. The default is a
+local source-build application, not a production custody control plane.
 
 ## Run locally
 
@@ -28,6 +28,23 @@ authentication; local processes can access the service. Do not expose it through
 a reverse proxy or use it for production custody. `OIC_CONSOLE_ORIGIN` can set
 the expected local port when explicitly overriding Next's port; it does not
 authorize remote hosts.
+
+## Hosted sample
+
+Set the server-side environment variable `OIC_CONSOLE_DEMO=1` for a Vercel sample
+deployment. Use `apps/console` as the project root, the Next.js framework preset,
+Node.js 22.x, `npm ci` and `npm run build`. Do not set `OIC_CONSOLE_STATE_DIR`,
+configure custody credentials or connect a production backend to this project.
+
+Demo mode serves fixed, labeled public examples instead of opening SQLite.
+Same-origin CSV previews remain available, but both workspace and inventory
+writes return 403 even if a state directory is configured. The UI disables
+saving and identifies the sample on every page. Filters and theme preferences
+work; exports contain only sample fixtures and identify that provenance.
+Previews are not persisted. Use public test addresses only, never private data,
+keys or credentials. This does not supply institution authentication or custody
+integration. Without `OIC_CONSOLE_DEMO=1`, the loopback-only boundary still
+applies.
 
 ## Supported now
 
@@ -95,7 +112,9 @@ npm audit --omit=dev
 
 The tests exercise the route-handler boundary using disposable SQLite state:
 preview/save/resume/export, duplicate rejection, checksum and size boundaries,
-stale revisions, cross-site rejection and corrupt-storage failure.
+stale revisions, cross-site rejection and corrupt-storage failure. Demo coverage
+checks fixture provenance, temporary previews, blocked writes and isolation
+from a configured local store.
 
 UI primitives live in `src/components/ui`; `components.json` records the shadcn
 registry configuration. Add primitives with `npx shadcn add <component>` rather

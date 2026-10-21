@@ -53,6 +53,7 @@ export function InventoryView({
   const [fileError, setFileError] = useState("");
   const [reading, setReading] = useState(false);
   const { setup } = snapshot;
+  const demo = snapshot.mode === "demo";
   const filtered = setup.inventory.filter((row) =>
     `${row.label} ${row.network} ${row.address}`
       .toLowerCase()
@@ -86,7 +87,9 @@ export function InventoryView({
         <Card>
           <CardHeader>
             <CardTitle className="flex flex-wrap items-center justify-between gap-3">
-              <h2>Import public addresses</h2>
+              <h2>
+                {demo ? "Preview public addresses" : "Import public addresses"}
+              </h2>
               <Badge variant="secondary">Watch-only</Badge>
             </CardTitle>
             <CardDescription>
@@ -126,8 +129,10 @@ export function InventoryView({
                   className="text-xs leading-relaxed text-muted-foreground"
                 >
                   Up to 500 rows / 128 KiB request. Quote labels containing
-                  commas. Preview is temporary until you explicitly save valid
-                  rows.
+                  commas.{" "}
+                  {demo
+                    ? "Preview only; saving is disabled in this demo."
+                    : "Preview is temporary until you explicitly save valid rows."}
                 </p>
               </div>
               <div className="space-y-2">
@@ -194,11 +199,17 @@ export function InventoryView({
         <aside className="space-y-6">
           <Alert>
             <ShieldCheck aria-hidden="true" />
-            <AlertTitle>Your custodian keeps control.</AlertTitle>
+            <AlertTitle>
+              {demo
+                ? "Custody stays separate."
+                : "Your custodian keeps control."}
+            </AlertTitle>
             <AlertDescription>
-              This import saves public identifiers only. It does not query
-              chains, verify ownership, activate receiving addresses or move
-              funds.
+              {demo
+                ? "This sample shows public examples only."
+                : "This import saves public identifiers only."}{" "}
+              It does not query chains, verify ownership, activate receiving
+              addresses or move funds.
             </AlertDescription>
           </Alert>
           <Card>
@@ -229,9 +240,12 @@ export function InventoryView({
               <Badge variant="secondary">Not saved</Badge>
             </CardTitle>
             <CardDescription>
-              <strong>{preview.importable} new valid addresses</strong> can be
-              saved. {preview.excluded} excluded: duplicate, invalid or
-              unsupported rows are not imported.
+              <strong>{preview.importable} new valid addresses</strong>{" "}
+              {demo
+                ? "pass syntax checks. Saving is disabled in this demo."
+                : "can be saved."}{" "}
+              {preview.excluded} excluded: duplicate, invalid or unsupported
+              rows are not imported.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
@@ -287,7 +301,7 @@ export function InventoryView({
             <div className="flex flex-wrap items-center gap-4">
               <Button
                 className="h-11"
-                disabled={disabled || !preview.importable}
+                disabled={disabled || !preview.importable || demo}
                 onClick={async () => {
                   if (await onSave(csv)) {
                     setCsv("");
@@ -295,10 +309,14 @@ export function InventoryView({
                   }
                 }}
               >
-                Save {preview.importable} valid addresses
+                {demo
+                  ? "Saving unavailable in public demo"
+                  : `Save ${preview.importable} valid addresses`}
               </Button>
               <span className="text-xs text-muted-foreground">
-                Excluded rows remain with your source system.
+                {demo
+                  ? "This preview is temporary. No data is saved."
+                  : "Excluded rows remain with your source system."}
               </span>
             </div>
           </CardContent>
@@ -308,7 +326,7 @@ export function InventoryView({
         <CardHeader>
           <CardTitle className="flex flex-wrap items-center justify-between gap-3">
             <h2>
-              Saved inventory{" "}
+              {demo ? "Sample inventory" : "Saved inventory"}{" "}
               <Badge variant="secondary">{setup.inventory.length}</Badge>
             </h2>
             <Button asChild variant="outline" className="h-11">
@@ -326,7 +344,7 @@ export function InventoryView({
           {setup.inventory.length ? (
             <>
               <Label className="sr-only" htmlFor="inventory-filter">
-                Filter saved inventory
+                {demo ? "Filter sample inventory" : "Filter saved inventory"}
               </Label>
               <Input
                 id="inventory-filter"
@@ -339,9 +357,15 @@ export function InventoryView({
                 Scroll the table horizontally to inspect every column.
               </p>
               <div>
-                <Table aria-label="Saved public addresses">
+                <Table
+                  aria-label={
+                    demo ? "Sample public addresses" : "Saved public addresses"
+                  }
+                >
                   <TableCaption className="sr-only">
-                    Saved watch-only public addresses
+                    {demo
+                      ? "Sample watch-only public addresses"
+                      : "Saved watch-only public addresses"}
                   </TableCaption>
                   <TableHeader>
                     <TableRow>
@@ -360,8 +384,9 @@ export function InventoryView({
                             {row.address}
                           </code>
                           <span className="mt-1 block text-xs text-muted-foreground">
-                            Imported{" "}
-                            {new Date(row.imported_at * 1000).toLocaleString()}
+                            {demo
+                              ? "Public example; not an imported account"
+                              : `Imported ${new Date(row.imported_at * 1000).toLocaleString()}`}
                           </span>
                         </TableCell>
                         <TableCell>{row.network}</TableCell>
@@ -380,7 +405,7 @@ export function InventoryView({
                 </Table>
                 {!filtered.length && (
                   <p className="p-5 text-sm text-muted-foreground">
-                    No saved addresses match this filter.
+                    No {demo ? "sample" : "saved"} addresses match this filter.
                   </p>
                 )}
               </div>

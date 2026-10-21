@@ -18,9 +18,12 @@ export function ReadinessView({ snapshot }: { snapshot: Snapshot }) {
         <LockKeyhole aria-hidden="true" />
         <AlertTitle>Not ready for production funds.</AlertTitle>
         <AlertDescription>
-          This local source-build console has no authenticated institution
-          sessions or live custody connection. A completed inventory is not a
-          control-plane deployment.
+          This{" "}
+          {snapshot.mode === "demo"
+            ? "public sample"
+            : "local source-build console"}{" "}
+          has no authenticated institution sessions or live custody connection.
+          A completed inventory is not a control-plane deployment.
         </AlertDescription>
       </Alert>
       <Card>
@@ -64,7 +67,11 @@ export function ReadinessView({ snapshot }: { snapshot: Snapshot }) {
       <Card>
         <CardHeader>
           <CardTitle>
-            <h2>Keep a portable inventory.</h2>
+            <h2>
+              {snapshot.mode === "demo"
+                ? "Inspect a sample export."
+                : "Keep a portable inventory."}
+            </h2>
           </CardTitle>
           <CardDescription>
             Export public addresses, source provenance, setup revision and

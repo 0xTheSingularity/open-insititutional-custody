@@ -4,7 +4,7 @@ import { DatabaseSync } from "node:sqlite";
 import { parse } from "csv-parse/sync";
 import { keccak_256 } from "@noble/hashes/sha3.js";
 import bs58 from "bs58";
-import { localRequestAllowed } from "./boundary";
+import { consoleRequestAllowed } from "./boundary";
 import type { Setup, Snapshot, Preview } from "./contracts";
 
 const MAX_BODY = 128 * 1024;
@@ -25,17 +25,18 @@ class ApiError extends Error {
   }
 }
 
-function snapshot(setup: Setup): Snapshot {
+function snapshot(setup: Setup, demo = false): Snapshot {
   return {
     schema_version: 1,
     environment: "test",
-    local_only: true,
+    mode: demo ? "demo" : "local",
+    local_only: !demo,
     setup,
     preflight: {
       os: process.platform,
       architecture: process.arch,
       version: "0.1.0",
-      durable_state: true,
+      durable_state: !demo,
       release_signature_verified: false,
     },
     production_ready: false,
@@ -253,6 +254,7 @@ function openStore(directory: string) {
 export async function handle(
   request: Request,
   directory = process.env.OIC_CONSOLE_STATE_DIR,
+  demo = process.env.OIC_CONSOLE_DEMO === "1",
 ): Promise<Response> {
   const headers: Record<string, string> = {
     "Cache-Control": "no-store",
@@ -260,13 +262,8 @@ export async function handle(
   };
   let db: DatabaseSync | undefined;
   try {
-    if (!localRequestAllowed(request))
-      throw new ApiError(403, "Local same-origin console requests only.");
-    if (!directory)
-      throw new ApiError(
-        503,
-        "OIC_CONSOLE_STATE_DIR is not configured. Set a private local state directory and restart the console.",
-      );
+    if (!consoleRequestAllowed(request, demo))
+      throw new ApiError(403, "Console request origin is not allowed.");
     const path = new URL(request.url).pathname.replace(
       /^\/console-api\/v1\//,
       "",
@@ -282,13 +279,46 @@ export async function handle(
             : [];
     if (!allowed.includes(path))
       throw new ApiError(404, "Unknown console command or query.");
+    if (demo && request.method === "PUT")
+      throw new ApiError(
+        403,
+        "The public sample is read-only. Saving is unavailable.",
+      );
     const body = mutation ? await commandBody(request) : {};
-    db = openStore(directory);
-    db.exec("BEGIN IMMEDIATE");
-    const row = db.prepare("SELECT value FROM setup WHERE id = 1").get() as {
-      value: string;
-    };
-    const setup = JSON.parse(row.value) as Setup;
+    let setup: Setup;
+    if (demo) {
+      setup = {
+        revision: 0,
+        workspace_name: "Sample treasury",
+        updated_at: 0,
+        inventory: [
+          {
+            network: "ethereum-sepolia",
+            address: "0x52908400098527886E0F7030069857D2E4169EE7",
+            label: "EVM public example",
+            imported_at: 0,
+          },
+          {
+            network: "solana-devnet",
+            address: "11111111111111111111111111111111",
+            label: "Solana system program example",
+            imported_at: 0,
+          },
+        ],
+      };
+    } else {
+      if (!directory)
+        throw new ApiError(
+          503,
+          "OIC_CONSOLE_STATE_DIR is not configured. Set a private local state directory and restart the console.",
+        );
+      db = openStore(directory);
+      db.exec("BEGIN IMMEDIATE");
+      const row = db.prepare("SELECT value FROM setup WHERE id = 1").get() as {
+        value: string;
+      };
+      setup = JSON.parse(row.value) as Setup;
+    }
     let result: unknown;
     let changed = false;
     if (path === "workspace" || path === "inventory") {
@@ -345,7 +375,7 @@ export async function handle(
       setup.revision += 1;
       setup.updated_at = now();
       changed = true;
-      result = snapshot(setup);
+      result = snapshot(setup, demo);
     } else if (path === "inventory/preview") {
       exactFields(body, ["csv"]);
       if (typeof body.csv !== "string")
@@ -358,22 +388,24 @@ export async function handle(
         schema_version: 1,
         kind: "watch_only_inventory",
         exported_at: now(),
-        source: "operator_public_address_csv",
-        snapshot: snapshot(setup),
+        source: demo ? "public_sample_fixtures" : "operator_public_address_csv",
+        snapshot: snapshot(setup, demo),
         limitations: [
-          "Unsigned local inventory, not a custody audit export.",
+          demo
+            ? "Read-only sample fixtures; no user data is saved. Not a custody audit."
+            : "Unsigned local inventory, not a custody audit export.",
           "No chain discovery, ownership verification, balance observation or funds movement.",
           "Imported policy and signing authority are not supported.",
         ],
       };
     } else {
-      result = snapshot(setup);
+      result = snapshot(setup, demo);
     }
     if (changed)
-      db.prepare("UPDATE setup SET value = ? WHERE id = 1").run(
-        JSON.stringify(setup),
-      );
-    db.exec("COMMIT");
+      db!
+        .prepare("UPDATE setup SET value = ? WHERE id = 1")
+        .run(JSON.stringify(setup));
+    db?.exec("COMMIT");
     return Response.json(result, { headers });
   } catch (error) {
     // No raw input, public addresses or database paths enter error responses/logs.

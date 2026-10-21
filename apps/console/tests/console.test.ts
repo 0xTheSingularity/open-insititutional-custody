@@ -202,3 +202,89 @@ test("corrupt local storage fails closed instead of creating a replacement works
   assert.equal((await call("setup")).status, 500);
   assert.equal(readFileSync(path, "utf8"), "corrupt database");
 });
+
+test("public demo serves only sample fixtures, previews without persistence, and refuses writes", async (t) => {
+  const { directory } = client(t);
+  const store = join(directory, "console.sqlite");
+  writeFileSync(store, "must not be opened by the public demo");
+  const call = (path: string, method = "GET", body?: unknown, headers = {}) =>
+    handle(
+      new Request(`https://demo.example/console-api/v1/${path}`, {
+        method,
+        headers: {
+          host: "demo.example",
+          origin: "https://demo.example",
+          "x-oic-console": "1",
+          "content-type": "application/json",
+          ...headers,
+        },
+        body: body === undefined ? undefined : JSON.stringify(body),
+      }),
+      directory,
+      true,
+    );
+  const response = await call("setup");
+  assert.equal(response.status, 200);
+  const before = (await response.json()) as Snapshot;
+  assert.equal(before.mode, "demo");
+  assert.equal(before.local_only, false);
+  assert.equal(before.preflight.durable_state, false);
+  assert.equal(before.production_ready, false);
+  assert.equal(before.setup.inventory.length, 2);
+  const csv = `network,address,label\nethereum-sepolia,0x000000000000000000000000000000000000dead,New example\nethereum-sepolia,${evm},Duplicate`;
+  const previewResponse = await call("inventory/preview", "POST", { csv });
+  assert.equal(previewResponse.status, 200);
+  const preview = (await previewResponse.json()) as Preview;
+  assert.equal(preview.importable, 1);
+  assert.equal(preview.excluded, 1);
+  // Next normalizes the URL's loopback hostname, but keeps the original Host.
+  const normalized = await handle(
+    new Request("http://localhost:4175/console-api/v1/inventory/preview", {
+      method: "POST",
+      headers: {
+        host: "127.0.0.1:4175",
+        origin: "http://127.0.0.1:4175",
+        "x-oic-console": "1",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ csv }),
+    }),
+    directory,
+    true,
+  );
+  assert.equal(normalized.status, 200);
+  assert.equal(
+    (await call("workspace", "PUT", { base_revision: 0, name: "Intruder" }))
+      .status,
+    403,
+  );
+  assert.equal(
+    (await call("inventory", "PUT", { base_revision: 0, csv })).status,
+    403,
+  );
+  assert.equal(
+    (
+      await call(
+        "inventory/preview",
+        "POST",
+        { csv },
+        { origin: "https://attacker.example" },
+      )
+    ).status,
+    403,
+  );
+  assert.equal(
+    (await call("inventory/preview", "POST", { csv }, { "x-oic-console": "" }))
+      .status,
+    403,
+  );
+  assert.deepEqual(await (await call("setup")).json(), before);
+  const report = await (await call("export")).json();
+  assert.equal(report.source, "public_sample_fixtures");
+  assert.equal(report.snapshot.mode, "demo");
+  assert.doesNotMatch(JSON.stringify(report), /New example|Intruder/);
+  assert.equal(
+    readFileSync(store, "utf8"),
+    "must not be opened by the public demo",
+  );
+});

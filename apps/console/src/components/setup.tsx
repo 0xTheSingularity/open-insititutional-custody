@@ -29,10 +29,11 @@ export function SetupView({
 }) {
   const [name, setName] = useState("");
   const { setup, preflight } = snapshot;
+  const demo = snapshot.mode === "demo";
   const steps = [
     {
-      title: "Local preflight",
-      detail: "Service and durable state",
+      title: demo ? "Console service" : "Local preflight",
+      detail: demo ? "Read-only sample data" : "Service and durable state",
       complete: true,
       href: "/setup",
     },
@@ -45,7 +46,7 @@ export function SetupView({
     {
       title: "Read-only inventory",
       detail: setup.inventory.length
-        ? `${setup.inventory.length} public addresses saved`
+        ? `${setup.inventory.length} ${demo ? "sample public identifiers" : "public addresses saved"}`
         : "Observe existing addresses",
       complete: setup.inventory.length > 0,
       href: "/inventory",
@@ -73,7 +74,11 @@ export function SetupView({
               {steps.filter((step) => step.complete).length} of 5
             </span>
           </CardTitle>
-          <CardDescription>Progress is saved on this machine.</CardDescription>
+          <CardDescription>
+            {demo
+              ? "Example setup. No progress is saved."
+              : "Progress is saved on this machine."}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <ol className="space-y-6 py-3">
@@ -177,7 +182,9 @@ export function SetupView({
               <CardTitle>
                 <h2 className="max-w-sm text-2xl leading-tight tracking-tight">
                   {setup.inventory.length
-                    ? "The inventory is saved. Signing stays separate."
+                    ? demo
+                      ? "Explore a watch-only treasury."
+                      : "The inventory is saved. Signing stays separate."
                     : "Bring your public addresses. Nothing else."}
                 </h2>
               </CardTitle>
@@ -191,7 +198,9 @@ export function SetupView({
               <Button asChild className="h-11">
                 <Link href="/inventory">
                   {setup.inventory.length
-                    ? "Open saved inventory"
+                    ? demo
+                      ? "Open sample inventory"
+                      : "Open saved inventory"
                     : "Preview address inventory"}
                   <ArrowRight aria-hidden="true" />
                 </Link>
@@ -202,7 +211,7 @@ export function SetupView({
         <Card>
           <CardHeader>
             <CardTitle className="flex flex-wrap items-center justify-between gap-3">
-              <h2>Local preflight</h2>
+              <h2>{demo ? "Demo environment" : "Local preflight"}</h2>
               <Badge variant="outline" className="text-success">
                 Service reached
               </Badge>
@@ -213,7 +222,12 @@ export function SetupView({
               {[
                 ["Platform", `${preflight.os} / ${preflight.architecture}`],
                 ["Console version", preflight.version],
-                ["State storage", "Durable write completed"],
+                [
+                  "State storage",
+                  preflight.durable_state
+                    ? "Durable write completed"
+                    : "Sample fixtures; no durable store",
+                ],
                 [
                   "Distribution",
                   "Source build; release signature not verified",

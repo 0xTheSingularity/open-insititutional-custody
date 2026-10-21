@@ -9,8 +9,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Open Institutional Custody",
-  description:
-    "Local test setup and watch-only treasury discovery. No signing authority.",
+  description: "Setup and watch-only treasury discovery. No signing authority.",
 };
 
 export default async function RootLayout({
