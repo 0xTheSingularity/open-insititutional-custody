@@ -39,6 +39,26 @@ authorize remote hosts.
 - Filter saved inventory and export public metadata, provenance and blockers as
   unsigned JSON.
 - Inspect explicit production blockers with no override.
+- Choose Light, Dark or System from the header's Appearance menu. System is the
+  default; explicit choices persist in this browser, independently of workspace
+  state. System follows changes to the operating system's color preference.
+
+## Appearance
+
+Components remain shadcn/ui, not Atlaskit. The themes apply
+[Atlassian's semantic-color guidance](https://atlassian.design/foundations/color-new),
+[surface hierarchy](https://atlassian.design/foundations/elevation) and
+[8px spacing scale](https://atlassian.design/foundations/spacing): a sunken page,
+flat bordered content, a lighter dark-mode menu overlay, blue selection/action
+roles, and separate success/warning text, surface and border tokens. Selected
+navigation also uses an underline; status labels and icons do not rely on color
+alone. These are local shadcn tokens, not an imported Atlassian token package.
+
+`next-themes` sets the class before hydration using the request's CSP nonce.
+Theme choice is stored under `oic-color-theme` in browser local storage. It never
+changes permissions, readiness or the local metadata API.
+
+## Inventory and storage
 
 Supported network identifiers: `ethereum-mainnet`, `ethereum-sepolia`,
 `solana-mainnet`, `solana-devnet`. Each import accepts 1–500 rows and an HTTP JSON

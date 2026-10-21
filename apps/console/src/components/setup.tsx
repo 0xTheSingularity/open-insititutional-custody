@@ -82,7 +82,8 @@ export function SetupView({
                 <span
                   className={cn(
                     "flex size-8 shrink-0 items-center justify-center rounded-full border text-xs text-muted-foreground",
-                    step.complete && "border-success bg-success text-white",
+                    step.complete &&
+                      "border-success-border bg-success-surface text-success",
                   )}
                 >
                   {step.complete ? (
@@ -233,7 +234,7 @@ export function SetupView({
             </p>
           </CardContent>
         </Card>
-        <Alert className="border-warning/30 bg-warning/5">
+        <Alert className="border-warning-border bg-warning-surface">
           <LockKeyhole aria-hidden="true" />
           <AlertTitle>Production funding is blocked.</AlertTitle>
           <AlertDescription>

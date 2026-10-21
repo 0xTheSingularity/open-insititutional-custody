@@ -20,6 +20,7 @@ import { Separator } from "@/components/ui/separator";
 import { SetupView } from "@/components/setup";
 import { InventoryView } from "@/components/inventory";
 import { ReadinessView } from "@/components/readiness";
+import { ThemeToggle } from "@/components/theme-toggle";
 import type { Snapshot, Preview } from "@/lib/contracts";
 
 class RequestError extends Error {
@@ -183,7 +184,7 @@ export default function Console() {
               key={item.href}
               asChild
               variant={pathname === item.href ? "secondary" : "ghost"}
-              className="h-11 gap-2 px-3 text-xs md:justify-start md:text-sm"
+              className="h-11 gap-2 px-3 text-xs aria-[current=page]:font-semibold aria-[current=page]:underline aria-[current=page]:underline-offset-4 md:justify-start md:text-sm"
             >
               <Link
                 href={item.href}
@@ -228,6 +229,7 @@ export default function Console() {
           <span className="hidden text-muted-foreground sm:inline">
             Local source build
           </span>
+          <ThemeToggle />
         </header>
         <main
           id="main"
@@ -268,7 +270,7 @@ export default function Console() {
             aria-live="polite"
             className={
               message
-                ? "border-success/30 bg-success/5 text-success"
+                ? "border-success-border bg-success-surface text-success"
                 : "sr-only"
             }
           >
@@ -277,7 +279,7 @@ export default function Console() {
             </AlertDescription>
           </Alert>
           {stale && data && (
-            <Alert className="border-warning/30 bg-warning/5">
+            <Alert className="border-warning-border bg-warning-surface">
               <LockKeyhole aria-hidden="true" />
               <AlertTitle>Last-known state; actions are paused.</AlertTitle>
               <AlertDescription>

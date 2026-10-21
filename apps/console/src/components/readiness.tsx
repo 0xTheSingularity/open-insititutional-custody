@@ -14,7 +14,7 @@ import type { Snapshot } from "@/lib/contracts";
 export function ReadinessView({ snapshot }: { snapshot: Snapshot }) {
   return (
     <div className="space-y-6">
-      <Alert className="border-warning/30 bg-warning/5">
+      <Alert className="border-warning-border bg-warning-surface">
         <LockKeyhole aria-hidden="true" />
         <AlertTitle>Not ready for production funds.</AlertTitle>
         <AlertDescription>

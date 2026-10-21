@@ -13,6 +13,7 @@ export function proxy(request: NextRequest) {
   const csp = `default-src 'self'; script-src 'self' 'nonce-${nonce}'${development ? " 'unsafe-eval'" : ""}; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'${development ? " ws://127.0.0.1:* ws://localhost:*" : ""}; base-uri 'none'; frame-ancestors 'none'; form-action 'self'`;
   const headers = new Headers(request.headers);
   headers.set("Content-Security-Policy", csp);
+  headers.set("x-nonce", nonce);
   const response = NextResponse.next({ request: { headers } });
   response.headers.set("Content-Security-Policy", csp);
   response.headers.set("Cache-Control", "no-store");
