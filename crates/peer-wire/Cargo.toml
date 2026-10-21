@@ -13,5 +13,7 @@ oic-crypto-provider = { workspace = true }
 oic-signer = { workspace = true }
 oic-authorization-state = { workspace = true }
 oic-policy-kernel = { workspace = true }
+oic-audit = { workspace = true }
+oic-membership = { workspace = true }
 serde = { workspace = true }
 ed25519-dalek = { workspace = true }

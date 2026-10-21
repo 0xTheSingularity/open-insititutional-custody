@@ -73,6 +73,16 @@ pub fn authority_event_entry(event: &AuthorityEvent, known_policy_epoch: Option<
             epoch = Some(*policy_epoch);
             ("authority.policy_activated", format!("commit_sequence={commit_sequence} policy_epoch={policy_epoch} policy_hash={policy_hash}"))
         }
+        AuthorityEvent::CredentialChanged { credential_id, active, commit_sequence } => {
+            c.insert("credential".to_string(), object_commitment("credential", credential_id.as_str())?);
+            ("authority.credential_changed", format!("commit_sequence={commit_sequence} active={active}"))
+        }
+        AuthorityEvent::ApprovalRecorded { intent_id, credential_id, grant_id, commit_sequence } => {
+            c.insert("intent".to_string(), object_commitment("intent", intent_id.as_str())?);
+            c.insert("credential".to_string(), object_commitment("credential", credential_id.as_str())?);
+            c.insert("grant".to_string(), object_commitment("grant", grant_id.as_str())?);
+            ("authority.approval_recorded", format!("commit_sequence={commit_sequence}"))
+        }
         AuthorityEvent::Reserved { reservation_id, commit_sequence } => {
             c.insert("reservation".to_string(), object_commitment("reservation", reservation_id.as_str())?);
             ("authority.reserved", format!("commit_sequence={commit_sequence} reservation_id={reservation_id}"))

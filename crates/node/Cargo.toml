@@ -23,4 +23,14 @@ tokio.workspace = true
 [dev-dependencies]
 oic-crypto-provider.workspace = true
 oic-crypto-provider-dev.workspace = true
+oic-signer.workspace = true
+oic-authorization-state.workspace = true
+oic-one-time-state-ledger.workspace = true
+oic-policy-kernel.workspace = true
+oic-approval-verifier.workspace = true
+oic-adapter-api.workspace = true
+oic-adapter-evm.workspace = true
+oic-adapter-solana.workspace = true
+oic-crypto-provider-frost-ed25519.workspace = true
+rand.workspace = true
 serde_json.workspace = true

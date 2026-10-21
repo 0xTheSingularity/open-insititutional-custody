@@ -6,9 +6,9 @@ use axum::{
     Router,
 };
 use common::*;
-use ed25519_dalek::SigningKey;
+use ed25519_dalek::{Signer as _, SigningKey};
 use oic_adapter_api::SignedTransaction;
-use oic_authorization_state::{BudgetKey, InMemoryAuthorityStore};
+use oic_authorization_state::{BudgetKey, CredentialChange, InMemoryAuthorityStore};
 use oic_canonical_encoding::{domain_hash, sha256};
 use oic_domain_types::*;
 use oic_service_api::*;
@@ -103,6 +103,33 @@ fn api(
         approvers: world.approver_credentials(),
         clock: world.clock.clone(),
     })
+}
+
+fn enroll_approvers(world: &World) {
+    for credential in world.approver_credentials() {
+        let proposal = CredentialChange {
+            institution_id: inst(),
+            environment_id: env_id(),
+            credential_id: credential.credential_id.clone(),
+            previous_change: 0,
+            credential: Some(credential),
+        };
+        let hash = proposal.hash().unwrap();
+        let signatures = world.admins[..2]
+            .iter()
+            .map(|(id, key)| CredentialSignature {
+                credential_id: id.clone(),
+                signature: SignatureBytes {
+                    scheme: SchemeId::Ed25519Pure,
+                    bytes: Bytes(key.sign(&hash.0).to_bytes().to_vec()),
+                },
+            })
+            .collect();
+        world
+            .authority
+            .change_credential(proposal, signatures)
+            .unwrap();
+    }
 }
 
 async fn call(
@@ -233,6 +260,7 @@ async fn transfer(
 #[tokio::test]
 async fn evm_http_approval_native_signature_execution_and_restart() {
     let world = World::new();
+    enroll_approvers(&world);
     let evm = evm_chain(&world);
     let c = &evm.chain;
     world
@@ -248,6 +276,21 @@ async fn evm_http_approval_native_signature_execution_and_restart() {
         &path,
     );
     let signed = transfer(&world, c, &api).await;
+    let approvals = world
+        .authority
+        .recorded_approvals(&signed.intent.intent_id)
+        .unwrap();
+    assert_eq!(approvals.len(), 1);
+    assert_eq!(approvals[0].grant, signed.approvals[0]);
+    assert!(
+        approvals[0].commit_sequence
+            < signed
+                .issuance
+                .as_ref()
+                .unwrap()
+                .issuance_record
+                .commit_sequence
+    );
     evm.sim.mine_blocks(4).unwrap();
     let family = signed.built.candidate.operation_family_id.to_string();
     let (status, state) = call(
@@ -702,4 +745,70 @@ async fn institution_exports_require_access_to_vaults_missing_from_the_catalog()
         call(&app, "GET", "/v1/export", "reader", None).await.0,
         StatusCode::FORBIDDEN
     );
+}
+
+#[tokio::test]
+async fn approval_http_recovers_a_committed_authority_result_without_replaying_it() {
+    let world = World::new();
+    enroll_approvers(&world);
+    let evm = evm_chain(&world);
+    let c = &evm.chain;
+    world
+        .authority
+        .set_policy(&world.sign_policy(policy(1, vec![rule(&c.asset.asset_id, 1, 10_000_000)])))
+        .unwrap();
+    let dir = tempfile::tempdir().unwrap();
+    let api = api(
+        &world,
+        c,
+        Arc::new(EvmSimulatorClient::new(evm.sim.clone())),
+        &dir.path().join("api.sqlite"),
+    );
+    let intent = c.intent(
+        "approval-recovery",
+        314_159,
+        10_000_000_000_000_000,
+        ApprovalMode::ExactCandidate,
+    );
+    let record = api
+        .create(
+            &api.authenticate("proposer").unwrap(),
+            intent.clone(),
+            "approval-recovery",
+        )
+        .unwrap();
+    let grant = world.exact_grant(&record.built, 0);
+    // The authority committed, but the API database did not receive the result.
+    let sequence = world.authority.approve(&intent, grant.clone()).unwrap();
+    assert!(api
+        .store
+        .get(&intent.intent_id)
+        .unwrap()
+        .approvals
+        .is_empty());
+    let (status, response) = call(
+        &router(api.clone()),
+        "POST",
+        "/v1/intents/approval-recovery/approvals",
+        "approver",
+        Some(serde_json::to_value(&grant).unwrap()),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{response}");
+    let recovered: IntentRecord = serde_json::from_value(response).unwrap();
+    assert_eq!(recovered.approvals, vec![grant]);
+    assert_eq!(
+        world.authority.store().snapshot().commit_sequence,
+        sequence,
+        "recovery must read the ordered result, not replay Approve"
+    );
+    assert_eq!(
+        world
+            .authority
+            .recorded_approvals(&intent.intent_id)
+            .unwrap()
+            .len(),
+        1
+    );
+    assert_eq!(api.store.get(&intent.intent_id).unwrap(), recovered);
 }

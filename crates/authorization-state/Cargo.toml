@@ -13,3 +13,10 @@ ed25519-dalek = { workspace = true }
 parking_lot = { workspace = true }
 serde = { workspace = true }
 hex = { workspace = true }
+
+[dev-dependencies]
+oic-webauthn.workspace = true
+p256 = { version = "0.13.2", default-features = false, features = ["ecdsa", "std"] }
+base64 = "0.22"
+sha2.workspace = true
+serde_json.workspace = true

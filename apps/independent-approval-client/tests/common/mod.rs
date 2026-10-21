@@ -44,7 +44,8 @@ pub fn approver_arg() -> String {
 pub fn roster() -> Vec<oic_approval_verifier::ApproverCredential> {
     vec![oic_approval_verifier::ApproverCredential {
         credential_id: approver_id(),
-        verifying_key: approver_key().verifying_key(),
+        person_id: approver_id(),
+        verifying_key: approver_key().verifying_key().into(),
         role: ApprovalRole::TreasuryApprover,
     }]
 }

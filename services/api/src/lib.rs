@@ -343,20 +343,43 @@ impl<S: AuthorityStore> Api<S> {
                 "grant does not belong to this approver and intent",
             ));
         }
-        verify_grant(&grant, &self.approvers, self.clock.now())?;
-        if let Some(existing) = old
+        let authority = self.coordinator.authority();
+        let enrolled = authority.approval_credentials()?;
+        verify_grant(
+            &grant,
+            enrolled.as_deref().unwrap_or(&self.approvers),
+            self.clock.now(),
+        )?;
+        let existing = old
             .approvals
             .iter()
-            .find(|g| g.body.grant_id == grant.body.grant_id)
-        {
-            return if existing == &grant {
-                Ok(old)
-            } else {
-                Err(OicError::new(ErrorCode::Conflict, "grant id reused"))
-            };
+            .find(|g| g.body.grant_id == grant.body.grant_id);
+        if existing.is_some_and(|g| g != &grant) {
+            return Err(OicError::new(ErrorCode::Conflict, "grant id reused"));
         }
-        if old.approvals.len() >= oic_policy_kernel::MAX_GRANTS {
+        if existing.is_none() && old.approvals.len() >= oic_policy_kernel::MAX_GRANTS {
             return Err(OicError::invalid_request("approval grant limit reached"));
+        }
+        if enrolled.is_some() {
+            let recorded = authority.recorded_approvals(id)?;
+            match recorded
+                .iter()
+                .find(|r| r.grant.body.approver_credential_id == grant.body.approver_credential_id)
+            {
+                Some(record) if record.grant != grant => {
+                    return Err(OicError::new(
+                        ErrorCode::Conflict,
+                        "credential already approved this intent",
+                    ))
+                }
+                Some(_) => {} // Recover a lost API-store ACK without replaying the mutation.
+                None => {
+                    authority.approve(&old.intent, grant.clone())?;
+                }
+            }
+        }
+        if existing.is_some() {
+            return Ok(old);
         }
         let mut new = old.clone();
         new.approvals.push(grant);
@@ -423,12 +446,13 @@ impl<S: AuthorityStore> Api<S> {
             .collect();
         let exposure =
             authority.exposure_view(&old.intent.vault_id, &assets, &windows, self.clock.now())?;
+        let enrolled = authority.approval_credentials()?;
         let evaluation = builder::evaluate(
             &old.built,
             policy,
             authority.current_policy()?.0,
             &old.approvals,
-            &self.approvers,
+            enrolled.as_deref().unwrap_or(&self.approvers),
             &exposure,
             self.clock.now(),
         )?;

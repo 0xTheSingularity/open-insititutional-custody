@@ -430,3 +430,62 @@ fn confidential_session_controls_and_replies_roundtrip_without_protocol_frames()
         assert_eq!(format!("{reply:?}"), "SessionReply([REDACTED])");
     }
 }
+
+#[test]
+fn witness_audit_carrier_roundtrips_public_commitments_but_never_audit_detail() {
+    use oic_audit::{AuditLog, AuditLogConfig, MemoryAuditLog};
+    use oic_authorization_state::ManualClock;
+    use std::{collections::BTreeMap, sync::Arc};
+
+    let log = MemoryAuditLog::new(AuditLogConfig::new(
+        KeyId::unchecked("audit-key"),
+        SigningKey::from_bytes(&[0x47; 32]),
+        Arc::new(ManualClock::new(123)),
+    ));
+    log.append("signer", "released", BTreeMap::new(), Epoch(9), "")
+        .unwrap();
+    let message = WitnessMessage::AuditCheckpoint {
+        checkpoint: log.checkpoint().unwrap(),
+        bridge: log.events(),
+    };
+    let payload = message.encode().unwrap();
+    let wire = PeerFrameV1::encode_public(&message, 21, FrameKind::Audit, payload.len()).unwrap();
+    let frame = PeerFrameV1::decode(&wire, 21, FrameKind::Audit, payload.len()).unwrap();
+    assert_eq!(frame.body(), payload);
+    assert_eq!(
+        from_canonical_bytes::<WitnessMessage>(frame.body()).unwrap(),
+        message
+    );
+    assert_eq!(
+        PeerFrameV1::encode_public(&message, 21, FrameKind::Audit, payload.len() - 1).unwrap_err(),
+        WireError::TooLarge
+    );
+    for kind in [
+        FrameKind::Control,
+        FrameKind::Content,
+        FrameKind::AuthorityRpc,
+        FrameKind::MpcSign,
+    ] {
+        assert_eq!(
+            PeerFrameV1::encode_public(&message, 21, kind, MAX_BODY_LEN).unwrap_err(),
+            WireError::WrongCarrier
+        );
+    }
+    log.append(
+        "signer",
+        "observed",
+        BTreeMap::new(),
+        Epoch(9),
+        "private invoice reference",
+    )
+    .unwrap();
+    let confidential = WitnessMessage::AuditCheckpoint {
+        checkpoint: log.checkpoint().unwrap(),
+        bridge: log.events(),
+    };
+    assert!(confidential.encode().is_err());
+    assert_eq!(
+        PeerFrameV1::encode_public(&confidential, 21, FrameKind::Audit, MAX_BODY_LEN).unwrap_err(),
+        WireError::InvalidBody
+    );
+}

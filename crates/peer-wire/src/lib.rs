@@ -47,16 +47,13 @@ mod authority;
 mod control;
 mod frame;
 mod message;
+mod witness;
 
 pub use authority::{AuthorityReply, AuthorityRequest, AuthorityResult};
 pub use control::{SessionControl, SessionReply, SessionResult};
-pub use frame::{
-    ConfidentialBody, FrameKind, PeerFrameV1, PublicBody, RosterState, HEADER_LEN, MAX_BODY_LEN,
-    WIRE_VERSION,
-};
-pub use message::{
-    ExpectedPeerMessage, MessageScope, SignedPeerMessage, MAX_PAYLOAD_LEN, MAX_PROTOCOL_VERSION_LEN,
-};
+pub use frame::{ConfidentialBody, FrameKind, HEADER_LEN, MAX_BODY_LEN, PeerFrameV1, PublicBody, RosterState, WIRE_VERSION};
+pub use message::{ExpectedPeerMessage, MAX_PAYLOAD_LEN, MAX_PROTOCOL_VERSION_LEN, MessageScope, SignedPeerMessage};
+pub use witness::WitnessMessage;
 
 /// Bounded rejection reasons. Errors never contain payloads or attacker input.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

@@ -203,6 +203,15 @@ impl Transport {
         self.sender.clone()
     }
 
+    /// The immutable, validated admission view actually used by this transport.
+    pub fn roster(&self) -> &SignedRoster {
+        &self.sender.policy.roster
+    }
+
+    pub fn node_id(&self) -> &NodeId {
+        &self.sender.policy.local
+    }
+
     /// Submission owns only the cloneable sender, not a shared borrow of the
     /// transport's non-Sync runtime supervisor. It can run in a spawned task.
     pub fn send(&self, to: &NodeId, channel: u64, bytes: Vec<u8>) -> impl std::future::Future<Output = OicResult<()>> + Send + 'static + use<> {

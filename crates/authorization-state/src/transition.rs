@@ -34,6 +34,8 @@ pub struct AuthorityConfig {
 pub enum AuthorityEvent {
     Opened { fence_token: u64, authority_epoch: Epoch, commit_sequence: u64 },
     PolicyActivated { policy_epoch: Epoch, policy_hash: Hash32, commit_sequence: u64 },
+    CredentialChanged { credential_id: CredentialId, active: bool, commit_sequence: u64 },
+    ApprovalRecorded { intent_id: IntentId, credential_id: CredentialId, grant_id: GrantId, commit_sequence: u64 },
     Reserved { reservation_id: ReservationId, commit_sequence: u64 },
     Released { reservation_id: ReservationId, issuance_id: IssuanceId, commit_sequence: u64 },
     Frozen { scope: FreezeScope, by: CredentialId, commit_sequence: u64 },
@@ -174,6 +176,8 @@ fn limit_sort_key(l: &(AssetId, ExposureLimit)) -> (AssetId, u64, Amount) {
 pub enum AuthorityCommand {
     RegisterIntent { intent: Intent, intent_hash: Hash32, key: IdempotencyKey },
     SetPolicy { bundle: PolicyBundle },
+    ChangeCredential { proposal: crate::CredentialChange, signatures: Vec<CredentialSignature> },
+    Approve { intent: Box<Intent>, grant: ApprovalGrant },
     Reserve { request: ReserveRequest },
     Release { request: ReleaseRequest },
     Freeze { scope: FreezeScope, by: CredentialId, reason: String, signature: SignatureBytes },
@@ -222,6 +226,16 @@ pub fn apply(
     let output = match command {
         AuthorityCommand::RegisterIntent { intent, intent_hash, key } => AuthorityOutput::Registered(transition.register_intent(&intent, intent_hash, key)?),
         AuthorityCommand::SetPolicy { bundle } => AuthorityOutput::Committed(transition.set_policy(&bundle)?),
+        AuthorityCommand::ChangeCredential { proposal, signatures } => {
+            let (sequence, event) = transition.tx(|st, _| crate::approvals::change_credential(config, st, proposal, &signatures))?;
+            transition.emit(event);
+            AuthorityOutput::Committed(sequence)
+        }
+        AuthorityCommand::Approve { intent, grant } => {
+            let (sequence, event) = transition.tx(|st, now| crate::approvals::approve(config, st, &intent, grant, now))?;
+            transition.emit(event);
+            AuthorityOutput::Committed(sequence)
+        }
         AuthorityCommand::Reserve { request } => {
             let (reservation, receipt) = transition.reserve(request)?;
             AuthorityOutput::Reserved { reservation, receipt }
@@ -410,6 +424,7 @@ impl Transition<'_> {
             if family.quarantined {
                 return Err(err(ErrorCode::IssuanceUncertain, "operation family quarantined by conflicting chain evidence"));
             }
+            crate::approvals::require_recorded_grants(st, &req.grants, now)?;
             let mut approvers: Vec<&CredentialId> = Vec::new();
             for g in &req.grants {
                 let b = &g.body;
@@ -420,6 +435,16 @@ impl Transition<'_> {
                     || b.policy_id != policy.policy_id
                 {
                     return Err(OicError::scope("grant not bound to this intent, vault, and policy epoch"));
+                }
+                if st.ordered_approvals.is_some() {
+                    if !rule.approval_roles.contains(&b.approver_role) {
+                        return Err(OicError::policy_denied("approval role is not permitted by the matched rule"));
+                    }
+                    if let GrantScope::ExactCandidate { candidate_id, candidate_revision, .. } = &b.scope {
+                        if candidate_id != &req.candidate_id || *candidate_revision != req.candidate_revision {
+                            return Err(OicError::scope("recorded approval names a different candidate"));
+                        }
+                    }
                 }
                 if !approvers.contains(&&b.approver_credential_id) {
                     approvers.push(&b.approver_credential_id);
@@ -520,6 +545,7 @@ impl Transition<'_> {
                 envelope_body_hash: req.envelope_body_hash,
                 signer_session_id: req.signer_session_id.clone(),
                 candidate_lifecycle: LifecycleState::Reserved,
+                recorded_grants: if st.ordered_approvals.is_some() { req.grants.clone() } else { Vec::new() },
             };
             st.reservations.insert(reservation_id.clone(), record);
             st.candidates.insert(req.candidate_id.clone(), req.family_id.clone());
@@ -598,6 +624,7 @@ impl Transition<'_> {
             if req.freshness.now.0.abs_diff(now.0) > skew {
                 return Err(OicError::stale_evidence("caller freshness context disagrees with authority clock"));
             }
+            crate::approvals::require_recorded_grants(st, &rec.recorded_grants, now)?;
             // A replacement that is not provably mutually exclusive with a
             // possibly issued sibling could be a second live payment (§3.4).
             let fam_id = rec.reservation.operation_family_id.clone();

@@ -1,0 +1,22 @@
+[package]
+name = "oic-service-witness"
+version.workspace = true
+edition = "2024"
+rust-version = "1.95"
+license.workspace = true
+description = "Read-only durable checkpoint witness and confidential offline reconstruction"
+
+[dependencies]
+oic-domain-types.workspace = true
+oic-canonical-encoding.workspace = true
+oic-membership.workspace = true
+oic-peer-wire.workspace = true
+oic-audit.workspace = true
+oic-authorization-state.workspace = true
+oic-policy-kernel.workspace = true
+oic-service-reconciler.workspace = true
+commonware-storage = "=2026.9.0"
+commonware-runtime = "=2026.9.0"
+commonware-utils = { version = "=2026.9.0", features = ["std"] }
+ed25519-dalek.workspace = true
+serde.workspace = true

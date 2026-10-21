@@ -141,6 +141,36 @@ impl<S: AuthorityStore> Authority<S> {
         self.view(|state| Ok((state.policy_epoch, state.policy_hash)))
     }
 
+    /// Enable ordered approvals by enrolling the first approval-only key, or
+    /// permanently retire an enrolled identity. Every change requires the
+    /// configured admin quorum and emits an ordered audit event.
+    pub fn change_credential(&self, proposal: crate::CredentialChange, signatures: Vec<CredentialSignature>) -> OicResult<u64> {
+        if proposal.credential.as_ref().is_some_and(|c| c.verifying_key == oic_policy_kernel::ApproverKey::Ed25519(self.verifying_key())) {
+            return Err(OicError::invalid_request("approval and authority signing keys must be separate"));
+        }
+        let AuthorityOutput::Committed(sequence) = self.execute(AuthorityCommand::ChangeCredential { proposal, signatures })? else { unreachable!() };
+        Ok(sequence)
+    }
+
+    /// Verify a grant against ordered enrollment and the registered intent;
+    /// record it once per credential, before it can authorize a reservation.
+    pub fn approve(&self, intent: &Intent, grant: ApprovalGrant) -> OicResult<u64> {
+        let AuthorityOutput::Committed(sequence) = self.execute(AuthorityCommand::Approve { intent: Box::new(intent.clone()), grant })? else { unreachable!() };
+        Ok(sequence)
+    }
+
+    /// `None` is the legacy trusted-kernel profile; `Some([])` means ordered
+    /// enrollment is enabled with no active credentials, not a fallback.
+    pub fn approval_credentials(&self) -> OicResult<Option<Vec<oic_policy_kernel::ApproverCredential>>> {
+        self.view(|state| Ok(state.ordered_approvals.as_ref().map(|a| a.credentials.values().filter_map(|r| r.credential.clone()).collect())))
+    }
+
+    /// Historical approvals, including removed/expired credentials. Consumers
+    /// must verify them against the current enrollment before counting them.
+    pub fn recorded_approvals(&self, intent_id: &IntentId) -> OicResult<Vec<crate::RecordedApproval>> {
+        self.view(|state| Ok(state.ordered_approvals.as_ref().and_then(|a| a.grants.get(intent_id)).into_iter().flat_map(|g| g.values().cloned()).collect()))
+    }
+
     pub fn reserve(&self, request: ReserveRequest) -> OicResult<(Reservation, AuthorityReceipt)> {
         let AuthorityOutput::Reserved { reservation, receipt } = self.execute(AuthorityCommand::Reserve { request })? else { unreachable!() };
         Ok((reservation, sign_receipt(&self.signing_key, &self.config.authority_key_id, receipt)?))

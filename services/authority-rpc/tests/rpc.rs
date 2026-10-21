@@ -4,7 +4,7 @@ use oic_canonical_encoding::{canonical_bytes, value, Value};
 use oic_domain_types::*;
 use oic_membership::*;
 use oic_peer_wire::{AuthorityReply, AuthorityRequest, AuthorityResult, FrameKind, PeerFrameV1, RosterState, WireError, HEADER_LEN, MAX_BODY_LEN};
-use oic_policy_kernel::{intent_hash, policy_hash, Decision};
+use oic_policy_kernel::{grant_signing_hash, intent_hash, policy_hash, ApproverCredential, ApproverKey, Decision};
 use oic_service_authority_rpc::*;
 use std::{
     collections::BTreeMap,
@@ -164,8 +164,8 @@ impl Env {
         Self { authority, clock, store, roster }
     }
 
-    fn request(&self, n: u64) -> ReserveRequest {
-        let intent = Intent {
+    fn intent(&self, n: u64) -> Intent {
+        Intent {
             schema_version: 1,
             intent_id: IntentId::unchecked(format!("intent-{n}")),
             institution_id: self.roster.body.institution_id.clone(),
@@ -188,7 +188,54 @@ impl Env {
             external_reference: format!("reference-{n}"),
             proposer_credential_id: CredentialId::unchecked("proposer"),
             created_at: UnixSeconds(NOW),
+        }
+    }
+
+    fn credential_change(&self) -> CredentialChange {
+        let credential_id = CredentialId::unchecked("approver");
+        CredentialChange {
+            institution_id: self.roster.body.institution_id.clone(),
+            environment_id: self.roster.body.environment_id.clone(),
+            credential_id: credential_id.clone(),
+            previous_change: 0,
+            credential: Some(ApproverCredential {
+                credential_id,
+                person_id: CredentialId::unchecked("approver-person"),
+                verifying_key: ApproverKey::Ed25519(key(2).verifying_key()),
+                role: ApprovalRole::TreasuryApprover,
+            }),
+        }
+    }
+
+    fn grant(&self, intent: &Intent) -> ApprovalGrant {
+        let body = ApprovalGrantBody {
+            grant_id: GrantId::unchecked("grant"),
+            institution_id: intent.institution_id.clone(),
+            environment_id: intent.environment_id.clone(),
+            vault_id: intent.vault_id.clone(),
+            intent_id: intent.intent_id.clone(),
+            intent_hash: intent_hash(intent).unwrap(),
+            policy_id: PolicyId::unchecked("policy"),
+            policy_epoch: Epoch(3),
+            scope: GrantScope::ExactCandidate {
+                candidate_id: CandidateId::unchecked("candidate-1"),
+                candidate_revision: 2,
+                preview_hash: Hash32([31; 32]),
+            },
+            approver_credential_id: CredentialId::unchecked("approver"),
+            approver_role: ApprovalRole::TreasuryApprover,
+            issued_at: UnixSeconds(NOW),
+            expires_at: UnixSeconds(NOW + 60),
         };
+        let signature = SignatureBytes {
+            scheme: SchemeId::Ed25519Pure,
+            bytes: key(2).sign(grant_signing_hash(&body).unwrap().as_ref()).to_bytes().to_vec().into(),
+        };
+        ApprovalGrant { body, signature }
+    }
+
+    fn request(&self, n: u64) -> ReserveRequest {
+        let intent = self.intent(n);
         let registered = self
             .authority
             .register_intent(
@@ -269,7 +316,7 @@ impl AuthorityRpcTransport for Loopback<'_> {
         let request = AuthorityRequest::decode(&frame, 0, MAX_BODY_LEN).unwrap();
         assert_eq!(request.request_id(), request_id);
         let reply = self.server.handle(&node_id("gateway"), &frame)?;
-        if matches!(request, AuthorityRequest::Release { .. }) {
+        if matches!(request, AuthorityRequest::Release { .. } | AuthorityRequest::ChangeCredential { .. } | AuthorityRequest::Approve { .. }) {
             match self.fault {
                 Some(Fault::DropAfterCommit) => return Err(OicError::new(ErrorCode::AuthorityUnavailable, "timeout after commit")),
                 Some(Fault::Malformed) => return Ok(vec![0]),
@@ -277,7 +324,13 @@ impl AuthorityRpcTransport for Loopback<'_> {
                     let mut reply = AuthorityReply::decode(&reply, 0, MAX_BODY_LEN).unwrap();
                     match fault {
                         Fault::WrongId => reply.request_id += 1,
-                        Fault::WrongResult => reply.result = Ok(AuthorityResult::Aborted { commit_sequence: 1 }),
+                        Fault::WrongResult => {
+                            reply.result = Ok(match request {
+                                AuthorityRequest::ChangeCredential { .. } => AuthorityResult::Approved { commit_sequence: 1 },
+                                AuthorityRequest::Approve { .. } => AuthorityResult::CredentialChanged { commit_sequence: 1 },
+                                _ => AuthorityResult::Aborted { commit_sequence: 1 },
+                            })
+                        }
                         Fault::Unavailable => reply.result = Err(OicError::new(ErrorCode::AuthorityUnavailable, "backend unavailable")),
                         _ => unreachable!(),
                     }
@@ -449,14 +502,113 @@ fn release_with_lost_invalid_or_uncorrelated_reply_is_uncertain_and_never_retrie
 }
 
 #[test]
+fn credential_changes_and_approvals_require_admission_and_authentication_before_ordered_effect() {
+    let env = Env::new();
+    let endpoint = client(&env, None, Arc::default());
+    let proposal = env.credential_change();
+    let signatures = vec![credential_signature(proposal.hash().unwrap())];
+    let request = AuthorityRequest::ChangeCredential { request_id: 83, proposal: proposal.clone(), signatures: signatures.clone() };
+    let before = env.store.snapshot();
+    for sender in ["witness", "authority", "unknown"] {
+        assert_eq!(env.server().handle(&node_id(sender), &request.encode(0, MAX_BODY_LEN).unwrap()).unwrap_err().code, ErrorCode::PeerNotAdmitted);
+    }
+    // A gateway is not an administrator: transition verification remains mandatory.
+    assert_eq!(endpoint.change_credential(proposal.clone(), vec![]).unwrap_err().code, ErrorCode::InvalidSignature);
+    let mut wrong_scope = proposal.clone();
+    wrong_scope.environment_id = EnvironmentId::unchecked("production");
+    let signed_wrong_scope = vec![credential_signature(wrong_scope.hash().unwrap())];
+    assert_eq!(endpoint.change_credential(wrong_scope, signed_wrong_scope).unwrap_err().code, ErrorCode::ScopeMismatch);
+    assert_eq!(env.store.snapshot(), before);
+    let enrolled = endpoint.change_credential(proposal.clone(), signatures).unwrap();
+    assert_eq!(enrolled, before.commit_sequence + 1);
+    let state = env.store.snapshot();
+    let credential = &state.ordered_approvals.as_ref().unwrap().credentials[&proposal.credential_id];
+    assert_eq!(credential.credential, proposal.credential);
+    assert_eq!(credential.commit_sequence, enrolled);
+
+    env.request(1); // Registration is local; this extension exposes no registration RPC.
+    let intent = env.intent(1);
+    let grant = env.grant(&intent);
+    let request = AuthorityRequest::Approve { request_id: 84, intent: intent.clone(), grant: grant.clone() };
+    let before = env.store.snapshot();
+    for sender in ["witness", "authority", "unknown"] {
+        assert_eq!(env.server().handle(&node_id(sender), &request.encode(0, MAX_BODY_LEN).unwrap()).unwrap_err().code, ErrorCode::PeerNotAdmitted);
+    }
+    let mut altered_intent = intent.clone();
+    altered_intent.external_reference.push_str("-altered");
+    assert_eq!(endpoint.approve(&altered_intent, grant.clone()).unwrap_err().code, ErrorCode::ScopeMismatch);
+    assert_eq!(env.store.snapshot(), before);
+    let approved = endpoint.approve(&intent, grant.clone()).unwrap();
+    assert_eq!(approved, before.commit_sequence + 1);
+    assert_eq!(
+        env.store.snapshot().ordered_approvals.unwrap().grants[&intent.intent_id][&proposal.credential_id],
+        RecordedApproval { grant, credential_commit_sequence: enrolled, commit_sequence: approved }
+    );
+    let removal = CredentialChange { credential: None, previous_change: enrolled, ..proposal };
+    let signatures = vec![credential_signature(removal.hash().unwrap())];
+    let removed = endpoint.change_credential(removal.clone(), signatures).unwrap();
+    assert_eq!(removed, approved + 1);
+    let state = env.store.snapshot();
+    let credential = &state.ordered_approvals.as_ref().unwrap().credentials[&removal.credential_id];
+    assert!(credential.credential.is_none());
+    assert_eq!(credential.commit_sequence, removed);
+}
+
+#[test]
+fn lost_or_uncorrelated_configuration_and_approval_replies_are_unavailable_without_retry() {
+    for approval in [false, true] {
+        for fault in [Fault::DropAfterCommit, Fault::WrongId, Fault::WrongResult, Fault::Malformed, Fault::Unavailable] {
+            let env = Env::new();
+            let proposal = env.credential_change();
+            let signatures = vec![credential_signature(proposal.hash().unwrap())];
+            if approval {
+                client(&env, None, Arc::default()).change_credential(proposal.clone(), signatures.clone()).unwrap();
+                env.request(1);
+            }
+            let intent = env.intent(1);
+            let grant = env.grant(&intent);
+            let sent = Arc::<AtomicUsize>::default();
+            let endpoint = client(&env, Some(fault), sent.clone());
+            let before = env.store.snapshot().commit_sequence;
+            let outcome = if approval { endpoint.approve(&intent, grant.clone()) } else { endpoint.change_credential(proposal.clone(), signatures) };
+            assert_eq!(outcome.unwrap_err().code, ErrorCode::AuthorityUnavailable, "approval={approval}, {fault:?}");
+            assert_eq!(sent.load(Ordering::SeqCst), 1, "exactly one mutation: approval={approval}, {fault:?}");
+            let state = env.store.snapshot();
+            assert_eq!(state.commit_sequence, before + 1, "committed despite unavailable reply");
+            let ordered = state.ordered_approvals.unwrap();
+            if approval {
+                assert_eq!(ordered.grants[&intent.intent_id][&proposal.credential_id].grant, grant);
+            } else {
+                assert_eq!(ordered.credentials[&proposal.credential_id].credential, proposal.credential);
+            }
+        }
+    }
+}
+
+#[test]
 fn authority_frames_are_bounded_strictly_typed_and_redacted() {
     let env = Env::new();
     let request = AuthorityRequest::Reserve { request_id: 37, request: env.request(1) };
+    let proposal = env.credential_change();
+    let requests = [
+        request.clone(),
+        AuthorityRequest::ChangeCredential { request_id: 38, signatures: vec![credential_signature(proposal.hash().unwrap())], proposal },
+        AuthorityRequest::Approve { request_id: 39, intent: env.intent(1), grant: env.grant(&env.intent(1)) },
+    ];
+    for request in requests {
+        let frame = request.encode(0, MAX_BODY_LEN).unwrap();
+        assert_eq!(AuthorityRequest::decode(&frame, 0, MAX_BODY_LEN).unwrap(), request);
+        assert_eq!(AuthorityRequest::decode(&frame, 1, MAX_BODY_LEN), Err(WireError::UnexpectedEpoch));
+        assert_eq!(request.encode(0, frame.len() - HEADER_LEN - 1), Err(WireError::TooLarge));
+        assert_eq!(PeerFrameV1::encode_confidential(&request, 0, FrameKind::Content, MAX_BODY_LEN), Err(WireError::WrongCarrier));
+        assert_eq!(format!("{request:?}"), "AuthorityRequest([REDACTED])");
+    }
+    for result in [AuthorityResult::CredentialChanged { commit_sequence: 119 }, AuthorityResult::Approved { commit_sequence: 121 }] {
+        assert_eq!(format!("{result:?}"), "AuthorityResult([REDACTED])");
+        let reply = AuthorityReply { request_id: 38, result: Ok(result) };
+        assert_eq!(AuthorityReply::decode(&reply.encode(0, MAX_BODY_LEN).unwrap(), 0, MAX_BODY_LEN).unwrap(), reply);
+    }
     let frame = request.encode(0, MAX_BODY_LEN).unwrap();
-    assert_eq!(AuthorityRequest::decode(&frame, 0, MAX_BODY_LEN).unwrap(), request);
-    assert_eq!(AuthorityRequest::decode(&frame, 1, MAX_BODY_LEN), Err(WireError::UnexpectedEpoch));
-    assert_eq!(request.encode(0, frame.len() - HEADER_LEN - 1), Err(WireError::TooLarge));
-    assert_eq!(PeerFrameV1::encode_confidential(&request, 0, FrameKind::Content, MAX_BODY_LEN), Err(WireError::WrongCarrier));
     assert_eq!(
         PeerFrameV1::encode_public(&RosterState { roster_epoch: 0, roster_hash: Hash32::ZERO }, 0, FrameKind::AuthorityRpc, MAX_BODY_LEN),
         Err(WireError::WrongCarrier)

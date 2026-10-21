@@ -1,9 +1,6 @@
-use crate::{AuthorityReply, AuthorityRequest, SessionControl, SessionReply, WireError};
+use crate::{AuthorityReply, AuthorityRequest, SessionControl, SessionReply, WireError, WitnessMessage};
 use oic_canonical_encoding::{canonical_bytes, is_canonical};
-use oic_domain_types::{
-    ApprovalGrant, AuthorityReceipt, AuthorizationEnvelope, Candidate, EvidenceBundle, Hash32,
-    Intent, IssuanceRecord, KeyDescriptor,
-};
+use oic_domain_types::{ApprovalGrant, AuthorityReceipt, AuthorizationEnvelope, Candidate, EvidenceBundle, Hash32, Intent, IssuanceRecord, KeyDescriptor};
 use serde::{Deserialize, Serialize};
 
 pub const WIRE_VERSION: u16 = 1;
@@ -36,7 +33,14 @@ impl FrameKind {
 }
 
 mod sealed {
-    pub trait Public {}
+    pub trait Public {
+        fn allows_frame(_kind: super::FrameKind) -> bool {
+            true
+        }
+        fn validate_public(&self) -> Result<(), super::WireError> {
+            Ok(())
+        }
+    }
     pub trait Confidential {
         fn allows_frame(kind: super::FrameKind) -> bool;
     }
@@ -72,6 +76,16 @@ pub struct RosterState {
 }
 
 public_body!(RosterState, KeyDescriptor, AuthorityReceipt, IssuanceRecord);
+impl sealed::Public for WitnessMessage {
+    fn allows_frame(kind: FrameKind) -> bool {
+        kind == FrameKind::Audit
+    }
+    fn validate_public(&self) -> Result<(), WireError> {
+        WitnessMessage::validate_public(self).map_err(|_| WireError::InvalidBody)
+    }
+}
+impl PublicBody for WitnessMessage {}
+
 confidential_body!(FrameKind::Content | FrameKind::AuthorityRpc =>
     Intent,
     Candidate,
@@ -106,12 +120,7 @@ impl<'a> PeerFrameV1<'a> {
 
     /// Decode one complete frame; concatenated frames and trailing data fail.
     /// MPC frames require `SignedPeerMessage::decode_point_to_point` instead.
-    pub fn decode(
-        bytes: &'a [u8],
-        expected_epoch: u64,
-        expected_kind: FrameKind,
-        max_body_len: usize,
-    ) -> Result<Self, WireError> {
+    pub fn decode(bytes: &'a [u8], expected_epoch: u64, expected_kind: FrameKind, max_body_len: usize) -> Result<Self, WireError> {
         if expected_kind.is_mpc() {
             return Err(WireError::WrongCarrier);
         }
@@ -119,32 +128,18 @@ impl<'a> PeerFrameV1<'a> {
         if !is_canonical(body) {
             return Err(WireError::InvalidBody);
         }
-        Ok(Self {
-            wire_version: WIRE_VERSION,
-            roster_epoch: expected_epoch,
-            kind: expected_kind,
-            body,
-        })
+        Ok(Self { wire_version: WIRE_VERSION, roster_epoch: expected_epoch, kind: expected_kind, body })
     }
 
-    pub fn encode_public<T: PublicBody>(
-        body: &T,
-        roster_epoch: u64,
-        kind: FrameKind,
-        max_body_len: usize,
-    ) -> Result<Vec<u8>, WireError> {
-        if kind.is_mpc() || kind.is_confidential() {
+    pub fn encode_public<T: PublicBody>(body: &T, roster_epoch: u64, kind: FrameKind, max_body_len: usize) -> Result<Vec<u8>, WireError> {
+        if kind.is_mpc() || kind.is_confidential() || !T::allows_frame(kind) {
             return Err(WireError::WrongCarrier);
         }
+        body.validate_public()?;
         encode_security_body(body, roster_epoch, kind, max_body_len)
     }
 
-    pub fn encode_confidential<T: ConfidentialBody>(
-        body: &T,
-        roster_epoch: u64,
-        kind: FrameKind,
-        max_body_len: usize,
-    ) -> Result<Vec<u8>, WireError> {
+    pub fn encode_confidential<T: ConfidentialBody>(body: &T, roster_epoch: u64, kind: FrameKind, max_body_len: usize) -> Result<Vec<u8>, WireError> {
         if !kind.is_confidential() || !T::allows_frame(kind) {
             return Err(WireError::WrongCarrier);
         }
@@ -152,12 +147,7 @@ impl<'a> PeerFrameV1<'a> {
     }
 }
 
-fn encode_security_body<T: Serialize>(
-    body: &T,
-    roster_epoch: u64,
-    kind: FrameKind,
-    max_body_len: usize,
-) -> Result<Vec<u8>, WireError> {
+fn encode_security_body<T: Serialize>(body: &T, roster_epoch: u64, kind: FrameKind, max_body_len: usize) -> Result<Vec<u8>, WireError> {
     let body = canonical_bytes(body).map_err(|_| WireError::InvalidBody)?;
     if body.len() > max_body_len.min(MAX_BODY_LEN) {
         return Err(WireError::TooLarge);
@@ -169,12 +159,7 @@ fn encode_security_body<T: Serialize>(
     encode_frame(&body, roster_epoch, kind, max_body_len)
 }
 
-pub(crate) fn encode_frame(
-    body: &[u8],
-    roster_epoch: u64,
-    kind: FrameKind,
-    max_body_len: usize,
-) -> Result<Vec<u8>, WireError> {
+pub(crate) fn encode_frame(body: &[u8], roster_epoch: u64, kind: FrameKind, max_body_len: usize) -> Result<Vec<u8>, WireError> {
     if body.len() > max_body_len.min(MAX_BODY_LEN) {
         return Err(WireError::TooLarge);
     }
@@ -187,12 +172,7 @@ pub(crate) fn encode_frame(
     Ok(out)
 }
 
-pub(crate) fn decode_frame(
-    bytes: &[u8],
-    expected_epoch: u64,
-    expected_kind: FrameKind,
-    max_body_len: usize,
-) -> Result<&[u8], WireError> {
+pub(crate) fn decode_frame(bytes: &[u8], expected_epoch: u64, expected_kind: FrameKind, max_body_len: usize) -> Result<&[u8], WireError> {
     let limit = max_body_len.min(MAX_BODY_LEN);
     if bytes.len() > HEADER_LEN + limit {
         return Err(WireError::TooLarge);

@@ -94,7 +94,7 @@ impl World {
     }
 
     pub fn approver_credentials(&self) -> Vec<ApproverCredential> {
-        self.approvers.iter().map(|(c, k, r)| ApproverCredential { credential_id: c.clone(), verifying_key: k.verifying_key(), role: *r }).collect()
+        self.approvers.iter().map(|(c, k, r)| ApproverCredential { credential_id: c.clone(), person_id: c.clone(), verifying_key: k.verifying_key().into(), role: *r }).collect()
     }
 
     fn admin_quorum_signatures(&self, h: Hash32) -> Vec<CredentialSignature> {

@@ -8,6 +8,7 @@ description = "Deterministic, pure policy enforcement kernel: hard denials, rule
 [dependencies]
 oic-domain-types = { workspace = true }
 oic-canonical-encoding = { workspace = true }
+oic-webauthn = { workspace = true }
 ed25519-dalek = { workspace = true }
 serde = { workspace = true }
 

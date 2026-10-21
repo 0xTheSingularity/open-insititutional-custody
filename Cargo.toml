@@ -10,6 +10,7 @@ members = [
     "crates/policy-kernel",
     "crates/authorization-state",
     "crates/approval-verifier",
+    "crates/webauthn",
     "crates/audit",
     "crates/one-time-state-ledger",
     "crates/chain-simulator",
@@ -29,6 +30,7 @@ members = [
     "services/signer-core",
     "services/authority-rpc",
     "services/signer-net",
+    "services/witness",
     "apps/independent-approval-client",
 ]
 
@@ -46,6 +48,7 @@ oic-canonical-encoding = { path = "crates/canonical-encoding" }
 oic-policy-kernel = { path = "crates/policy-kernel" }
 oic-authorization-state = { path = "crates/authorization-state" }
 oic-approval-verifier = { path = "crates/approval-verifier" }
+oic-webauthn = { path = "crates/webauthn" }
 oic-signer = { path = "crates/signer" }
 oic-crypto-provider = { path = "crates/crypto-provider" }
 oic-crypto-provider-dev = { path = "crates/crypto-provider-dev" }
@@ -72,6 +75,7 @@ oic-node = { path = "crates/node" }
 oic-service-signer-core = { path = "services/signer-core" }
 oic-service-authority-rpc = { path = "services/authority-rpc" }
 oic-service-signer-net = { path = "services/signer-net" }
+oic-service-witness = { path = "services/witness" }
 
 # external, pinned
 serde = { version = "1.0", features = ["derive"] }

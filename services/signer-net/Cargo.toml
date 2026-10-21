@@ -13,12 +13,14 @@ oic-node.workspace = true
 oic-peer-wire.workspace = true
 oic-service-signer-core.workspace = true
 oic-service-authority-rpc.workspace = true
+oic-service-witness.workspace = true
+oic-membership.workspace = true
+oic-authorization-state.workspace = true
+commonware-runtime = "=2026.9.0"
 tokio.workspace = true
 
 [dev-dependencies]
 oic-audit.workspace = true
-oic-membership.workspace = true
-oic-authorization-state.workspace = true
 oic-service-coordinator.workspace = true
 oic-service-builder.workspace = true
 oic-service-broadcaster.workspace = true
@@ -36,4 +38,3 @@ oic-adapter-solana.workspace = true
 ed25519-dalek.workspace = true
 serde.workspace = true
 tempfile.workspace = true
-commonware-runtime = "=2026.9.0"

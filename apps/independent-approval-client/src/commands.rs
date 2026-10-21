@@ -302,7 +302,7 @@ pub fn approve(args: &ApproveArgs, passphrase: &[u8], confirm: &mut dyn BufRead,
 
     let verifier = trust.verifier()?;
     let grant = verifier.approve(&display, &package_inputs(&package), (key.credential_id.clone(), key.role, &key.signing_key), grant_id, now, args.ttl_seconds)?;
-    let self_roster = [ApproverCredential { credential_id: key.credential_id.clone(), verifying_key: key.verifying_key(), role: key.role }];
+    let self_roster = [ApproverCredential { credential_id: key.credential_id.clone(), person_id: key.credential_id.clone(), verifying_key: key.verifying_key().into(), role: key.role }];
     verify_grant_signature(&grant, &self_roster, now)?;
     write_new_json(&args.out, &grant, 0o644)?;
     writeln!(out, "grant {} written to {}", s(&grant.body.grant_id), s(args.out.display())).map_err(out_err)?;
@@ -364,7 +364,8 @@ pub fn parse_approver_arg(arg: &str) -> ClientResult<ApproverCredential> {
     };
     Ok(ApproverCredential {
         credential_id: parse_credential_id(id)?,
-        verifying_key: parse_verifying_key(key).map_err(|e| ClientError::Usage(format!("--approver: {}", e.detail)))?,
+        person_id: parse_credential_id(id)?,
+        verifying_key: parse_verifying_key(key).map_err(|e| ClientError::Usage(format!("--approver: {}", e.detail)))?.into(),
         role: parse_role(role)?,
     })
 }

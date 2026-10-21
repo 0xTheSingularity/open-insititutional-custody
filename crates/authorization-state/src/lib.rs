@@ -19,6 +19,7 @@
 //! This baseline is not Byzantine fault tolerant against compromise of the
 //! authority itself (§5.1).
 
+mod approvals;
 mod authority;
 mod clock;
 mod receipts;
@@ -26,6 +27,7 @@ mod state;
 mod store;
 mod transition;
 
+pub use approvals::*;
 pub use authority::*;
 pub use clock::*;
 pub use receipts::*;

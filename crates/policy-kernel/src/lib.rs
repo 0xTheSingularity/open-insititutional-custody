@@ -15,8 +15,10 @@
 //! Outputs are `Allow`, `Deny`, or `RequireApprovals` with stable
 //! [`ReasonCode`]s.
 
+mod approvals;
 mod hashing;
 
+pub use approvals::*;
 pub use hashing::*;
 
 use oic_domain_types::*;
@@ -138,19 +140,9 @@ pub enum ReasonCode {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Decision {
-    Allow {
-        rule_id: String,
-    },
-    Deny {
-        reasons: Vec<ReasonCode>,
-    },
-    RequireApprovals {
-        rule_id: String,
-        required: u8,
-        satisfied: u8,
-        roles: Vec<ApprovalRole>,
-        reasons: Vec<ReasonCode>,
-    },
+    Allow { rule_id: String },
+    Deny { reasons: Vec<ReasonCode> },
+    RequireApprovals { rule_id: String, required: u8, satisfied: u8, roles: Vec<ApprovalRole>, reasons: Vec<ReasonCode> },
 }
 
 impl Decision {
@@ -412,10 +404,9 @@ fn check_rule(input: &PolicyInput, rule: &PolicyRule) -> Vec<ReasonCode> {
         let total = outflow.and_then(|o| w.settled.checked_add(w.outstanding)?.checked_add(o));
         match total {
             None => r.push(ReasonCode::ExposureOverflow),
-            Some(t) if t > limit.max_outflow_base_units => r.push(ReasonCode::RollingLimitExceeded {
-                rule_id: rule.rule_id.clone(),
-                window_seconds: limit.window_seconds,
-            }),
+            Some(t) if t > limit.max_outflow_base_units => {
+                r.push(ReasonCode::RollingLimitExceeded { rule_id: rule.rule_id.clone(), window_seconds: limit.window_seconds })
+            }
             Some(_) => {}
         }
     }
@@ -497,13 +488,7 @@ fn evaluate_approvals(input: &PolicyInput, rule: &PolicyRule) -> Decision {
         return Decision::Allow { rule_id: rule.rule_id.clone() };
     }
     reasons.push(ReasonCode::InsufficientApprovals);
-    Decision::RequireApprovals {
-        rule_id: rule.rule_id.clone(),
-        required,
-        satisfied,
-        roles: rule.approval_roles.clone(),
-        reasons,
-    }
+    Decision::RequireApprovals { rule_id: rule.rule_id.clone(), required, satisfied, roles: rule.approval_roles.clone(), reasons }
 }
 
 #[cfg(test)]

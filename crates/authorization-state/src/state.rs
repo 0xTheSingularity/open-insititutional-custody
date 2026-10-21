@@ -32,6 +32,10 @@ pub struct AuthorityState {
     pub ledger: Vec<LedgerEntry>,
     pub idempotency: BTreeMap<IdempotencyKey, IdempotencyRecord>,
     pub intents: BTreeMap<IntentId, IntentRecord>,
+    /// Enabled by the first admin-quorum credential enrollment. Absent legacy
+    /// state retains its original encoding/hash and trusted-kernel contract.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ordered_approvals: Option<crate::OrderedApprovals>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
@@ -99,10 +103,7 @@ impl ReservationState {
         matches!(self, ReservationState::Reserved | ReservationState::Released { .. })
     }
     pub fn possibly_issued(&self) -> bool {
-        matches!(
-            self,
-            ReservationState::Released { .. } | ReservationState::Settled { .. } | ReservationState::Invalidated { issuance_id: Some(_) }
-        )
+        matches!(self, ReservationState::Released { .. } | ReservationState::Settled { .. } | ReservationState::Invalidated { issuance_id: Some(_) })
     }
 }
 
@@ -128,6 +129,9 @@ pub struct ReservationRecord {
     pub signer_session_id: SigningSessionId,
     /// Latest chain-facing lifecycle for this candidate.
     pub candidate_lifecycle: LifecycleState,
+    /// Recorded grants rechecked at release, including credential removal.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub recorded_grants: Vec<ApprovalGrant>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -151,9 +155,13 @@ pub struct FamilyRecord {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BudgetKey {
-    Asset { asset_id: AssetId },
+    Asset {
+        asset_id: AssetId,
+    },
     /// Fees are reserved and settled separately, in native units (§5.3).
-    NativeFee { network_id: NetworkId },
+    NativeFee {
+        network_id: NetworkId,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

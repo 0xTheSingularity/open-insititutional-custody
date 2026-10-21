@@ -2,6 +2,8 @@
 //! participant authentication keys or a generic signer operation. Run blocking
 //! coordinator/client calls in `spawn_blocking`, not on this bridge's reactor.
 
+pub mod witness;
+
 use oic_canonical_encoding::from_canonical_bytes;
 use oic_domain_types::*;
 use oic_node::{Event, Transport};

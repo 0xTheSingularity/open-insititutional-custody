@@ -250,6 +250,9 @@ pub enum SchemeId {
     /// Pure Ed25519 (RFC 8032) over the full message (Solana messages, approval
     /// credentials, service receipts). Never Ed25519ph.
     Ed25519Pure,
+    /// Approval-only WebAuthn ES256 assertion over a grant-hash challenge.
+    /// Signature bytes carry canonical CBOR, never a chain-native signature.
+    WebAuthnEs256,
     /// BIP-340 Schnorr over secp256k1 (Bitcoin Taproot). Named, not supported.
     SchnorrBip340,
     /// secp256k1 ECDSA over SHA-256d (Bitcoin legacy/SegWit). Named, not supported.

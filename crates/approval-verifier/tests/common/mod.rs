@@ -85,7 +85,7 @@ pub fn approver() -> (CredentialId, SigningKey) {
 }
 
 pub fn roster() -> Vec<ApproverCredential> {
-    vec![ApproverCredential { credential_id: approver().0, verifying_key: approver().1.verifying_key(), role: ApprovalRole::TreasuryApprover }]
+    vec![ApproverCredential { credential_id: approver().0, person_id: approver().0, verifying_key: approver().1.verifying_key().into(), role: ApprovalRole::TreasuryApprover }]
 }
 
 pub fn vault() -> Vault {

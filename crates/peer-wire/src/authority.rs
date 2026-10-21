@@ -2,7 +2,7 @@
 //! authorize a mutation; channel 12 admission belongs to the server/transport.
 
 use crate::{FrameKind, PeerFrameV1, WireError};
-use oic_authorization_state::{ReleaseRequest, ReserveRequest};
+use oic_authorization_state::{CredentialChange, ReleaseRequest, ReserveRequest};
 use oic_canonical_encoding::from_canonical_bytes;
 use oic_domain_types::*;
 use oic_policy_kernel::Decision;
@@ -34,6 +34,16 @@ pub enum AuthorityRequest {
         request_id: u64,
         reservation_id: ReservationId,
     },
+    ChangeCredential {
+        request_id: u64,
+        proposal: CredentialChange,
+        signatures: Vec<CredentialSignature>,
+    },
+    Approve {
+        request_id: u64,
+        intent: Intent,
+        grant: ApprovalGrant,
+    },
 }
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -50,12 +60,18 @@ pub enum AuthorityResult {
     Reserved { reservation: Reservation, receipt: AuthorityReceipt },
     Released { receipt: AuthorityReceipt, issuance: IssuanceRecord },
     Aborted { commit_sequence: u64 },
+    CredentialChanged { commit_sequence: u64 },
+    Approved { commit_sequence: u64 },
 }
 
 impl AuthorityRequest {
     pub fn request_id(&self) -> u64 {
         match self {
-            Self::Reserve { request_id, .. } | Self::Release { request_id, .. } | Self::AbortBeforeIssuance { request_id, .. } => *request_id,
+            Self::Reserve { request_id, .. }
+            | Self::Release { request_id, .. }
+            | Self::AbortBeforeIssuance { request_id, .. }
+            | Self::ChangeCredential { request_id, .. }
+            | Self::Approve { request_id, .. } => *request_id,
         }
     }
 }

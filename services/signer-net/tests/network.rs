@@ -102,7 +102,15 @@ impl From<TrustRoots> for PublicRoots {
             approvers: roots
                 .approvers
                 .into_iter()
-                .map(|c| (c.credential_id, c.verifying_key.to_bytes(), c.role))
+                .map(|c| {
+                    let key = match c.verifying_key {
+                        oic_approval_verifier::ApproverKey::Ed25519(key) => key.to_bytes(),
+                        oic_approval_verifier::ApproverKey::WebAuthn { .. } => {
+                            panic!("network fixture supports only Ed25519 approvers")
+                        }
+                    };
+                    (c.credential_id, key, c.role)
+                })
                 .collect(),
             builds: roots.accepted_verifier_builds,
             profiles: roots.chain_profiles,
@@ -126,8 +134,9 @@ impl PublicRoots {
                 .into_iter()
                 .map(
                     |(credential_id, key, role)| oic_approval_verifier::ApproverCredential {
+                        person_id: credential_id.clone(),
                         credential_id,
-                        verifying_key: VerifyingKey::from_bytes(&key).unwrap(),
+                        verifying_key: VerifyingKey::from_bytes(&key).unwrap().into(),
                         role,
                     },
                 )
@@ -550,7 +559,7 @@ impl Network {
                                 Some(AuthorityRequest::Reserve { .. }) => Some("reserve"),
                                 Some(AuthorityRequest::Release { .. }) => Some("release"),
                                 Some(AuthorityRequest::AbortBeforeIssuance { .. }) => Some("abort"),
-                                None => None,
+                                Some(AuthorityRequest::ChangeCredential { .. } | AuthorityRequest::Approve { .. }) | None => None,
                             };
                             if let Some(kind) = kind {
                                 calls.lock().unwrap().push(kind);

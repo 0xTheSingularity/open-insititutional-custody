@@ -3,7 +3,7 @@
 //! Transport authenticates NodeIds; callers validate/activate rosters before
 //! constructing either endpoint and replace them when that roster changes.
 
-use oic_authorization_state::{Authority, AuthorityStore, ReleaseRequest, ReserveRequest};
+use oic_authorization_state::{Authority, AuthorityStore, CredentialChange, ReleaseRequest, ReserveRequest};
 use oic_domain_types::*;
 use oic_membership::{CommitteeKind, Role, SignedRoster};
 use oic_peer_wire::{AuthorityReply, AuthorityRequest, AuthorityResult, HEADER_LEN, MAX_BODY_LEN};
@@ -61,7 +61,9 @@ fn body_limit(roster: &SignedRoster) -> OicResult<usize> {
 
 /// Handler for a caller-validated active roster and the actual local authority.
 /// The supplied sender must come from transport authentication, never a field
-/// decoded from the request. No administration/freeze endpoint is exposed.
+/// decoded from the request. Credential changes still require the authority's
+/// administrative quorum; gateway admission alone cannot enroll a key. No
+/// freeze endpoint is exposed.
 /// Receipt-key separation covers roster node keys and the authority's configured
 /// administrative/responder keys. Roster-only admin trust anchors and other
 /// out-of-band key purposes still require caller-side provisioning checks.
@@ -112,6 +114,12 @@ impl<'a, S: AuthorityStore> AuthorityRpcServer<'a, S> {
             AuthorityRequest::AbortBeforeIssuance { reservation_id, .. } => {
                 self.authority.abort_before_issuance(&reservation_id).map(|commit_sequence| AuthorityResult::Aborted { commit_sequence })
             }
+            AuthorityRequest::ChangeCredential { proposal, signatures, .. } => {
+                self.authority.change_credential(proposal, signatures).map(|commit_sequence| AuthorityResult::CredentialChanged { commit_sequence })
+            }
+            AuthorityRequest::Approve { intent, grant, .. } => {
+                self.authority.approve(&intent, grant).map(|commit_sequence| AuthorityResult::Approved { commit_sequence })
+            }
         };
         // Preserve stable codes but never transmit authority error details that
         // might include claims, identifiers, or policy contents (Class C).
@@ -130,6 +138,8 @@ impl<'a, S: AuthorityStore> AuthorityRpcServer<'a, S> {
 /// rebuilding a client on a shared transport cannot reuse an earlier ID.
 /// A process restart must close the old authenticated connection/correlation
 /// scope before IDs start over; Gateway lifetime restart provides that boundary.
+/// A missing credential-change/approval reply is unavailable even if its
+/// mutation committed. Consult ordered authority state instead of resubmitting.
 pub trait AuthorityRpcTransport: Send + Sync {
     fn request(&self, authority: &NodeId, request_id: u64, frame: Vec<u8>) -> OicResult<Vec<u8>>;
 }
@@ -149,7 +159,30 @@ impl<T: AuthorityRpcTransport> AuthorityRpcClient<T> {
         if !authority_node(roster, authority_node_id) || !gateway_allowed(roster, gateway_node_id, authority_node_id) {
             return Err(denied());
         }
-        Ok(Self { transport, authority_node_id: authority_node_id.clone(), roster_epoch: roster.body.roster_epoch, max_body_len: body_limit(roster)? })
+        Ok(Self {
+            transport,
+            authority_node_id: authority_node_id.clone(),
+            roster_epoch: roster.body.roster_epoch,
+            max_body_len: body_limit(roster)?,
+        })
+    }
+
+    /// Admin-quorum-signed enrollment/removal, ordered by the authority. A lost
+    /// reply returns AuthorityUnavailable; this client never resubmits it.
+    pub fn change_credential(&self, proposal: CredentialChange, signatures: Vec<CredentialSignature>) -> OicResult<u64> {
+        match self.exchange(AuthorityRequest::ChangeCredential { request_id: Self::next_id()?, proposal, signatures })? {
+            AuthorityResult::CredentialChanged { commit_sequence } => Ok(commit_sequence),
+            _ => unreachable!("exchange validates the result variant"),
+        }
+    }
+
+    /// Record a signed grant under current ordered enrollment and authority
+    /// time. A lost reply is unavailable, not proof that the grant was rejected.
+    pub fn approve(&self, intent: &Intent, grant: ApprovalGrant) -> OicResult<u64> {
+        match self.exchange(AuthorityRequest::Approve { request_id: Self::next_id()?, intent: intent.clone(), grant })? {
+            AuthorityResult::Approved { commit_sequence } => Ok(commit_sequence),
+            _ => unreachable!("exchange validates the result variant"),
+        }
     }
 
     // `try_update` is newer than this crate's MSRV (Rust 1.85).
@@ -183,6 +216,8 @@ impl<T: AuthorityRpcTransport> AuthorityRpcClient<T> {
                     (AuthorityRequest::Reserve { .. }, AuthorityResult::Reserved { .. })
                         | (AuthorityRequest::Release { .. }, AuthorityResult::Released { .. })
                         | (AuthorityRequest::AbortBeforeIssuance { .. }, AuthorityResult::Aborted { .. })
+                        | (AuthorityRequest::ChangeCredential { .. }, AuthorityResult::CredentialChanged { .. })
+                        | (AuthorityRequest::Approve { .. }, AuthorityResult::Approved { .. })
                 );
                 if matches {
                     Ok(result)
