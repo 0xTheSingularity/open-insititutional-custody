@@ -289,6 +289,57 @@ fn unchanged_independent_w3c_es256_assertion_with_high_s_verifies() {
 }
 
 #[test]
+fn unchanged_chromium_assertion_with_optional_grease_verifies() {
+    // Captured unchanged from Chromium 151's virtual ES256 authenticator.
+    // The optional marker is randomly emitted, so ordinary browser runs miss it.
+    let public = hex::decode("040c901d423c831ca85e27c73c263ba132721bb9d7a84c4f0380b2a6756fd601331c8870234dec878504c174144fa4b14b66a651691606d8173e55bd37e381569e").unwrap();
+    let grant: [u8; 32] =
+        hex::decode("bccb7f268cf381f0dec53bd1d7c4d36879236ae6dc64b9c57a2c19c653dc8d9a")
+            .unwrap()
+            .try_into()
+            .unwrap();
+    let auth =
+        hex::decode("49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000003")
+            .unwrap();
+    let mut client = hex::decode("7b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a22764d745f4a6f7a7a67664465785476523138545461486b6a617562635a4c6e466569775a786c50636a5a6f222c226f726967696e223a22687474703a2f2f6c6f63616c686f73743a34333137222c2263726f73734f726967696e223a66616c73652c226f746865725f6b6579735f63616e5f62655f61646465645f68657265223a22646f206e6f7420636f6d7061726520636c69656e74446174614a534f4e20616761696e737420612074656d706c6174652e205365652068747470733a2f2f676f6f2e676c2f796162506578227d").unwrap();
+    let signature = hex::decode("304402205792f6f968096875a44ff7b4d62d5f6fff4f9bd4b6779f84a533bf3d1b371cb502206e061b3bea0d852856095d581552584bb32bfc516150f2c6b7f8947097358493").unwrap();
+    let enrolled = EnrolledCredential {
+        public_key_sec1: &public,
+        rp_id: "localhost",
+        allowed_origins: &["http://localhost:4317"],
+    };
+    let expected = VerifiedAssertion {
+        sign_count: 3,
+        backup_eligible: false,
+        backup_state: false,
+    };
+    let raw = Assertion {
+        authenticator_data: &auth,
+        client_data_json: &client,
+        signature: &signature,
+    };
+    assert_eq!(verify_assertion(&enrolled, &grant, raw), Ok(expected));
+    assert_eq!(
+        verify_canonical_assertion(&enrolled, &grant, &encode_assertion(raw).unwrap()),
+        Ok(expected)
+    );
+    // Accepting the marker must not reserialize JSON before signature checking.
+    client.push(b' ');
+    assert_eq!(
+        verify_assertion(
+            &enrolled,
+            &grant,
+            Assertion {
+                authenticator_data: &auth,
+                client_data_json: &client,
+                signature: &signature
+            }
+        ),
+        Err(Error::InvalidSignature)
+    );
+}
+
+#[test]
 fn correctly_signed_wrong_type_challenge_origin_and_rp_are_rejected() {
     let challenge = URL_SAFE_NO_PAD.encode(GRANT);
     let mut noncanonical_bits = challenge.clone().into_bytes();
@@ -445,6 +496,11 @@ fn duplicate_escaped_duplicate_unknown_missing_and_malformed_json_are_rejected()
         r#", "origin":"https://approver.custody.example""#,
         r#", "crossOrigin":false"#,
         r#", "extraData":"unsupported in this profile""#,
+        r#", "other_keys_can_be_added_here":null"#,
+        r#", "other_keys_can_be_added_here":false"#,
+        r#", "other_keys_can_be_added_here":"different marker""#,
+        r#", "other_keys_can_be_added_here":{"do not compare clientDataJSON against a template. See https://goo.gl/yabPex":null}"#,
+        r#", "other_keys_can_be_added_here":"do not compare clientDataJSON against a template. See https://goo.gl/yabPex", "other_keys_can_be_added_here":"do not compare clientDataJSON against a template. See https://goo.gl/yabPex""#,
     ] {
         let mut fixture = Fixture::new();
         fixture.client.pop();

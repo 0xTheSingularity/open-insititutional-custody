@@ -23,6 +23,11 @@ The browser is neither a consensus voter nor a chain signer.
 - A gateway acknowledgement is not confirmation. Only the exact submitted
   grant, found in reexecuted certificate-verified state under the same ordered
   credential enrollment, produces **Approval recorded**.
+- The bounded WebAuthn parser accepts Chromium's optional
+  `other_keys_can_be_added_here` marker only with its exact emitted string.
+  Other unknown/duplicate fields remain unsupported; the signature still covers
+  the original complete JSON bytes. This is stricter than WebAuthn's general
+  forward-compatible client-data parsing and needs qualification per platform.
 - Commonware batch verification uses a CSPRNG seeded with real browser
   `crypto.getRandomValues` through `getrandom 0.2.17/js`. Artifact hashes are
   never RNG seeds. Native callers must supply an unpredictable seed themselves.
@@ -220,6 +225,20 @@ and changed policy/destination rejection. These checks are not a claim that all
 RFC003 deployment requirements are complete.
 
 ### Live Simplex → native HTTP → WASM → WebAuthn
+
+For the automated both-chain entry point, see
+[the D2 development check](../../docs/local-stack.md#check-the-d2-development-path):
+
+```sh
+PLAYWRIGHT_MODULE=/absolute/path/to/playwright/index.mjs \
+  bash scripts/local-stack/check-d2.sh "$HOME/.local/share/oic-d2-check-1" both
+```
+
+It requires a fresh private directory, checks prerequisites without installing
+global tools, preserves complete failure logs, and stops its native child on
+failure/interruption. It checks the local build manifest for consistency, not
+independent distribution trust. The following commands expose its individual
+stages for diagnosis.
 
 The opt-in harness uses four actual `ConsensusHost`s over TCP with distinct
 transport and vote keys. Bootstrap, credential enrollment and the browser grant

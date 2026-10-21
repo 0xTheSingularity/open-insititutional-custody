@@ -4,6 +4,7 @@ This Linux recipe runs actual D1 authorization, independent verification,
 signing, broadcast and reconciliation libraries against the EVM and Solana
 simulators. It cannot move real funds. It is not a production installation,
 RFC003 D2 deployment, institutional SSO, or the whole RFC004 product.
+The separate D2 development check below exercises live replicated approvals.
 
 EVM uses development **1-of-1 secp256k1**. Solana uses actual **2-of-3 FROST
 Ed25519**, but all shares and the D1 authority run under one local OS account.
@@ -166,6 +167,53 @@ Development fault options require explicit `start.sh "$INSTALL" --enable-faults`
 - Add `--fail-after-release` to lose a signer response after actual release/share
   output. On restart `ISSUANCE_UNCERTAIN` stays visible, exposure stays reserved,
   and submit refuses fresh signing. There is no automatic reset/retry button.
+
+## Check the D2 development path
+
+The one-command check builds and runs four actual TCP Simplex replicas, two
+authenticated native HTTP nodes, provisioned release WASM and Chromium's virtual
+WebAuthn authenticator. It checks both chains sequentially, including approval
+confirmation from certified history and retained-floor journal recovery. It is
+an automated development check, not an unattended approver or production setup.
+
+In addition to the native prerequisites above, install the Rust 1.95.0
+`wasm32-unknown-unknown` target, `wasm-bindgen-cli 0.2.117`, Node and Playwright
+with its Chromium browser. The script checks these prerequisites but does not
+install global tools or download dependencies. Set `PLAYWRIGHT_MODULE` to an
+absolute module path if Playwright is not installed in this checkout.
+
+Run from any directory, using a **new private output directory**:
+
+```bash
+PLAYWRIGHT_MODULE=/absolute/path/to/playwright/index.mjs \
+  bash /absolute/checkout/scripts/local-stack/check-d2.sh \
+  "$HOME/.local/share/oic-d2-check-1" both
+```
+
+Use `evm` or `solana` instead of `both` for one chain. The check uses checkout-local
+`target/`, locked offline builds and the mandatory Commonware BETA gate for
+WASM. It uses `eto-build` when available, otherwise two build jobs by default.
+Run one check at a time: the temporary browser proxy uses localhost port 4317,
+and native fixture evidence expires after 900 seconds. Long build queues can
+exhaust that evidence window; failures remain failures, not automatic retries.
+
+Each chain's output contains `native.log`, `web-build.log`, `browser.log`,
+`install-check.log`, the `web/` build and `evidence/`. Evidence includes the
+browser verdict, token-free HTTP records, screenshots, `approval-observed.json`,
+`journal-replay.json` and `SHA256SUMS`. **The output also contains insecure test
+private keys, session tokens and confidential journals** under `native/`; do not
+publish the entire directory or reuse these credentials. The script refuses
+existing directories, stops its native child on failure/interruption, and keeps
+logs/state for diagnosis. A successful run also requires clean native shutdown
+and actual journal reopen verification; a browser success alone is insufficient.
+
+Only the explicit all-loopback development transport profile shortens connection
+retry cooldown. Production transport defaults, authentication, quotas and
+convergence checks are unchanged. The local provision digest and emitted build
+manifest are consistency checks, **not independently authenticated installation**.
+Chain inputs remain test fixtures and user verification remains virtual; these
+checks do not qualify live-chain transfers, physical authenticators, production
+trust/floor/session provisioning or complete RFC003 deployment.
 
 ## Validation and remaining limits
 

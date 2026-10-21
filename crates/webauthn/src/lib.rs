@@ -9,8 +9,10 @@
 //! This deliberately narrow profile requires UP and UV, forbids cross-origin
 //! use and any `topOrigin`, rejects unknown/duplicate JSON members, and supports
 //! exactly 37-byte authenticator data: no attested data, extensions, or reserved
-//! flag bits. JSON itself need not be canonical. One leading UTF-8 BOM is stripped
-//! for parsing, but the signature hashes the **original** client data bytes.
+//! flag bits. Chromium's optional `other_keys_can_be_added_here` marker is known
+//! only with its exact emitted string. JSON itself need not be canonical. One
+//! leading UTF-8 BOM is stripped for parsing, but the signature hashes the
+//! **original** client data bytes.
 //!
 //! A login also uses `webauthn.get`. If the caller enrolls the same key/RP/origins
 //! for login and approval, a login with a grant-hash challenge is indistinguishable
@@ -276,6 +278,24 @@ struct ClientData {
     cross_origin: bool,
     #[serde(default, rename = "topOrigin", deserialize_with = "present")]
     top_origin_present: bool,
+    #[serde(
+        default,
+        rename = "other_keys_can_be_added_here",
+        deserialize_with = "chromium_grease"
+    )]
+    _chromium_grease: (),
+}
+
+fn chromium_grease<'de, D: Deserializer<'de>>(deserializer: D) -> Result<(), D::Error> {
+    // Chromium randomly emits this compatibility marker. Keep the bounded
+    // profile closed to other additions; the full original JSON remains signed.
+    // https://github.com/chromium/chromium/blob/main/components/webauthn/core/browser/client_data_json.cc
+    let marker = String::deserialize(deserializer)?;
+    if marker == "do not compare clientDataJSON against a template. See https://goo.gl/yabPex" {
+        Ok(())
+    } else {
+        Err(serde::de::Error::custom("unsupported client data marker"))
+    }
 }
 
 fn present<'de, D: Deserializer<'de>>(deserializer: D) -> Result<bool, D::Error> {
