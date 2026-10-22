@@ -59,3 +59,8 @@ designs. They are not a list of completed features.
 
 When the two disagree, verify the current source and focused tests, then update the
 affected documentation. See [updating documentation](development.md#updating-documentation).
+
+The [GitHub wiki](https://github.com/0xTheSingularity/open-insititutional-custody/wiki)
+mirrors `docs/` and `openwiki/`. The Wiki sync workflow
+(`.github/workflows/wiki-sync.yml`) rebuilds it from `main` and replaces every
+page, so edit the files here, not the wiki.
