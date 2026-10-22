@@ -68,6 +68,14 @@ fn configure(stream: &UnixStream) -> OicResult<()> {
     stream.set_read_timeout(Some(TIMEOUT)).and_then(|_| stream.set_write_timeout(Some(TIMEOUT))).map_err(|_| failure())
 }
 
+/// macOS and the BSDs copy the listener's O_NONBLOCK flag to accepted sockets
+/// (Linux does not). A non-blocking socket ignores the timeouts, so a client
+/// slower than `accept` would fail with WouldBlock instead of being read.
+fn accepted(stream: &UnixStream) -> OicResult<()> {
+    stream.set_nonblocking(false).map_err(|_| failure())?;
+    configure(stream)
+}
+
 /// Only a private, pre-existing directory is accepted. An existing socket is
 /// never unlinked automatically: a second core must not steal its endpoint.
 pub struct Server {
@@ -105,7 +113,7 @@ impl Server {
     }
 
     fn connection(&self, stream: &mut UnixStream) -> OicResult<()> {
-        configure(stream)?;
+        accepted(stream)?;
         let response = match read::<Request>(stream)? {
             Request::Control { from, body } => Ok(Reply::Control(Box::new(self.core.control(&from, &body)))),
             Request::Deliver { from, frame } => self.core.deliver(&from, frame.as_slice()).map(|_| Reply::Done),
@@ -167,5 +175,40 @@ impl Client {
             Reply::Done => Ok(()),
             _ => Err(failure()),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The server's listener is non-blocking. A client whose request arrives
+    /// after `accept` must still be read within the connection timeout.
+    #[test]
+    fn accepted_connection_waits_for_a_slow_client() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("core.sock");
+        let listener = UnixListener::bind(&path).unwrap();
+        listener.set_nonblocking(true).unwrap();
+        let client = std::thread::spawn({
+            let path = path.clone();
+            move || {
+                let mut stream = UnixStream::connect(&path).unwrap();
+                std::thread::sleep(Duration::from_millis(200));
+                stream.write_all(b"ping").unwrap();
+            }
+        });
+        let mut stream = loop {
+            match listener.accept() {
+                Ok((stream, _)) => break stream,
+                Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => std::thread::sleep(Duration::from_millis(5)),
+                Err(e) => panic!("accept failed: {e}"),
+            }
+        };
+        accepted(&stream).unwrap();
+        let mut request = [0; 4];
+        stream.read_exact(&mut request).expect("the accepted connection must wait for the client's bytes");
+        assert_eq!(&request, b"ping");
+        client.join().unwrap();
     }
 }
