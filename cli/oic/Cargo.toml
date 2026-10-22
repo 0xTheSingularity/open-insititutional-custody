@@ -1,6 +1,9 @@
 [package]
 name = "oic-cli"
-version.workspace = true
+# The released `oic` binary carries its own version (release tags check it).
+# The workspace version stays put: the adapters' version is signed into
+# approval envelopes and pinned by tests/golden-vectors.
+version = "0.1.2"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true

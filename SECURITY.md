@@ -26,23 +26,8 @@ repository:
 
 > **https://github.com/0xTheSingularity/open-insititutional-custody/security/advisories/new**
 
-<!--
-  MAINTAINER ACTION REQUIRED before this policy is live:
-  1. Enable private vulnerability reporting for the repo:
-     Settings -> Code security and analysis -> Private vulnerability reporting -> Enable.
-     Until this is enabled, the "Report a vulnerability" button / advisory link
-     above will not work.
-  2. Add a real monitored security contact below (email or form). The address
-     here is a PLACEHOLDER and must be replaced with one the maintainer watches.
--->
-
-If private advisories are not yet enabled, or you cannot use GitHub, contact the
-maintainer directly:
-
-> **Security contact: `<REPLACE-WITH-A-REAL-MONITORED-ADDRESS>`**
-> *(Maintainer: replace this placeholder with a real, monitored email or form
-> before publishing. Do not leave a placeholder address in a live security
-> policy.)*
+If you cannot use GitHub's advisory form, open a public issue that asks for a
+private contact. Do not put any details of the vulnerability in that issue.
 
 In your report, please include:
 

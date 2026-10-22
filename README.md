@@ -76,23 +76,24 @@ sh ./install.sh
 Verify the signature yourself, before trusting the binary:
 
 ```sh
-# For your platform's tarball (e.g. oic-0.1.0-aarch64-apple-darwin.tar.gz),
+# For your platform's tarball (e.g. oic-0.1.2-aarch64-apple-darwin.tar.gz),
 # download the .sha256, .sha256.sig and .sha256.pem from the GitHub release, then:
 cosign verify-blob \
-  --certificate   oic-0.1.0-<target>.tar.gz.sha256.pem \
-  --signature     oic-0.1.0-<target>.tar.gz.sha256.sig \
+  --certificate   oic-0.1.2-<target>.tar.gz.sha256.pem \
+  --signature     oic-0.1.2-<target>.tar.gz.sha256.sig \
   --certificate-identity-regexp '^https://github.com/0xTheSingularity/open-insititutional-custody/\.github/workflows/release\.yml@refs/tags/' \
   --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
-  oic-0.1.0-<target>.tar.gz.sha256
+  oic-0.1.2-<target>.tar.gz.sha256
 ```
 
-Releases from v0.1.1 also carry a GitHub build provenance ([SLSA](https://slsa.dev))
+Releases from v0.1.2 also carry a GitHub build provenance ([SLSA](https://slsa.dev))
 attestation for each tarball and the `oic` binary in it. Check one with the GitHub CLI:
 
 ```sh
-gh attestation verify oic-0.1.1-<target>.tar.gz \
+gh attestation verify oic-0.1.2-<target>.tar.gz \
   --repo 0xTheSingularity/open-insititutional-custody \
-  --signer-workflow 0xTheSingularity/open-insititutional-custody/.github/workflows/release.yml
+  --signer-workflow 0xTheSingularity/open-insititutional-custody/.github/workflows/release.yml \
+  --source-ref refs/tags/v0.1.2
 ```
 
 ### 2. `curl | sh` (convenience fallback)
@@ -112,11 +113,13 @@ The published GHCR image runs `oic demo` as its default command:
 docker run --rm ghcr.io/0xthesingularity/open-insititutional-custody:latest
 ```
 
-From v0.1.1, check the image's build provenance before you run it:
+From v0.1.2, check the image's build provenance before you run it:
 
 ```sh
-gh attestation verify oci://ghcr.io/0xthesingularity/open-insititutional-custody:0.1.1 \
-  --repo 0xTheSingularity/open-insititutional-custody
+gh attestation verify oci://ghcr.io/0xthesingularity/open-insititutional-custody:0.1.2 \
+  --repo 0xTheSingularity/open-insititutional-custody \
+  --signer-workflow 0xTheSingularity/open-insititutional-custody/.github/workflows/release.yml \
+  --source-ref refs/tags/v0.1.2
 ```
 
 ### 4. Custody in CI
@@ -124,7 +127,7 @@ gh attestation verify oci://ghcr.io/0xthesingularity/open-insititutional-custody
 Run the same check in a GitHub Actions workflow, on a Linux or macOS runner:
 
 ```yaml
-- uses: 0xTheSingularity/open-insititutional-custody@v0.1.1
+- uses: 0xTheSingularity/open-insititutional-custody@v0.1.2
 ```
 
 The action installs the matching `oic` release and verifies its checksum, cosign

@@ -1,6 +1,6 @@
 # Custody in CI: run `oic demo --check` in a GitHub Actions job.
 #
-#   - uses: 0xTheSingularity/open-insititutional-custody@v0.1.1
+#   - uses: 0xTheSingularity/open-insititutional-custody@v0.1.2
 #
 # With no inputs, the action installs the oic release that matches its own tag
 # (else the latest release), verifies the download, and runs `oic demo --check`.
@@ -18,7 +18,7 @@ branding:
 inputs:
   version:
     description: >-
-      oic release tag to install, for example v0.1.1. Default: the action's own
+      oic release tag to install, for example v0.1.2. Default: the action's own
       tag when it is a release tag, else the latest release.
     required: false
     default: ""
@@ -73,7 +73,7 @@ runs:
         if [ -n "$INPUT_VERSION" ]; then
           tag="v${INPUT_VERSION#v}"
           source="the version input"
-        elif printf '%s' "$ACTION_REF" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+        elif printf '%s' "$ACTION_REF" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.+-]+)?$'; then
           tag="$ACTION_REF"
           source="the action tag"
         else
@@ -92,7 +92,7 @@ runs:
           --repo "$OIC_REPO" \
           --signer-workflow "$OIC_REPO/.github/workflows/release.yml" \
           --source-ref "refs/tags/$tag"; then
-          echo "::error title=OIC custody check::oic $tag has no valid build provenance from the $OIC_REPO release workflow. Releases before v0.1.1 have none."
+          echo "::error title=OIC custody check::oic $tag has no valid build provenance from the $OIC_REPO release workflow. Releases before v0.1.2 have none."
           exit 1
         fi
 
@@ -101,6 +101,8 @@ runs:
 
     - name: Run oic demo --check
       id: check
+      # Also runs after a failed install, so the result output still reads "error".
+      if: ${{ !cancelled() }}
       shell: bash
       env:
         OIC_BIN: ${{ inputs.binary || steps.install.outputs.bin }}
@@ -110,6 +112,11 @@ runs:
         set +e -uo pipefail
         echo "version=$OIC_LABEL" >> "$GITHUB_OUTPUT"
 
+        if [ -z "$OIC_BIN" ]; then
+          echo "result=error" >> "$GITHUB_OUTPUT"
+          echo "::error title=OIC custody check::oic was not installed. See the failed step above."
+          exit 1
+        fi
         if [ ! -x "$OIC_BIN" ]; then
           echo "result=error" >> "$GITHUB_OUTPUT"
           echo "::error title=OIC custody check::$OIC_BIN is not an executable file."
@@ -120,7 +127,7 @@ runs:
           *--check*) ;;
           *)
             echo "result=error" >> "$GITHUB_OUTPUT"
-            echo "::error title=OIC custody check::$OIC_BIN has no 'demo --check' mode. Use oic v0.1.1 or later."
+            echo "::error title=OIC custody check::$OIC_BIN has no 'demo --check' mode. Use oic v0.1.2 or later."
             exit 1
             ;;
         esac
