@@ -60,3 +60,39 @@ fn oic_demo_runs_full_flow_and_blocks_theft() {
         "audit journal is empty: {journal_line:?}\n{stdout}"
     );
 }
+
+/// `oic demo --check` is what the custody-check GitHub Action runs: one PASS
+/// line per assertion, a final RESULT line, and exit code 0.
+#[test]
+fn oic_demo_check_reports_each_assertion_and_passes() {
+    let output = Command::new(env!("CARGO_BIN_EXE_oic"))
+        .args(["demo", "--check"])
+        .output()
+        .expect("spawn oic demo --check");
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert_eq!(
+        output.status.code(),
+        Some(0),
+        "oic demo --check did not pass\nstdout:\n{stdout}\nstderr:\n{stderr}"
+    );
+    for assertion in [
+        "PASS  dev-only guard",
+        "PASS  EVM transfer settled",
+        "PASS  Solana transfer settled",
+        "PASS  theft blocked",
+        "PASS  audit export verified",
+    ] {
+        assert!(
+            stdout.lines().any(|l| l.starts_with(assertion)),
+            "missing {assertion:?}:\n{stdout}"
+        );
+    }
+    assert_eq!(
+        stdout.lines().last(),
+        Some("RESULT: PASS"),
+        "missing final RESULT line:\n{stdout}"
+    );
+}

@@ -25,8 +25,9 @@ use reqwest::{Client, Method, StatusCode};
 use serde_json::{json, Value};
 use std::{
     collections::BTreeMap,
-    fs,
+    fmt, fs,
     path::Path,
+    process::ExitCode,
     sync::{
         atomic::{AtomicU64, Ordering},
         Arc,
@@ -45,13 +46,59 @@ struct Cli {
 enum Command {
     /// Run the full custody flow end-to-end, in-process, against throwaway dev
     /// simulators (no prompts, no real funds), then print a receipt + audit log.
-    Demo,
+    Demo {
+        /// CI mode: print one PASS line per assertion, then a RESULT line.
+        /// Exit codes: 0 pass, 1 the check did not complete, 3 security
+        /// regression (the verifier signed a tampered approval package).
+        #[arg(long)]
+        check: bool,
+    },
 }
 
+/// Exit code when the independent verifier signs a tampered approval package.
+/// Distinct from 1 (the flow did not complete) and 2 (clap usage error).
+const EXIT_SECURITY_REGRESSION: u8 = 3;
+
+/// The independent verifier signed a tampered approval package: the property
+/// the demo exists to prove no longer holds.
+#[derive(Debug)]
+struct SecurityRegression(String);
+
+impl fmt::Display for SecurityRegression {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "SECURITY REGRESSION: {}", self.0)
+    }
+}
+
+impl std::error::Error for SecurityRegression {}
+
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> ExitCode {
     match Cli::parse().command {
-        Command::Demo => run_demo().await,
+        Command::Demo { check } => finish(run_demo(check).await, check),
+    }
+}
+
+fn finish(result: Result<()>, check: bool) -> ExitCode {
+    let code = exit_code(&result);
+    if let Err(e) = &result {
+        eprintln!("Error: {e:?}");
+    }
+    if check {
+        match code {
+            0 => println!("RESULT: PASS"),
+            EXIT_SECURITY_REGRESSION => println!("RESULT: FAIL (security regression, exit {code})"),
+            _ => println!("RESULT: ERROR (the check did not complete, exit {code})"),
+        }
+    }
+    ExitCode::from(code)
+}
+
+fn exit_code(result: &Result<()>) -> u8 {
+    match result {
+        Ok(()) => 0,
+        Err(e) if e.is::<SecurityRegression>() => EXIT_SECURITY_REGRESSION,
+        Err(_) => 1,
     }
 }
 
@@ -63,7 +110,9 @@ const TRANSFER: u128 = 1_234_567;
 const EVM_FEE: u128 = 21_000 * 1_100_000_000; // gas * price, per the EVM simulator profile
 const SOL_FEE: u128 = 5_200; // lamports, per the Solana simulator profile
 
-async fn run_demo() -> Result<()> {
+async fn run_demo(check: bool) -> Result<()> {
+    let report = Report { check };
+
     // Demo/production separation: the demo ONLY ever operates on its own
     // throwaway temp dir. It accepts no state path from the caller and cannot
     // be pointed at a production installation.
@@ -109,7 +158,7 @@ async fn run_demo() -> Result<()> {
     };
     let verifier = build_verifier(&handoff)?;
 
-    print_header(&catalog);
+    report.header(&catalog);
 
     // (2) EVM transfer — DEVELOPMENT single-key secp256k1 (NOT threshold).
     let evm = settle(
@@ -122,7 +171,7 @@ async fn run_demo() -> Result<()> {
     )
     .await
     .context("EVM settlement")?;
-    print_settlement(1, "EVM", &evm);
+    report.settlement(1, "EVM", &evm);
 
     // (3) Solana transfer — FROST ed25519 2-of-3 threshold.
     let solana = settle(
@@ -135,17 +184,19 @@ async fn run_demo() -> Result<()> {
     )
     .await
     .context("Solana settlement")?;
-    print_settlement(2, "Solana", &solana);
+    report.settlement(2, "Solana", &solana);
 
     // (4) THEFT BLOCKED — the headline security property.
-    print_theft_blocked(&verifier, &approver_key, &evm)?;
+    let refusal = attempt_theft(&verifier, &approver_key, &evm)?;
+    report.theft_blocked(&refusal);
 
     // (5) Audit log — the signed OperationsExport journal.
     let export = h
         .ok("GET", "/v1/export", &h.tokens["reader"], None)
         .await
         .context("export")?;
-    print_audit(&export, &catalog)?;
+    let audit = verify_audit(&export, &catalog)?;
+    report.audit(&audit);
 
     server.abort();
     Ok(())
@@ -547,15 +598,21 @@ fn print_settlement(n: usize, chain: &str, s: &Settlement) {
     );
 }
 
-fn print_theft_blocked(
+/// How the verifier refused the tampered package.
+struct TheftRefusal {
+    code: String,
+    detail: String,
+}
+
+/// Clone a real, already-approved package, tamper the transfer amount, and ask
+/// the independent verifier to sign it against the display the approver
+/// confirmed. The verifier re-derives the operation from the candidate bytes and
+/// must refuse; a signature here is a [`SecurityRegression`].
+fn attempt_theft(
     verifier: &IndependentVerifier,
     approver_key: &SigningKey,
     evm: &Settlement,
-) -> Result<()> {
-    // Clone a real, already-approved package and tamper the transfer amount,
-    // then ask the independent verifier to sign the tampered package against the
-    // display it genuinely rendered. The verifier re-derives the display from the
-    // tampered bytes, sees it differ from what was confirmed, and refuses.
+) -> Result<TheftRefusal> {
     let mut tampered = evm.package.clone();
     let IntentOperation::AssetTransfer {
         ref mut amount_base_units,
@@ -576,11 +633,27 @@ fn print_theft_blocked(
         now,
         120,
     );
-    let err = match attempt {
-        Ok(_) => bail!("SECURITY REGRESSION: verifier signed a substituted amount"),
-        Err(e) => e,
-    };
+    judge_theft_attempt(attempt)
+}
 
+/// A signature for the tampered package is a [`SecurityRegression`]; a refusal
+/// is the expected outcome.
+fn judge_theft_attempt<T>(attempt: OicResult<T>) -> Result<TheftRefusal> {
+    match attempt {
+        Ok(_) => Err(SecurityRegression(format!(
+            "the independent verifier signed a tampered approval package \
+             (amount_base_units {TRANSFER} -> {})",
+            TRANSFER + 1
+        ))
+        .into()),
+        Err(e) => Ok(TheftRefusal {
+            code: format!("{:?}", e.code),
+            detail: e.detail.to_string(),
+        }),
+    }
+}
+
+fn print_theft_blocked(refusal: &TheftRefusal) {
     println!();
     println!("--------------------------------------------------------------------------------");
     println!(
@@ -591,12 +664,21 @@ fn print_theft_blocked(
         TRANSFER + 1
     );
     println!("       so the changed operation is never signed by the independent verifier.");
-    println!("       verifier.approve(...) returned Err [{:?}]: {}", err.code, err.detail);
+    println!(
+        "       verifier.approve(...) returned Err [{}]: {}",
+        refusal.code, refusal.detail
+    );
     println!("--------------------------------------------------------------------------------");
-    Ok(())
 }
 
-fn print_audit(export: &Value, catalog: &Value) -> Result<()> {
+/// Entry counts of an audit export whose signature and hash links verified.
+struct AuditSummary {
+    journal: usize,
+    events: usize,
+    checkpoints: usize,
+}
+
+fn verify_audit(export: &Value, catalog: &Value) -> Result<AuditSummary> {
     let data: OperationsExport = serde_json::from_value(export["operations"].clone())
         .context("parse OperationsExport")?;
     let key_hex = catalog["event_verifying_key"]
@@ -610,21 +692,100 @@ fn print_audit(export: &Value, catalog: &Value) -> Result<()> {
     if data.journal.is_empty() {
         bail!("audit journal is empty");
     }
+    Ok(AuditSummary {
+        journal: data.journal.len(),
+        events: data.events.len(),
+        checkpoints: data.checkpoints.len(),
+    })
+}
 
+fn print_audit(audit: &AuditSummary) {
     println!();
     println!("Audit log — signed OperationsExport (verified against catalog event_verifying_key):");
     println!(
         "       journal entries:  {}   (hash-linked and verified)",
-        data.journal.len()
+        audit.journal
     );
     println!(
         "       lifecycle events: {}   (ed25519-signed)",
-        data.events.len()
+        audit.events
     );
     println!(
         "       checkpoints:      {}   (ed25519-signed)",
-        data.checkpoints.len()
+        audit.checkpoints
     );
     println!("       export signature: VERIFIED");
-    Ok(())
+}
+
+/// Prints the demo as a narrated walkthrough, or with `--check` as one PASS line
+/// per assertion for CI logs. Failures are reported by `finish`.
+struct Report {
+    check: bool,
+}
+
+impl Report {
+    fn header(&self, catalog: &Value) {
+        if !self.check {
+            return print_header(catalog);
+        }
+        println!("oic demo --check: DEVELOPMENT profile, local simulators, no real funds");
+        println!(
+            "PASS  dev-only guard: environment {}",
+            catalog["environment_id"].as_str().unwrap_or("?")
+        );
+    }
+
+    fn settlement(&self, n: usize, chain: &str, s: &Settlement) {
+        if !self.check {
+            return print_settlement(n, chain, s);
+        }
+        println!("PASS  {chain} transfer settled: {} (tx {})", s.label, s.tx_id);
+    }
+
+    fn theft_blocked(&self, refusal: &TheftRefusal) {
+        if !self.check {
+            return print_theft_blocked(refusal);
+        }
+        println!(
+            "PASS  theft blocked: the verifier refused amount_base_units {TRANSFER} -> {} [{}]",
+            TRANSFER + 1,
+            refusal.code
+        );
+    }
+
+    fn audit(&self, audit: &AuditSummary) {
+        if !self.check {
+            return print_audit(audit);
+        }
+        println!(
+            "PASS  audit export verified: {} journal entries, {} events, {} checkpoints",
+            audit.journal, audit.events, audit.checkpoints
+        );
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn exit_code_separates_a_security_regression_from_an_incomplete_run() {
+        assert_eq!(exit_code(&Ok(())), 0);
+        assert_eq!(exit_code(&Err(anyhow!("EVM settlement failed"))), 1);
+
+        let regression = SecurityRegression("tampered package signed".into());
+        assert_eq!(exit_code(&Err(regression.into())), EXIT_SECURITY_REGRESSION);
+
+        let with_context = anyhow::Error::new(SecurityRegression("tampered package signed".into()))
+            .context("theft scene");
+        assert_eq!(exit_code(&Err(with_context)), EXIT_SECURITY_REGRESSION);
+    }
+
+    #[test]
+    fn a_signature_on_the_tampered_package_exits_with_the_regression_code() {
+        let signed: OicResult<()> = Ok(());
+        let regression = judge_theft_attempt(signed).err().expect("a signature must not pass");
+        assert!(regression.is::<SecurityRegression>(), "{regression:?}");
+        assert_eq!(exit_code(&Err(regression)), EXIT_SECURITY_REGRESSION);
+    }
 }
