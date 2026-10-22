@@ -1,0 +1,156 @@
+# Custody in CI: run `oic demo --check` in a GitHub Actions job.
+#
+#   - uses: 0xTheSingularity/open-insititutional-custody@v0.1.1
+#
+# With no inputs, the action installs the oic release that matches its own tag
+# (else the latest release), verifies the download, and runs `oic demo --check`.
+# The step fails if the independent verifier signs a tampered approval package
+# (oic exit code 3) or the demo flow does not complete (exit code 1).
+# Usage and scope: docs/custody-check.md.
+
+name: OIC custody check
+description: Run the oic custody demo as a CI check. Fails if the verifier signs a tampered approval package.
+author: 0xTheSingularity
+branding:
+  icon: shield
+  color: green
+
+inputs:
+  version:
+    description: >-
+      oic release tag to install, for example v0.1.1. Default: the action's own
+      tag when it is a release tag, else the latest release.
+    required: false
+    default: ""
+  binary:
+    description: >-
+      Path to an oic binary to check instead of a release, for example one built
+      from your fork. The download and its verification are skipped.
+    required: false
+    default: ""
+
+outputs:
+  result:
+    description: pass, regression (the verifier signed a tampered approval package), or error (the check did not complete).
+    value: ${{ steps.check.outputs.result }}
+  version:
+    description: The oic release tag that was checked, or "local" for the binary input.
+    value: ${{ steps.check.outputs.version }}
+
+runs:
+  using: composite
+  steps:
+    - name: Require a Linux or macOS runner
+      if: runner.os == 'Windows'
+      shell: bash
+      run: |
+        echo "::error title=OIC custody check::oic ships for Linux x86_64 and macOS only. Use a Linux or macOS runner."
+        exit 1
+
+    - name: Install cosign
+      if: inputs.binary == ''
+      uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
+
+    - name: Install and verify oic
+      id: install
+      if: inputs.binary == ''
+      shell: bash
+      env:
+        OIC_REPO: 0xTheSingularity/open-insititutional-custody
+        INPUT_VERSION: ${{ inputs.version }}
+        # github.action_ref works in a composite action only through env.
+        ACTION_REF: ${{ github.action_ref }}
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        set -euo pipefail
+        for tool in gh cosign; do
+          if ! command -v "$tool" >/dev/null; then
+            echo "::error title=OIC custody check::$tool is required to verify the oic release."
+            exit 1
+          fi
+        done
+
+        if [ -n "$INPUT_VERSION" ]; then
+          tag="v${INPUT_VERSION#v}"
+          source="the version input"
+        elif printf '%s' "$ACTION_REF" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+          tag="$ACTION_REF"
+          source="the action tag"
+        else
+          tag="$(gh api "repos/$OIC_REPO/releases/latest" --jq .tag_name)"
+          source="the latest release"
+        fi
+        echo "Installing oic $tag (from $source)"
+
+        # install.sh comes from this action's own ref. It enforces the SHA-256
+        # checksum, and the cosign signature because cosign is on PATH.
+        dir="$RUNNER_TEMP/oic-$tag"
+        OIC_VERSION="$tag" OIC_INSTALL_DIR="$dir" OIC_NO_RUN=1 sh "$GITHUB_ACTION_PATH/install.sh"
+
+        # Build provenance: this repository's release workflow built the binary from $tag.
+        if ! gh attestation verify "$dir/oic" \
+          --repo "$OIC_REPO" \
+          --signer-workflow "$OIC_REPO/.github/workflows/release.yml" \
+          --source-ref "refs/tags/$tag"; then
+          echo "::error title=OIC custody check::oic $tag has no valid build provenance from the $OIC_REPO release workflow. Releases before v0.1.1 have none."
+          exit 1
+        fi
+
+        echo "bin=$dir/oic" >> "$GITHUB_OUTPUT"
+        echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+    - name: Run oic demo --check
+      id: check
+      shell: bash
+      env:
+        OIC_BIN: ${{ inputs.binary || steps.install.outputs.bin }}
+        OIC_LABEL: ${{ inputs.binary != '' && 'local' || steps.install.outputs.tag }}
+      run: |
+        # GitHub runs bash with -e; keep going when oic fails so the result is recorded.
+        set +e -uo pipefail
+        echo "version=$OIC_LABEL" >> "$GITHUB_OUTPUT"
+
+        if [ ! -x "$OIC_BIN" ]; then
+          echo "result=error" >> "$GITHUB_OUTPUT"
+          echo "::error title=OIC custody check::$OIC_BIN is not an executable file."
+          exit 1
+        fi
+        help="$("$OIC_BIN" demo --help 2>&1)" || true
+        case "$help" in
+          *--check*) ;;
+          *)
+            echo "result=error" >> "$GITHUB_OUTPUT"
+            echo "::error title=OIC custody check::$OIC_BIN has no 'demo --check' mode. Use oic v0.1.1 or later."
+            exit 1
+            ;;
+        esac
+
+        log="$RUNNER_TEMP/oic-custody-check.log"
+        "$OIC_BIN" demo --check 2>&1 | tee "$log"
+        code=${PIPESTATUS[0]}
+        case "$code" in
+          0) result=pass ;;
+          3) result=regression ;;
+          *) result=error ;;
+        esac
+        echo "result=$result" >> "$GITHUB_OUTPUT"
+
+        {
+          echo "### OIC custody check: $result"
+          echo
+          echo "oic $OIC_LABEL"
+          echo
+          echo '```'
+          cat "$log"
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
+
+        case "$result" in
+          regression)
+            echo "::error title=OIC custody check::SECURITY REGRESSION: the independent verifier signed a tampered approval package."
+            ;;
+          error)
+            echo "::error title=OIC custody check::oic demo --check did not complete (exit $code)."
+            ;;
+        esac
+        exit "$code"

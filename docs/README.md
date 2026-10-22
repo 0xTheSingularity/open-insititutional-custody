@@ -11,6 +11,7 @@ Use [core concepts](concepts.md) when a custody term is unfamiliar.
 | Follow one payment across the components | [Payment walkthrough](payment-flow.md) |
 | Learn the vocabulary through a treasury payment | [Custody concepts from first principles](concepts.md) |
 | Install prerequisites and run the current code | [Getting started](getting-started.md) |
+| Run the custody demo as a check in CI | [Custody check in CI](custody-check.md) |
 | Bootstrap and restart a development HTTP custody stack | [Local simulator stack](local-stack.md) |
 | Set up local approval trust and credentials | [Approval client](approval-client.md) |
 | Exercise D1 signing and D2 consensus over Commonware | [Signer network](signer-network.md) |

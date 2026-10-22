@@ -25,14 +25,14 @@ Signers check the bytes, rules, and receipts before producing signature output.
 ## 5-minute quickstart
 
 Run the whole custody flow on your own machine — no accounts, no RPC
-credentials, no prompts. `oic demo` blocks a theft (a destination swapped after
-approval is refused by the independent signer), then settles two transfers:
+credentials, no prompts. `oic demo` settles two transfers:
 
 - **EVM** — a development **single-key** secp256k1 signer (1-of-1, *not*
   threshold).
 - **Solana** — a **FROST ed25519 2-of-3** threshold signature.
 
-It ends on the receipt and the signed audit log.
+Then it blocks a theft: an attacker changes the amount in an approved package,
+and the independent verifier refuses to sign it. It ends on the signed audit log.
 
 <!-- GIF PLACEHOLDER: recording tools (asciinema+agg / vhs) were not available
      on the build host, so the <=20s demo GIF is not yet committed. Generate it
@@ -86,6 +86,15 @@ cosign verify-blob \
   oic-0.1.0-<target>.tar.gz.sha256
 ```
 
+Releases from v0.1.1 also carry a GitHub build provenance ([SLSA](https://slsa.dev))
+attestation for each tarball and the `oic` binary in it. Check one with the GitHub CLI:
+
+```sh
+gh attestation verify oic-0.1.1-<target>.tar.gz \
+  --repo 0xTheSingularity/open-insititutional-custody \
+  --signer-workflow 0xTheSingularity/open-insititutional-custody/.github/workflows/release.yml
+```
+
 ### 2. `curl | sh` (convenience fallback)
 
 Faster, but you are piping a remote script into your shell. The installer still
@@ -102,6 +111,29 @@ The published GHCR image runs `oic demo` as its default command:
 ```sh
 docker run --rm ghcr.io/0xthesingularity/open-insititutional-custody:latest
 ```
+
+From v0.1.1, check the image's build provenance before you run it:
+
+```sh
+gh attestation verify oci://ghcr.io/0xthesingularity/open-insititutional-custody:0.1.1 \
+  --repo 0xTheSingularity/open-insititutional-custody
+```
+
+### 4. Custody in CI
+
+Run the same check in a GitHub Actions workflow, on a Linux or macOS runner:
+
+```yaml
+- uses: 0xTheSingularity/open-insititutional-custody@v0.1.1
+```
+
+The action installs the matching `oic` release and verifies its checksum, cosign
+signature, and build provenance. Then it runs `oic demo --check`, which fails the
+step if the verifier signs the changed package.
+
+The check tests the `oic` release, not your own code or policy configuration. To
+test your own build of this repository, set the `binary` input. See
+[Custody check in CI](docs/custody-check.md).
 
 ---
 
