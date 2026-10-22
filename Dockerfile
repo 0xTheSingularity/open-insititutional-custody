@@ -13,18 +13,20 @@
 # ---- builder ----------------------------------------------------------------
 FROM rust:1.95 AS builder
 
-# Lets CI pass --build-arg CARGO_PROFILE_RELEASE_DEBUG=0 to trim debug info and
-# cut build time / disk use (the workspace release profile is otherwise unchanged).
-ARG CARGO_PROFILE_RELEASE_DEBUG
+# Trims debug info to cut build time and disk use (the workspace release profile
+# is otherwise unchanged). An unset build-arg would reach cargo as an empty string,
+# which it rejects, so it defaults to 0.
+ARG CARGO_PROFILE_RELEASE_DEBUG=0
 ENV CARGO_PROFILE_RELEASE_DEBUG=${CARGO_PROFILE_RELEASE_DEBUG}
 
 WORKDIR /src
 
 # Copy the whole workspace so path dependencies resolve, then build just the CLI.
+# Only a failed `strip` is tolerated; a failed build fails this step.
 COPY . .
 RUN cargo build -p oic-cli --release --locked \
     && cp target/release/oic /usr/local/bin/oic \
-    && strip /usr/local/bin/oic || true
+    && { strip /usr/local/bin/oic || true; }
 
 # ---- runtime ----------------------------------------------------------------
 FROM debian:stable-slim AS runtime

@@ -1,10 +1,13 @@
 # Tests the custody-check action (action.yml at the repository root).
 #
-#   real-build  The action passes on this commit's own oic build.
-#   outcomes    The action fails and sets the `result` output when oic reports
-#               a security regression (exit 3), does not complete (exit 1), or
-#               has no `demo --check` mode. A stub stands in for oic:
-#               .github/custody-check/oic-stub.sh.
+#   real-build         The action passes on this commit's own oic build.
+#   outcomes           The action fails and sets the `result` output when oic
+#                      reports a security regression (exit 3), does not complete
+#                      (exit 1), or has no `demo --check` mode. A stub stands in
+#                      for oic: .github/custody-check/oic-stub.sh.
+#   published-release  With no inputs, this commit's action and install.sh
+#                      install the latest release and verify its checksum,
+#                      cosign signature and build provenance before the check.
 #
 # The release workflow also runs the action on each published release, the way
 # users run it (job release-smoke in release.yml).
@@ -42,6 +45,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Install Rust 1.95
         uses: dtolnay/rust-toolchain@035fceb3c12fb0c6a9461b52775e16473133e591 # 1.95.0
@@ -85,6 +90,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Run the custody check action on the stub
         id: custody
@@ -101,5 +108,31 @@ jobs:
         run: |
           if [ "$OUTCOME" != failure ] || [ "$RESULT" != "$EXPECT" ]; then
             echo "::error::expected outcome=failure result=$EXPECT, got outcome=$OUTCOME result=$RESULT"
+            exit 1
+          fi
+
+  published-release:
+    name: Installs and verifies the latest release on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-15]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Run the custody check action with no inputs
+        id: custody
+        uses: ./
+
+      - name: Require result=pass
+        env:
+          RESULT: ${{ steps.custody.outputs.result }}
+        run: |
+          if [ "$RESULT" != pass ]; then
+            echo "::error::expected result=pass, got result=$RESULT"
             exit 1
           fi

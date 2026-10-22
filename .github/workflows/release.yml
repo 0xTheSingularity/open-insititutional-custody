@@ -7,6 +7,11 @@
 # which adds to the checksum and signature and does not replace them. Verify one
 # with `gh attestation verify <file> --repo <owner>/<repo>`.
 #
+# Compilation runs dependency build scripts and proc macros, so it happens in
+# build-binaries, which has read-only permissions and no stored git credentials.
+# release-binaries holds the signing and write permissions and never compiles:
+# it packages, hashes, signs, attests and uploads the built binaries.
+#
 # release-smoke then installs the published release the way users do, through
 # the custody-check action (action.yml), and runs `oic demo --check`.
 
@@ -25,8 +30,8 @@ env:
 
 jobs:
   # ---------------------------------------------------------------------------
-  # Refuse a tag on a commit whose oic version differs: a tag on the wrong
-  # commit (e.g. a stale main) fails here, before anything is published.
+  # Refuse a tag on a commit that is not on main, or whose oic version differs,
+  # before anything is built or published.
   # ---------------------------------------------------------------------------
   verify-version:
     name: Tag matches the oic version
@@ -36,29 +41,34 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0 # main's history, for the ancestry check below
+          persist-credentials: false
 
-      - name: Compare the tag with Cargo.toml
+      - name: Compare the tag with main and Cargo.toml
         shell: bash
         run: |
           set -euo pipefail
+          if ! git merge-base --is-ancestor "${GITHUB_SHA}" origin/main; then
+            echo "::error::tag ${GITHUB_REF_NAME} points at ${GITHUB_SHA}, which is not on main. Merge first, then tag a commit on main."
+            exit 1
+          fi
           crate="$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "oic-cli") | .version')"
           if [ "${GITHUB_REF_NAME#v}" != "${crate}" ]; then
             echo "::error::tag ${GITHUB_REF_NAME} does not match oic-cli ${crate}. Bump the version in cli/oic/Cargo.toml, merge it, then tag that commit."
             exit 1
           fi
-          echo "tag ${GITHUB_REF_NAME} matches oic-cli ${crate}"
+          echo "tag ${GITHUB_REF_NAME} is on main and matches oic-cli ${crate}"
 
   # ---------------------------------------------------------------------------
-  # Cross-platform signed binaries -> GitHub Release.
+  # Compile the binaries with read-only permissions.
   # ---------------------------------------------------------------------------
-  release-binaries:
-    name: Build & sign ${{ matrix.target }}
+  build-binaries:
+    name: Build ${{ matrix.target }}
     needs: verify-version
     runs-on: ${{ matrix.os }}
     permissions:
-      contents: write # create/append to the GitHub Release
-      id-token: write # OIDC token for cosign keyless signing and attestations
-      attestations: write # store the build provenance attestations
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -76,32 +86,70 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Install Rust 1.95
         uses: dtolnay/rust-toolchain@035fceb3c12fb0c6a9461b52775e16473133e591 # 1.95.0
         with:
           targets: ${{ matrix.target }}
 
-      - name: Resolve release version
-        id: version
-        shell: bash
-        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
-
       - name: Build oic (release)
         run: cargo build -p oic-cli --release --target ${{ matrix.target }} --locked
+
+      - name: Keep the binary for signing
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: oic-${{ matrix.target }}
+          path: target/${{ matrix.target }}/release/oic
+          if-no-files-found: error
+          retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  # Package, hash, sign, attest and upload each binary -> GitHub Release.
+  # ---------------------------------------------------------------------------
+  release-binaries:
+    name: Sign & publish ${{ matrix.target }}
+    needs: build-binaries
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # create/append to the GitHub Release
+      id-token: write # OIDC token for cosign keyless signing and attestations
+      attestations: write # store the build provenance attestations
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - aarch64-apple-darwin
+          - x86_64-apple-darwin
+          - x86_64-unknown-linux-gnu
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Download the built binary
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: oic-${{ matrix.target }}
+          path: built
 
       - name: Stage and package tarball
         id: package
         shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
         run: |
           set -euo pipefail
-          version="${{ steps.version.outputs.version }}"
-          target="${{ matrix.target }}"
-          stage="oic-${version}-${target}"
+          version="${GITHUB_REF_NAME#v}"
+          stage="oic-${version}-${TARGET}"
           tarball="${stage}.tar.gz"
 
           mkdir -p "dist/${stage}"
-          cp "target/${target}/release/oic" "dist/${stage}/oic"
+          cp built/oic "dist/${stage}/oic"
+          # Artifact downloads drop the execute bit.
+          chmod 0755 "dist/${stage}/oic"
           cp LICENSE "dist/${stage}/LICENSE"
           cp README.md "dist/${stage}/README.md"
 
@@ -121,36 +169,38 @@ jobs:
       - name: Generate SHA-256 checksum
         id: checksum
         shell: bash
+        env:
+          TARBALL: ${{ steps.package.outputs.tarball }}
         run: |
           set -euo pipefail
-          tarball="${{ steps.package.outputs.tarball }}"
-          if command -v sha256sum >/dev/null 2>&1; then
-            sha256sum "${tarball}" > "${tarball}.sha256"
-          else
-            shasum -a 256 "${tarball}" > "${tarball}.sha256"
-          fi
-          echo "checksum=${tarball}.sha256" >> "$GITHUB_OUTPUT"
-          cat "${tarball}.sha256"
+          # install.sh requires the file name in this line to equal the tarball's.
+          sha256sum "${TARBALL}" > "${TARBALL}.sha256"
+          echo "checksum=${TARBALL}.sha256" >> "$GITHUB_OUTPUT"
+          cat "${TARBALL}.sha256"
 
       - name: Install cosign
         uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
 
       - name: Sign checksum with cosign (keyless OIDC)
         shell: bash
+        env:
+          CHECKSUM: ${{ steps.checksum.outputs.checksum }}
         run: |
           set -euo pipefail
-          checksum="${{ steps.checksum.outputs.checksum }}"
-          # Keyless: identity is this workflow, attested by the GitHub OIDC
-          # issuer. Produces a detached signature (.sig) and the ephemeral
-          # signing certificate (.pem) that install.sh verifies against.
+          # Keyless: identity is this workflow on this tag, attested by the
+          # GitHub OIDC issuer. Produces a detached signature (.sig) and the
+          # ephemeral signing certificate (.pem) that install.sh verifies.
           cosign sign-blob --yes \
-            --output-signature "${checksum}.sig" \
-            --output-certificate "${checksum}.pem" \
-            "${checksum}"
+            --output-signature "${CHECKSUM}.sig" \
+            --output-certificate "${CHECKSUM}.pem" \
+            "${CHECKSUM}"
 
       - name: Upload binary, checksum and signature to the Release
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
+          # A tag such as v0.2.0-rc.1 publishes a prerelease, which never
+          # becomes the "latest" release that install.sh installs by default.
+          prerelease: ${{ contains(github.ref_name, '-') }}
           files: |
             ${{ steps.package.outputs.tarball }}
             ${{ steps.checksum.outputs.checksum }}
@@ -158,7 +208,8 @@ jobs:
             ${{ steps.checksum.outputs.checksum }}.pem
 
   # ---------------------------------------------------------------------------
-  # GHCR Docker image (CMD runs `oic demo`) -> ghcr.io/<repo>:<version>,:latest.
+  # GHCR Docker image (CMD runs `oic demo`) -> ghcr.io/<repo>:<version>, and
+  # :latest for final releases once the image's provenance verifies.
   # ---------------------------------------------------------------------------
   release-image:
     name: Build & push GHCR image
@@ -173,11 +224,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Resolve release version
         id: version
         shell: bash
-        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          case "${GITHUB_REF_NAME}" in
+            *-*) echo "prerelease=true" >> "$GITHUB_OUTPUT" ;;
+            *) echo "prerelease=false" >> "$GITHUB_OUTPUT" ;;
+          esac
 
       - name: Log in to GHCR
         shell: bash
@@ -185,16 +243,15 @@ jobs:
 
       - name: Build image
         shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
           set -euo pipefail
-          version="${{ steps.version.outputs.version }}"
-          image="${REGISTRY}/${IMAGE_NAME}"
           # Build context is the repo root so the whole workspace is available
           # to `cargo build -p oic-cli --release`. Dockerfile lives at repo root.
           docker build \
             --build-arg CARGO_PROFILE_RELEASE_DEBUG=0 \
-            -t "${image}:${version}" \
-            -t "${image}:latest" \
+            -t "${REGISTRY}/${IMAGE_NAME}:${VERSION}" \
             -f Dockerfile .
 
       - name: Push image
@@ -206,7 +263,6 @@ jobs:
           set -euo pipefail
           image="${REGISTRY}/${IMAGE_NAME}"
           docker push "${image}:${VERSION}"
-          docker push "${image}:latest"
 
           # The digest the registry serves for this tag is the attestation subject.
           digest="$(docker buildx imagetools inspect "${image}:${VERSION}" --format '{{json .Manifest}}' | jq -r .digest)"
@@ -235,10 +291,26 @@ jobs:
             --signer-workflow "${GITHUB_REPOSITORY}/.github/workflows/release.yml" \
             --source-ref "${GITHUB_REF}"
 
+      - name: Move :latest to this image
+        if: steps.version.outputs.prerelease == 'false'
+        shell: bash
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: |
+          set -euo pipefail
+          image="${REGISTRY}/${IMAGE_NAME}"
+          docker tag "${image}:${GITHUB_REF_NAME#v}" "${image}:latest"
+          docker push "${image}:latest"
+          latest="$(docker buildx imagetools inspect "${image}:latest" --format '{{json .Manifest}}' | jq -r .digest)"
+          if [ "${latest}" != "${DIGEST}" ]; then
+            echo "::error::${image}:latest resolves to ${latest}, not the verified ${DIGEST}"
+            exit 1
+          fi
+
   # ---------------------------------------------------------------------------
   # Install the published release the way users do: the custody-check action
   # verifies the checksum, cosign signature and build provenance, then runs
-  # `oic demo --check`. Runs only when every binary build succeeded; a failed
+  # `oic demo --check`. Runs only when every binary was published; a failed
   # build already reports itself, and its smoke test could only fail on the
   # missing asset.
   # ---------------------------------------------------------------------------
@@ -255,6 +327,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Run the custody check action on the release
         uses: ./
