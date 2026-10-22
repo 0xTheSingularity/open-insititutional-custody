@@ -146,6 +146,12 @@ impl Executor {
         {
             return Err(OicError::scope("candidate authority scope or family differs"));
         }
+        // Grants bind the registered intent hash, but a zero-approval rule has no
+        // grants: without this check another intent body could reserve under the id.
+        let registered = state.intents.get(&p.intent.intent_id).ok_or_else(|| OicError::new(ErrorCode::NotFound, "intent not registered"))?;
+        if registered.intent_hash != intent_hash(&p.intent)? {
+            return Err(OicError::scope("proposal intent differs from the registered intent"));
+        }
         let profile = self.registry.profiles.iter().find(|profile| profile.chain_profile_id == p.intent.chain_profile_id)
             .ok_or_else(|| OicError::scope("chain profile not pinned"))?;
         let adapter = self.adapters.get(&profile.adapter_id).ok_or_else(|| OicError::unsupported("adapter not pinned"))?;
