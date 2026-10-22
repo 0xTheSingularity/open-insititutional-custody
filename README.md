@@ -174,6 +174,19 @@ cargo test --locked -p oic-service-api --test http_flow
 | [Development](docs/development.md) | Workspace map, focused tests, protocol vectors, and bounded state exploration |
 | [Documentation index](docs/README.md) | Subsystem references and design RFCs |
 
+## Security
+
+This is a development preview, and we want security researchers to hold the
+custody protocol to its claims. Every security property is documented with a
+`file:line` citation to the code that enforces it.
+
+- [Threat model](THREAT_MODEL.md) — trust boundaries, assets, and each
+  threat mapped to the exact check that stops it, plus known limitations.
+- [Security policy](SECURITY.md) — how to report a vulnerability (private GitHub
+  advisories), safe harbor, scope, and the hall of fame.
+
+Found a claim the code does not back up? That is a finding — please report it.
+
 ## Contribute
 
 Start with the [development guide](docs/development.md). For setup problems, use
