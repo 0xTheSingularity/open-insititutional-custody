@@ -25,10 +25,35 @@ env:
 
 jobs:
   # ---------------------------------------------------------------------------
+  # Refuse a tag on a commit whose oic version differs: a tag on the wrong
+  # commit (e.g. a stale main) fails here, before anything is published.
+  # ---------------------------------------------------------------------------
+  verify-version:
+    name: Tag matches the oic version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Compare the tag with Cargo.toml
+        shell: bash
+        run: |
+          set -euo pipefail
+          crate="$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "oic-cli") | .version')"
+          if [ "${GITHUB_REF_NAME#v}" != "${crate}" ]; then
+            echo "::error::tag ${GITHUB_REF_NAME} does not match oic-cli ${crate}. Bump [workspace.package] version in Cargo.toml, merge it, then tag that commit."
+            exit 1
+          fi
+          echo "tag ${GITHUB_REF_NAME} matches oic-cli ${crate}"
+
+  # ---------------------------------------------------------------------------
   # Cross-platform signed binaries -> GitHub Release.
   # ---------------------------------------------------------------------------
   release-binaries:
     name: Build & sign ${{ matrix.target }}
+    needs: verify-version
     runs-on: ${{ matrix.os }}
     permissions:
       contents: write # create/append to the GitHub Release
@@ -136,6 +161,7 @@ jobs:
   # ---------------------------------------------------------------------------
   release-image:
     name: Build & push GHCR image
+    needs: verify-version
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -216,8 +242,8 @@ jobs:
   # ---------------------------------------------------------------------------
   release-smoke:
     name: Verify & check on ${{ matrix.os }}
-    needs: release-binaries
-    if: ${{ !cancelled() }}
+    needs: [verify-version, release-binaries]
+    if: ${{ !cancelled() && needs.verify-version.result == 'success' }}
     runs-on: ${{ matrix.os }}
     permissions:
       contents: read

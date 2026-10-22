@@ -1,6 +1,6 @@
 # Custody in CI: run `oic demo --check` in a GitHub Actions job.
 #
-#   - uses: 0xTheSingularity/open-insititutional-custody@v0.1.1
+#   - uses: 0xTheSingularity/open-insititutional-custody@v0.1.2
 #
 # With no inputs, the action installs the oic release that matches its own tag
 # (else the latest release), verifies the download, and runs `oic demo --check`.
@@ -18,7 +18,7 @@ branding:
 inputs:
   version:
     description: >-
-      oic release tag to install, for example v0.1.1. Default: the action's own
+      oic release tag to install, for example v0.1.2. Default: the action's own
       tag when it is a release tag, else the latest release.
     required: false
     default: ""
@@ -92,7 +92,7 @@ runs:
           --repo "$OIC_REPO" \
           --signer-workflow "$OIC_REPO/.github/workflows/release.yml" \
           --source-ref "refs/tags/$tag"; then
-          echo "::error title=OIC custody check::oic $tag has no valid build provenance from the $OIC_REPO release workflow. Releases before v0.1.1 have none."
+          echo "::error title=OIC custody check::oic $tag has no valid build provenance from the $OIC_REPO release workflow. Releases before v0.1.2 have none."
           exit 1
         fi
 
@@ -120,7 +120,7 @@ runs:
           *--check*) ;;
           *)
             echo "result=error" >> "$GITHUB_OUTPUT"
-            echo "::error title=OIC custody check::$OIC_BIN has no 'demo --check' mode. Use oic v0.1.1 or later."
+            echo "::error title=OIC custody check::$OIC_BIN has no 'demo --check' mode. Use oic v0.1.2 or later."
             exit 1
             ;;
         esac
