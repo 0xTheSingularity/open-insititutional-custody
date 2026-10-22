@@ -1070,6 +1070,69 @@ fn file_store_round_trip_and_rollback_refusal() {
     assert_eq!(code(FileAuthorityStore::open(&path, None)), ErrorCode::RecoveryRequired);
 }
 
+/// State grows with every settled payment. The snapshot must stay writable
+/// and readable well past 64 KiB of string and byte payload.
+#[test]
+fn file_store_keeps_committing_as_state_grows() {
+    const PAYMENTS: u32 = 120;
+    let dir = TempDir::new("growth");
+    let path = dir.0.join("authority.state");
+    let clock = Arc::new(ManualClock::new(T0));
+    let a = file_authority(&path, 0, clock.clone()).unwrap();
+    a.set_policy(&policy(1, &[1, 2])).unwrap();
+    for n in 1..=PAYMENTS {
+        let i = intent(n);
+        let key = IdempotencyKey { institution_id: inst(), route: "POST /v1/intents".into(), key: format!("idem-{n}") };
+        let reg = a.register_intent(&i, intent_hash(&i).unwrap(), key).unwrap();
+        let (epoch, hash) = a.current_policy().unwrap();
+        let candidate_id = CandidateId::unchecked(format!("c{n}"));
+        let envelope_body_hash = oic_canonical_encoding::sha256(format!("env:{n}").as_bytes());
+        let signer_session_id = SigningSessionId::unchecked(format!("s{n}"));
+        let (reservation, _) = a
+            .reserve(ReserveRequest {
+                family_id: reg.operation_family_id.clone(),
+                candidate_id: candidate_id.clone(),
+                candidate_revision: 1,
+                vault_id: vault(),
+                intent_id: reg.intent_id.clone(),
+                policy_epoch: epoch,
+                policy_hash: hash,
+                exposure_limits: vec![(usdc(), rule().rolling_limits[0].clone())],
+                claims: evm_claims(u64::from(n), 1, 1),
+                grants: vec![],
+                envelope_body_hash,
+                signer_session_id: signer_session_id.clone(),
+                issuance_deadline: UnixSeconds(clock.now().0 + 600),
+                policy_decision: Decision::Allow { rule_id: "r-ops".into() },
+            })
+            .unwrap_or_else(|e| panic!("reserve for payment {n}: {e:?}"));
+        a.release(ReleaseRequest {
+            reservation_id: reservation.reservation_id,
+            reservation_version: 1,
+            envelope_body_hash,
+            signer_session_id,
+            expected_policy_epoch: epoch,
+            freshness: FreshnessContext { now: clock.now() },
+        })
+        .unwrap_or_else(|e| panic!("release for payment {n}: {e:?}"));
+        let finalized = ChainObservation::Finalized {
+            tx_id: ChainTxId::unchecked(format!("0x{n:064x}")),
+            state: StateReference { height: u64::from(n), hash: Bytes(vec![1; 32]), commitment: "finalized".into() },
+            execution_success: true,
+            fee_paid: Amount(1),
+            effects_hash: Hash32::ZERO,
+        };
+        a.record_observation(&reg.operation_family_id, &candidate_id, finalized).unwrap_or_else(|e| panic!("settle payment {n}: {e:?}"));
+    }
+    let before = a.store().snapshot();
+    drop(a);
+    let size = std::fs::metadata(&path).unwrap().len();
+    assert!(size > 64 * 1024, "the test must grow the snapshot past 64 KiB, got {size} bytes");
+    let reopened = FileAuthorityStore::open(&path, None).unwrap().snapshot();
+    assert_eq!(reopened, before);
+    assert_eq!(reopened.issuance.len(), PAYMENTS as usize);
+}
+
 #[test]
 fn file_store_deleted_snapshot_is_detected() {
     let dir = TempDir::new("deleted");

@@ -10,7 +10,9 @@
 //!   simple values.
 //! * Map keys are sorted by the bytewise lexicographic order of their
 //!   canonical encodings. Duplicate keys are rejected.
-//! * Nesting depth, element count and total size are bounded.
+//! * Nesting depth, element count and total size are bounded. Array items
+//!   and map pairs count toward [`MAX_ITEMS`]; byte and text payloads are
+//!   bounded by the input itself, which is at most [`MAX_TOTAL_LEN`].
 //!
 //! Decoding rejects anything that does not round-trip to identical bytes.
 
@@ -220,14 +222,16 @@ impl<'a> Reader<'a> {
                 }
                 Ok(Value::Negative(n))
             }
+            // A payload length is checked against the remaining input by `take`;
+            // charging it to MAX_ITEMS would cap documents near 64 KiB.
             2 => {
                 let n = self.arg(info, at)?;
-                let n = self.count(n)?;
+                let n = usize::try_from(n).map_err(|_| CodecError::Eof(self.pos))?;
                 Ok(Value::Bytes(self.take(n)?.to_vec()))
             }
             3 => {
                 let n = self.arg(info, at)?;
-                let n = self.count(n)?;
+                let n = usize::try_from(n).map_err(|_| CodecError::Eof(self.pos))?;
                 let s = std::str::from_utf8(self.take(n)?).map_err(|_| CodecError::Utf8(at))?;
                 Ok(Value::Text(s.to_string()))
             }

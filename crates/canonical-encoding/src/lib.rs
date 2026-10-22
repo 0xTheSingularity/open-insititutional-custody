@@ -161,6 +161,41 @@ mod tests {
     }
 
     #[test]
+    fn payload_bytes_do_not_consume_the_item_budget() {
+        let bytes = Bytes(vec![7; value::MAX_ITEMS + 1]);
+        assert_eq!(from_canonical_bytes::<Bytes>(&canonical_bytes(&bytes).unwrap()).unwrap(), bytes);
+        let text = "x".repeat(value::MAX_ITEMS + 1);
+        assert_eq!(from_canonical_bytes::<String>(&canonical_bytes(&text).unwrap()).unwrap(), text);
+        // A document of many short strings, like a growing authority snapshot.
+        let ids: Vec<String> = (0..8_000).map(|i| format!("intent-{i:05}")).collect();
+        assert_eq!(from_canonical_bytes::<Vec<String>>(&canonical_bytes(&ids).unwrap()).unwrap(), ids);
+        // Domain `Bytes` keeps its own 1 MiB bound.
+        let at_bound = value::encode(&Value::Bytes(vec![0; MAX_BYTES_LEN]));
+        assert!(from_canonical_bytes::<Bytes>(&at_bound).is_ok());
+        let over_bound = value::encode(&Value::Bytes(vec![0; MAX_BYTES_LEN + 1]));
+        assert!(from_canonical_bytes::<Bytes>(&over_bound).is_err());
+    }
+
+    #[test]
+    fn collection_items_and_total_size_stay_bounded() {
+        let at_limit = value::encode(&Value::Array(vec![Value::Unsigned(0); value::MAX_ITEMS]));
+        assert!(value::decode(&at_limit).is_ok());
+        let over_limit = value::encode(&Value::Array(vec![Value::Unsigned(0); value::MAX_ITEMS + 1]));
+        assert_eq!(value::decode(&over_limit), Err(CodecError::TooManyItems));
+        let mut pairs = BTreeMap::new();
+        for i in 0..=value::MAX_ITEMS as u64 {
+            value::map_insert(&mut pairs, Value::Unsigned(i), Value::Null);
+        }
+        assert_eq!(value::decode(&value::encode(&Value::Map(pairs))), Err(CodecError::TooManyItems));
+        // The payload header is a few bytes, so a maximal payload exceeds the total.
+        let too_large = value::encode(&Value::Bytes(vec![0; value::MAX_TOTAL_LEN]));
+        assert_eq!(value::decode(&too_large), Err(CodecError::TooLarge));
+        // A declared length beyond the input is truncation, not an allocation.
+        assert_eq!(value::decode(&[0x5a, 0xff, 0xff, 0xff, 0xff]), Err(CodecError::Eof(5)));
+        assert_eq!(value::decode(&[0x7b, 0, 0, 0, 1, 0, 0, 0, 0]), Err(CodecError::Eof(9)));
+    }
+
+    #[test]
     fn domain_separation_changes_hash() {
         let s = sample();
         assert_ne!(domain_hash("OIC/A/v1", &s).unwrap(), domain_hash("OIC/B/v1", &s).unwrap());
