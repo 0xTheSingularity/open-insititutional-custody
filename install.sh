@@ -19,18 +19,20 @@
 #   OIC_VERSION   Release version to install (e.g. 0.1.0 or v0.1.0).
 #                 Defaults to the latest published release.
 #   OIC_INSTALL_DIR
-#                 Directory to extract the binary into. Defaults to a temp dir.
+#                 Directory to extract the binary into. Defaults to a temp dir
+#                 that is deleted when the script exits.
 #   OIC_NO_RUN    If set to 1, install the binary but do not run `oic demo`.
+#                 Requires OIC_INSTALL_DIR, so the binary outlives the script.
 
 set -eu
 
 REPO="0xTheSingularity/open-insititutional-custody"
 GITHUB="https://github.com"
 API="https://api.github.com"
-# cosign keyless identity: the release workflow of this repo, signed via the
-# GitHub Actions OIDC issuer.
+# cosign keyless identity: this repo's release workflow running for the exact
+# tag being installed (set in main), signed via the GitHub Actions OIDC issuer.
+# Pinning the tag stops an older release's signed files from passing as a newer one.
 COSIGN_ISSUER="https://token.actions.githubusercontent.com"
-COSIGN_IDENTITY_REGEXP="^https://github.com/0xTheSingularity/open-insititutional-custody/\.github/workflows/release\.yml@refs/tags/"
 
 usage() {
   cat <<'EOF'
@@ -49,8 +51,8 @@ CONVENIENCE fallback (not the headline — the checksum is still enforced):
 
 Environment:
   OIC_VERSION       release version (e.g. 0.1.0); default: latest
-  OIC_INSTALL_DIR   extract directory; default: a temp dir
-  OIC_NO_RUN=1      install but do not run `oic demo`
+  OIC_INSTALL_DIR   extract directory; default: a temp dir deleted on exit
+  OIC_NO_RUN=1      install but do not run `oic demo` (needs OIC_INSTALL_DIR)
 EOF
 }
 
@@ -131,16 +133,24 @@ sha256_hex() {
 }
 
 main() {
+  if [ "${OIC_NO_RUN:-}" = "1" ] && [ -z "${OIC_INSTALL_DIR:-}" ]; then
+    die "OIC_NO_RUN=1 needs OIC_INSTALL_DIR; without it the binary is deleted when this script exits"
+  fi
+
   target="$(detect_target)"
   tag="$(resolve_tag)"
   version="${tag#v}"
 
   tarball="oic-${version}-${target}.tar.gz"
   base="${GITHUB}/${REPO}/releases/download/${tag}"
+  cosign_identity="${GITHUB}/${REPO}/.github/workflows/release.yml@refs/tags/${tag}"
 
   workdir="$(mktemp -d)"
-  # Clean up the download workdir on exit.
-  trap 'rm -rf "$workdir"' EXIT INT TERM
+  # The EXIT trap removes only the download workdir, never OIC_INSTALL_DIR.
+  # A signal must still stop the script: exiting runs the EXIT trap.
+  trap 'rm -rf "$workdir"' EXIT
+  trap 'exit 130' INT
+  trap 'exit 143' TERM
 
   log "==> oic ${version} (${target})"
   log "    downloading ${tarball}"
@@ -148,8 +158,12 @@ main() {
   download "${base}/${tarball}.sha256" "${workdir}/${tarball}.sha256"
 
   # --- VERIFY THE CHECKSUM BEFORE DOING ANYTHING ELSE (fail closed) ---
-  expected="$(awk '{print $1}' "${workdir}/${tarball}.sha256" | head -n1)"
+  # The checksum line must name this exact tarball, so a checksum file copied
+  # from another version or platform is refused even when its hash matches.
+  expected="$(awk 'NR == 1 { print $1 }' "${workdir}/${tarball}.sha256")"
+  named="$(awk 'NR == 1 { sub(/^\*/, "", $2); print $2 }' "${workdir}/${tarball}.sha256")"
   [ -n "$expected" ] || die "empty checksum file; refusing to continue"
+  [ "$named" = "$tarball" ] || die "checksum file names '${named}', not ${tarball}; refusing to continue"
   actual="$(sha256_hex "${workdir}/${tarball}")"
   if [ "$expected" != "$actual" ]; then
     die "SHA-256 mismatch for ${tarball}
@@ -164,15 +178,17 @@ Refusing to extract or run. The download may be corrupt or tampered with."
     log "    cosign found; verifying signature"
     download "${base}/${tarball}.sha256.sig" "${workdir}/${tarball}.sha256.sig"
     download "${base}/${tarball}.sha256.pem" "${workdir}/${tarball}.sha256.pem"
-    if cosign verify-blob \
+    # Keep cosign's own output: a network failure must not read as tampering.
+    if cosign_output="$(cosign verify-blob \
       --certificate "${workdir}/${tarball}.sha256.pem" \
       --signature "${workdir}/${tarball}.sha256.sig" \
-      --certificate-identity-regexp "$COSIGN_IDENTITY_REGEXP" \
+      --certificate-identity "$cosign_identity" \
       --certificate-oidc-issuer "$COSIGN_ISSUER" \
-      "${workdir}/${tarball}.sha256" >/dev/null 2>&1; then
-      log "    cosign signature OK"
+      "${workdir}/${tarball}.sha256" 2>&1)"; then
+      log "    cosign signature OK (${cosign_identity})"
     else
-      die "cosign signature verification FAILED for ${tarball}.sha256; refusing to continue"
+      log "$cosign_output"
+      die "cosign signature verification FAILED for ${tarball}.sha256 (see cosign's output above); refusing to continue"
     fi
   else
     log "    cosign not found; skipping signature verification (checksum already enforced)."
@@ -180,7 +196,7 @@ Refusing to extract or run. The download may be corrupt or tampered with."
     log "      cosign verify-blob \\"
     log "        --certificate ${tarball}.sha256.pem \\"
     log "        --signature ${tarball}.sha256.sig \\"
-    log "        --certificate-identity-regexp '${COSIGN_IDENTITY_REGEXP}' \\"
+    log "        --certificate-identity '${cosign_identity}' \\"
     log "        --certificate-oidc-issuer '${COSIGN_ISSUER}' \\"
     log "        ${tarball}.sha256"
     log "      (download the .sha256, .sha256.sig and .sha256.pem from ${base})"
@@ -199,14 +215,10 @@ Refusing to extract or run. The download may be corrupt or tampered with."
   if [ "${OIC_NO_RUN:-}" = "1" ]; then
     log "==> OIC_NO_RUN=1 set; skipping \`oic demo\`. Run it yourself:"
     log "      ${bin} demo"
-    # Keep the install dir if the caller chose an explicit location.
-    [ -n "${OIC_INSTALL_DIR:-}" ] && trap - EXIT INT TERM
     exit 0
   fi
 
   log "==> running: oic demo"
-  # If the caller picked a persistent install dir, keep it after the run.
-  [ -n "${OIC_INSTALL_DIR:-}" ] && trap 'rm -rf "$workdir"' EXIT INT TERM
   "$bin" demo
 }
 

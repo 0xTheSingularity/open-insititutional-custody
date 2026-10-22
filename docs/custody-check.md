@@ -12,12 +12,12 @@ jobs:
   custody:
     runs-on: ubuntu-latest
     steps:
-      - uses: 0xTheSingularity/open-insititutional-custody@v0.1.2
+      - uses: 0xTheSingularity/open-insititutional-custody@v0.1.3
 ```
 
 The action needs no inputs. It does three things:
 
-1. It installs the `oic` release that matches the action's tag (`v0.1.2` in this
+1. It installs the `oic` release that matches the action's tag (`v0.1.3` in this
    example).
 2. It verifies the download before it runs anything: the SHA-256 checksum, the
    cosign signature, and the build provenance attestation from this
@@ -62,7 +62,7 @@ repository, pass it as `binary`:
 
 ```yaml
       - run: cargo build -p oic-cli --locked
-      - uses: 0xTheSingularity/open-insititutional-custody@v0.1.2
+      - uses: 0xTheSingularity/open-insititutional-custody@v0.1.3
         with:
           binary: target/debug/oic
 ```
@@ -73,7 +73,7 @@ With `binary`, the action skips the download and its verification.
 
 | Input | Default | Description |
 | --- | --- | --- |
-| `version` | The action's tag, else the latest release | The `oic` release tag to install, for example `v0.1.2`. |
+| `version` | The action's tag, else the latest release | The `oic` release tag to install, for example `v0.1.3`. |
 | `binary` | None | The path to an `oic` binary to check instead of a release. |
 
 | Output | Description |
