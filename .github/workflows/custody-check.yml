@@ -1,0 +1,105 @@
+# Tests the custody-check action (action.yml at the repository root).
+#
+#   real-build  The action passes on this commit's own oic build.
+#   outcomes    The action fails and sets the `result` output when oic reports
+#               a security regression (exit 3), does not complete (exit 1), or
+#               has no `demo --check` mode. A stub stands in for oic:
+#               .github/custody-check/oic-stub.sh.
+#
+# The release workflow also runs the action on each published release, the way
+# users run it (job release-smoke in release.yml).
+
+name: Custody check
+
+on:
+  pull_request:
+    paths:
+      - action.yml
+      - install.sh
+      - cli/oic/**
+      - .github/custody-check/**
+      - .github/workflows/custody-check.yml
+  push:
+    branches: [main]
+    paths:
+      - action.yml
+      - install.sh
+      - cli/oic/**
+      - .github/custody-check/**
+      - .github/workflows/custody-check.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  real-build:
+    name: Passes on this commit's oic
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Install Rust 1.95
+        uses: dtolnay/rust-toolchain@035fceb3c12fb0c6a9461b52775e16473133e591 # 1.95.0
+
+      - name: Build oic
+        run: cargo build -p oic-cli --locked
+
+      - name: Run the custody check action
+        id: custody
+        uses: ./
+        with:
+          binary: target/debug/oic
+
+      - name: Require result=pass
+        env:
+          RESULT: ${{ steps.custody.outputs.result }}
+        run: |
+          if [ "$RESULT" != pass ]; then
+            echo "::error::expected result=pass, got result=$RESULT"
+            exit 1
+          fi
+
+  outcomes:
+    name: Reports oic ${{ matrix.case }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - case: exit 3 as a regression
+            stub: "3"
+            expect: regression
+          - case: exit 1 as an error
+            stub: "1"
+            expect: error
+          - case: without --check as an error
+            stub: no-check
+            expect: error
+    env:
+      OIC_STUB_EXIT: ${{ matrix.stub }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Run the custody check action on the stub
+        id: custody
+        continue-on-error: true
+        uses: ./
+        with:
+          binary: .github/custody-check/oic-stub.sh
+
+      - name: Require a failed step with result=${{ matrix.expect }}
+        env:
+          OUTCOME: ${{ steps.custody.outcome }}
+          RESULT: ${{ steps.custody.outputs.result }}
+          EXPECT: ${{ matrix.expect }}
+        run: |
+          if [ "$OUTCOME" != failure ] || [ "$RESULT" != "$EXPECT" ]; then
+            echo "::error::expected outcome=failure result=$EXPECT, got outcome=$OUTCOME result=$RESULT"
+            exit 1
+          fi
