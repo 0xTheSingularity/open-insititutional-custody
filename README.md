@@ -92,7 +92,8 @@ attestation for each tarball and the `oic` binary in it. Check one with the GitH
 ```sh
 gh attestation verify oic-0.1.2-<target>.tar.gz \
   --repo 0xTheSingularity/open-insititutional-custody \
-  --signer-workflow 0xTheSingularity/open-insititutional-custody/.github/workflows/release.yml
+  --signer-workflow 0xTheSingularity/open-insititutional-custody/.github/workflows/release.yml \
+  --source-ref refs/tags/v0.1.2
 ```
 
 ### 2. `curl | sh` (convenience fallback)
@@ -116,7 +117,9 @@ From v0.1.2, check the image's build provenance before you run it:
 
 ```sh
 gh attestation verify oci://ghcr.io/0xthesingularity/open-insititutional-custody:0.1.2 \
-  --repo 0xTheSingularity/open-insititutional-custody
+  --repo 0xTheSingularity/open-insititutional-custody \
+  --signer-workflow 0xTheSingularity/open-insititutional-custody/.github/workflows/release.yml \
+  --source-ref refs/tags/v0.1.2
 ```
 
 ### 4. Custody in CI

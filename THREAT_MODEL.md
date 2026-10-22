@@ -85,7 +85,7 @@ binding. The `oic demo` proves this at runtime: it clones an already-approved
 package, changes `amount_base_units` by one unit, and asks the verifier to sign
 the tampered package against the display it genuinely rendered; `approve` returns
 an error and **no signature is produced** — the demo treats a success here as a
-`"SECURITY REGRESSION"` (`cli/oic/src/main.rs:555-582`). The refusal comes from
+`"SECURITY REGRESSION"` (`cli/oic/src/main.rs:607-654`). The refusal comes from
 re-deriving the display/operation from the tampered bytes and seeing it differ
 from what was confirmed (`crates/approval-verifier/src/client.rs:307-315`,
 `:160-163`). *(See caveat in [Known limitations](#known-limitations--not-yet-production)
@@ -153,11 +153,16 @@ that every webhook event's service signature verifies
 (`:102-105`), and that every reconciliation checkpoint's signature and
 journal-head commitment verify (`:109-120`); signatures are Ed25519 checked with
 `verify_strict` (`services/reconciler/src/store.rs:135-148`). Hash chaining alone
-does not stop an operator from rewriting history, so independently held,
-service-signed checkpoints are the real defense — this is the stated design of
-the audit crate (`crates/audit/src/lib.rs:6-13`). The `oic demo` fetches the
-export and verifies its signature against the catalog's event verifying key before
-printing it (`cli/oic/src/main.rs:600-628`).
+does not stop an operator from rewriting history. Signed checkpoints stop it only
+when a verifier keeps its own copy, or when the checkpoint signing key is outside
+the operator's control; that separation is the stated design of the audit crate
+(`crates/audit/src/lib.rs:6-13`). **This development preview does not provide
+it:** the local stack reads the reconciler's event-signing key from the same
+`secrets.json` as its other service keys (`services/local-stack/src/lib.rs:117`,
+`:246`) and keeps the checkpoints in the same state directory (`:242`). See
+[Known limitations](#known-limitations--not-yet-production). The `oic demo` fetches
+the export and verifies its signature against the catalog's event verifying key
+before printing it (`cli/oic/src/main.rs:194-198`, `:681-700`).
 
 ### T7 — Cross-institution / cross-domain object confusion
 
@@ -195,16 +200,23 @@ risk against this code.
   doc `docs/designs/five-minute-self-host-quickstart.md:139`). The separate-process
   signer network exists but has no production launcher or committee handoff
   (README.md:133; `docs/signer-network.md`).
-- **Exact theft-block error variant not pinned in this document.** We confirmed
-  that `verifier.approve` on a tampered package returns an `Err` and produces no
-  signature, and that the demo fails loudly on any success
-  (`cli/oic/src/main.rs:555-582`). We did not trace, end-to-end through the EVM
-  adapter, which specific `ErrorCode` variant is returned (the re-derivation path
-  can surface `UnverifiableTransaction` at
-  `crates/approval-verifier/src/client.rs:160-163` or the display-mismatch guard at
-  `:310-312`); the demo prints the actual code at runtime
-  (`cli/oic/src/main.rs:594`). The *guarantee* — no signature on a mismatch — is
+- **The theft-block error variant comes from the first check that fails.**
+  `verifier.approve` on a tampered package returns an `Err` and produces no
+  signature, and the demo fails loudly on any success
+  (`cli/oic/src/main.rs:607-654`). For the demo's changed amount, the refusal is
+  `UnverifiableTransaction` ("decoded amount 1234567 differs from authorized amount
+  1234568"): the byte-level check against the intent
+  (`crates/approval-verifier/src/client.rs:160-163`) fails before the
+  display-mismatch guard (`:310-312`) is reached. Other tampering can surface the
+  other variant; the demo prints the actual code at runtime
+  (`cli/oic/src/main.rs:668`). The *guarantee* — no signature on a mismatch — is
   what is enforced and tested.
+- **Audit checkpoints are not independently held.** The reconciler's
+  event-signing key and its checkpoints live in the service's own state
+  (`services/local-stack/src/lib.rs:117,242,246`), so they detect accidental
+  corruption but not a rewrite by whoever runs the service (see T6). Tamper
+  evidence against the operator needs an independently retained checkpoint or a
+  signing key the operator does not hold.
 - **D1 authority is a trusted single writer.** The experimental D2 profile
   verifies quorum-finalized authority blocks, but production consensus/launcher
   work is incomplete (README.md:122-124,133).

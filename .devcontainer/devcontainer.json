@@ -6,8 +6,11 @@
     "memory": "8gb",
     "storage": "32gb"
   },
+  "containerEnv": {
+    "CARGO_PROFILE_DEV_DEBUG": "0"
+  },
   "onCreateCommand": "sudo apt-get update && sudo apt-get install -y --no-install-recommends build-essential cmake mold pkg-config clang curl jq && sudo rm -rf /var/lib/apt/lists/*",
-  "postCreateCommand": "rustup toolchain install 1.95 && rustup default 1.95 && rustc --version && CARGO_PROFILE_DEV_DEBUG=0 cargo build -p oic-cli",
+  "postCreateCommand": "rustup toolchain install 1.95 && rustup default 1.95 && rustc --version && cargo build -p oic-cli",
   "postAttachCommand": "echo 'Run the custody demo:  cargo run -p oic-cli -- demo'",
   "customizations": {
     "vscode": {

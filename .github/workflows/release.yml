@@ -43,7 +43,7 @@ jobs:
           set -euo pipefail
           crate="$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "oic-cli") | .version')"
           if [ "${GITHUB_REF_NAME#v}" != "${crate}" ]; then
-            echo "::error::tag ${GITHUB_REF_NAME} does not match oic-cli ${crate}. Bump [workspace.package] version in Cargo.toml, merge it, then tag that commit."
+            echo "::error::tag ${GITHUB_REF_NAME} does not match oic-cli ${crate}. Bump the version in cli/oic/Cargo.toml, merge it, then tag that commit."
             exit 1
           fi
           echo "tag ${GITHUB_REF_NAME} matches oic-cli ${crate}"
@@ -63,12 +63,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-14
+          # macOS 14 runner images are unsupported from 2026-11-02
+          # (actions/runner-images#13518), so both macOS targets build on macos-15.
+          - os: macos-15
             target: aarch64-apple-darwin
-          # Cross-compile the Intel target on an Apple-Silicon runner: macos-13
-          # (Intel) runners queue for a long time, while macos-14 is plentiful and
-          # the toolchain step below adds the x86_64-apple-darwin target.
-          - os: macos-14
+          # Cross-compile the Intel target on the Apple-Silicon runner; the
+          # toolchain step below adds the x86_64-apple-darwin target.
+          - os: macos-15
             target: x86_64-apple-darwin
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
@@ -237,20 +238,20 @@ jobs:
   # ---------------------------------------------------------------------------
   # Install the published release the way users do: the custody-check action
   # verifies the checksum, cosign signature and build provenance, then runs
-  # `oic demo --check`. Runs even if one platform's build failed, so each
-  # platform reports its own result.
+  # `oic demo --check`. Runs only when every binary build succeeded; a failed
+  # build already reports itself, and its smoke test could only fail on the
+  # missing asset.
   # ---------------------------------------------------------------------------
   release-smoke:
     name: Verify & check on ${{ matrix.os }}
-    needs: [verify-version, release-binaries]
-    if: ${{ !cancelled() && needs.verify-version.result == 'success' }}
+    needs: release-binaries
     runs-on: ${{ matrix.os }}
     permissions:
       contents: read
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-14]
+        os: [ubuntu-latest, macos-15]
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4

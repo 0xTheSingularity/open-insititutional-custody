@@ -25,8 +25,10 @@ we keep the explanations here instead). It:
 - `postCreateCommand` pins the toolchain to the workspace MSRV
   (`rust-version = "1.95"` in the root `Cargo.toml`) with
   `rustup toolchain install 1.95 && rustup default 1.95`, then pre-builds the
-  demo with `CARGO_PROFILE_DEV_DEBUG=0 cargo build -p oic-cli` so the first
-  `oic demo` starts quickly.
+  demo with `cargo build -p oic-cli` so the first `oic demo` starts quickly.
+- `containerEnv` sets `CARGO_PROFILE_DEV_DEBUG=0` for every command in the
+  container. The pre-build and your later `cargo run` then share one build
+  profile, so the first demo run reuses the pre-built `target/`.
 - `postAttachCommand` prints the one-line run hint.
 
 ## First build takes a few minutes
