@@ -486,6 +486,9 @@ fn single_operation_over_rolling_limit_is_denied_locally() {
         candidate_revision: body.candidate_revision,
         envelope_body_hash: envelope_body_hash(&body).unwrap(),
         signer_session_id: body.signer_session_id.clone(),
+        intent_hash: body.intent_hash,
+        rule_id: "r-1".into(),
+        claims_hash: oic_authorization_state::claims_hash(&verified.claims).unwrap(),
         policy_epoch: body.policy_epoch,
         freeze_epoch: Epoch(0),
         issued_at: now(),
@@ -504,6 +507,73 @@ fn single_operation_over_rolling_limit_is_denied_locally() {
     rb.policy_epoch = Epoch(3);
     let env = AuthorizationEnvelope { body, authorization_state_receipt: c.world.craft_receipt(rb) };
     c.node.signer.verify_envelope(&env, &c.setup.m, now()).unwrap();
+}
+
+/// A compromised coordinator can send the D1 authority any claims and name any
+/// rule of the active policy. The authority charges what it is sent and signs.
+/// A signer must not honour a reservation that did not charge this transaction.
+#[test]
+fn reservation_with_understated_claims_is_rejected() {
+    let c = evm_case(0);
+    let verified = c.setup.verify();
+    let body = c.setup.body_for(&c.setup.m, &verified, vec![], "sess-1", vec![pid(1)], DEADLINE);
+    // No asset outflow, so the authority applied no rolling limit at all.
+    let mut understated = verified.claims.clone();
+    understated.asset_outflows.clear();
+    let env = c.setup.reserve_charging(&c.world, body, &understated, &c.setup.m.policy.rules[0]);
+    assert_eq!(env.authorization_state_receipt.body.claims_hash, oic_authorization_state::claims_hash(&understated).unwrap());
+    rejected(&c.node, &env, &c.setup.m, now(), ErrorCode::ScopeMismatch);
+}
+
+#[test]
+fn reservation_charged_under_another_rule_is_rejected() {
+    let mut c = evm_case(0);
+    let asset = c.setup.m.asset.asset_id.clone();
+    let first = rule(&asset, 0);
+    let mut looser = rule(&asset, 0);
+    looser.rule_id = "r-looser".into();
+    looser.rolling_limits[0].max_outflow_base_units = Amount(u128::MAX);
+    let p2 = c.world.sign_policy(policy(2, vec![first, looser.clone()]));
+    c.world.authority.set_policy(&p2).unwrap();
+    c.setup.m.policy = p2;
+    let verified = c.setup.verify();
+    let body = c.setup.body_for(&c.setup.m, &verified, vec![], "sess-1", vec![pid(1)], DEADLINE);
+    // The signer's own evaluation selects the first matching rule, r-1.
+    let env = c.setup.reserve_charging(&c.world, body, &verified.claims, &looser);
+    let error = c.node.signer.verify_envelope(&env, &c.setup.m, now()).unwrap_err();
+    assert_eq!(error.code, ErrorCode::ScopeMismatch);
+    assert!(error.detail.contains("r-looser") && error.detail.contains("r-1"), "{}", error.detail);
+    rejected(&c.node, &env, &c.setup.m, now(), ErrorCode::ScopeMismatch);
+}
+
+#[test]
+fn receipt_for_another_intent_is_rejected() {
+    let c = evm_case(0);
+    let mut env = c.setup.authorize(&c.world, "sess-1", vec![pid(1)]);
+    c.node.signer.verify_envelope(&env, &c.setup.m, now()).unwrap();
+    let mut body = env.authorization_state_receipt.body.clone();
+    body.intent_hash = Hash32([7; 32]);
+    env.authorization_state_receipt = c.world.craft_receipt(body);
+    rejected(&c.node, &env, &c.setup.m, now(), ErrorCode::ScopeMismatch);
+}
+
+#[test]
+fn release_receipt_must_charge_what_the_reservation_charged() {
+    let c = evm_case(0);
+    let env = c.setup.authorize(&c.world, "sess-1", vec![pid(1)]);
+    let s = &env.body.signer_session_id;
+    c.node.signer.open_session(&env, &c.setup.m, now()).unwrap();
+    let genuine = c.world.release(&env);
+    for tamper in [
+        (|b: &mut AuthorityReceiptBody| b.claims_hash = Hash32([7; 32])) as fn(&mut AuthorityReceiptBody),
+        |b| b.rule_id = "r-looser".into(),
+        |b| b.intent_hash = Hash32([7; 32]),
+    ] {
+        let mut body = genuine.body.clone();
+        tamper(&mut body);
+        assert_eq!(code(c.node.signer.release(s, &c.world.craft_receipt(body), now())), ErrorCode::ScopeMismatch);
+    }
+    c.node.signer.release(s, &genuine, now()).unwrap();
 }
 
 #[test]

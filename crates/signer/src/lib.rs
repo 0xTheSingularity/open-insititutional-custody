@@ -608,6 +608,10 @@ impl Signer {
                     reservation_id: &reserved.reservation_id,
                     reservation_version: reserved.reservation_version,
                     policy_epoch: reserved.policy_epoch,
+                    // Checked against this signer's own derivation at open.
+                    intent_hash: reserved.intent_hash,
+                    rule_id: &reserved.rule_id,
+                    claims_hash: reserved.claims_hash,
                 },
                 now,
             )?;

@@ -22,6 +22,12 @@ pub fn receipt_hash(body: &AuthorityReceiptBody) -> OicResult<Hash32> {
     domain_hash(domains::AUTHORITY_RECEIPT, body)
 }
 
+/// `SHA256("OIC/RESOURCE_CLAIMS/v1" || CanonicalEncode(claims))`, the claims
+/// commitment carried by every receipt.
+pub fn claims_hash(claims: &ResourceClaims) -> OicResult<Hash32> {
+    domain_hash(domains::RESOURCE_CLAIMS, claims)
+}
+
 pub(crate) fn sign_receipt(key: &SigningKey, key_id: &KeyId, body: AuthorityReceiptBody) -> OicResult<AuthorityReceipt> {
     let h = receipt_hash(&body)?;
     Ok(AuthorityReceipt { signature: sign_hash(key, &h), authority_key_id: key_id.clone(), body })

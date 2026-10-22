@@ -288,6 +288,7 @@ impl Transition<'_> {
         expires_at: UnixSeconds,
         commit_sequence: u64,
     ) -> OicResult<AuthorityReceiptBody> {
+        let intent = st.intents.get(&rec.intent_id).ok_or_else(|| OicError::internal("reservation names an unregistered intent"))?;
         let body = AuthorityReceiptBody {
             kind,
             institution_id: self.config.institution_id.clone(),
@@ -299,6 +300,9 @@ impl Transition<'_> {
             candidate_revision: rec.reservation.candidate_revision,
             envelope_body_hash: rec.envelope_body_hash,
             signer_session_id: rec.signer_session_id.clone(),
+            intent_hash: intent.intent_hash,
+            rule_id: rec.rule_id.clone(),
+            claims_hash: claims_hash(&rec.reservation.claims)?,
             policy_epoch: rec.reservation.policy_epoch,
             freeze_epoch: st.freeze.freeze_epoch,
             issued_at,

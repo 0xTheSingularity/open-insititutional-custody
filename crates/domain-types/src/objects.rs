@@ -548,6 +548,16 @@ pub struct AuthorityReceiptBody {
     pub candidate_revision: u32,
     pub envelope_body_hash: Hash32,
     pub signer_session_id: SigningSessionId,
+    /// The authority accounts only what it was told. A signer accepts the
+    /// receipt only if these three match its own derivation from the native
+    /// bytes, so an under-reported claim or another rule cannot get a release.
+    /// Hash of the intent the authority registered for this reservation.
+    pub intent_hash: Hash32,
+    /// Policy rule whose limits the authority charged.
+    pub rule_id: String,
+    /// `SHA256("OIC/RESOURCE_CLAIMS/v1" || CanonicalEncode(claims))` of the
+    /// reserved claims.
+    pub claims_hash: Hash32,
     pub policy_epoch: Epoch,
     pub freeze_epoch: Epoch,
     pub issued_at: UnixSeconds,

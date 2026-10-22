@@ -1108,6 +1108,9 @@ pub fn build_domain_vectors() -> BTreeMap<String, Vec<DomainVector>> {
     r.ed25519 = Some(ed(&w.authority_sk, &f.release.signature));
     out.push(r);
 
+    // RESOURCE_CLAIMS: the real authority's receipt commits to the verified claims.
+    out.push(v("resource-claims-evm-erc20", d::RESOURCE_CLAIMS, "ResourceClaims", &f.verified.claims, reserved.body.claims_hash));
+
     // CHAIN_PROFILE
     out.push(v("chain-profile-evm-sepolia", d::CHAIN_PROFILE, "ChainProfile", &f.profile, f.envelope.body.chain_profile_hash));
     let sp = sol_profile();

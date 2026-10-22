@@ -4,7 +4,7 @@
 use crate::{envelope_body_hash, public_key_hash, Signer, SigningMaterials, VerifiedEnvelope};
 use oic_adapter_api::{check_evidence_scope, decoded_operation_hash, evidence_hash, AuthorizationTarget, ChainProfile, VerifyContext};
 use oic_approval_verifier::verify_grants;
-use oic_authorization_state::{reservation_id_for, verify_receipt, ReceiptExpectation};
+use oic_authorization_state::{claims_hash, reservation_id_for, verify_receipt, ReceiptExpectation};
 use oic_domain_types::*;
 use oic_policy_kernel::{
     destination_hash, evaluate, intent_hash, policy_hash, preview_hash, verify_destination_admin_signatures, verify_policy_admin_signatures,
@@ -28,6 +28,14 @@ fn code(code: ErrorCode, detail: &str) -> impl FnOnce() -> OicError + '_ {
     move || OicError::new(code, detail)
 }
 
+/// What this signer derived for the reservation it is asked to honour.
+pub(crate) struct ReservationCommitment<'a> {
+    pub envelope_body_hash: Hash32,
+    pub intent_hash: Hash32,
+    pub rule_id: &'a str,
+    pub claims_hash: Hash32,
+}
+
 /// What a receipt (reserved or release) must bind, besides its kind.
 pub(crate) struct ReceiptBinding<'a> {
     pub kind: ReceiptKind,
@@ -38,6 +46,9 @@ pub(crate) struct ReceiptBinding<'a> {
     pub reservation_id: &'a ReservationId,
     pub reservation_version: u32,
     pub policy_epoch: Epoch,
+    pub intent_hash: Hash32,
+    pub rule_id: &'a str,
+    pub claims_hash: Hash32,
 }
 
 impl Signer {
@@ -86,6 +97,17 @@ impl Signer {
             &rb.reservation_id == want.reservation_id && rb.reservation_version == want.reservation_version,
             scope("receipt is for a different reservation or reservation version"),
         )?;
+        // The authority charged limits with the claims and rule it was sent.
+        // They must be exactly what this signer derived, or its shared-exposure
+        // check did not cover this transaction.
+        ensure(rb.intent_hash == want.intent_hash, scope("authority reserved a different intent than this envelope's intent"))?;
+        ensure(rb.rule_id == want.rule_id, || {
+            OicError::scope(format!(
+                "authority charged policy rule {} but this signer's evaluation selects rule {}",
+                rb.rule_id, want.rule_id
+            ))
+        })?;
+        ensure(rb.claims_hash == want.claims_hash, scope("authority reserved claims that differ from this transaction's verified claims"))?;
         Ok(())
     }
 
@@ -93,19 +115,22 @@ impl Signer {
         if self.finalized.is_some() {
             return Err(OicError::new(ErrorCode::SessionRejected, "D2 signer requires locally finalized authorization, not a D1 receipt"));
         }
-        self.verify_body(&env.body, m, now, &self.roots.approvers, |hash| {
+        self.verify_body(&env.body, m, now, &self.roots.approvers, |derived| {
             let b = &env.body;
             self.check_receipt(
                 &env.authorization_state_receipt,
                 &ReceiptBinding {
                     kind: ReceiptKind::Reserved,
-                    envelope_body_hash: hash,
+                    envelope_body_hash: derived.envelope_body_hash,
                     signer_session_id: &b.signer_session_id,
                     candidate_id: &b.candidate_id,
                     candidate_revision: b.candidate_revision,
                     reservation_id: &b.budget_reservation_id,
                     reservation_version: b.reservation_version,
                     policy_epoch: b.policy_epoch,
+                    intent_hash: derived.intent_hash,
+                    rule_id: derived.rule_id,
+                    claims_hash: derived.claims_hash,
                 },
                 now,
             )
@@ -118,7 +143,7 @@ impl Signer {
         m: &SigningMaterials,
         now: UnixSeconds,
         enrolled: &[oic_approval_verifier::ApproverCredential],
-        check_reservation: impl FnOnce(Hash32) -> OicResult<()>,
+        check_reservation: impl FnOnce(&ReservationCommitment<'_>) -> OicResult<()>,
     ) -> OicResult<VerifiedEnvelope> {
         let id = &self.identity;
         let roots = &self.roots;
@@ -347,19 +372,19 @@ impl Signer {
             candidate_revision: b.candidate_revision,
             preview_hash: ph,
         });
-        match &decision {
-            Decision::Allow { .. } => {}
+        let rule_id = match &decision {
+            Decision::Allow { rule_id } => rule_id.clone(),
             Decision::RequireApprovals { required, satisfied, .. } => {
                 return Err(OicError::new(ErrorCode::ApprovalRequired, format!("policy requires {required} approvals; {satisfied} valid")));
             }
             Decision::Deny { reasons } => return Err(deny_error(reasons)),
-        }
+        };
 
         // ---- 8. Authority reserved receipt ---------------------------------------
         let rid = reservation_id_for(&b.operation_family_id, &b.candidate_id, b.candidate_revision)?;
         ensure(b.budget_reservation_id == rid, scope("envelope reservation id is not the reservation for this candidate revision"))?;
         let ebh = envelope_body_hash(b)?;
-        check_reservation(ebh)?;
+        check_reservation(&ReservationCommitment { envelope_body_hash: ebh, intent_hash: ih, rule_id: &rule_id, claims_hash: claims_hash(&verified.claims)? })?;
         ensure(b.issuance_deadline >= now, code(ErrorCode::PolicyDenied, "issuance deadline has passed"))?;
 
         // ---- 9. Payload selection -------------------------------------------------

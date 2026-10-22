@@ -1,0 +1,34 @@
+[
+  {
+    "name": "resource-claims-evm-erc20",
+    "domain": "OIC/RESOURCE_CLAIMS/v1",
+    "type": "ResourceClaims",
+    "encoded_type": "ResourceClaims",
+    "producer": "oic_authorization_state::claims_hash",
+    "input": {
+      "asset_outflows": [
+        {
+          "amount_base_units": "1000000",
+          "asset_id": "sepolia-usdc"
+        }
+      ],
+      "native_fees": [
+        {
+          "amount_base_units": "1365000000000000",
+          "network_id": "evm-11155111"
+        }
+      ],
+      "resources": [
+        {
+          "evm_nonce": {
+            "network_id": "evm-11155111",
+            "nonce": 5,
+            "sender": "0xf23cc00a0e92d93cdc9e4fd231824a9552421eb1"
+          }
+        }
+      ]
+    },
+    "canonical_cbor_hex": "a3697265736f757263657381a16965766d5f6e6f6e6365a3656e6f6e6365056673656e64657254f23cc00a0e92d93cdc9e4fd231824a9552421eb16a6e6574776f726b5f69646c65766d2d31313135353131316b6e61746976655f6665657381a26a6e6574776f726b5f69646c65766d2d313131353531313171616d6f756e745f626173655f756e69747370313336353030303030303030303030306e61737365745f6f7574666c6f777381a26861737365745f69646c7365706f6c69612d7573646371616d6f756e745f626173655f756e6974736731303030303030",
+    "hash_hex": "f18244f85685fd5fc152eca84a3d08e04a297f6475e5ec8f144e3512140267c4"
+  }
+]

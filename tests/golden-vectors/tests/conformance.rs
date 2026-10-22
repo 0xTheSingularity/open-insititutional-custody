@@ -82,6 +82,7 @@ fn every_domain_tag_has_vectors_in_its_own_file() {
         d::APPROVAL,
         d::PREVIEW,
         d::AUTHORITY_RECEIPT,
+        d::RESOURCE_CLAIMS,
         d::CHAIN_PROFILE,
         d::AUDIT,
         d::KEY_DESCRIPTOR,
