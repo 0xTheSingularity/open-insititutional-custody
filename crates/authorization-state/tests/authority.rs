@@ -516,10 +516,43 @@ fn a16_freeze_races_release_with_ordered_result() {
     // the already committed release can still be re-fetched for its own session
     let (_, again) = e.auth.release(e.release_req(&r1)).unwrap();
     assert_eq!(again, iss1);
-    // unfreeze needs quorum; then issuance resumes
+    // unfreeze needs quorum; then issuance resumes for fresh reservations.
     e.unfreeze(FreezeScope::Global, &[1, 2]).unwrap();
-    let (_, iss2) = e.auth.release(e.release_req(&r2)).unwrap();
+    // A reservation from before the freeze is not released: signers refuse a
+    // release from another freeze epoch, so committing it would strand the
+    // payment as possibly issued. It aborts cleanly and is reserved again.
+    let err = e.auth.release(e.release_req(&r2)).unwrap_err();
+    assert_eq!(err.code, ErrorCode::Frozen);
+    assert!(err.detail.contains("reserve again"), "{}", err.detail);
+    let rid2 = reservation_id_for(&f2.operation_family_id, &r2.candidate_id, 1).unwrap();
+    e.auth.abort_before_issuance(&rid2).unwrap();
+    assert_eq!(e.exposure(), Amount(200));
+    let r2_again = e.request(&f2, "c2", 2, evm_claims(2, 200, 1));
+    let (reserved, _) = e.auth.reserve(r2_again.clone()).unwrap();
+    assert_eq!(reserved.candidate_revision, 2);
+    let (_, iss2) = e.auth.release(e.release_req(&r2_again)).unwrap();
     assert!(iss2.commit_sequence > freeze_seq);
+}
+
+/// The freeze epoch is one counter for every scope, so even a freeze of
+/// another vault makes a pending release fail closed before issuance.
+#[test]
+fn any_freeze_after_reservation_aborts_release_before_issuance() {
+    let e = setup();
+    let f1 = e.register(1);
+    let r1 = e.request(&f1, "c1", 1, evm_claims(1, 200, 1));
+    e.auth.reserve(r1.clone()).unwrap();
+    e.freeze(FreezeScope::Vault { vault_id: VaultId::unchecked("vault-other") }).unwrap();
+    assert_eq!(code(e.auth.release(e.release_req(&r1))), ErrorCode::Frozen);
+    let rid = reservation_id_for(&f1.operation_family_id, &r1.candidate_id, 1).unwrap();
+    assert!(matches!(e.auth.reservation(&rid).unwrap().state, ReservationState::Reserved), "nothing was issued");
+    e.auth.abort_before_issuance(&rid).unwrap();
+    assert_eq!(e.exposure(), Amount(0));
+    // A reservation made after the freeze carries the new epoch and releases.
+    let r1_again = e.request(&f1, "c1", 2, evm_claims(1, 200, 1));
+    let (_, receipt) = e.auth.reserve(r1_again.clone()).unwrap();
+    let (release, _) = e.auth.release(e.release_req(&r1_again)).unwrap();
+    assert_eq!(receipt.body.freeze_epoch, release.body.freeze_epoch);
 }
 
 #[test]
