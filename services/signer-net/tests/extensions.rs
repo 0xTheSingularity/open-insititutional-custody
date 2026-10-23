@@ -545,10 +545,17 @@ fn real_socket_public_consumer_rejects_bad_frames_and_full_extension_does_not_bl
         stop_authority.send(()).unwrap();
         timeout(Duration::from_secs(10), authority_task).await.unwrap().unwrap().unwrap();
         producer.shutdown().await.unwrap();
-        for address in addresses {
-            // Match the runtime's reuse-enabled bind, not std's TIME_WAIT check.
-            drop(context.bind(address).await.expect("transport listener survived clean shutdown"));
-        }
+        // Match the runtime's reuse-enabled bind, not std's TIME_WAIT check. An
+        // aborted listener task can close its socket just after shutdown returns.
+        timeout(Duration::from_secs(3), async {
+            for address in &addresses {
+                while context.bind(*address).await.is_err() {
+                    tokio::time::sleep(Duration::from_millis(10)).await;
+                }
+            }
+        })
+        .await
+        .expect("transport listener survived clean shutdown");
         assert_eq!(mutations.load(Ordering::SeqCst), 1, "mutation was retried");
     });
 }
