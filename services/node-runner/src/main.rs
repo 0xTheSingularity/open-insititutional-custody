@@ -13,6 +13,7 @@
 mod corerun;
 mod files;
 mod provision;
+mod readmit;
 
 use clap::{Parser, Subcommand};
 use commonware_runtime::{Runner as _, Supervisor as _, tokio as cruntime};
@@ -70,6 +71,15 @@ enum Cmd {
         #[arg(long, default_value_t = provision::SIGNERS)]
         check_require: usize,
     },
+    /// DEVELOPMENT ONLY: stage the next roster epoch so stopped signers can
+    /// rejoin. Pins each signer's next instance generation, signs the update
+    /// with two of the three provisioned admin keys, and writes it to every
+    /// node directory; restart each node onto it afterwards.
+    Readmit {
+        /// The topology directory `provision --out` created.
+        #[arg(long)]
+        base: PathBuf,
+    },
     /// Internal: the signer-core child entrypoint. Spawned by `run`.
     #[command(hide = true)]
     Core {
@@ -89,6 +99,7 @@ fn main() -> std::process::ExitCode {
         Cmd::Run { dir, check, check_budget, check_require } => {
             run(&dir, check, Duration::from_secs(check_budget), check_require)
         }
+        Cmd::Readmit { base } => readmit::readmit(&base, wall_clock()),
         Cmd::Core { dir } => corerun::run(&dir),
     };
     match result {
@@ -110,10 +121,22 @@ fn run(dir: &Path, check: bool, check_budget: Duration, check_require: usize) ->
         return Err(OicError::invalid_request("--check runs on the gateway node"));
     }
     let roster: SignedRoster = files::read_canonical(dir, "roster.bin")?;
+    // A staged roster update (the readmit ceremony) leaves the prior epoch
+    // beside the current one; the transition is validated against it.
+    let previous: Option<SignedRoster> = dir
+        .join("roster-previous.bin")
+        .exists()
+        .then(|| files::read_canonical(dir, "roster-previous.bin"))
+        .transpose()?;
     let (threshold, credentials): (u16, BTreeMap<CredentialId, PublicKey>) = files::read_canonical(dir, "admins.bin")?;
     let admins = AdminTrust { threshold, credentials };
     let transport_key = SigningKey::from_bytes(&files::read_key32(dir, "transport.key")?);
     let hash = roster_hash(&roster.body)?;
+    let genesis = match &previous {
+        Some(p) if p.body.roster_epoch == 0 => roster_hash(&p.body)?,
+        Some(p) => p.body.genesis_hash,
+        None => hash,
+    };
     let node_id = files::node_id(config.index);
 
     // The signer's share-holding core runs as a separate OS process before
@@ -140,10 +163,10 @@ fn run(dir: &Path, check: bool, check_budget: Duration, check_require: usize) ->
             Config {
                 roster: roster.clone(),
                 admins,
-                previous: None,
+                previous: previous.clone(),
                 institution_id: files::institution(),
                 environment_id: files::environment(),
-                genesis_hash: hash,
+                genesis_hash: genesis,
                 committed_roster_hash: hash,
                 now: wall_clock(),
                 node_id: node_id.clone(),

@@ -196,6 +196,14 @@ pub fn provision(out: &Path, addresses: &[SocketAddr], now: UnixSeconds) -> OicR
             Role::Gateway => {}
         }
     }
+    // DEVELOPMENT ONLY: keep the admin credential keys beside the topology
+    // so the readmit ceremony can sign roster updates. Production admins
+    // are people with their own credentials; no such directory may exist.
+    let ceremony = out.join("admin-ceremony");
+    files::private_dir(&ceremony)?;
+    for (n, (_, key)) in admin_keys.iter().enumerate() {
+        files::write_secret(&ceremony.join(format!("dev-admin-{}.key", n + 1)), &key.to_bytes())?;
+    }
     println!("DEVELOPMENT ONLY: provisioned {NODES} node directories under {}", out.display());
     println!("roster hash {}", hash.to_hex());
     Ok(())

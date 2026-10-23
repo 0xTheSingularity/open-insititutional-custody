@@ -51,9 +51,25 @@ pins each signer's generation, so a restarted signer-core is refused with
 quorum commits a roster that approves the new instance. That refusal is
 the anti-clone defense working, not a defect.
 
-`services/node-runner/tests/topology.rs` drills both halves: the
-unauthorized signer restart fails fast, and the surviving two signers
-plus a restarted authority still pass `run --check --check-require 2`.
-The admin-approved readmission path - a signed roster update plus a
-rolling restart onto it - is not automated here yet and is the next
-deployment feature.
+Readmission is an administrative act, and `oic-node readmit --base
+<topology>` runs its development ceremony: it pins every signer's next
+instance generation from its durable store, advances the roster epoch,
+signs the update with two of the three provisioned admin keys, and
+stages it in every node directory. Restart the fleet onto it and the
+refused signer is a member again. The ceremony keys sit in
+`admin-ceremony/` only because this is a one-machine development
+topology, and the authority commit reference self-attests with the
+prior roster hash; production admins are people, and the reference
+would name an authority log commit.
+
+Readmission is planned downtime. Nodes read the roster only at start,
+and nodes on different epochs refuse each other, so the fleet restarts
+together and nothing signs during the roll. Live roster propagation
+through the authority is the production follow-up that removes the
+outage.
+
+`services/node-runner/tests/topology.rs` drills the full sequence: the
+unauthorized restart fails fast, the surviving two signers plus a
+restarted authority pass `run --check --check-require 2`, and after the
+ceremony and a rolling restart the topology reaches full three-signer
+convergence on the new epoch.

@@ -68,7 +68,11 @@ pub fn run(dir: &Path) -> OicResult<()> {
             node_id: files::node_id(index),
             committed_roster_hash: roster_hash(&roster.body)?,
             roster,
-            previous_roster: None,
+            previous_roster: dir
+                .join("roster-previous.bin")
+                .exists()
+                .then(|| files::read_canonical(dir, "roster-previous.bin"))
+                .transpose()?,
             admins: AdminTrust { threshold, credentials },
             halt_state_path: dir.join("halt"),
             minimum_halt_sequence: 0,

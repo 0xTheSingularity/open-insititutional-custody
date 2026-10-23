@@ -120,10 +120,34 @@ fn provisioned_topology_converges_across_real_processes() {
     assert!(recheck.success(), "the surviving quorum did not converge after the losses");
     println!("degraded 2-of-3 quorum with a restarted authority converged in {}ms", degraded.elapsed().as_millis());
 
+    // Readmission: the admin ceremony stages the next roster epoch with
+    // every signer's next instance generation pinned; the fleet rolls onto
+    // it, and the signer that was refused above is a member again.
+    let ceremony = oic_node().args(["readmit", "--base"]).arg(&base).status().expect("run the readmit ceremony");
+    assert!(ceremony.success(), "the readmit ceremony failed");
+    let mut survivors = _signers;
+    survivors.push(authority);
+    for node in &mut survivors {
+        unsafe { libc_kill(node.child.id() as i32) };
+    }
+    for node in &mut survivors {
+        let status = node.child.wait().unwrap();
+        assert!(status.success(), "{} exited uncleanly before the roll: {status}", node.name);
+    }
+    drop(survivors);
+    let readmitted = Instant::now();
+    let mut nodes: Vec<Node> = (0..3).map(|i| spawn(&base.join(format!("node-{i}")), "signer")).collect();
+    nodes.push(spawn(&base.join("node-4"), "authority"));
+    let full = oic_node()
+        .args(["run", "--check", "--check-budget", "600", "--dir"])
+        .arg(base.join("node-3"))
+        .status()
+        .expect("run the post-readmission check");
+    assert!(full.success(), "the readmitted topology did not reach full 3-signer convergence");
+    println!("readmission: full 3-signer convergence on roster epoch 1 in {}ms", readmitted.elapsed().as_millis());
+
     // Clean shutdown: SIGTERM each long-running node; every exit is clean,
     // including the signer cores their parents stop on the way out.
-    let mut nodes = _signers;
-    nodes.push(authority);
     for node in &mut nodes {
         unsafe { libc_kill(node.child.id() as i32) };
     }

@@ -127,6 +127,16 @@ pub fn write_canonical<T: Serialize>(path: &Path, value: &T) -> OicResult<()> {
     write_secret(path, &oic_canonical_encoding::canonical_bytes(value)?)
 }
 
+/// Atomically replace a staged artifact, such as a roster update: write a
+/// sibling temp file with the same 0600 discipline, then rename it over the
+/// destination. `write_secret` stays refuse-to-overwrite for real secrets.
+pub fn replace_canonical<T: Serialize>(path: &Path, value: &T) -> OicResult<()> {
+    let staged = path.with_extension("staged");
+    let _ = fs::remove_file(&staged);
+    write_secret(&staged, &oic_canonical_encoding::canonical_bytes(value)?)?;
+    fs::rename(&staged, path).map_err(io("staging a replacement file"))
+}
+
 pub fn write_json<T: Serialize>(path: &Path, value: &T) -> OicResult<()> {
     let json = serde_json::to_vec_pretty(value).map_err(|e| OicError::internal(format!("encoding node.json: {e}")))?;
     write_secret(path, &json)
