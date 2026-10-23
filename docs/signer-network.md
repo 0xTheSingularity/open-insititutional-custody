@@ -47,6 +47,16 @@ Startup is still slow. Every loopback peer shares 127.0.0.1, so each listener
 admits one handshake per five seconds from all peers combined. In local runs on
 four CPUs, the five-node D1 fixture converged in 8 to 56 seconds.
 
+One process cannot qualify multi-host startup. The production profile
+accepts a handshake only from the peer's registered address. A Linux
+process dialing another loopback address sends from `127.0.0.1`. An
+in-process "multi-host" roster on `127.0.0.x` addresses never converges:
+the source check rejects every handshake, by design. The
+`real_socket_unknown_key_foreign_namespace_and_unregistered_source_ip_do_not_connect`
+test pins that rejection. Real multi-host qualification needs one process
+per host address, in network namespaces or on separate machines. That in
+turn needs the per-role node entrypoint planned in RFC 0002 Gate C.
+
 Shutdown probes bind through `commonware_runtime::Network`, matching the actual
 Tokio listener's address-reuse behavior. They also reject a second bind while
 the listener is live. On Linux a plain `std::net::TcpListener::bind` can fail
