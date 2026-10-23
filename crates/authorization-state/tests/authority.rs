@@ -1229,7 +1229,15 @@ fn v1_snapshot_with_pending_reservation_requires_recovery() {
     // recovery rather than silently default the epoch to zero (which release
     // would then reject across any later freeze).
     relabel_snapshot_v2_as_v1(&path);
-    assert_eq!(code(FileAuthorityStore::open(&path, None)), ErrorCode::RecoveryRequired);
+    let err = match FileAuthorityStore::open(&path, None) {
+        Err(e) => e,
+        Ok(_) => panic!("a v1 snapshot with a pending reservation must not load"),
+    };
+    assert_eq!(err.code, ErrorCode::RecoveryRequired);
+    // This version cannot open the store to drain it, and a reservation re-made
+    // before upgrading is just as pending, so the steps must start on the
+    // previous version.
+    assert!(err.detail.contains("with the previous version"), "{}", err.detail);
 }
 
 #[test]

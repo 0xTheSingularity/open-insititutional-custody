@@ -207,6 +207,9 @@ fn load_snapshot(path: &Path) -> OicResult<AuthorityState> {
 /// freeze. Rather than silently load a reservation that can no longer be
 /// released, require it to be drained first, mirroring the explicit
 /// `RecoveryRequired` path used for an unreadable or rolled-back snapshot.
+/// Draining has to happen on the previous version: this one refuses to open
+/// the store, so it cannot abort the reservation itself, and a reservation
+/// re-made before upgrading would be just as pending.
 fn migrate_v1(state: AuthorityState) -> OicResult<AuthorityState> {
     let pending = state
         .reservations
@@ -215,7 +218,7 @@ fn migrate_v1(state: AuthorityState) -> OicResult<AuthorityState> {
     if pending {
         return Err(recovery(
             "v1 snapshot has pending reservations whose captured freeze epoch predates this version; \
-             abort and re-reserve them, then upgrade",
+             release or abort them with the previous version, upgrade with none pending, then re-reserve",
         ));
     }
     Ok(state)
