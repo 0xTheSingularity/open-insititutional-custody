@@ -24,10 +24,11 @@ use oic_domain_types::*;
 use oic_one_time_state_ledger::InMemoryLedger;
 use oic_service_broadcaster::{ChainClient, Commitment, PossiblyIssued};
 use oic_service_chain_rpc::solana::{SolanaRpcClient, SolanaRpcConfig};
-use oic_service_reconciler::{BlockSource, EffectKind};
+use oic_service_reconciler::{BlockSource, EffectKind, OperationsStore, Reconciler};
 use rand::rngs::StdRng;
 use rand::SeedableRng;
 use std::net::TcpListener;
+use std::sync::Arc;
 use std::process::{Child, Command, Stdio};
 use std::time::{Duration, Instant};
 
@@ -288,6 +289,98 @@ fn real_validator_frost_2_of_3_native_transfer() {
     // so take a fresh head checkpoint and retry the slot race briefly.
     let balance = settled_balance(&client, &beneficiary);
     assert_eq!(balance, TRANSFER_LAMPORTS as u128);
+
+    // Reconciliation on live Solana: the reconciler consumes this client as
+    // its block source, credits the enrolled beneficiary from the real
+    // block effects, and its checkpoint must match the chain.
+    let profile = BlockSource::profile(&client);
+    let store_dir = tempfile::tempdir().unwrap();
+    let reconciler = Reconciler::open(
+        Arc::new(OperationsStore::open(&store_dir.path().join("operations.json")).unwrap()),
+        InstitutionId::unchecked("live-institution"),
+        EnvironmentId::unchecked("live-env"),
+        KeyId::unchecked("live-sol-reconciler"),
+        ed25519_dalek::SigningKey::from_bytes(&[45; 32]),
+    )
+    .unwrap();
+    let wallet = ChainWalletId::unchecked("live-sol-beneficiary");
+    let native = Asset {
+        asset_id: AssetId::unchecked("native-sol"),
+        network_id: profile.network_id.clone(),
+        asset: AssetKind::Native,
+        decimals: 9,
+        symbol: "SOL".into(),
+        behavior: AssetBehaviorProfile::Standard,
+    };
+    let id = DepositAddressId::unchecked("live-sol-address");
+    reconciler
+        .enroll(
+            DepositAddress {
+                deposit_address_id: id.clone(),
+                institution_id: InstitutionId::unchecked("live-institution"),
+                environment_id: EnvironmentId::unchecked("live-env"),
+                vault_id: VaultId::unchecked("live-vault"),
+                chain_wallet_id: Some(wallet.clone()),
+                chain_profile_id: profile.chain_profile_id.clone(),
+                network_id: profile.network_id.clone(),
+                address: Bytes(beneficiary.to_vec()),
+                address_display: to_base58(&beneficiary),
+                custody: AddressCustody::Controlled,
+                supported_assets: vec![native.asset_id.clone()],
+                routing_reference: None,
+                state: DepositAddressState::Active,
+                created_at: UnixSeconds(1),
+                retired_at: None,
+            },
+            &[native.clone()],
+            Amount(100),
+        )
+        .unwrap();
+    let step = Some(ActivationStep { committed_at: UnixSeconds(1), commitment: Hash32([1; 32]), actor: "live-operator".into() });
+    reconciler
+        .activate(AddressActivation {
+            deposit_address_id: id,
+            public_key_agreement: step.clone(),
+            asset_network_configuration: step.clone(),
+            recovery_metadata: step.clone(),
+            monitoring_registration: step,
+        })
+        .unwrap();
+    // Settlement follows the node's finality (about 32 slots), so sync
+    // until the finalized cursor passes the transfer. Per the reconciler's
+    // contract, StaleEvidence from a scan over a still-moving chain is
+    // retryable; anything else is a real failure.
+    let deadline = Instant::now() + Duration::from_secs(90);
+    loop {
+        match reconciler.sync(&client) {
+            Ok(_) => {}
+            Err(e) if e.code == ErrorCode::StaleEvidence => {
+                assert!(Instant::now() < deadline, "sync never caught up with the chain: {e}");
+                std::thread::sleep(Duration::from_millis(500));
+                continue;
+            }
+            Err(e) => panic!("sync failed: {e}"),
+        }
+        let settled = reconciler.holdings(&wallet, &native.asset_id, Amount::ZERO).unwrap().settled;
+        if settled == Amount(TRANSFER_LAMPORTS as u128) {
+            break;
+        }
+        assert!(
+            Instant::now() < deadline,
+            "the FROST transfer did not settle through the reconciler: settled={settled:?}"
+        );
+        std::thread::sleep(Duration::from_millis(500));
+    }
+    let checkpoint = loop {
+        match reconciler.reconcile(&client, &std::collections::BTreeMap::new()) {
+            Ok(checkpoint) => break checkpoint,
+            Err(e) if e.code == ErrorCode::StaleEvidence && Instant::now() < deadline => {
+                std::thread::sleep(Duration::from_millis(500));
+            }
+            Err(e) => panic!("reconcile failed: {e}"),
+        }
+    };
+    assert!(checkpoint.body.is_consistent(), "the live Solana deposit must reconcile: {:?}", checkpoint.body.balances);
 
     println!(
         "validator loop: custody={} tx={} slot={} fee={} beneficiary_balance={} (FROST 2-of-3, signers 0+2)",

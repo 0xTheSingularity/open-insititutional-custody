@@ -133,7 +133,10 @@ impl SolanaRpcClient {
     /// The view the bundle is anchored at: the latest blockhash at the
     /// commitment, with its slot and validity horizon.
     fn view(&self, commitment: Commitment) -> OicResult<View> {
-        let c = Self::commitment_arg(commitment);
+        self.view_at(Self::commitment_arg(commitment))
+    }
+
+    fn view_at(&self, c: &'static str) -> OicResult<View> {
         let v = self.rpc.call_value("getLatestBlockhash", json!([{ "commitment": c }]))?;
         let slot = v["context"]["slot"]
             .as_u64()
@@ -354,7 +357,17 @@ impl BlockSource for SolanaRpcClient {
     }
 
     fn head(&self) -> StateReference {
-        self.state_reference(Commitment::Latest)
+        // The scan head must sit at the tier the block reader serves: a
+        // processed-tip head makes sync chase slots `getBlock(confirmed)`
+        // cannot serve yet, which surfaces as a permanent "missing block".
+        match self.view_at(COMMITMENT_CONFIRMED) {
+            Ok(view) => StateReference {
+                height: view.slot,
+                hash: Bytes(view.blockhash.to_vec()),
+                commitment: COMMITMENT_CONFIRMED.to_string(),
+            },
+            Err(_) => StateReference { height: 0, hash: Bytes(Vec::new()), commitment: COMMITMENT_CONFIRMED.to_string() },
+        }
     }
 
     fn finalized(&self) -> StateReference {
