@@ -35,15 +35,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: dtolnay/rust-toolchain@1.95.0
-    - name: Install anvil (Foundry v1.5.1, checksum-pinned)
+    - name: Install anvil, forge and cast (Foundry v1.5.1, checksum-pinned)
       run: |
         set -euo pipefail
         curl -fsSL -o foundry.tar.gz \
           https://github.com/foundry-rs/foundry/releases/download/v1.5.1/foundry_v1.5.1_linux_amd64.tar.gz
         echo "73640b01bd9ed29fdb4965085099371f8cf0dbbec3e2086cf54564efc4dcfe88  foundry.tar.gz" | sha256sum -c -
-        tar -xzf foundry.tar.gz anvil
-        sudo install -m 0755 anvil /usr/local/bin/anvil
-        anvil --version
+        tar -xzf foundry.tar.gz anvil forge cast
+        sudo install -m 0755 anvil forge cast /usr/local/bin/
+        anvil --version && forge --version && cast --version
     - name: Install solana-test-validator (Agave v3.1.8, checksum-pinned)
       run: |
         set -euo pipefail
@@ -56,8 +56,10 @@ jobs:
     - name: Run the real-node loops
       run: |
         set -euo pipefail
-        # Refuse to pass silently: both binaries must be present.
+        # Refuse to pass silently: every required binary must be present.
         command -v anvil >/dev/null
+        command -v forge >/dev/null
+        command -v cast >/dev/null
         command -v solana-test-validator >/dev/null
         cargo test -p oic-service-chain-rpc --locked -- --nocapture 2>&1 | tee real-nodes.log
         if grep -q "SKIPPED" real-nodes.log; then
