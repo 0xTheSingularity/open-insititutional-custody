@@ -1,0 +1,39 @@
+[package]
+name = "oic-service-node-runner"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "DEVELOPMENT ONLY per-role node runner: provisions and runs the D1 reference topology as separate OS processes from files on disk (RFC 0002 §9, development profile)"
+
+[[bin]]
+name = "oic-node"
+path = "src/main.rs"
+
+[dependencies]
+oic-domain-types = { workspace = true }
+oic-canonical-encoding = { workspace = true }
+oic-membership = { workspace = true }
+oic-node = { workspace = true }
+oic-signer = { workspace = true }
+oic-audit = { workspace = true }
+oic-authorization-state = { workspace = true }
+oic-crypto-provider = { workspace = true }
+oic-crypto-provider-frost-ed25519 = { workspace = true }
+oic-one-time-state-ledger = { workspace = true }
+oic-adapter-api = { workspace = true }
+oic-adapter-solana = { workspace = true }
+oic-peer-wire = { workspace = true }
+oic-service-signer-net = { workspace = true }
+oic-service-signer-core = { workspace = true }
+oic-service-authority-rpc = { workspace = true }
+commonware-runtime = "=2026.9.0"
+clap = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+ed25519-dalek = { workspace = true }
+rand = { workspace = true }
+tokio = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

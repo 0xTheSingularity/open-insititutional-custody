@@ -34,6 +34,7 @@ members = [
     "services/witness",
     "services/local-stack",
     "services/chain-rpc",
+    "services/node-runner",
     "apps/independent-approval-client",
     "apps/approver-client",
     "cli/oic",
@@ -84,6 +85,7 @@ oic-service-authority-rpc = { path = "services/authority-rpc" }
 oic-service-signer-net = { path = "services/signer-net" }
 oic-service-witness = { path = "services/witness" }
 oic-service-local-stack = { path = "services/local-stack" }
+oic-service-node-runner = { path = "services/node-runner" }
 
 # external, pinned
 serde = { version = "1.0", features = ["derive"] }

@@ -4530,6 +4530,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "oic-service-node-runner"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "commonware-runtime",
+ "ed25519-dalek",
+ "oic-adapter-api",
+ "oic-adapter-solana",
+ "oic-audit",
+ "oic-authorization-state",
+ "oic-canonical-encoding",
+ "oic-crypto-provider",
+ "oic-crypto-provider-frost-ed25519",
+ "oic-domain-types",
+ "oic-membership",
+ "oic-node",
+ "oic-one-time-state-ledger",
+ "oic-peer-wire",
+ "oic-service-authority-rpc",
+ "oic-service-signer-core",
+ "oic-service-signer-net",
+ "oic-signer",
+ "rand 0.8.8",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "tokio",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "oic-service-reconciler"
 version = "0.1.0"
 dependencies = [

@@ -26,6 +26,18 @@ jobs:
         RUSTFLAGS: --cfg commonware_stability_BETA
       run: cargo check -p oic-service-signer-net --lib --locked
 
+  topology:
+    name: Topology qualification
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@1.95.0
+    - name: Real OS processes sharing one address
+      run: cargo test -p oic-service-node-runner --test topology --locked -- --ignored --nocapture
+    - name: One container and one address per node
+      run: ./deploy/docker/qualify.sh
+
   # The chain-rpc end-to-end tests skip themselves when the node binaries are
   # missing, so this job exists to run them for real: a live anvil node and a
   # live solana-test-validator, the latter verifying a FROST 2-of-3 signature.

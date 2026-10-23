@@ -1,0 +1,22 @@
+# The reference node image: one binary, any role.
+#
+# Build from the repository root:
+#   docker build -f deploy/docker/Dockerfile.node -t oic-node .
+
+# Match the toolchain the Rust CI workflow pins.
+FROM rust:1.95-trixie AS build
+WORKDIR /src
+COPY . .
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/src/target \
+    cargo build --release -p oic-service-node-runner \
+    && install -m 0755 target/release/oic-node /oic-node
+
+FROM debian:trixie-slim
+RUN useradd --system --home-dir /node --create-home --uid 10001 oic \
+    # The named volume inherits this ownership on first use, so provision
+    # can write there as the service user.
+    && install -d -o oic -g oic /state
+COPY --from=build /oic-node /usr/local/bin/oic-node
+USER oic
+ENTRYPOINT ["/usr/local/bin/oic-node"]

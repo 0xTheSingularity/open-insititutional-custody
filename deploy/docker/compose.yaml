@@ -1,0 +1,109 @@
+# The reference topology on one Docker host: three signers, one authority,
+# one gateway, each with its own container IP, talking over the production
+# transport profile. `provision` runs once into the shared volume; every
+# node then mounts only its own directory.
+#
+#   docker compose -f deploy/docker/compose.yaml up -d
+#   docker compose -f deploy/docker/compose.yaml run --rm qualify
+#
+# deploy/docker/qualify.sh runs the same sequence end to end.
+
+name: oic
+
+x-node: &node
+  image: oic-node
+  build:
+    context: ../..
+    dockerfile: deploy/docker/Dockerfile.node
+  restart: unless-stopped
+  depends_on:
+    provision:
+      condition: service_completed_successfully
+
+services:
+  provision:
+    image: oic-node
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.node
+    restart: "no"
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - >-
+        test -f /state/node-4/node.json ||
+        oic-node provision --out /state --address
+        172.28.90.10:7420
+        172.28.90.11:7420
+        172.28.90.12:7420
+        172.28.90.13:7420
+        172.28.90.14:7420
+    volumes:
+      - state:/state
+    networks:
+      custody:
+        ipv4_address: 172.28.90.2
+
+  signer-0:
+    <<: *node
+    command: ["run", "--dir", "/node"]
+    volumes:
+      - { type: volume, source: state, target: /node, volume: { subpath: node-0 } }
+    networks:
+      custody:
+        ipv4_address: 172.28.90.10
+
+  signer-1:
+    <<: *node
+    command: ["run", "--dir", "/node"]
+    volumes:
+      - { type: volume, source: state, target: /node, volume: { subpath: node-1 } }
+    networks:
+      custody:
+        ipv4_address: 172.28.90.11
+
+  signer-2:
+    <<: *node
+    command: ["run", "--dir", "/node"]
+    volumes:
+      - { type: volume, source: state, target: /node, volume: { subpath: node-2 } }
+    networks:
+      custody:
+        ipv4_address: 172.28.90.12
+
+  authority:
+    <<: *node
+    command: ["run", "--dir", "/node"]
+    volumes:
+      - { type: volume, source: state, target: /node, volume: { subpath: node-4 } }
+    networks:
+      custody:
+        ipv4_address: 172.28.90.14
+
+  # One-shot: converge from the gateway's view, then exit 0. The gateway
+  # owns 172.28.90.13, so only this service may hold that address; run it
+  # instead of a long-lived gateway, or give a real gateway this slot.
+  qualify:
+    image: oic-node
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.node
+    restart: "no"
+    profiles: [qualify]
+    command: ["run", "--check", "--check-budget", "600", "--dir", "/node"]
+    depends_on:
+      provision:
+        condition: service_completed_successfully
+    volumes:
+      - { type: volume, source: state, target: /node, volume: { subpath: node-3 } }
+    networks:
+      custody:
+        ipv4_address: 172.28.90.13
+
+volumes:
+  state:
+
+networks:
+  custody:
+    ipam:
+      config:
+        - subnet: 172.28.90.0/24
