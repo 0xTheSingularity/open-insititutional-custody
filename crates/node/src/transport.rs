@@ -175,8 +175,8 @@ impl Transport {
     }
 
     /// Explicit single-machine development profile. Every signed roster address
-    /// must be loopback. Only the peer reservation/retry cooldown becomes one
-    /// second: authentication, IP checks, handshake/channel quotas, admission,
+    /// must be loopback. Only the peer reservation/retry cooldown becomes two
+    /// seconds: authentication, IP checks, handshake/channel quotas, admission,
     /// convergence and padding are identical to the normal constructors.
     /// This does not qualify production startup or change its recommended limits.
     pub fn start_loopback(context: Context, config: Config, padding: PaddingProfile) -> OicResult<Self> {
@@ -240,7 +240,13 @@ impl Transport {
         let mut lookup =
             lookup::Config::recommended(crypto, &config.roster.namespace()?, local.address, NonZeroUsize::new(peers.len()).unwrap(), max_size as u32);
         if loopback {
-            lookup.peer_connection_cooldown = Duration::from_secs(1);
+            // When idle, Commonware's dialer wakes at the next jittered dial
+            // time, clamped to [dial_frequency, cooldown] from now. A cooldown
+            // equal to the dial interval collapses that range: nodes started
+            // together then dial on one shared one-second grid, and two peers
+            // that dial each other on the same tick reject each other's
+            // handshake on every retry. Keep the range open.
+            lookup.peer_connection_cooldown = lookup.dial_frequency * 2;
         }
         lookup.allow_private_ips = true;
         lookup.allow_dns = false; // Signed rosters currently contain SocketAddr only.

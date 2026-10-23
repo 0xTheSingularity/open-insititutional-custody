@@ -491,7 +491,10 @@ async fn absent(transport: &mut Transport) {
 fn real_socket_receiver_enforces_convergence_acl_lower_size_and_rechecks_each_packet() {
     run(|context| async move {
         let roster = fixture();
-        let mut a = Transport::start(context.child("a"), config(&roster, 0)).unwrap();
+        // A startup dial collision costs the production profile a 60 s
+        // cooldown, most of `connected()`'s budget. The receive path under
+        // test is identical in both profiles.
+        let mut a = Transport::start_loopback(context.child("a"), config(&roster, 0), PaddingProfile::Disabled).unwrap();
         let mut raw = RawPeer::start(
             context.child("raw"),
             &roster,
