@@ -9,13 +9,15 @@
 //! On open the whole file is replayed and the chain is re-verified (hashes,
 //! event ids, linkage, sequence, signatures, service key id):
 //!
-//! * a final frame that is incomplete (crash in the middle of a write) is
-//!   truncated away: it was never acknowledged;
+//! * a length of zero or above [`MAX_FRAME_BYTES`] is corruption and the open
+//!   fails with `RecoveryRequired`, even when the frame would run past EOF;
 //! * a *complete* frame that fails to decode or verify means the history was
 //!   altered and the open fails with `RecoveryRequired`;
 //! * a head sequence below the sidecar high-water mark or below
 //!   `expected_min_sequence` means the file was rolled back and the open fails
-//!   with `RecoveryRequired`.
+//!   with `RecoveryRequired`, leaving the file untouched;
+//! * only then is a final frame that is incomplete (crash in the middle of a
+//!   write) truncated away: it was never acknowledged.
 
 use crate::chain::{seal_event, verify_next, AuditLog, AuditLogConfig, SealInput};
 use crate::checkpoint::{sign_audit_checkpoint, AuditCheckpoint, AuditCheckpointBody};
@@ -84,12 +86,14 @@ impl FileAuditLog {
                 break; // torn length prefix
             }
             let n = u32::from_be_bytes(rest[..4].try_into().expect("4 bytes"));
+            // An append never writes an impossible length, so this is
+            // corruption, not a torn tail, even when the frame runs past EOF.
+            if n == 0 || n > MAX_FRAME_BYTES {
+                return Err(recovery(format!("audit frame at offset {pos} has invalid length {n}")));
+            }
             let frame_end = 4usize.saturating_add(n as usize);
             if rest.len() < frame_end {
                 break; // torn payload
-            }
-            if n == 0 || n > MAX_FRAME_BYTES {
-                return Err(recovery(format!("audit frame at offset {pos} has invalid length {n}")));
             }
             let payload = &rest[4..frame_end];
             let event: AuditEvent =
@@ -103,17 +107,18 @@ impl FileAuditLog {
             frames.push(((pos + 4) as u64, n));
             pos += frame_end;
         }
+        // Check the floor before discarding anything: a corrupt length that
+        // looks like a torn tail must not truncate acknowledged events.
+        let seq = head.map(|h| h.0).unwrap_or(0);
+        let floor = read_hwm(&path)?.max(expected_min_sequence.unwrap_or(0));
+        if seq < floor {
+            return Err(recovery(format!("audit log head sequence {seq} is older than highest seen {floor}: possible rollback")));
+        }
         let len = pos as u64;
         let truncated_tail_bytes = bytes.len() as u64 - len;
         if truncated_tail_bytes > 0 {
             file.set_len(len).map_err(unavailable)?;
             file.sync_all().map_err(unavailable)?;
-        }
-
-        let seq = head.map(|h| h.0).unwrap_or(0);
-        let floor = read_hwm(&path)?.max(expected_min_sequence.unwrap_or(0));
-        if seq < floor {
-            return Err(recovery(format!("audit log head sequence {seq} is older than highest seen {floor}: possible rollback")));
         }
         Ok(FileAuditLog { path, config, truncated_tail_bytes, inner: Mutex::new(Inner { file, len, frames, head, poisoned: false }) })
     }

@@ -288,6 +288,7 @@ impl Transition<'_> {
         expires_at: UnixSeconds,
         commit_sequence: u64,
     ) -> OicResult<AuthorityReceiptBody> {
+        let intent = st.intents.get(&rec.intent_id).ok_or_else(|| OicError::internal("reservation names an unregistered intent"))?;
         let body = AuthorityReceiptBody {
             kind,
             institution_id: self.config.institution_id.clone(),
@@ -299,8 +300,16 @@ impl Transition<'_> {
             candidate_revision: rec.reservation.candidate_revision,
             envelope_body_hash: rec.envelope_body_hash,
             signer_session_id: rec.signer_session_id.clone(),
+            intent_hash: intent.intent_hash,
+            rule_id: rec.rule_id.clone(),
+            claims_hash: claims_hash(&rec.reservation.claims)?,
             policy_epoch: rec.reservation.policy_epoch,
-            freeze_epoch: st.freeze.freeze_epoch,
+            // A Reserved receipt reports the reservation's own epoch, so an
+            // idempotent repeat after a freeze cannot mask that freeze.
+            freeze_epoch: match kind {
+                ReceiptKind::Reserved => rec.reserved_freeze_epoch,
+                ReceiptKind::Release => st.freeze.freeze_epoch,
+            },
             issued_at,
             expires_at,
             commit_sequence,
@@ -546,6 +555,7 @@ impl Transition<'_> {
                 signer_session_id: req.signer_session_id.clone(),
                 candidate_lifecycle: LifecycleState::Reserved,
                 recorded_grants: if st.ordered_approvals.is_some() { req.grants.clone() } else { Vec::new() },
+                reserved_freeze_epoch: st.freeze.freeze_epoch,
             };
             st.reservations.insert(reservation_id.clone(), record);
             st.candidates.insert(req.candidate_id.clone(), req.family_id.clone());
@@ -614,6 +624,12 @@ impl Transition<'_> {
             // Recheck freeze, policy, deadline, and freshness at the release point.
             if st.freeze.blocking(&rec.reservation.vault_id).is_some() {
                 return Err(err(ErrorCode::Frozen, "frozen after reservation; no new issuance"));
+            }
+            // Signers refuse a release receipt from another freeze epoch than
+            // their reserved receipt. Committing issuance here would leave the
+            // payment stuck as possibly issued with no signer able to finish it.
+            if rec.reserved_freeze_epoch != st.freeze.freeze_epoch {
+                return Err(err(ErrorCode::Frozen, "a freeze or unfreeze was committed after this reservation; abort it and reserve again"));
             }
             if req.expected_policy_epoch != st.policy_epoch || rec.reservation.policy_epoch != st.policy_epoch {
                 return Err(err(ErrorCode::StalePolicy, "policy epoch changed since reservation"));

@@ -313,6 +313,9 @@ pub fn compute(domain: &str, type_name: &str, input: &Value) -> OicResult<Comput
         (d::AUTHORITY_RECEIPT, "AuthorityReceiptBody") => {
             (whole(&parse::<AuthorityReceiptBody>(input)?, oic_authorization_state::receipt_hash)?, "oic_authorization_state::receipt_hash", "AuthorityReceiptBody")
         }
+        (d::RESOURCE_CLAIMS, "ResourceClaims") => {
+            (whole(&parse::<ResourceClaims>(input)?, oic_authorization_state::claims_hash)?, "oic_authorization_state::claims_hash", "ResourceClaims")
+        }
         (d::CHAIN_PROFILE, "ChainProfile") => (whole(&parse::<ChainProfile>(input)?, ChainProfile::hash)?, "oic_adapter_api::ChainProfile::hash", "ChainProfile"),
         (d::AUDIT, "AuditEventBody") => (whole(&parse::<AuditEventBody>(input)?, oic_audit::event_hash)?, "oic_audit::event_hash", "AuditEventBody"),
         (d::KEY_DESCRIPTOR, "KeyDescriptor") => {
@@ -441,6 +444,7 @@ pub fn decode(encoded_type: &str, canonical: &[u8]) -> OicResult<Value> {
         "ApprovalGrantBody" => dec::<ApprovalGrantBody>(canonical),
         "PreviewCommitment" => dec::<PreviewCommitmentOwned>(canonical),
         "AuthorityReceiptBody" => dec::<AuthorityReceiptBody>(canonical),
+        "ResourceClaims" => dec::<ResourceClaims>(canonical),
         "ChainProfile" => dec::<ChainProfile>(canonical),
         "AuditEventBody" => dec::<AuditEventBody>(canonical),
         "KeyDescriptor" => dec::<KeyDescriptor>(canonical),

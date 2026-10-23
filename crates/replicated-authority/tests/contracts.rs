@@ -1100,3 +1100,30 @@ fn follower_sync_reopen_independent_floor_and_gap_replay_contract() {
         });
     }
 }
+
+/// Grants bind the registered intent hash, but a zero-approval rule has none.
+/// A proposer still must not reserve another intent body under a registered id.
+#[test]
+fn reserve_rejects_an_intent_body_that_was_not_registered() {
+    for chain in [Chain::Evm, Chain::Solana] {
+        let registered = Fixture::new(chain, 0);
+        let altered = Fixture::with_inputs(chain, 0, |inputs| {
+            let IntentOperation::AssetTransfer { amount_base_units, .. } = &mut inputs.intent.operation;
+            *amount_base_units = Amount(amount_base_units.0 + 1);
+        });
+        assert_eq!(altered.built.package.intent.intent_id, registered.built.package.intent.intent_id);
+        let state = ready(&registered);
+        registered
+            .executor
+            .execute(state.clone(), &[Command::Reserve(Box::new(registered.proof()))], now())
+            .unwrap();
+        assert_eq!(
+            registered
+                .executor
+                .execute(state, &[Command::Reserve(Box::new(altered.proof()))], now())
+                .unwrap_err()
+                .code,
+            ErrorCode::ScopeMismatch
+        );
+    }
+}

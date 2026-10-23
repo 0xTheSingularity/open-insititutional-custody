@@ -31,6 +31,8 @@ pub mod domains {
     pub const APPROVAL: &str = "OIC/APPROVAL/v1";
     pub const PREVIEW: &str = "OIC/PREVIEW/v1";
     pub const AUTHORITY_RECEIPT: &str = "OIC/AUTHORITY_RECEIPT/v1";
+    /// Reserved resource claims that an authority receipt commits to.
+    pub const RESOURCE_CLAIMS: &str = "OIC/RESOURCE_CLAIMS/v1";
     pub const CHAIN_PROFILE: &str = "OIC/CHAIN_PROFILE/v1";
     pub const AUDIT: &str = "OIC/AUDIT/v1";
     pub const KEY_DESCRIPTOR: &str = "OIC/KEY_DESCRIPTOR/v1";

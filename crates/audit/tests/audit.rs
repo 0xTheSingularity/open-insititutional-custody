@@ -269,6 +269,32 @@ fn file_log_detects_rollback() {
 }
 
 #[test]
+fn file_log_open_never_truncates_acknowledged_events() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("audit.log");
+    let (cfg, _) = config();
+    {
+        let log = FileAuditLog::open(&path, None, cfg.clone()).unwrap();
+        fill(&log, 3);
+    }
+    let original = fs::read(&path).unwrap();
+    let second = u32::from_be_bytes(original[0..4].try_into().unwrap()) as usize + 4;
+    // A corrupt length prefix on the second frame claims more bytes than the
+    // file holds, so it resembles a torn tail. Events 2 and 3 were acknowledged.
+    for bogus in [512 * 1024, MAX_FRAME_BYTES + 1, u32::MAX] {
+        let mut bytes = original.clone();
+        bytes[second..second + 4].copy_from_slice(&bogus.to_be_bytes());
+        fs::write(&path, &bytes).unwrap();
+        let err = FileAuditLog::open(&path, None, cfg.clone()).err().unwrap();
+        assert_eq!(err.code, ErrorCode::RecoveryRequired, "length {bogus}");
+        let after = fs::read(&path).unwrap();
+        assert!(after == bytes, "length {bogus}: a refused open must leave the file unchanged ({} bytes, now {})", bytes.len(), after.len());
+    }
+    fs::write(&path, &original).unwrap();
+    assert_eq!(FileAuditLog::open(&path, Some(3), cfg).unwrap().head().unwrap().unwrap().0, 3);
+}
+
+#[test]
 fn checkpoints_sign_and_detect_divergence() {
     // Two logs with the same key and clock produce identical events for
     // identical appends (Ed25519 is deterministic), then diverge.

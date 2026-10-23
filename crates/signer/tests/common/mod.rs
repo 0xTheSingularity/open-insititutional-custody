@@ -522,9 +522,19 @@ impl Setup {
         body: AuthorizationEnvelopeBody,
         verified: &VerifiedOperation,
     ) -> AuthorizationEnvelope {
-        let rule = &self.m.policy.rules[0];
-        let exposure_limits = verified
-            .claims
+        self.reserve_charging(world, body, &verified.claims, &self.m.policy.rules[0])
+    }
+
+    /// Reserve with whatever claims and rule a coordinator chooses to send.
+    /// The authority charges exactly what it is sent.
+    pub fn reserve_charging(
+        &self,
+        world: &World,
+        body: AuthorizationEnvelopeBody,
+        claims: &ResourceClaims,
+        rule: &PolicyRule,
+    ) -> AuthorizationEnvelope {
+        let exposure_limits = claims
             .asset_outflows
             .iter()
             .flat_map(|o| {
@@ -543,7 +553,7 @@ impl Setup {
                 intent_id: body.intent_id.clone(),
                 policy_epoch: body.policy_epoch,
                 policy_hash: body.policy_hash,
-                claims: verified.claims.clone(),
+                claims: claims.clone(),
                 grants: body.approval_grants.clone(),
                 envelope_body_hash: envelope_body_hash(&body).unwrap(),
                 signer_session_id: body.signer_session_id.clone(),

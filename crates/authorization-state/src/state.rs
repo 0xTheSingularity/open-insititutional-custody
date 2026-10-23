@@ -132,6 +132,14 @@ pub struct ReservationRecord {
     /// Recorded grants rechecked at release, including credential removal.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub recorded_grants: Vec<ApprovalGrant>,
+    /// Freeze epoch when this reservation was made. Release requires it to be
+    /// current, as the signer does; omitted when zero, like an empty grant list.
+    #[serde(default, skip_serializing_if = "is_initial_epoch")]
+    pub reserved_freeze_epoch: Epoch,
+}
+
+fn is_initial_epoch(epoch: &Epoch) -> bool {
+    *epoch == Epoch::default()
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

@@ -10,7 +10,7 @@ use k256::ecdsa::SigningKey as K256Key;
 use oic_adapter_api::*;
 use oic_approval_client::keyfile::{ApproverKeyFile, MIN_PBKDF2_ITERATIONS};
 use oic_approval_client::trust::TrustRoots;
-use oic_authorization_state::{receipt_hash, reservation_id_for};
+use oic_authorization_state::{claims_hash, receipt_hash, reservation_id_for};
 use oic_domain_types::*;
 use oic_policy_kernel::{destination_hash, intent_hash, policy_hash};
 use std::collections::BTreeMap;
@@ -498,6 +498,9 @@ pub fn envelope_for(p: &ApprovalPackage, grants: Vec<ApprovalGrant>) -> Authoriz
         candidate_revision: body.candidate_revision,
         envelope_body_hash: oic_signer::envelope_body_hash(&body).unwrap(),
         signer_session_id: body.signer_session_id.clone(),
+        intent_hash: body.intent_hash,
+        rule_id: "r-1".into(),
+        claims_hash: claims_hash(&verified.claims).unwrap(),
         policy_epoch: body.policy_epoch,
         freeze_epoch: Epoch(0),
         issued_at: UnixSeconds(NOW),

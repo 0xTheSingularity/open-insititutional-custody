@@ -24,6 +24,7 @@ WORKDIR /src
 # Copy the whole workspace so path dependencies resolve, then build just the CLI.
 # Only a failed `strip` is tolerated; a failed build fails this step.
 COPY . .
+# Only `strip` may fail; a failed build or copy must fail this step.
 RUN cargo build -p oic-cli --release --locked \
     && cp target/release/oic /usr/local/bin/oic \
     && { strip /usr/local/bin/oic || true; }
