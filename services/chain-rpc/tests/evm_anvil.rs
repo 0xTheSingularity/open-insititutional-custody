@@ -7,7 +7,9 @@
 //!
 //! Signing honesty: this loop signs with one development k256 key, exactly
 //! like the EVM simulator. The repository has no reviewed threshold-ECDSA
-//! backend; only the Solana loop is threshold-signed (RFC 0002 §3.1).
+//! backend (RFC 0002 §3.1); the Solana loop is threshold-signed with FROST,
+//! and evm_vault.rs gets the same no-single-signer property on EVM from an
+//! on-chain 2-of-3 quorum instead.
 
 use oic_adapter_evm::evidence::{get_tx_observation, get_u128, get_u64, KEY_BASE_FEE, KEY_CHAIN_ID, KEY_GAS_LIMIT, KEY_PRIORITY_FEE};
 use oic_adapter_evm::tx::{tx_hash, Eip1559Tx};
@@ -15,60 +17,12 @@ use oic_adapter_api::SignedTransaction;
 use oic_chain_simulator::evm::{address_of, sign_eip1559, GAS_NATIVE_TRANSFER};
 use oic_domain_types::*;
 use oic_service_broadcaster::{ChainClient, Commitment, PossiblyIssued};
-use oic_service_chain_rpc::evm::{EvmRpcClient, EvmRpcConfig};
+use oic_service_chain_rpc::evm::EvmRpcClient;
 use oic_service_reconciler::{BlockSource, EffectKind};
-use std::net::TcpListener;
-use std::process::{Child, Command, Stdio};
 use std::time::{Duration, Instant};
 
-/// Anvil's first well-known development account.
-const DEV_KEY: [u8; 32] = [
-    0xac, 0x09, 0x74, 0xbe, 0xc3, 0x9a, 0x17, 0xe3, 0x6b, 0xa4, 0xa6, 0xb4, 0xd2, 0x38, 0xff, 0x94, 0x4b, 0xac, 0xb4, 0x78, 0xcb, 0xed,
-    0x5e, 0xfc, 0xae, 0x78, 0x4d, 0x7b, 0xf4, 0xf2, 0xff, 0x80,
-];
-
-struct Anvil {
-    child: Child,
-    url: String,
-}
-
-impl Anvil {
-    /// `None` when the binary is not installed.
-    fn start() -> Option<Self> {
-        let port = free_port();
-        let child = Command::new("anvil")
-            .args(["--port", &port.to_string(), "--silent"])
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
-            .spawn()
-            .ok()?;
-        Some(Anvil { child, url: format!("http://127.0.0.1:{port}") })
-    }
-}
-
-impl Drop for Anvil {
-    fn drop(&mut self) {
-        let _ = self.child.kill();
-        let _ = self.child.wait();
-    }
-}
-
-fn free_port() -> u16 {
-    TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port()
-}
-
-fn connect(url: &str) -> EvmRpcClient {
-    let deadline = Instant::now() + Duration::from_secs(30);
-    loop {
-        match EvmRpcClient::connect(EvmRpcConfig::development(url)) {
-            Ok(client) => return client,
-            Err(e) => {
-                assert!(Instant::now() < deadline, "anvil did not come up: {e}");
-                std::thread::sleep(Duration::from_millis(200));
-            }
-        }
-    }
-}
+mod common;
+use common::{connect, Anvil, DEV_KEY};
 
 #[test]
 fn real_node_native_transfer_submit_observe_discover_and_settle() {
