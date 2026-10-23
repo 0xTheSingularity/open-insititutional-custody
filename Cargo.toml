@@ -33,6 +33,7 @@ members = [
     "services/signer-net",
     "services/witness",
     "services/local-stack",
+    "services/chain-rpc",
     "apps/independent-approval-client",
     "apps/approver-client",
     "cli/oic",
@@ -74,6 +75,7 @@ oic-service-coordinator = { path = "services/coordinator" }
 oic-service-broadcaster = { path = "services/broadcaster" }
 oic-service-reconciler = { path = "services/reconciler" }
 oic-service-api = { path = "services/api" }
+oic-service-chain-rpc = { path = "services/chain-rpc" }
 oic-membership = { path = "crates/membership" }
 oic-peer-wire = { path = "crates/peer-wire" }
 oic-node = { path = "crates/node" }
