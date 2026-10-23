@@ -1193,50 +1193,87 @@ fn relabel_snapshot_v2_as_v1(path: &std::path::Path) {
     std::fs::write(path, &patched).unwrap();
 }
 
-#[test]
-fn v1_snapshot_with_pending_reservation_requires_recovery() {
-    let dir = TempDir::new("v1-pending");
-    let path = dir.0.join("authority.state");
-    let clock = Arc::new(ManualClock::new(T0));
+/// Opens a file-backed authority at `path`, sets the policy, and makes one
+/// pending reservation. Returns the authority so a test can act on it further.
+fn file_authority_with_pending_reservation(path: &std::path::Path, clock: &Arc<ManualClock>) -> (Authority<FileAuthorityStore>, ReservationId) {
+    let a = file_authority(path, 0, clock.clone()).unwrap();
+    a.set_policy(&policy(1, &[1, 2])).unwrap();
     let i = intent(1);
     let key = IdempotencyKey { institution_id: inst(), route: "r".into(), key: "k".into() };
+    let reg = a.register_intent(&i, intent_hash(&i).unwrap(), key).unwrap();
+    let (epoch, hash) = a.current_policy().unwrap();
+    let req = ReserveRequest {
+        family_id: reg.operation_family_id.clone(),
+        candidate_id: CandidateId::unchecked("c1"),
+        candidate_revision: 1,
+        vault_id: vault(),
+        intent_id: reg.intent_id.clone(),
+        policy_epoch: epoch,
+        policy_hash: hash,
+        exposure_limits: vec![(usdc(), rule().rolling_limits[0].clone())],
+        claims: evm_claims(1, 400, 1),
+        grants: vec![],
+        envelope_body_hash: Hash32([4; 32]),
+        signer_session_id: SigningSessionId::unchecked("s1"),
+        issuance_deadline: UnixSeconds(T0 + 600),
+        policy_decision: Decision::Allow { rule_id: "r-ops".into() },
+    };
+    let (res, _) = a.reserve(req).unwrap();
+    assert!(matches!(a.reservation(&res.reservation_id).unwrap().state, ReservationState::Reserved));
+    (a, res.reservation_id)
+}
+
+/// Moves the freeze epoch on without freezing the vault under test.
+fn freeze_another_vault(a: &Authority<FileAuthorityStore>) {
+    let scope = FreezeScope::Vault { vault_id: VaultId::unchecked("vault-other") };
+    let r = responder();
+    let p = FreezeProposal::new(inst(), env(), scope.clone(), r.0.clone(), "incident");
+    let sig = sign_cred(&r, &p.hash().unwrap()).signature;
+    a.freeze(scope, r.0, "incident", &sig).unwrap();
+}
+
+#[test]
+fn v1_snapshot_with_a_releasable_pending_reservation_upgrades() {
+    let dir = TempDir::new("v1-releasable");
+    let path = dir.0.join("authority.state");
+    let clock = Arc::new(ManualClock::new(T0));
+    let rid = file_authority_with_pending_reservation(&path, &clock).1;
+    // No freeze since the reservation, so its epoch (a defaulted zero in a
+    // genuine v1 snapshot) equals the current one and it is still releasable.
+    // Refusing to open would stop the authority over a payment it can finish.
+    relabel_snapshot_v2_as_v1(&path);
+    let a = file_authority(&path, 1, clock.clone()).expect("v1 snapshot with a releasable reservation upgrades");
+    a.release(ReleaseRequest {
+        reservation_id: rid,
+        reservation_version: 1,
+        envelope_body_hash: Hash32([4; 32]),
+        signer_session_id: SigningSessionId::unchecked("s1"),
+        expected_policy_epoch: Epoch(1),
+        freshness: FreshnessContext { now: clock.now() },
+    })
+    .expect("the upgraded reservation still releases");
+}
+
+#[test]
+fn v1_snapshot_with_a_stale_pending_reservation_requires_recovery() {
+    let dir = TempDir::new("v1-stale");
+    let path = dir.0.join("authority.state");
+    let clock = Arc::new(ManualClock::new(T0));
     {
-        let a = file_authority(&path, 0, clock.clone()).unwrap();
-        a.set_policy(&policy(1, &[1, 2])).unwrap();
-        let reg = a.register_intent(&i, intent_hash(&i).unwrap(), key.clone()).unwrap();
-        let (epoch, hash) = a.current_policy().unwrap();
-        let req = ReserveRequest {
-            family_id: reg.operation_family_id.clone(),
-            candidate_id: CandidateId::unchecked("c1"),
-            candidate_revision: 1,
-            vault_id: vault(),
-            intent_id: reg.intent_id.clone(),
-            policy_epoch: epoch,
-            policy_hash: hash,
-            exposure_limits: vec![(usdc(), rule().rolling_limits[0].clone())],
-            claims: evm_claims(1, 400, 1),
-            grants: vec![],
-            envelope_body_hash: Hash32([4; 32]),
-            signer_session_id: SigningSessionId::unchecked("s1"),
-            issuance_deadline: UnixSeconds(T0 + 600),
-            policy_decision: Decision::Allow { rule_id: "r-ops".into() },
-        };
-        let (res, _) = a.reserve(req).unwrap();
-        assert!(matches!(a.reservation(&res.reservation_id).unwrap().state, ReservationState::Reserved));
+        let (a, _) = file_authority_with_pending_reservation(&path, &clock);
+        freeze_another_vault(&a);
     }
-    // The v2 snapshot holds a pending reservation; relabel it as a v1 snapshot.
-    // v1 predates the captured freeze epoch, so loading it must demand explicit
-    // recovery rather than silently default the epoch to zero (which release
-    // would then reject across any later freeze).
+    // The freeze moved the epoch past the reservation's, so this version would
+    // refuse its release, and in a genuine v1 snapshot its real epoch may be
+    // lost. Loading would leave it stuck, so demand explicit recovery instead.
     relabel_snapshot_v2_as_v1(&path);
     let err = match FileAuthorityStore::open(&path, None) {
         Err(e) => e,
-        Ok(_) => panic!("a v1 snapshot with a pending reservation must not load"),
+        Ok(_) => panic!("a v1 snapshot with a stale pending reservation must not load"),
     };
     assert_eq!(err.code, ErrorCode::RecoveryRequired);
-    // This version cannot open the store to drain it, and a reservation re-made
-    // before upgrading is just as pending, so the steps must start on the
-    // previous version.
+    // This version cannot open the store to drain it, so the steps must start
+    // on the previous version.
     assert!(err.detail.contains("with the previous version"), "{}", err.detail);
 }
 

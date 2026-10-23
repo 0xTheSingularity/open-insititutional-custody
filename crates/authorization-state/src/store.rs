@@ -199,27 +199,29 @@ fn load_snapshot(path: &Path) -> OicResult<AuthorityState> {
     }
 }
 
-/// Upgrade a pre-`reserved_freeze_epoch` (v1) snapshot. Terminal reservations
-/// never re-run the release freeze-epoch check, so a v1 snapshot without a
-/// pending reservation upgrades cleanly. A *pending* (`Reserved`) reservation
-/// has no recoverable captured epoch — serde would supply zero, which release
-/// then reads as "reserved before any freeze" and rejects across any later
-/// freeze. Rather than silently load a reservation that can no longer be
-/// released, require it to be drained first, mirroring the explicit
-/// `RecoveryRequired` path used for an unreadable or rolled-back snapshot.
-/// Draining has to happen on the previous version: this one refuses to open
-/// the store, so it cannot abort the reservation itself, and a reservation
-/// re-made before upgrading would be just as pending.
+/// Upgrade a v1 snapshot. v1 covers records written before
+/// `reserved_freeze_epoch` existed, which serde gives an epoch of zero. A
+/// pending (`Reserved`) record whose epoch matches the snapshot's current
+/// freeze epoch is still releasable and its epoch is trustworthy: a stored
+/// nonzero epoch came from a version that had the field, and a defaulted zero
+/// against a current zero means no freeze ever happened, since the epoch only
+/// increases. Terminal records never re-run the release check. A pending record
+/// whose epoch differs is refused at release by this version and may be an old
+/// record whose real epoch was lost, so the upgrade stops with
+/// `RecoveryRequired` instead of loading it stuck. Draining has to happen on the
+/// previous version, because this one refuses to open the store.
 fn migrate_v1(state: AuthorityState) -> OicResult<AuthorityState> {
-    let pending = state
+    let current = state.freeze.freeze_epoch;
+    let stale = state
         .reservations
         .values()
-        .any(|r| r.state == ReservationState::Reserved);
-    if pending {
-        return Err(recovery(
-            "v1 snapshot has pending reservations whose captured freeze epoch predates this version; \
-             release or abort them with the previous version, upgrade with none pending, then re-reserve",
-        ));
+        .filter(|r| r.state == ReservationState::Reserved && r.reserved_freeze_epoch != current)
+        .count();
+    if stale > 0 {
+        return Err(recovery(format!(
+            "v1 snapshot has {stale} pending reservation(s) made under a freeze epoch other than the current one; \
+             release or abort them with the previous version, upgrade with none pending, then re-reserve"
+        )));
     }
     Ok(state)
 }
