@@ -42,6 +42,7 @@ fn spawn(dir: &Path, name: &'static str) -> Node {
 }
 
 #[test]
+#[ignore = "minutes-long; CI runs it in the dedicated topology job (cargo test ... -- --ignored)"]
 fn provisioned_topology_converges_across_real_processes() {
     let out = tempfile::tempdir().unwrap();
     let base = out.path().join("topology");
@@ -76,6 +77,48 @@ fn provisioned_topology_converges_across_real_processes() {
         .expect("run the gateway check");
     assert!(check.success(), "the topology did not converge");
     println!("topology converged across real processes in {}ms", started.elapsed().as_millis());
+
+    // Loss drill, part 1: a cleanly stopped signer must NOT be able to
+    // rejoin on its own. Signer::open bumps the persisted instance
+    // generation on every open, and the roster pins each signer's
+    // generation, so the restarted core is refused with StaleGeneration
+    // until an admin quorum commits a roster that approves the new
+    // instance. The refusal is the custody property under test.
+    let mut _signers = _signers;
+    let mut stopped = _signers.remove(2);
+    unsafe { libc_kill(stopped.child.id() as i32) };
+    let status = stopped.child.wait().unwrap();
+    assert!(status.success(), "the stopped signer exited uncleanly: {status}");
+    drop(stopped);
+    let mut unauthorized = spawn(&base.join("node-2"), "restarted-signer");
+    let deadline = Instant::now() + Duration::from_secs(120);
+    let refused = loop {
+        if let Some(status) = unauthorized.child.try_wait().unwrap() {
+            break status;
+        }
+        assert!(Instant::now() < deadline, "the unauthorized signer restart neither served nor exited");
+        std::thread::sleep(Duration::from_millis(200));
+    };
+    assert!(!refused.success(), "an unauthorized signer restart was accepted");
+    drop(unauthorized);
+
+    // Loss drill, part 2: stateless and store-backed roles do restart. A
+    // fresh authority process reopens its durable store, and the surviving
+    // two signers plus that authority still pass a degraded-quorum check.
+    unsafe { libc_kill(authority.child.id() as i32) };
+    let mut authority = authority;
+    let status = authority.child.wait().unwrap();
+    assert!(status.success(), "the stopped authority exited uncleanly: {status}");
+    drop(authority);
+    let authority = spawn(&base.join("node-4"), "authority");
+    let degraded = Instant::now();
+    let recheck = oic_node()
+        .args(["run", "--check", "--check-require", "2", "--check-budget", "600", "--dir"])
+        .arg(base.join("node-3"))
+        .status()
+        .expect("run the degraded-quorum check");
+    assert!(recheck.success(), "the surviving quorum did not converge after the losses");
+    println!("degraded 2-of-3 quorum with a restarted authority converged in {}ms", degraded.elapsed().as_millis());
 
     // Clean shutdown: SIGTERM each long-running node; every exit is clean,
     // including the signer cores their parents stop on the way out.

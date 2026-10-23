@@ -64,6 +64,11 @@ enum Cmd {
         /// legitimately take up to a connection-cooldown cycle.
         #[arg(long, default_value_t = 300)]
         check_budget: u64,
+        /// Minimum signers that must answer the probe for --check to pass.
+        /// Below the full roster this is a degraded-quorum check: it proves
+        /// the surviving nodes still serve after a signer loss.
+        #[arg(long, default_value_t = provision::SIGNERS)]
+        check_require: usize,
     },
     /// Internal: the signer-core child entrypoint. Spawned by `run`.
     #[command(hide = true)]
@@ -74,9 +79,16 @@ enum Cmd {
 }
 
 fn main() -> std::process::ExitCode {
+    // Transport diagnostics land on stderr; RUST_LOG picks the level.
+    tracing_subscriber::fmt()
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+        .with_writer(std::io::stderr)
+        .init();
     let result = match Cli::parse().command {
         Cmd::Provision { out, address } => provision::provision(&out, &address, wall_clock()),
-        Cmd::Run { dir, check, check_budget } => run(&dir, check, Duration::from_secs(check_budget)),
+        Cmd::Run { dir, check, check_budget, check_require } => {
+            run(&dir, check, Duration::from_secs(check_budget), check_require)
+        }
         Cmd::Core { dir } => corerun::run(&dir),
     };
     match result {
@@ -92,7 +104,7 @@ fn wall_clock() -> UnixSeconds {
     UnixSeconds(SystemTime::now().duration_since(UNIX_EPOCH).expect("time went backwards").as_secs())
 }
 
-fn run(dir: &Path, check: bool, check_budget: Duration) -> OicResult<()> {
+fn run(dir: &Path, check: bool, check_budget: Duration, check_require: usize) -> OicResult<()> {
     let config = files::read_config(dir)?;
     if check && (config.role != Role::Gateway || config.index != provision::GATEWAY) {
         return Err(OicError::invalid_request("--check runs on the gateway node"));
@@ -148,7 +160,7 @@ fn run(dir: &Path, check: bool, check_budget: Duration) -> OicResult<()> {
             let outcome = tokio::task::spawn_blocking({
                 let gateway = gateway.clone();
                 let handle = tokio::runtime::Handle::current();
-                move || converged(&gateway, &sender, &handle, check_budget)
+                move || converged(&gateway, &sender, &handle, check_budget, check_require)
             })
             .await
             .map_err(|_| OicError::internal("the check task panicked"))?;
@@ -182,12 +194,20 @@ fn run(dir: &Path, check: bool, check_budget: Duration) -> OicResult<()> {
 /// authority. Status cannot decode as an AuthorityRequest, so the authority
 /// probe cannot mutate anything (the same argument as the integration
 /// harness).
-fn converged(gateway: &oic_service_signer_net::Gateway, sender: &oic_node::SendHandle, handle: &tokio::runtime::Handle, budget: Duration) -> OicResult<()> {
+fn converged(gateway: &oic_service_signer_net::Gateway, sender: &oic_node::SendHandle, handle: &tokio::runtime::Handle, budget: Duration, require: usize) -> OicResult<()> {
+    let require = require.min(provision::SIGNERS);
     let started = Instant::now();
     let deadline = started + budget;
-    for index in 0..provision::SIGNERS {
-        let client = gateway.signer(files::node_id(index));
-        loop {
+    // Round-robin until `require` signers have answered: with a signer down,
+    // a strict in-order wait would burn the whole budget on the dead node.
+    let mut responded = std::collections::BTreeSet::new();
+    let mut last_error: Option<OicError> = None;
+    while responded.len() < require {
+        for index in 0..provision::SIGNERS {
+            if responded.contains(&index) {
+                continue;
+            }
+            let client = gateway.signer(files::node_id(index));
             let probe = SessionControl::Status {
                 request_id: 90_000 + index as u64,
                 session_id: SigningSessionId::unchecked("oic-node-check-no-session"),
@@ -196,19 +216,28 @@ fn converged(gateway: &oic_service_signer_net::Gateway, sender: &oic_node::SendH
                 Ok(reply) => {
                     let code = reply.result.err().map(|e| e.code);
                     if code == Some(ErrorCode::NotFound) {
-                        break;
+                        responded.insert(index);
+                    } else {
+                        return Err(OicError::internal(format!("signer {index} returned an unexpected probe reply: {code:?}")));
                     }
-                    return Err(OicError::internal(format!("signer {index} returned an unexpected probe reply: {code:?}")));
                 }
                 Err(e) if matches!(e.code, ErrorCode::RosterMismatch | ErrorCode::AuthorityUnavailable | ErrorCode::Conflict) => {
-                    if Instant::now() >= deadline {
-                        return Err(OicError::new(e.code, format!("signer {index} did not converge within {budget:?}; last error: {e}")));
-                    }
+                    last_error = Some(e);
                 }
                 Err(e) => return Err(e),
             }
-            std::thread::sleep(Duration::from_millis(200));
         }
+        if responded.len() >= require {
+            break;
+        }
+        if Instant::now() >= deadline {
+            let detail = last_error.map(|e| e.to_string()).unwrap_or_else(|| "no probe error".into());
+            return Err(OicError::new(
+                ErrorCode::AuthorityUnavailable,
+                format!("only {}/{require} required signers converged within {budget:?}; last error: {detail}", responded.len()),
+            ));
+        }
+        std::thread::sleep(Duration::from_millis(200));
     }
     let probe = PeerFrameV1::encode_confidential(
         &SessionControl::Status { request_id: 99_000, session_id: SigningSessionId::unchecked("oic-node-check-no-session") },

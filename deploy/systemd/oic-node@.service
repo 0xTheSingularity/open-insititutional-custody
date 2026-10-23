@@ -1,0 +1,42 @@
+# One custody node per instance: the instance name is the node directory
+# under /var/lib/oic, e.g. `systemctl start oic-node@node-0`.
+#
+# Install:
+#   install -m 0755 oic-node /usr/local/bin/oic-node
+#   install -m 0644 deploy/systemd/oic-node@.service /etc/systemd/system/
+#   # put each provisioned node directory at /var/lib/oic/<instance>
+#   systemd-sysusers - <<< 'u oic - "oic custody node" /var/lib/oic'
+#   chown -R oic:oic /var/lib/oic && chmod 0700 /var/lib/oic/*
+#   systemctl daemon-reload && systemctl enable --now oic-node@node-0
+
+[Unit]
+Description=oic custody node (%i)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=oic
+Group=oic
+ExecStart=/usr/local/bin/oic-node run --dir /var/lib/oic/%i
+Restart=on-failure
+RestartSec=5s
+
+# The node reads secrets and writes its ledger only under its own directory.
+ReadWritePaths=/var/lib/oic/%i
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+
+[Install]
+WantedBy=multi-user.target

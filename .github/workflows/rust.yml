@@ -25,3 +25,15 @@ jobs:
       env:
         RUSTFLAGS: --cfg commonware_stability_BETA
       run: cargo check -p oic-service-signer-net --lib --locked
+
+  topology:
+    name: Topology qualification
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@1.95.0
+    - name: Real OS processes sharing one address
+      run: cargo test -p oic-service-node-runner --test topology --locked -- --ignored --nocapture
+    - name: One container and one address per node
+      run: ./deploy/docker/qualify.sh
