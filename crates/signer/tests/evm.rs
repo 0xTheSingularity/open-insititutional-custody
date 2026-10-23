@@ -438,6 +438,10 @@ fn wrong_authority_key_is_invalid_signature() {
     rejected(&node, &env, &c.setup.m, now(), ErrorCode::InvalidSignature);
 }
 
+/// A38: an update whose verifier build hash is not among the accepted
+/// builds cannot contribute a signature, however valid the rest of the
+/// envelope is. The unseal half of the scenario lives in the FROST provider
+/// tests (a38_image_without_the_provisioned_sealing_key_cannot_unseal).
 #[test]
 fn unknown_verifier_build_hash_is_unsupported() {
     let c = evm_case(1);

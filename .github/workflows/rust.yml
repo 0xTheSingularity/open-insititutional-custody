@@ -37,3 +37,44 @@ jobs:
       run: cargo test -p oic-service-node-runner --test topology --locked -- --ignored --nocapture
     - name: One container and one address per node
       run: ./deploy/docker/qualify.sh
+
+  # The chain-rpc end-to-end tests skip themselves when the node binaries are
+  # missing, so this job exists to run them for real: a live anvil node and a
+  # live solana-test-validator, the latter verifying a FROST 2-of-3 signature.
+  real-nodes:
+    name: Real-node chain clients
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@1.95.0
+    - name: Install anvil, forge and cast (Foundry v1.5.1, checksum-pinned)
+      run: |
+        set -euo pipefail
+        curl -fsSL -o foundry.tar.gz \
+          https://github.com/foundry-rs/foundry/releases/download/v1.5.1/foundry_v1.5.1_linux_amd64.tar.gz
+        echo "73640b01bd9ed29fdb4965085099371f8cf0dbbec3e2086cf54564efc4dcfe88  foundry.tar.gz" | sha256sum -c -
+        tar -xzf foundry.tar.gz anvil forge cast
+        sudo install -m 0755 anvil forge cast /usr/local/bin/
+        anvil --version && forge --version && cast --version
+    - name: Install solana-test-validator (Agave v3.1.8, checksum-pinned)
+      run: |
+        set -euo pipefail
+        curl -fsSL -o solana.tar.bz2 \
+          https://github.com/anza-xyz/agave/releases/download/v3.1.8/solana-release-x86_64-unknown-linux-gnu.tar.bz2
+        echo "e951bb8127c57460bc3ebca1671952e9b164e249d713fcebe2c125f70b8791e8  solana.tar.bz2" | sha256sum -c -
+        tar -xjf solana.tar.bz2
+        echo "$PWD/solana-release/bin" >> "$GITHUB_PATH"
+        ./solana-release/bin/solana-test-validator --version
+    - name: Run the real-node loops
+      run: |
+        set -euo pipefail
+        # Refuse to pass silently: every required binary must be present.
+        command -v anvil >/dev/null
+        command -v forge >/dev/null
+        command -v cast >/dev/null
+        command -v solana-test-validator >/dev/null
+        cargo test -p oic-service-chain-rpc --locked -- --nocapture 2>&1 | tee real-nodes.log
+        if grep -q "SKIPPED" real-nodes.log; then
+          echo "::error::a real-node test skipped itself although the binaries are installed"
+          exit 1
+        fi
