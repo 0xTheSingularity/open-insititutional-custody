@@ -209,7 +209,9 @@ fn load_snapshot(path: &Path) -> OicResult<AuthorityState> {
 /// whose epoch differs is refused at release by this version and may be an old
 /// record whose real epoch was lost, so the upgrade stops with
 /// `RecoveryRequired` instead of loading it stuck. Draining has to happen on the
-/// previous version, because this one refuses to open the store.
+/// previous version, because this one refuses to open the store, and it has to
+/// be an abort: a pre-field binary neither records nor checks the epoch, so
+/// releasing there would cross the very freeze this check exists to respect.
 fn migrate_v1(state: AuthorityState) -> OicResult<AuthorityState> {
     let current = state.freeze.freeze_epoch;
     let stale = state
@@ -220,7 +222,7 @@ fn migrate_v1(state: AuthorityState) -> OicResult<AuthorityState> {
     if stale > 0 {
         return Err(recovery(format!(
             "v1 snapshot has {stale} pending reservation(s) made under a freeze epoch other than the current one; \
-             release or abort them with the previous version, upgrade with none pending, then re-reserve"
+             abort them with the previous version, upgrade with none pending, then re-reserve"
         )));
     }
     Ok(state)

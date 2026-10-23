@@ -1273,8 +1273,10 @@ fn v1_snapshot_with_a_stale_pending_reservation_requires_recovery() {
     };
     assert_eq!(err.code, ErrorCode::RecoveryRequired);
     // This version cannot open the store to drain it, so the steps must start
-    // on the previous version.
-    assert!(err.detail.contains("with the previous version"), "{}", err.detail);
+    // on the previous version, and must not offer a release there: a pre-field
+    // binary does not check the freeze epoch, so releasing would cross the freeze.
+    assert!(err.detail.contains("abort them with the previous version"), "{}", err.detail);
+    assert!(!err.detail.contains("release"), "{}", err.detail);
 }
 
 #[test]
