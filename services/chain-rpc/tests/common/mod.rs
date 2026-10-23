@@ -45,9 +45,15 @@ pub fn free_port() -> u16 {
 }
 
 pub fn connect(url: &str) -> EvmRpcClient {
+    connect_with(url, |_| {})
+}
+
+pub fn connect_with(url: &str, configure: impl Fn(&mut EvmRpcConfig)) -> EvmRpcClient {
     let deadline = Instant::now() + Duration::from_secs(30);
     loop {
-        match EvmRpcClient::connect(EvmRpcConfig::development(url)) {
+        let mut cfg = EvmRpcConfig::development(url);
+        configure(&mut cfg);
+        match EvmRpcClient::connect(cfg) {
             Ok(client) => return client,
             Err(e) => {
                 assert!(Instant::now() < deadline, "anvil did not come up: {e}");

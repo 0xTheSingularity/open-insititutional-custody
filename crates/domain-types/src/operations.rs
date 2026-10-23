@@ -143,7 +143,7 @@ pub enum MovementDirection {
 
 /// How the movement was discovered; declared per transfer mechanism so an
 /// operator can see which inflows are covered (§4: EVM internal native
-/// movements need traces and are not promised).
+/// movements need trace APIs, so only trace-enabled sources discover them).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DiscoveryMechanism {
@@ -151,6 +151,9 @@ pub enum DiscoveryMechanism {
     EvmTransactionValue,
     /// EVM: ERC-20 `Transfer` log.
     EvmErc20TransferLog,
+    /// EVM: native value carried by a successful internal frame, from a
+    /// `debug_trace*` callTracer (CALL, CREATE, CREATE2, SELFDESTRUCT).
+    EvmInternalCallValue,
     /// Solana: pre/post lamport delta of the account.
     SolanaLamportDelta,
     /// Solana: pre/post token balance delta of a token account.
