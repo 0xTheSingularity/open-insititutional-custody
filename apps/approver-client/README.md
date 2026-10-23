@@ -248,7 +248,7 @@ Two independently replaying nodes serve the real `NodeApi` routers. No
 a bounded 900-second evidence window; freshness checks remain enabled.
 
 The example explicitly selects `Transport::start_loopback`: every admitted address
-must be loopback, and only the connection retry cooldown is shortened to one second.
+must be loopback, and only the connection retry cooldown is shortened, to two seconds.
 Identity/IP checks and handshake/channel quotas remain enabled. This local startup
 profile does not qualify production connection timing or change normal defaults.
 

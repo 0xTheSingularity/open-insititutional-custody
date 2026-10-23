@@ -52,24 +52,42 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       # GitHub creates the wiki repository only when its first page is saved
-      # in the web UI; it cannot be created by a push.
-      - name: Require an initialized wiki
+      # in the web UI; it cannot be created by a push. Until then, warn and
+      # skip, so a pending setup step does not mark main as failing.
+      - name: Check for an initialized wiki
+        id: wiki
         run: |
-          if ! git ls-remote "https://github.com/${GITHUB_REPOSITORY}.wiki.git" >/dev/null 2>&1; then
-            echo "::error::The wiki has no pages yet. Open the Wiki tab, choose Create the first page, save it, then re-run this workflow."
+          last=""
+          for _ in 1 2 3; do
+            if last=$(git ls-remote "https://github.com/${GITHUB_REPOSITORY}.wiki.git" 2>&1); then
+              echo "ready=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            sleep 5
+          done
+          # Only a missing wiki repository means uninitialized. A DNS, TLS, or
+          # GitHub outage must fail the run, not silently skip the sync.
+          if grep -qiE "repository ('.*' )?not found" <<<"$last"; then
+            echo "::warning::The wiki has no pages yet, so nothing was published. Open the Wiki tab, choose Create the first page, save it, then re-run this workflow."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Could not reach the wiki repository: $last"
             exit 1
           fi
 
       - name: Check out the wiki
+        if: steps.wiki.outputs.ready == 'true'
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: ${{ github.repository }}.wiki
           path: wiki
 
       - name: Build the wiki pages
+        if: steps.wiki.outputs.ready == 'true'
         run: python3 scripts/wiki/build_wiki.py --out wiki --commit "$GITHUB_SHA"
 
       - name: Push the changes
+        if: steps.wiki.outputs.ready == 'true'
         working-directory: wiki
         run: |
           git add -A

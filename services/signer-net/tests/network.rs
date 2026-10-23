@@ -374,7 +374,7 @@ enum Fault {
     DropReleaseReply,
 }
 
-fn roster(world: &World, chain: &Chain) -> (SignedRoster, AdminTrust) {
+fn roster(world: &World, chain: &Chain) -> (SignedRoster, AdminTrust, Vec<TcpListener>) {
     let listeners: Vec<_> = (0..5)
         .map(|_| TcpListener::bind("127.0.0.1:0").unwrap())
         .collect();
@@ -498,12 +498,13 @@ fn roster(world: &World, chain: &Chain) -> (SignedRoster, AdminTrust) {
             })
             .collect(),
     };
-    (SignedRoster { body, signatures }, admins)
+    (SignedRoster { body, signatures }, admins, listeners)
 }
 
 struct Network {
     gateway: Gateway,
     sender: oic_node::SendHandle,
+    authority_sender: oic_node::SendHandle,
     signer_senders: Vec<oic_node::SendHandle>,
     runtime: tokio::runtime::Handle,
     stop: Option<oneshot::Sender<()>>,
@@ -514,6 +515,7 @@ impl Network {
         world: &World,
         roster: SignedRoster,
         admins: AdminTrust,
+        placeholders: Vec<TcpListener>,
         clients: Vec<ipc::Client>,
         fault: Fault,
         calls: Arc<Mutex<Vec<&'static str>>>,
@@ -528,8 +530,16 @@ impl Network {
                 let mut tasks = Vec::new();
                 let mut stops = Vec::new();
                 let mut signer_senders = Vec::new();
-                for index in 0..5 {
+                let mut gateway_parts = None;
+                for (index, placeholder) in placeholders.into_iter().enumerate() {
                     let hash = roster_hash(&roster.body).unwrap();
+                    // `roster` reserved this port. Hold it until just before
+                    // this transport binds, so the remaining window is the
+                    // listener actor's spawn latency, not the seconds the
+                    // signer children take to start. Commonware owns the bind
+                    // and does not set SO_REUSEPORT, so the test cannot close
+                    // that window completely.
+                    drop(placeholder);
                     let transport = Transport::start_loopback(
                         context.child("node").with_attribute("index", index),
                         Config {
@@ -596,9 +606,13 @@ impl Network {
                     stops.push(stop);
                     tasks.push(tokio::spawn(bridge.run(stopped)));
                     if index == GATEWAY {
+                        gateway_parts = Some((gateway, send));
+                    } else if index == AUTHORITY {
+                        let (gateway, gateway_sender) = gateway_parts.take().unwrap();
                         ready
                             .send((
                                 gateway,
+                                gateway_sender,
                                 send,
                                 std::mem::take(&mut signer_senders),
                                 tokio::runtime::Handle::current(),
@@ -616,11 +630,12 @@ impl Network {
             });
             fs::remove_dir_all(storage).unwrap();
         });
-        let (gateway, sender, signer_senders, runtime) =
+        let (gateway, sender, authority_sender, signer_senders, runtime) =
             receive.recv_timeout(Duration::from_secs(20)).unwrap();
         Self {
             gateway,
             sender,
+            authority_sender,
             signer_senders,
             runtime,
             stop: Some(stop),
@@ -658,20 +673,24 @@ impl Network {
                             ErrorCode::RosterMismatch
                                 | ErrorCode::AuthorityUnavailable
                                 | ErrorCode::Conflict
-                        ) => {}
+                        ) =>
+                    {
+                        assert!(
+                            Instant::now() < deadline,
+                            "signer {index} convergence deadline; last error: {e}"
+                        );
+                    }
                     Err(e) => panic!("read-only startup probe: {e}"),
                 }
-                assert!(
-                    Instant::now() < deadline,
-                    "signer {index} convergence deadline"
-                );
                 thread::sleep(Duration::from_millis(100));
             }
         }
         // Authority RPC and signer peer links have no read-only query. Status
-        // cannot decode as AuthorityRequest or SignedPeerMessage, so these
-        // probes cannot mutate either boundary. Check the selected signer pair
-        // too: gateway convergence alone does not prove their direct link ready.
+        // cannot decode as AuthorityRequest or SignedPeerMessage, and the
+        // gateway has no pending reply or authority handler for it, so these
+        // probes cannot mutate any boundary. A probe proves only its sender's
+        // view, and a receiver drops data from a peer it has not converged, so
+        // check the authority link and the selected signer pair from both ends.
         let probe = PeerFrameV1::encode_confidential(
             &SessionControl::Status {
                 request_id: 99_000,
@@ -684,6 +703,7 @@ impl Network {
         .unwrap();
         for (sender, recipient, channel) in [
             (&self.sender, AUTHORITY, 12),
+            (&self.authority_sender, GATEWAY, 12),
             (&self.signer_senders[0], 1, 20),
             (&self.signer_senders[1], 0, 20),
         ] {
@@ -695,13 +715,13 @@ impl Network {
                 )) {
                     Ok(()) => break,
                     Err(e) if matches!(e.code, ErrorCode::RosterMismatch | ErrorCode::Conflict) => {
+                        assert!(
+                            Instant::now() < deadline,
+                            "node {recipient}, channel {channel} convergence deadline; last error: {e}"
+                        );
                     }
                     Err(e) => panic!("nonmutating convergence probe: {e}"),
                 }
-                assert!(
-                    Instant::now() < deadline,
-                    "node {recipient}, channel {channel} convergence deadline"
-                );
                 thread::sleep(Duration::from_millis(100));
             }
         }
@@ -738,7 +758,7 @@ impl Harness {
     ) -> Self {
         let dir = tempfile::tempdir().unwrap();
         fs::set_permissions(dir.path(), fs::Permissions::from_mode(0o700)).unwrap();
-        let (roster, admins) = roster(world, &sol.chain);
+        let (roster, admins, placeholders) = roster(world, &sol.chain);
         let roots = world.trust_roots(vec![sol.chain.profile.clone()]);
         sol.chain.nodes.clear(); // No live participant provider in the network process.
         let cores = sealed
@@ -764,6 +784,7 @@ impl Harness {
             world,
             roster.clone(),
             admins,
+            placeholders,
             cores.iter().map(CoreProcess::client).collect(),
             fault,
             calls.clone(),

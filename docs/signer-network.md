@@ -31,13 +31,21 @@ ten-second deadline and are never retried.
 The D1 process tests, D2 consensus/signing tests and live browser example use
 `Transport::start_loopback(context, config, PaddingProfile::Disabled)`. It rejects
 any roster containing a non-loopback address and lowers only the peer connection
-cooldown to one second. Authentication, IP checks, handshake/channel quotas and
-all deadlines stay unchanged. This shortens retry waits but does not guarantee
-convergence within the readiness budget. Concurrent D1 fixture runs have still
-hit that budget; isolated and concurrent retries have also passed. The precise
-cause of every timeout is not established. This is not production startup
-qualification. `start` and `start_with_padding` retain Commonware's recommended
+cooldown, to two seconds. Authentication, IP checks, handshake/channel quotas and
+all deadlines stay unchanged. The loopback profile is not production startup
+qualification: `start` and `start_with_padding` retain Commonware's recommended
 production cooldown.
+
+The loopback cooldown must stay longer than Commonware's one-second dial
+interval. When idle, the dialer wakes at the next jittered dial time, clamped
+between the dial interval and the cooldown. A one-second cooldown closed that
+range, so nodes started together dialed on one shared one-second grid. Two peers
+that dialed each other on the same tick then refused each other's handshake on
+every retry, until the readiness budget ran out.
+
+Startup is still slow. Every loopback peer shares 127.0.0.1, so each listener
+admits one handshake per five seconds from all peers combined. In local runs on
+four CPUs, the five-node D1 fixture converged in 8 to 56 seconds.
 
 Shutdown probes bind through `commonware_runtime::Network`, matching the actual
 Tokio listener's address-reuse behavior. They also reject a second bind while
