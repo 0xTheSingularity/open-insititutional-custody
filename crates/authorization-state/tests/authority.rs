@@ -1178,3 +1178,73 @@ fn file_store_deleted_snapshot_is_detected() {
     std::fs::remove_file(&path).unwrap();
     assert_eq!(code(FileAuthorityStore::open(&path, None)), ErrorCode::RecoveryRequired);
 }
+
+// Snapshot upgrade from the pre-`reserved_freeze_epoch` (v1) format. The two
+// format tags "oic-authority-snapshot/v2" and ".../v1" are the same length, so
+// a length-preserving byte patch turns a real v2 snapshot into a v1 one without
+// reaching into the store's private types.
+fn relabel_snapshot_v2_as_v1(path: &std::path::Path) {
+    let bytes = std::fs::read(path).unwrap();
+    let from: &[u8] = b"oic-authority-snapshot/v2";
+    let to: &[u8] = b"oic-authority-snapshot/v1";
+    let pos = bytes.windows(from.len()).position(|w| w == from).expect("v2 format tag present in snapshot");
+    let mut patched = bytes.clone();
+    patched[pos..pos + to.len()].copy_from_slice(to);
+    std::fs::write(path, &patched).unwrap();
+}
+
+#[test]
+fn v1_snapshot_with_pending_reservation_requires_recovery() {
+    let dir = TempDir::new("v1-pending");
+    let path = dir.0.join("authority.state");
+    let clock = Arc::new(ManualClock::new(T0));
+    let i = intent(1);
+    let key = IdempotencyKey { institution_id: inst(), route: "r".into(), key: "k".into() };
+    {
+        let a = file_authority(&path, 0, clock.clone()).unwrap();
+        a.set_policy(&policy(1, &[1, 2])).unwrap();
+        let reg = a.register_intent(&i, intent_hash(&i).unwrap(), key.clone()).unwrap();
+        let (epoch, hash) = a.current_policy().unwrap();
+        let req = ReserveRequest {
+            family_id: reg.operation_family_id.clone(),
+            candidate_id: CandidateId::unchecked("c1"),
+            candidate_revision: 1,
+            vault_id: vault(),
+            intent_id: reg.intent_id.clone(),
+            policy_epoch: epoch,
+            policy_hash: hash,
+            exposure_limits: vec![(usdc(), rule().rolling_limits[0].clone())],
+            claims: evm_claims(1, 400, 1),
+            grants: vec![],
+            envelope_body_hash: Hash32([4; 32]),
+            signer_session_id: SigningSessionId::unchecked("s1"),
+            issuance_deadline: UnixSeconds(T0 + 600),
+            policy_decision: Decision::Allow { rule_id: "r-ops".into() },
+        };
+        let (res, _) = a.reserve(req).unwrap();
+        assert!(matches!(a.reservation(&res.reservation_id).unwrap().state, ReservationState::Reserved));
+    }
+    // The v2 snapshot holds a pending reservation; relabel it as a v1 snapshot.
+    // v1 predates the captured freeze epoch, so loading it must demand explicit
+    // recovery rather than silently default the epoch to zero (which release
+    // would then reject across any later freeze).
+    relabel_snapshot_v2_as_v1(&path);
+    assert_eq!(code(FileAuthorityStore::open(&path, None)), ErrorCode::RecoveryRequired);
+}
+
+#[test]
+fn v1_snapshot_without_pending_reservations_upgrades() {
+    let dir = TempDir::new("v1-clean");
+    let path = dir.0.join("authority.state");
+    let clock = Arc::new(ManualClock::new(T0));
+    {
+        // A policy, no reservations: a v2 snapshot with nothing pending.
+        let a = file_authority(&path, 0, clock.clone()).unwrap();
+        a.set_policy(&policy(1, &[1, 2])).unwrap();
+    }
+    relabel_snapshot_v2_as_v1(&path);
+    // Nothing pending depends on a captured freeze epoch, so the v1 snapshot
+    // upgrades cleanly.
+    let store = FileAuthorityStore::open(&path, None).expect("v1 snapshot without pending reservations upgrades");
+    assert!(store.snapshot().reservations.values().all(|r| r.state != ReservationState::Reserved));
+}

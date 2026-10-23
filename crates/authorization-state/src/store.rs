@@ -6,7 +6,7 @@
 //! a failing persist therefore leaves no partial write (A10).
 
 use crate::receipts::{state_hash, verify_checkpoint, SignedCheckpoint};
-use crate::state::AuthorityState;
+use crate::state::{AuthorityState, ReservationState};
 use ed25519_dalek::VerifyingKey;
 use oic_canonical_encoding::{canonical_bytes, from_canonical_bytes, is_canonical};
 use oic_domain_types::*;
@@ -81,7 +81,10 @@ struct SnapshotFile {
     state: AuthorityState,
 }
 
-const SNAPSHOT_FORMAT: &str = "oic-authority-snapshot/v1";
+const SNAPSHOT_FORMAT: &str = "oic-authority-snapshot/v2";
+/// Snapshots written before `ReservationRecord::reserved_freeze_epoch` existed.
+/// A pending reservation in one of these has no recoverable freeze epoch.
+const SNAPSHOT_FORMAT_V1: &str = "oic-authority-snapshot/v1";
 
 fn unavailable(detail: impl std::fmt::Display) -> OicError {
     OicError::new(ErrorCode::AuthorityUnavailable, format!("store: {detail}"))
@@ -185,14 +188,37 @@ fn load_snapshot(path: &Path) -> OicResult<AuthorityState> {
     match fs::read(path) {
         Ok(bytes) => {
             let file: SnapshotFile = from_canonical_bytes(&bytes).map_err(|e| recovery(format!("snapshot unreadable: {}", e.detail)))?;
-            if file.format != SNAPSHOT_FORMAT {
-                return Err(recovery(format!("unknown snapshot format {}", file.format)));
+            match file.format.as_str() {
+                SNAPSHOT_FORMAT => Ok(file.state),
+                SNAPSHOT_FORMAT_V1 => migrate_v1(file.state),
+                other => Err(recovery(format!("unknown snapshot format {other}"))),
             }
-            Ok(file.state)
         }
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(AuthorityState::default()),
         Err(e) => Err(unavailable(e)),
     }
+}
+
+/// Upgrade a pre-`reserved_freeze_epoch` (v1) snapshot. Terminal reservations
+/// never re-run the release freeze-epoch check, so a v1 snapshot without a
+/// pending reservation upgrades cleanly. A *pending* (`Reserved`) reservation
+/// has no recoverable captured epoch — serde would supply zero, which release
+/// then reads as "reserved before any freeze" and rejects across any later
+/// freeze. Rather than silently load a reservation that can no longer be
+/// released, require it to be drained first, mirroring the explicit
+/// `RecoveryRequired` path used for an unreadable or rolled-back snapshot.
+fn migrate_v1(state: AuthorityState) -> OicResult<AuthorityState> {
+    let pending = state
+        .reservations
+        .values()
+        .any(|r| r.state == ReservationState::Reserved);
+    if pending {
+        return Err(recovery(
+            "v1 snapshot has pending reservations whose captured freeze epoch predates this version; \
+             abort and re-reserve them, then upgrade",
+        ));
+    }
+    Ok(state)
 }
 
 fn read_hwm(path: &Path) -> OicResult<u64> {
