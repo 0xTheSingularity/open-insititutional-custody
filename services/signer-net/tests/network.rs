@@ -533,9 +533,12 @@ impl Network {
                 let mut gateway_parts = None;
                 for (index, placeholder) in placeholders.into_iter().enumerate() {
                     let hash = roster_hash(&roster.body).unwrap();
-                    // `roster` reserved this port. Hold it until this transport
-                    // starts: a parallel test can take a free port while the
-                    // signer child processes start.
+                    // `roster` reserved this port. Hold it until just before
+                    // this transport binds, so the remaining window is the
+                    // listener actor's spawn latency, not the seconds the
+                    // signer children take to start. Commonware owns the bind
+                    // and does not set SO_REUSEPORT, so the test cannot close
+                    // that window completely.
                     drop(placeholder);
                     let transport = Transport::start_loopback(
                         context.child("node").with_attribute("index", index),
