@@ -248,21 +248,25 @@ impl<'a> Reader<'a> {
                 let n = self.arg(info, at)?;
                 let n = self.count(n)?;
                 let mut map = BTreeMap::new();
-                let mut last_key: Option<Vec<u8>> = None;
+                // Compare each key against the previous one by its byte range in
+                // the input buffer, not an owned copy. A nested map therefore
+                // never holds a second set of key encodings while decoding, and
+                // the owned key is materialized only once the order check passes.
+                let mut last_key: Option<std::ops::Range<usize>> = None;
                 for _ in 0..n {
                     let kstart = self.pos;
                     let key = self.value(depth + 1)?;
-                    let kbytes = self.buf[kstart..self.pos].to_vec();
+                    let krange = kstart..self.pos;
                     if let Some(prev) = &last_key {
-                        match prev.as_slice().cmp(kbytes.as_slice()) {
+                        match self.buf[prev.clone()].cmp(&self.buf[krange.clone()]) {
                             std::cmp::Ordering::Less => {}
                             std::cmp::Ordering::Equal => return Err(CodecError::DuplicateKey(kstart)),
                             std::cmp::Ordering::Greater => return Err(CodecError::KeyOrder(kstart)),
                         }
                     }
                     let val = self.value(depth + 1)?;
-                    last_key = Some(kbytes.clone());
-                    map.insert(kbytes, (key, val));
+                    last_key = Some(krange.clone());
+                    map.insert(self.buf[krange].to_vec(), (key, val));
                 }
                 Ok(Value::Map(map))
             }
