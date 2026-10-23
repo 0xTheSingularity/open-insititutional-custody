@@ -254,6 +254,88 @@ fn dkg_shares_are_sealed_per_instance_and_reload() {
     assert!(again[0].load_share(&d3, &pid("alice"), &res.sealed_shares[0].1).is_err());
 }
 
+/// A32 (loss of a permitted signer domain): the surviving quorum completes a
+/// test transfer without the lost domain, and reviewed recovery (RFC 0001
+/// §7.4 "restore one share") brings the lost participant back as an approved
+/// replacement instance that signs again. The on-chain half of the scenario —
+/// an actual transfer signed by a 2-subset against a live validator — runs in
+/// services/chain-rpc's Solana loop; this test owns the loss and restore
+/// mechanics. Fencing of the stale instance is covered by
+/// peer_message_validation_and_stale_generation.
+#[test]
+fn a32_lost_domain_survivors_transfer_and_replacement_instance_restores() {
+    let (ps, res) = dkg3();
+    let transfer = b"test transfer: 1 SOL, vault -> beneficiary-42";
+
+    // bob's domain is lost. The transfer completes with alice and carol
+    // alone - no dependence on the lost domain or its cloud account.
+    let survivors = Run::start(vec![&ps[0], &ps[2]], "a32-survivors", transfer);
+    dalek_verify(&res.descriptor.public_key, transfer, &survivors.sign(transfer).unwrap());
+
+    // Reviewed restore: bob's sealed share recovers into a fresh approved
+    // replacement instance, configured with bob's sealing key ([2; 32] in
+    // this harness). The sealed blob is all that leaves the backup.
+    let replacement = FrostEd25519Provider::new(pid("bob"), [2; 32], Box::new(StdRng::seed_from_u64(7777))).unwrap();
+    let (p, sealed) = &res.sealed_shares[1];
+    assert_eq!(p.as_str(), "bob");
+    replacement.load_share(&res.descriptor, p, sealed).unwrap();
+
+    // The restored domain signs the next transfer with a surviving peer.
+    let after = b"test transfer after recovery";
+    let run = Run::start(vec![&replacement, &ps[0]], "a32-restored", after);
+    dalek_verify(&res.descriptor.public_key, after, &run.sign(after).unwrap());
+
+    // A replacement provisioned with the wrong sealing key - an unapproved
+    // instance - cannot take over the share.
+    let imposter = FrostEd25519Provider::new(pid("bob"), [0xEE; 32], Box::new(StdRng::seed_from_u64(7778))).unwrap();
+    assert!(imposter.load_share(&res.descriptor, p, sealed).is_err());
+}
+
+/// A38 (unauthorized plugin/update or debug image attempts key unseal): an
+/// image that does not carry the operator-provisioned sealing key cannot
+/// unseal any share, whatever else it got right. The configuration-policy
+/// half of the scenario is enforced at two higher layers: a signer refuses
+/// an envelope whose verifier build is not an accepted build
+/// (unknown_verifier_build_hash_is_unsupported in crates/signer), and the
+/// signer core refuses to open a session whose verifier_build_hash is not in
+/// the node's approved_build_hashes (services/signer-core/src/lib.rs).
+#[test]
+fn a38_image_without_the_provisioned_sealing_key_cannot_unseal() {
+    let (ps, res) = dkg3();
+    let (p, sealed) = &res.sealed_shares[0];
+
+    // The unauthorized image knows the participant, descriptor and sealed
+    // blob - everything on disk - but not the sealing key.
+    let debug_image = FrostEd25519Provider::new(pid("alice"), [0xBD; 32], Box::new(StdRng::seed_from_u64(66))).unwrap();
+    assert!(debug_image.load_share(&res.descriptor, p, sealed).is_err());
+
+    // A descriptor rewritten to smuggle the share toward another backend or
+    // key is refused even with the right sealing key (context binding).
+    let mut d = res.descriptor.clone();
+    d.backend_id = "dev-single-key".into();
+    assert!(ps[0].load_share(&d, p, sealed).is_err());
+}
+
+/// Removal does not revoke: a removed signer that kept its old share still
+/// reaches the 2-of-3 threshold with one colluding peer, on the unchanged
+/// group key, and the backend declares no refresh or reshare capability
+/// (descriptor test), so RFC 0001 §7.4 key replacement and asset migration
+/// are the only remedies. The acceptance scenario for removal additionally
+/// requires a residual-authority evaluation step in the roster-transition
+/// path; that machinery does not exist yet, so this test documents the
+/// threat fact without claiming the scenario closed.
+#[test]
+fn removed_signer_share_keeps_threshold_power_until_assets_migrate() {
+    let (ps, res) = dkg3();
+    // carol is removed from the roster. Honest nodes fence her stale
+    // generation (peer_message_validation_and_stale_generation), but no
+    // message reaches her share: with bob colluding, the two of them still
+    // produce a valid signature for the vault's unchanged public key.
+    let colluders = Run::start(vec![&ps[1], &ps[2]], "post-removal", b"spend after removal");
+    let sig = colluders.sign(b"spend after removal").unwrap();
+    dalek_verify(&res.descriptor.public_key, b"spend after removal", &sig);
+}
+
 #[test]
 fn trusted_dealer_path_is_explicit_and_works() {
     let names = ["alice", "bob", "carol"];
