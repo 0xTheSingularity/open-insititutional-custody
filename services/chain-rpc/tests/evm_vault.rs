@@ -8,10 +8,12 @@
 //! Needs `anvil`, `forge` and `cast` (Foundry). Absent binaries print a
 //! skip notice; CI installs them and fails on skips.
 //!
-//! Discovery honesty: the vault pays the beneficiary through an internal
-//! call, which carries no transaction value, so block-effect discovery does
-//! not see it (that needs trace APIs, a known gap shared with the
-//! simulator). Settlement is proven by balances at a settled state instead.
+//! Discovery: the vault pays the beneficiary through an internal call,
+//! which carries no transaction value. With `trace_internal_transfers` on,
+//! the client discovers that movement from callTracer traces, and this test
+//! asserts the vault-to-beneficiary leg at the withdrawal block. On
+//! providers without debug APIs the gap remains (the option then fails
+//! loudly), so balance-based settlement stays asserted as well.
 
 use k256::ecdsa::SigningKey;
 use oic_adapter_evm::evidence::{get_tx_observation, get_u128, get_u64, KEY_BASE_FEE, KEY_PRIORITY_FEE};
@@ -27,7 +29,7 @@ use std::process::Command;
 use std::time::{Duration, Instant};
 
 mod common;
-use common::{connect, Anvil, DEV_KEY};
+use common::{connect_with, Anvil, DEV_KEY};
 
 /// Anvil account 0: the relayer. It pays gas; it is not an owner.
 const RELAYER_ADDRESS: &str = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
@@ -60,8 +62,9 @@ fn hex_addr(address: &[u8; 20]) -> String {
     format!("0x{}", hex::encode(address))
 }
 
-/// Sign with the relayer key at its live nonce and submit through the client.
-fn relay(client: &EvmRpcClient, to: [u8; 20], value: u128, data: Vec<u8>) -> bool {
+/// Sign with the relayer key at its live nonce, submit through the client,
+/// and report the outcome with the inclusion height.
+fn relay(client: &EvmRpcClient, to: [u8; 20], value: u128, data: Vec<u8>) -> (bool, u64) {
     let key = SigningKey::from_bytes((&DEV_KEY).into()).unwrap();
     let sender = address_of(&key).unwrap();
     let build = client.build_evidence(&[sender], &[], Commitment::Latest).unwrap();
@@ -97,7 +100,7 @@ fn relay(client: &EvmRpcClient, to: [u8; 20], value: u128, data: Vec<u8>) -> boo
         let bundle = client.evidence_for_tx(&client.sources()[0], &tx_id, Commitment::Latest).unwrap();
         let observation = get_tx_observation(&bundle, &hash).unwrap();
         if observation.included {
-            return observation.success;
+            return (observation.success, observation.block_height);
         }
         assert!(Instant::now() < deadline, "transaction {tx_id:?} was not included");
         std::thread::sleep(Duration::from_millis(200));
@@ -158,11 +161,13 @@ fn quorum_vault_withdrawal_needs_two_of_three_owners() {
     let mut vault = [0u8; 20];
     vault.copy_from_slice(&hex::decode(vault_hex.trim_start_matches("0x")).unwrap());
 
-    let client = connect(&anvil.url);
+    // Tracing on: this test's withdrawal moves value in an internal call,
+    // and discovery must see it.
+    let client = connect_with(&anvil.url, |cfg| cfg.trace_internal_transfers = true);
 
     // Deposit one ether into custody.
     let one_ether: u128 = 1_000_000_000_000_000_000;
-    assert!(relay(&client, vault, one_ether, Vec::new()), "the deposit reverted");
+    assert!(relay(&client, vault, one_ether, Vec::new()).0, "the deposit reverted");
     assert_eq!(native_balance(&client, vault), one_ether);
 
     // Withdrawal: owners 0 and 2 (an arbitrary quorum pair, as in the Solana
@@ -197,18 +202,36 @@ fn quorum_vault_withdrawal_needs_two_of_three_owners() {
     };
 
     // One owner alone (duplicated signature) must not move funds.
-    assert!(!relay(&client, vault, 0, execute(&sig0, &sig0)), "a single owner moved funds");
+    assert!(!relay(&client, vault, 0, execute(&sig0, &sig0)).0, "a single owner moved funds");
     // A non-owner co-signature must not move funds.
     let outsider = SigningKey::from_bytes((&[0x44u8; 32]).into()).unwrap();
-    assert!(!relay(&client, vault, 0, execute(&sig0, &sign_digest(&outsider, &digest))), "a non-owner moved funds");
+    assert!(!relay(&client, vault, 0, execute(&sig0, &sign_digest(&outsider, &digest))).0, "a non-owner moved funds");
     assert_eq!(native_balance(&client, vault), one_ether);
 
     // The real quorum succeeds exactly once: the nonce in the digest makes
     // the signatures single-use, so the replay reverts.
     let calldata = execute(&sig0, &sig2);
-    assert!(relay(&client, vault, 0, calldata.clone()), "the quorum withdrawal reverted");
+    let (ok, withdrawal_height) = relay(&client, vault, 0, calldata.clone());
+    assert!(ok, "the quorum withdrawal reverted");
     assert_eq!(native_balance(&client, vault), one_ether - value);
     assert_eq!(native_balance(&client, beneficiary), value);
-    assert!(!relay(&client, vault, 0, calldata), "a replayed authorization moved funds");
+    assert!(!relay(&client, vault, 0, calldata).0, "a replayed authorization moved funds");
     assert_eq!(native_balance(&client, vault), one_ether - value);
+
+    // Trace-based discovery sees the internal payment as a movement pair at
+    // the withdrawal block: the vault outbound, the beneficiary inbound.
+    let block = BlockSource::block(&client, withdrawal_height).unwrap();
+    let internal: Vec<_> =
+        block.effects.iter().filter(|e| e.mechanism == DiscoveryMechanism::EvmInternalCallValue).collect();
+    assert_eq!(internal.len(), 2, "expected exactly the vault's internal payment, got {internal:?}");
+    for (leg, address, counterparty) in
+        [(internal[0], vault, beneficiary), (internal[1], beneficiary, vault)]
+    {
+        assert_eq!(leg.address.as_slice(), address);
+        assert_eq!(leg.counterparty.as_slice(), counterparty);
+        assert_eq!(leg.amount.0, value);
+        assert_eq!(leg.asset, AssetKind::Native);
+    }
+    assert_eq!(internal[0].direction, MovementDirection::Outbound);
+    assert_eq!(internal[1].direction, MovementDirection::Inbound);
 }

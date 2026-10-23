@@ -49,6 +49,12 @@ pub struct EvmRpcConfig {
     pub finality_depth: u64,
     /// Gas limit reported as build evidence (includes margin).
     pub evidence_gas_limit: u64,
+    /// Also discover native value moved by internal call frames, through
+    /// `debug_traceBlockByNumber` with the callTracer. Off by default:
+    /// public providers often disable debug APIs, and the capability must
+    /// degrade loudly - when tracing is on, a node that refuses or garbles
+    /// the call fails `block()` instead of returning partial effects.
+    pub trace_internal_transfers: bool,
 }
 
 impl EvmRpcConfig {
@@ -62,6 +68,7 @@ impl EvmRpcConfig {
             trust_level: EvidenceTrustLevel::SingleProvider,
             finality_depth: 1,
             evidence_gas_limit: 65_000,
+            trace_internal_transfers: false,
         }
     }
 }
@@ -342,7 +349,8 @@ impl BlockSource for EvmRpcClient {
 
     /// Discover nonzero fee, successful transaction-value, and classic ERC-20
     /// Transfer legs, mirroring the development-simulator source exactly so a
-    /// movement is attributed identically whichever source observed it.
+    /// movement is attributed identically whichever source observed it. With
+    /// `trace_internal_transfers` on, internal native value legs join them.
     fn block(&self, height: u64) -> OicResult<IndexedBlock> {
         let block = self.rpc.call_value("eth_getBlockByNumber", json!([to_quantity(height), true]))?;
         if block.is_null() {
@@ -359,6 +367,9 @@ impl BlockSource for EvmRpcClient {
         }
         let state = StateReference { height, hash: Bytes(header.hash.to_vec()), commitment: LATEST_COMMITMENT.to_string() };
         let mut effects = Vec::new();
+        // Per transaction: the first effect index a trace leg may use, past
+        // the fee, value and log legs numbered below.
+        let mut trace_bases = Vec::with_capacity(txs.len());
         for (tx, receipt) in txs.iter().zip(receipts) {
             let hash: [u8; 32] = data_fixed(&tx["hash"], "tx hash")?;
             // The two reads race a reorg: bind every receipt to this exact
@@ -395,6 +406,14 @@ impl BlockSource for EvmRpcClient {
                 }
             };
             push(0, from, [0; 20], MovementDirection::Outbound, AssetKind::Native, fee, DiscoveryMechanism::EvmTransactionValue, EffectKind::Fee);
+            let log_count = receipt["logs"].as_array().map(Vec::len).unwrap_or(0);
+            trace_bases.push(
+                u32::try_from(log_count)
+                    .ok()
+                    .and_then(|n| n.checked_mul(2))
+                    .and_then(|n| n.checked_add(3))
+                    .ok_or_else(|| OicError::unverifiable("too many logs"))?,
+            );
             if success {
                 push(1, from, to, MovementDirection::Outbound, AssetKind::Native, value, DiscoveryMechanism::EvmTransactionValue, EffectKind::Transfer);
                 push(2, to, from, MovementDirection::Inbound, AssetKind::Native, value, DiscoveryMechanism::EvmTransactionValue, EffectKind::Transfer);
@@ -424,6 +443,9 @@ impl BlockSource for EvmRpcClient {
                     push(index + 1, log_to, log_from, MovementDirection::Inbound, asset, amount, DiscoveryMechanism::EvmErc20TransferLog, EffectKind::Transfer);
                 }
             }
+        }
+        if self.cfg.trace_internal_transfers {
+            self.trace_effects(txs, &trace_bases, &mut effects)?;
         }
         Ok(IndexedBlock { state, parent_hash: Bytes(header.parent_hash.to_vec()), effects })
     }
@@ -460,6 +482,76 @@ impl BlockSource for EvmRpcClient {
     }
 }
 
+impl EvmRpcClient {
+    /// Native value moved by successful internal frames, from each
+    /// transaction's callTracer trace. `debug_traceTransaction` is the most
+    /// widely supported trace API and binds every trace to its hash. Loud by
+    /// design: a node that refuses a call or returns a malformed trace fails
+    /// the whole read - partial effect lists would quietly turn real
+    /// movements invisible again.
+    ///
+    /// Counted frames: CALL, CREATE, CREATE2 and SELFDESTRUCT with nonzero
+    /// value, outside reverted subtrees. The root frame is the transaction
+    /// itself, already discovered as transaction value. DELEGATECALL,
+    /// STATICCALL and CALLCODE move no value between distinct accounts (some
+    /// nodes still echo a value field on them), so they are skipped.
+    fn trace_effects(&self, txs: &[Value], bases: &[u32], effects: &mut Vec<ChainEffect>) -> OicResult<()> {
+        for (tx, base) in txs.iter().zip(bases) {
+            let hash: [u8; 32] = data_fixed(&tx["hash"], "tx hash")?;
+            let root = self
+                .rpc
+                .call_value("debug_traceTransaction", json!([to_hex(&hash), { "tracer": "callTracer" }]))?;
+            // A node that ignores the tracer argument answers with struct
+            // logs; silence on that shape would hide real movements.
+            if root.get("type").and_then(Value::as_str).is_none() {
+                return Err(OicError::unverifiable("the node did not honor the callTracer"));
+            }
+            if root.get("error").is_some_and(|e| !e.is_null()) {
+                continue; // the whole transaction reverted; nothing persisted
+            }
+            let root = &root;
+            let id = tx_id(&hash);
+            let mut next = *base;
+            // Iterative walk: a hostile node must not pick our stack depth.
+            let mut frames: Vec<&Value> = subcalls(root)?.iter().rev().collect();
+            while let Some(frame) = frames.pop() {
+                if frame.get("error").is_some_and(|e| !e.is_null()) {
+                    continue; // reverted subtree: its effects were rolled back
+                }
+                let kind = frame["type"].as_str().ok_or_else(|| OicError::unverifiable("trace frame has no type"))?;
+                let value = match frame.get("value") {
+                    None | Some(Value::Null) => 0,
+                    Some(v) => quantity_u128(v, "frame value")?,
+                };
+                if matches!(kind, "CALL" | "CREATE" | "CREATE2" | "SELFDESTRUCT") && value > 0 {
+                    let from: Address = data_fixed(&frame["from"], "frame from")?;
+                    let to: Address = data_fixed(&frame["to"], "frame to")?;
+                    for (index, address, counterparty, direction) in
+                        [(next, from, to, MovementDirection::Outbound), (next + 1, to, from, MovementDirection::Inbound)]
+                    {
+                        effects.push(ChainEffect {
+                            tx_id: id.clone(),
+                            index,
+                            address: Bytes(address.to_vec()),
+                            counterparty: Bytes(counterparty.to_vec()),
+                            direction,
+                            asset: AssetKind::Native,
+                            amount: Amount(value),
+                            mechanism: DiscoveryMechanism::EvmInternalCallValue,
+                            kind: EffectKind::Transfer,
+                        });
+                    }
+                    next = next.checked_add(2).ok_or_else(|| OicError::unverifiable("too many internal transfers"))?;
+                }
+                for child in subcalls(frame)?.iter().rev() {
+                    frames.push(child);
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
 fn tag(commitment: Commitment) -> &'static str {
     commitment_str(commitment)
 }
@@ -484,6 +576,15 @@ fn transactions(block: &Value) -> OicResult<&Vec<Value>> {
     block["transactions"]
         .as_array()
         .ok_or_else(|| OicError::stale_evidence("block transactions is not a list"))
+}
+
+/// A callTracer frame's child frames; absent means none.
+fn subcalls(frame: &Value) -> OicResult<&[Value]> {
+    match frame.get("calls") {
+        None | Some(Value::Null) => Ok(&[]),
+        Some(Value::Array(calls)) => Ok(calls),
+        Some(_) => Err(OicError::unverifiable("trace calls is not a list")),
+    }
 }
 
 /// The header fields this client reads from `eth_getBlockByNumber`.
