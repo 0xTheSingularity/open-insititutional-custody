@@ -15,6 +15,7 @@ Use [core concepts](concepts.md) when a custody term is unfamiliar.
 | Bootstrap and restart a development HTTP custody stack | [Local simulator stack](local-stack.md) |
 | Set up local approval trust and credentials | [Approval client](approval-client.md) |
 | Exercise D1 signing and D2 consensus over Commonware | [Signer network](signer-network.md) |
+| See which RFC 0001 acceptance scenarios have tests | [Acceptance test coverage](acceptance-coverage.md) |
 | Build the separate fixed-committee WASM/passkey verifier | [Independent D2 approver](../apps/approver-client/README.md) |
 | Choose tests, check vectors and run the authority model | [Development](development.md) |
 | Find a subsystem or trace its behavior | [OpenWiki quickstart](../openwiki/quickstart.md) |
