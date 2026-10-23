@@ -404,6 +404,16 @@ impl BlockSource for SolanaRpcClient {
             }
             let pre_tokens = token_balances(&meta["preTokenBalances"])?;
             let post_tokens = token_balances(&meta["postTokenBalances"])?;
+            // Every token-balance index is untrusted RPC data: it must name
+            // one of this transaction's accounts.
+            for t in pre_tokens.iter().chain(&post_tokens) {
+                if t.index >= account_keys.len() {
+                    return Err(OicError::stale_evidence("token balance names an account index outside the transaction"));
+                }
+            }
+            if account_keys.is_empty() {
+                return Err(OicError::stale_evidence("a transaction needs at least its fee payer account"));
+            }
             let mut index = 0;
             let mut push = |address: Pubkey, asset, pre_amount: u128, post_amount: u128, mechanism, kind| {
                 if pre_amount != post_amount {

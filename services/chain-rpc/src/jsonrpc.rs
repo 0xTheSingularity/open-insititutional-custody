@@ -14,6 +14,9 @@ use std::time::Duration;
 /// One HTTP JSON-RPC endpoint.
 pub struct Endpoint {
     url: String,
+    /// Scheme and host only. Errors carry this, never the full URL: RPC URLs
+    /// routinely embed provider API keys in their path or query.
+    redacted: String,
     http: reqwest::blocking::Client,
     next_id: AtomicU64,
 }
@@ -21,12 +24,14 @@ pub struct Endpoint {
 impl Endpoint {
     /// `timeout` bounds each call end to end; connect time is bounded separately.
     pub fn new(url: impl Into<String>, timeout: Duration) -> OicResult<Self> {
+        let url = url.into();
+        let redacted = redact(&url);
         let http = reqwest::blocking::Client::builder()
             .timeout(timeout)
             .connect_timeout(Duration::from_secs(5))
             .build()
             .map_err(|e| OicError::internal(format!("building the RPC HTTP client failed: {e}")))?;
-        Ok(Endpoint { url: url.into(), http, next_id: AtomicU64::new(1) })
+        Ok(Endpoint { url, redacted, http, next_id: AtomicU64::new(1) })
     }
 
     pub fn url(&self) -> &str {
@@ -48,26 +53,34 @@ impl Endpoint {
             .post(&self.url)
             .json(&body)
             .send()
-            .map_err(|e| rpc_error(&self.url, method, format!("transport failure: {e}")))?;
+            .map_err(|e| rpc_error(&self.redacted, method, format!("transport failure: {}", e.without_url())))?;
         let status = response.status();
         if !status.is_success() {
-            return Err(rpc_error(&self.url, method, format!("HTTP {status}")));
+            return Err(rpc_error(&self.redacted, method, format!("HTTP {status}")));
         }
         let envelope: Value = response
             .json()
-            .map_err(|e| rpc_error(&self.url, method, format!("response is not JSON: {e}")))?;
+            .map_err(|e| rpc_error(&self.redacted, method, format!("response is not JSON: {}", e.without_url())))?;
         if let Some(error) = envelope.get("error").filter(|e| !e.is_null()) {
-            return Err(rpc_error(&self.url, method, format!("node error: {error}")));
+            return Err(rpc_error(&self.redacted, method, format!("node error: {error}")));
         }
         envelope
             .get("result")
             .cloned()
-            .ok_or_else(|| rpc_error(&self.url, method, "response has no result".into()))
+            .ok_or_else(|| rpc_error(&self.redacted, method, "response has no result".into()))
     }
 }
 
-fn rpc_error(url: &str, method: &str, detail: String) -> OicError {
-    OicError::stale_evidence(format!("{method} against {url}: {detail}"))
+fn rpc_error(redacted: &str, method: &str, detail: String) -> OicError {
+    OicError::stale_evidence(format!("{method} against {redacted}: {detail}"))
+}
+
+/// Scheme and host(:port) only: no userinfo, path or query.
+fn redact(url: &str) -> String {
+    let (scheme, rest) = url.split_once("://").unwrap_or(("", url));
+    let authority = rest.split(['/', '?', '#']).next().unwrap_or("");
+    let host = authority.rsplit_once('@').map_or(authority, |(_, h)| h);
+    if scheme.is_empty() { host.to_string() } else { format!("{scheme}://{host}") }
 }
 
 /// Decode a 0x-prefixed hex quantity (variable length) into `u128`.

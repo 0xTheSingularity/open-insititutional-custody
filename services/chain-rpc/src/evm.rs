@@ -361,6 +361,13 @@ impl BlockSource for EvmRpcClient {
         let mut effects = Vec::new();
         for (tx, receipt) in txs.iter().zip(receipts) {
             let hash: [u8; 32] = data_fixed(&tx["hash"], "tx hash")?;
+            // The two reads race a reorg: bind every receipt to this exact
+            // block and transaction before pairing their fields.
+            if data_fixed::<32>(&receipt["blockHash"], "receipt blockHash")? != header.hash
+                || data_fixed::<32>(&receipt["transactionHash"], "receipt transactionHash")? != hash
+            {
+                return Err(OicError::stale_evidence("receipts belong to a different block; backfill required"));
+            }
             let id = tx_id(&hash);
             let from: Address = data_fixed(&tx["from"], "tx from")?;
             let to: Address = match &tx["to"] {
