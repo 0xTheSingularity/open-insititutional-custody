@@ -6,7 +6,7 @@
 //! a failing persist therefore leaves no partial write (A10).
 
 use crate::receipts::{state_hash, verify_checkpoint, SignedCheckpoint};
-use crate::state::AuthorityState;
+use crate::state::{AuthorityState, ReservationState};
 use ed25519_dalek::VerifyingKey;
 use oic_canonical_encoding::{canonical_bytes, from_canonical_bytes, is_canonical};
 use oic_domain_types::*;
@@ -81,7 +81,10 @@ struct SnapshotFile {
     state: AuthorityState,
 }
 
-const SNAPSHOT_FORMAT: &str = "oic-authority-snapshot/v1";
+const SNAPSHOT_FORMAT: &str = "oic-authority-snapshot/v2";
+/// Snapshots written before `ReservationRecord::reserved_freeze_epoch` existed.
+/// A pending reservation in one of these has no recoverable freeze epoch.
+const SNAPSHOT_FORMAT_V1: &str = "oic-authority-snapshot/v1";
 
 fn unavailable(detail: impl std::fmt::Display) -> OicError {
     OicError::new(ErrorCode::AuthorityUnavailable, format!("store: {detail}"))
@@ -185,14 +188,44 @@ fn load_snapshot(path: &Path) -> OicResult<AuthorityState> {
     match fs::read(path) {
         Ok(bytes) => {
             let file: SnapshotFile = from_canonical_bytes(&bytes).map_err(|e| recovery(format!("snapshot unreadable: {}", e.detail)))?;
-            if file.format != SNAPSHOT_FORMAT {
-                return Err(recovery(format!("unknown snapshot format {}", file.format)));
+            match file.format.as_str() {
+                SNAPSHOT_FORMAT => Ok(file.state),
+                SNAPSHOT_FORMAT_V1 => migrate_v1(file.state),
+                other => Err(recovery(format!("unknown snapshot format {other}"))),
             }
-            Ok(file.state)
         }
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(AuthorityState::default()),
         Err(e) => Err(unavailable(e)),
     }
+}
+
+/// Upgrade a v1 snapshot. v1 covers records written before
+/// `reserved_freeze_epoch` existed, which serde gives an epoch of zero. A
+/// pending (`Reserved`) record whose epoch matches the snapshot's current
+/// freeze epoch is still releasable and its epoch is trustworthy: a stored
+/// nonzero epoch came from a version that had the field, and a defaulted zero
+/// against a current zero means no freeze ever happened, since the epoch only
+/// increases. Terminal records never re-run the release check. A pending record
+/// whose epoch differs is refused at release by this version and may be an old
+/// record whose real epoch was lost, so the upgrade stops with
+/// `RecoveryRequired` instead of loading it stuck. Draining has to happen on the
+/// previous version, because this one refuses to open the store, and it has to
+/// be an abort: a pre-field binary neither records nor checks the epoch, so
+/// releasing there would cross the very freeze this check exists to respect.
+fn migrate_v1(state: AuthorityState) -> OicResult<AuthorityState> {
+    let current = state.freeze.freeze_epoch;
+    let stale = state
+        .reservations
+        .values()
+        .filter(|r| r.state == ReservationState::Reserved && r.reserved_freeze_epoch != current)
+        .count();
+    if stale > 0 {
+        return Err(recovery(format!(
+            "v1 snapshot has {stale} pending reservation(s) made under a freeze epoch other than the current one; \
+             abort them with the previous version, upgrade with none pending, then re-reserve"
+        )));
+    }
+    Ok(state)
 }
 
 fn read_hwm(path: &Path) -> OicResult<u64> {
