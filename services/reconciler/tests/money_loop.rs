@@ -1363,6 +1363,9 @@ fn accepted_deposit_reorg_reversal_survives_restart_and_reinclusion() {
     );
 }
 
+/// A35: an effect that differs from expected contract behavior is
+/// quarantined with a case, and a divergent independent read yields an
+/// inconsistent checkpoint that only an explicit quorum correction repairs.
 #[test]
 fn unknown_token_is_quarantined_and_differences_need_unique_admin_quorum() {
     use ed25519_dalek::Signer as _;
