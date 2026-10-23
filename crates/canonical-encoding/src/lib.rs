@@ -145,6 +145,33 @@ mod tests {
     }
 
     #[test]
+    fn nested_map_key_order_is_enforced_at_depth() {
+        // Guards the depth-aware key comparison: the decoder validates nested
+        // map key order against the previous key's input bytes, not a retained
+        // copy, so ordering, duplicate detection, and round-trip must still hold
+        // one level down.
+        // {"m": {"a": 1, "b": 2}} — canonical.
+        let ok = [0xa1, 0x61, 0x6d, 0xa2, 0x61, 0x61, 0x01, 0x61, 0x62, 0x02];
+        let v = value::decode(&ok).expect("canonical nested map decodes");
+        assert_eq!(value::encode(&v), ok, "nested map round-trips to identical bytes");
+        match v {
+            Value::Map(top) => match top.get([0x61, 0x6d].as_slice()) {
+                Some((_, Value::Map(inner))) => {
+                    let keys: Vec<_> = inner.keys().cloned().collect();
+                    assert_eq!(keys, vec![vec![0x61, 0x61], vec![0x61, 0x62]], "inner keys sorted a < b");
+                }
+                _ => panic!("expected a nested map under key \"m\""),
+            },
+            _ => panic!("expected a top-level map"),
+        }
+        // Out-of-order and duplicate keys are still rejected inside the nested map.
+        let out_of_order = [0xa1, 0x61, 0x6d, 0xa2, 0x61, 0x62, 0x02, 0x61, 0x61, 0x01];
+        assert!(matches!(value::decode(&out_of_order), Err(CodecError::KeyOrder(_))), "nested b before a rejected");
+        let duplicate = [0xa1, 0x61, 0x6d, 0xa2, 0x61, 0x61, 0x01, 0x61, 0x61, 0x02];
+        assert!(matches!(value::decode(&duplicate), Err(CodecError::DuplicateKey(_))), "nested duplicate key rejected");
+    }
+
+    #[test]
     fn rejects_unknown_fields() {
         #[derive(Serialize)]
         struct Wide {
