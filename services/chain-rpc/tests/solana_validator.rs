@@ -259,8 +259,11 @@ fn real_validator_frost_2_of_3_native_transfer() {
 
     // Discovery: the inclusion slot yields both native legs, plus the fee leg
     // exactly when a fee was charged, and the two paths must agree on it.
+    // The same block legitimately holds the validator's own vote
+    // transactions, so every assertion is scoped to this transfer's id.
     let block = BlockSource::block(&client, obs.slot).unwrap();
-    let fee_paid = match block.effects.iter().find(|e| e.kind == EffectKind::Fee) {
+    let mine: Vec<_> = block.effects.iter().filter(|e| e.tx_id == tx_id).collect();
+    let fee_paid = match mine.iter().find(|e| e.kind == EffectKind::Fee) {
         Some(fee) => {
             assert_eq!(fee.address.as_slice(), custody.as_slice());
             fee.amount.0
@@ -268,15 +271,13 @@ fn real_validator_frost_2_of_3_native_transfer() {
         None => 0,
     };
     assert_eq!(fee_paid, obs.fee as u128, "discovery and observation disagree on the fee");
-    let out = block
-        .effects
+    let out = mine
         .iter()
         .find(|e| e.kind == EffectKind::Transfer && e.address.as_slice() == custody.as_slice())
         .expect("custody outbound leg");
     assert_eq!(out.direction, MovementDirection::Outbound);
     assert_eq!(out.amount.0, TRANSFER_LAMPORTS as u128);
-    let inbound = block
-        .effects
+    let inbound = mine
         .iter()
         .find(|e| e.kind == EffectKind::Transfer && e.address.as_slice() == beneficiary.as_slice())
         .expect("beneficiary inbound leg");
