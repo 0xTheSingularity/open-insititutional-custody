@@ -1,92 +1,136 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:87e838801def1f6bafca2ae9661e50bd9a5eb726903c1c638784c123eb3072b9",
+  "pageVersion": "sha256:bd000d4daf30148917defb5c37dc42ed5f37917340af2cb5906b42882cd9deff",
   "claims": [
     {
       "id": "claim_6194320d3a7f4c2483e0f393ffa72800",
-      "statement": "The current workspace contains builder, coordinator and broadcaster service packages but no API, reconciler or Commonware node member despite reserved dependency path declarations.",
+      "statement": "The workspace now includes API, reconciler, Commonware membership/node/peer-wire, signer-network, witness, chain-RPC, local-stack, and node-runner packages alongside builder, coordinator, and broadcaster; they are workspace members rather than merely reserved dependency paths.",
       "evidence": [
         {
-          "resource": "repo://Cargo.toml#L1-L72",
-          "version": "repo-lines-v1:sha256:cd78f1a9cdecb6523c02e5fc9304f016140bda9410183f5e3876c1a3d1282e7a:eyJzZWxlY3RlZExpbmVDb3VudCI6NzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzNGUxMDJjODYxZjk5NGQyYWFjZTkxMTRkMzkyZGJjMTYyMTkwZTAwYmU4ZmUzNTdkNDcyMTUwY2E0Mzk2MTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJjODEwNjc0YThkOGZmZTU0YmJjYjUyYTliY2RmZDlkZGZjYzMzYWRiZjUyZmUzNDM5MzVkMTQwYTRkMTA5OWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBjMzljZTBlMTRmYjNmOTMyNzA3NGM3MTVmMGIwMGQyNWJiZmRlNjAyOTAzMDdkOWFlMTkyMzdiOGE2MThmOWQifQ"
+          "resource": "repo://Cargo.toml#L1-L41",
+          "version": "repo-lines-v1:sha256:9d07338d9468b82dac34fee2201157662834176505aec2afc6942c80aa2be382:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzNGUxMDJjODYxZjk5NGQyYWFjZTkxMTRkMzkyZGJjMTYyMTkwZTAwYmU4ZmUzNTdkNDcyMTUwY2E0Mzk2MTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5NDE2ZTA5Zjc4YmEzMTZjMDMyNTY4MjEzYjg1NWVlNzU2ZTQxNTY1ZDkxOGYwOTUxOWM4MWZkNjIwZjQwNjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJmNDk3ZmQ0ZTdjOTY2OTVlNWI2YmIxMmRmMmRiYzcyOGIxNjcwMGU5MmI5MTdlMjA1NTI1YTMyOGY0MGRjMGUifQ"
         },
         {
-          "resource": "repo://handoff.md#L43-L51",
-          "version": "repo-lines-v1:sha256:89d58078ca2a1a667c301dd4051c9f85072494cda92d27e4c5b7f4ddbb1a86de:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzUxYWRiYzFlZTljMmZkMWRiOWE5Yjc0YmQxNzc2MDAyNDk3NjZkY2RkYWI3NzM3ZGZmOTk4ZmU3YjYwYTMxMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODdiZTc3OWFlOTEzMWFkNDY2MTJkZTZmNTdmZjY0NmQxOWQyMzg0M2Y2M2NhMWEyNWZhZDI3N2U5ZTRlNTFhZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiN2Y3NTA4NThjYTZlZmNlMTE4ZDM5ZDMxYmIzYzNhZDZlMDU3ZmI4ZjY4NTBhOTUxNTg5ZTZhZDE4YjhmNTFmOSJ9"
-        },
-        {
-          "resource": "repo://handoff.md#L75-L99",
-          "version": "repo-lines-v1:sha256:ac2d0672d3007b74feb331794dda50e180634c9218824455063c860a0b12ad81:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc2MDRjMzQ3NjQ2OGU2ZmM0MTVmYjE5ZDVhNmIxODZkODk2NWQyZjc4MGUyYmYzN2NlZWI0YmFhNTYzOTUzNzMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjUxODAxMmRjMjY4MmNlYzk5NzI3MjU5NTE1ODMzZTgwZmYyZGYxMWI3YTJhMWUwODMyMzhiZjcwNzgyMDM5MGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://Cargo.toml#L50-L88",
+          "version": "repo-lines-v1:sha256:08c9eb09c23a8482d7a494ae85e027b915cccb227f1a8727f0986521a82cd548:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiZjgwNzg4ODAzMTFkZmQ0MDc0YWMwYjNlMjBiMTdjMjVkNDAwZmRiMWM1ZjQyMDNmOGE3NjE3NTgyNjE0NGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ1Y2Q2Y2RlNjQ3NzcyNjY3NmI3OWM3YmU1YWIzZTdjMWIyNTY3MDk2MjczZjIzODQ3ZjQ3NWVlMzFlNGEzYTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlkOTJiYjYyZGQ1OTJjYWQ3MGQ1MGVjYTE2MTg1ZmU3YzlkNzBhOGFiZGMzZDFmZGQ1M2NlNjFkY2Y5YmI5YmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI1MGM5YjFhNTU5MDRhNGZkOWUyNzE5ZjNmNTMyMWNhYTM4MzRlNGEzNmE5YjZkOWQyOTJkNTEzYjY5OThiYWIifQ"
         }
       ]
     },
     {
       "id": "claim_25a76fec6052419b814a60de038d37a8",
-      "statement": "Operational domain types describe deposit, movement, journal, reconciliation, workflow and lifecycle event contracts without providing the corresponding service engines.",
+      "statement": "Operational domain types define deposit, movement, journal, reconciliation, workflow, and lifecycle contracts, and the implemented reconciler opens a verified, scope-bound operations store, keeps new deposits inactive pending activation evidence, and has no chain-key signing entry point.",
       "evidence": [
         {
-          "resource": "repo://Cargo.toml#L1-L27",
-          "version": "repo-lines-v1:sha256:921dc52f65a2c8459a6e5bf1713bc9e0d040673c45de74ea4b8748cd89c910db:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzNGUxMDJjODYxZjk5NGQyYWFjZTkxMTRkMzkyZGJjMTYyMTkwZTAwYmU4ZmUzNTdkNDcyMTUwY2E0Mzk2MTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4Njk0MTJhMmU4ZDVmM2JhYjQxODg2YzEzYTA2YzZmMDk5MzM4N2NkZTcxMWQ4MzI2ZWRiOGQ1Nzc0ZWM5OWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk0M2QwZTQ4ZjJmYjUxMGMxNjdjZjMzZWNjOGFmMDk4NTFjZmI0MWFhZjExODMwYThhMmUxZjZiNjRmZjVlNjkifQ"
+          "resource": "repo://crates/domain-types/src/operations.rs#L1-L12",
+          "version": "repo-lines-v1:sha256:337db9153f22d6a14227254b8aeee654506185decd77423249998ddbf7fe74c4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhZWRjZWYyODkxMzg5MDE5MGJmNjUyZWNmYWI0YjZlNGE2YzE0Y2FjNDliYmJkNDVjOTAxMTFmNmFhNjM0MTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM2ZGUxMzkwYjE0MDJjMDY5YjkxY2Y3M2JlZTgxYjI5YTJlMTVmYmRkYzFmOTMzYWQ5ZWM2NTc5M2U1MGY5MzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIwMzFmZmY2MTM4NGM4ZDYzZDMwZWMzNTE5Mzc5MDEwNjFlNTBjYjk5NmRiYTBlOWFmYmVhMWQwYjdjZWZjMmQifQ"
         },
         {
-          "resource": "repo://crates/domain-types/src/operations.rs",
-          "version": "repo-file-v1:sha256:39569d4326b975fd36cf2b9d9f95294900dafce7d8000fbb58c1529829751055"
+          "resource": "repo://crates/domain-types/src/operations.rs#L23-L83",
+          "version": "repo-lines-v1:sha256:a18f463d948fccee152562d48d184ef30dc23af1322baa939815930d4fa690d9:eyJzZWxlY3RlZExpbmVDb3VudCI6NjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2MTZjNmY4MzJkNzYxZDkyZWMxNmIyMGMxYjZmOGFjZWU4NGE1ZjRkYTQ5ZDRkNjE5ZGEyOWNjMDE5OGNkNmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2MzRmMjgzNDU4YzIwYWEyMzAwZmFhNzUzNmViODhjNGQ3Zjc3YzEyOTJjYzhhZmViNjQyYjkzNDY2MWVkYWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhlZDAwYzY0Y2QxNDljOTg3M2JmNjVkMWFjZDQ5YzliZTk1YTk4NDA4MGNlNmRmOTI1Nzg5MjlmYzI0M2RlMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVkMWM2NWMwZDY3ZmZlNmFlMjliN2EyOWY2YTRhMGM2NWVjN2RiODFiNmM1ZDZmYWZhYmRhODZmNTBmZDAyYmEifQ"
         },
         {
-          "resource": "repo://handoff.md#L77-L94",
-          "version": "repo-lines-v1:sha256:5330ceaf723d6d2a2b03da3687dfab6af5eda5ab1e83a92b0782a91fab763257:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3YjVlOThlMmM5NmM0M2IyYjgwY2IzNmQ2OTQ4Nzk5N2NhZjBhZmJiMmQ1N2JkNGUyMjU4NGRjMGJjOWZiN2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRkMTNjYjc0ZjY3ZTBlNjgyNDRiMDY1ODM5ZTc0MzZkYjUwYWY5ODA1OTk0ZjJhMWIxNDk4YzdkNjVjYjQ0MGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE1ZjUwODg2MGRlZTYxNjYyZDFkZmQxZjAxMGZlNzgyZmE0OTU2NGJjOWY2YjM5NTc3YTkzZDRjZmI3NTY1NzQifQ"
+          "resource": "repo://services/reconciler/src/lib.rs#L1-L7",
+          "version": "repo-lines-v1:sha256:5cdf61cea683d42e07b5ab485c15a1d591dc02700d9f6517fb14c56648e25375:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDViZDQxZGQzODAwYWYyZmY0MzFmZDI1MWE5MjBmNDBmN2RkZDQ0NDMwZGRhZmRjMTBiYTYxMjY5MGIyNDk1ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDlhZThmYWY3OGE2YjRjZjUzM2NjNzVhZjQ2YjBiMDc5NTg5NmNjZTcwZmRkODY3NmEyYTFhOWJiYmE1ODMwMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiN2QzMzUxNjA2YjAzNmIyODI0YWZjYTk3OTJiM2QyZmU1MzZiOTkxZGE2M2FhZmEyMmFkODVkZTAxMGNkOGNiMiJ9"
+        },
+        {
+          "resource": "repo://services/reconciler/src/lib.rs#L38-L84",
+          "version": "repo-lines-v1:sha256:09330afe28e4f3414f971e8a304c2b72c6777492d5420b8923d793b6f364fc0e:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkM2Q3Nzc0ZDczMzZjMGVkM2VkOTgzYjY4MGVhZjBlMmQ1ZDViNWNmYmUwODE4YjI3YjJiYTY5MDZhNDUyMGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhN2YxMjkyYmM5YmEwMWQ0YTg4YWRkNTRiZmVhNmEyZTM2ZTc5OTZlZDUyNDM2ZWZmYTY1Y2Y0M2RlNTMxYzgifQ"
+        },
+        {
+          "resource": "repo://services/reconciler/src/lib.rs#L91-L125",
+          "version": "repo-lines-v1:sha256:71673c48553fe6eb997f56e0f84ac1a3bf5c0dfe248757e9bf2017f7b3b468e4:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzNTM5N2QzYzhiMDQzZTFkZmE2MjU5NjA3NGI2ZWFhNzcwYjlhODIxNDRhNmM2ZDE0YzFlNTMyMjQzOWVkNWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZhNmQzNmVhNGI1YjJlOTczNzEwZWU2NDRmNTdjYjIxYjA2ZDBiYzdhNTBlYzcyMTgxNjAxZDFmOGE4YjBiNGUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRhZTIzYWUzOGJmNzg5NjgwMzMwYmI3MzBkNzY4NDUxYmZlNWUxY2E4MTU0MDI3NWZmNGQ0MDMyN2E1Mjk5ZTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUwYmQ5MDJjMTQ5YzhkM2U2N2I5MzFhMzAyNmI0ODZhMWY0NDcyNDU4N2M2N2VjZjliYWM5YmEwM2E0MDc2ZDAifQ"
         }
       ]
     },
     {
-      "id": "claim_d61b2619ddaf480798c6f73307eaa9a6",
-      "statement": "RFC 0002 is a proposed product completion and test plan whose gates require the complete money loop, independent operation and later pilot evidence rather than asserting those outcomes.",
+      "id": "claim_a98c5313aa724869ab528b238289380e",
+      "statement": "The executable direct-transfer surface is restricted to native and registered standard ERC-20 EVM transfers and SOL/classic SPL Solana transfers; EVM uses a development 1-of-1 ECDSA backend, while Solana has FROST Ed25519 threshold signing but no network DKG, share refresh, or lost-share recovery.",
       "evidence": [
         {
-          "resource": "repo://spec/rfc-0002-product-completion.md#L1-L25",
-          "version": "repo-lines-v1:sha256:0edbb9a0bb9bdce9f8d77008374d999d3ce7806e10f1a861b4b01f9ccba5d36b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQwMzQwNGEwNWNlNzc2NjYwZmVlNDgxMDM2Y2U0NWI4MjI0ZjJlYmIzOTcwZmM1ZWIwNWRiZmQ0ZGM3YjIxOTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIxODQzNmZkMmQyMDljOTNiZTlhYTUwM2RiNWZjOTIwZWY3OTVmNzI2ZDA1Y2M1ZWU0YzVhN2RkODQyNWMzNjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0MmE5ZTY3NmE5OWUzMDIzNWViMzE0YzUwYmZjNTMzNzdlZTdjYTU3ZGQ5NTUwNjg4NjkyZGUzMWIyYzZiMDgifQ"
+          "resource": "repo://README.md#L176-L191",
+          "version": "repo-lines-v1:sha256:9f6bff92f2a03a39699a4cef5e8f83bb4d237256ecf01045c8821ae262c692e3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI1MmU3ZWJkZGI2OTQ0YjEzMWJjMDFjMTdkODUxYjYwNjRhNTUzZjM4NjY0NjViOGEyYjRjMGI2NjNiMWZlMjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzYTYwNWU3NmEyOGM4OGZkYzIwMmRhZGY4ZWFiNGYyZmNlZWIyYTM1NGNjYTAyYjAzZmM0ODk5ODQyNGE1ODYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQxZGJiNTE2ODhlZjFkMTkwNDllNTBjYWMyMGY3NzRjNTE4NWE3Mzc1OWI1Nzc1NGU4ZGEyMjc5ODA2MjZjMjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlhNWZiNTYyYTk3YjMxZWJjNzY4MGVlNjJhN2Y2YjlhNGI1MGEwMzBiMWMxMzgxYTQ3MmI0YjY1ZmI3NTllNWUifQ"
         },
         {
-          "resource": "repo://spec/rfc-0002-product-completion.md#L251-L261",
-          "version": "repo-lines-v1:sha256:7b130a49d975932cdc3d5039bac19d3b14c7e87d3d78a481b1c2965afe4b70b6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5OGZjMjczM2JjY2U3YzIyOGMyOTdjMjAzYzdiODg2MjE1ZjUxYjM3MTM1ZGU1ZWFjNjAzN2JlNjU3MWZkYmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJhNGIwOTdkYTBlNjI3Yzg4NmExODY2Yzk3NGQ2MTc1ZWVjYzJlMWY3MTZlN2JjYzY5ZGU3MGJlZTYxNmMxODUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3OGMyZGQ1OTg4OGRmMDZjMGY2MTQzZDIwZGI4NWY2MjU3ODhlYmI2ZDg5MDQ3NGEwZWE0NGNlMGZlYmMyYWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRkZDAwMmUwZmRhMTkxZDRiZDIzZjZlNWMzMmRkZDFlNmE2NWQ3ZjM5ZTY4NGRjOGJmYzVkZjc2MzU3ZDMwMmQifQ"
+          "resource": "repo://docs/getting-started.md#L125-L145",
+          "version": "repo-lines-v1:sha256:925a33f7b159096e5571d4495893449fda071b97f72673ad847b109fd11a5167:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzMTdiZDFhYmY1MWYyOTEwZDNjMGUwNmFjMDllMDE3ZDUzODMyYWI2NDE3Y2UyN2Q3NTg1ZWQ0MWI3ZjcxMGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1ZDBjY2RmNjZhMWEzN2VmMDM4MTViODQ0ZDk3YmE2NjZhMTEyN2NlYWQ2MDVhNDZlOWI1NmFmYmY0MzYzZDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZkOWRkM2RmY2FlYmUxNjliZDc2YmMxMDQzMjExNDBiZDNlODRmY2M3ZGViNTVlOWZkYzAyMDNiYWE0NmU2MWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ0OTJkYzE4ZTNjN2MwMGQ3YTIyMWZmMTNlNzgxZTg4NGIzZTdmNjQ3MmQ1NWEzMmFhZTM3MzYxN2ZmMzY3MWIifQ"
+        },
+        {
+          "resource": "repo://spec/protocol-v1.md#L36-L60",
+          "version": "repo-lines-v1:sha256:c6fefbbc1d15be269664356a2b09e16b37767909b09b73ba445e4ba199fe9858:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI2ZjUxYjZjNTQ0YzUwMTcxMzk4NWY4NjA3NjkyZDhiZTA0MzA0OWQxMGU0MjRjMTljMGRhNThjYzIyM2I1YWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3MDQwMWEyMzkyZDY1OTUyNTNlOWEzNGIwODI5Nzk3YWFlMmZhODc4ZjA5NDI4MDQ0YmNmMmRhMDllMGMwZjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjliNDk3MDY1YWE2MWQ1NWM2ZjBiYTVkZjgwNzE3ZjgzNTQ5YTgwYjQzZWEzNTlkMjMwOWMxYTMxOGUyZGQ4NGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMwNDcyYzFiMDdhZDcxZmVhYmFkZGQzOThjNTNkZGE0YWFkZGY2ZWFiNjczMjQ4NThiNDU1NTI5NzI2MjBhYTMifQ"
         }
       ]
     },
     {
-      "id": "claim_7f0cbf4aa3a448abb04b3f6c58ffae8a",
-      "statement": "RFC 0003 explicitly describes a proposed Commonware signer network and approver light client rather than an implemented network or safety/performance result.",
+      "id": "claim_ac782adadd01445197b48735debc6e6a",
+      "statement": "The local stack is a development-only single-machine D1 HTTP composition using EVM and Solana simulators; it binds loopback, separates local bearer capabilities, and requires retaining its complete state directory because its local durability mechanisms are not an independent anti-rollback witness.",
       "evidence": [
         {
-          "resource": "repo://spec/rfc-0003-institution-operated-signer-network.md#L1-L19",
-          "version": "repo-lines-v1:sha256:a73fcc48c04e9887a8620a2fb0862007a411bc82b872d3eaa41929df3930d5a9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjNzRhYWRlYjBkMGFkNjIxODQ3ZDRmNDQ4YTc4YmZhMTk4MTE0MzRjMDQyNmJjMDNlNzc2ZTU5MDRlNTVmYTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdmMzliZWUxN2JiMWExYzJiM2M2ZmU3YTFkYmYwODU0MDdkODIxYTExNGIzMDdmMzU0MzFmMGYwNmQ4ZmQ2ODUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkzMmU2OTkxY2IyYjQxZjhjMGJjY2UwYjQyOTY0NDYyMTNhYjQ0ZDg1NDM2YzYzZmVhYjg4NWQ5YTNkNWVjZDYifQ"
+          "resource": "repo://docs/local-stack.md#L1-L13",
+          "version": "repo-lines-v1:sha256:5a2e107033dd9c247df035fa2d26545d72ac80afa7ff18f377bc93999a943ced:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFmZjJlN2EwMGJmN2JkYmI3ZDJmYmU5MGZkMjEzOTcyZGJmNTUxNjBlZmViNTc3YmVmZTNiNDRmODRjNTE5OGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwY2JjNzUwOTE1ZDQ1ZWIzYzQzODcxYmI4YjRkNDg5YTgzODRmZTA1ZGQ5MDFmZjg4NTYyNTBkYzQxMDBlNzgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhOGU5M2FhMDFlOWM0YWU1MmJiODhhMTRkYTY3Y2Q5MTVhMzEzOGJjOGEyOGRhNTkxZTUwNTJhMGE3NTliYjQifQ"
         },
         {
-          "resource": "repo://spec/rfc-0003-institution-operated-signer-network.md#L643-L660",
-          "version": "repo-lines-v1:sha256:e0f4997cef09f66770ba89df4997b166223a00350f7906027a9a5aa1daaf899d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2OTdmZTk1ZjFhNzJkMGQ1N2Y2ZWMxMzc0ODRkZTBjOTMxYmY0OTA3MjQ2NTNlZjJlZGRlY2UyMmZiOGMyOWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI2YzUzYzNkNDU3NTRmNTNkYjY4ODYwOWM2ZDUzZjlkNTVjOWVlMDVhMzE1MDFkODY3ZmIzOGQyYzRjZmU3NTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU2MDA2N2FmMzIyODU5NGIzMTgxYmJiNmRjNTNmYzBjNWQ3MTFiNDZhNDk1OTQ2YjBmMzQ2MDE5NWU3OTRlNGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFlMWMxYjJhMGJmMGNjZmFkMjVlY2MzMjc4Y2U0Y2FiY2Y3MWQ1Yjg4OGU2M2Y0YmM4OGMyMzc3MTZhNjNlZDAifQ"
+          "resource": "repo://docs/local-stack.md#L145-L160",
+          "version": "repo-lines-v1:sha256:456bcf88c75cb66f870f380b1ddcf9b591e1b88b3fe4b1762d69d4c718fbc214:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVhZTYxNGVmNmJlOTc5ZmZjNTZiYmI0NmIwM2JmODA2ZGY5ODEyNmJkOTlkYTY2NTBmZTliZWJkYTZkZmI3ODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5MzgzNGU3MWU1MzA2Y2U5Y2Q4M2VhYjc4ZDgzM2UxOWRhYTU5ZWM3MGZiZTA4ZmU1NzhkODhhYjM4N2M1ZmEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwN2RjYTVjOGIxMmE4NGVlYTIzMzZjOGRkZmYwZmVkYzZmM2FhMjRlMDA3MmZlOGQ5ODE5N2E5YjQyMmY5NTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBhMDk0OTk3MjQ4NjczOWNiNzA1NzIwNWNkYmRjODc1MjUyMmZhNjdiZjcxZDExYzMwOWM5ZTMyMGZiN2Y5YjAifQ"
+        },
+        {
+          "resource": "repo://docs/local-stack.md#L39-L45",
+          "version": "repo-lines-v1:sha256:2e0a35379125fd0ddcf95b5ef97b38406466ba9e6c109d2bb699d01ffbddf5e8:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDI4Y2VlMGFiY2RjNWRkOGEyNTA5ZTY4MzQ4YTY4MTM5MTdiZWU0YTU4OTE0MGM3Y2JhZmI1YWQwODlmZjMwOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDRiOWZhNjg5NDFlOTFmZGRkYWVkMDEwMmY2Zjc0N2VlNTdlYTc1M2E2Y2FlNWUxMDJjYTRlYjNiZDAzNmMyNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTk1Zjk1MWExMTgzNzcxNWJhYzQ2YTBlOTY0ZmIxM2I1MmIzYzgzMzVkMDAwZTBiZWNiNzBhM2RkNmI4MzU0MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjQxMjkyY2Y2ZGJhODlmZTc5NDBiNTljMDk2ZWQxY2IxYmFiNjYxNDlmOTFmOTMwNjM4NTM1NTViNDFmN2VhYiJ9"
+        },
+        {
+          "resource": "repo://docs/local-stack.md#L47-L71",
+          "version": "repo-lines-v1:sha256:2efc4f605e37ee96149b4afc367141dc1907c257063418756585909e211a5c1a:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIyNjYxMWUyNWJlZDlhMDE0YzMxYWY5YTQxYjM2YzI5NThhYjA5NTEyNzc0ZTc4OTIyMjkzMWFlMTMyZTY5YmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3Yjk4MmZmYWU0MzUyYzM4NmY1M2Y1MjIwMjdkNmYxYzJiZDFlNTM4ZGVlZDA1ZGQ1MjgyODFhY2JhYjEwMWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhiYmNiZmMwYmU5NTdjZTBjNzkwZmQ5ZTA5MzFiOWM4ZDdlYWMwNGI0NjE5N2E2YTE0MGI2ODgxNDQwZmI0MGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI5ZmNkMDY5OTk5NDA3NmQ0YTNhMWRiMTU0MDBhNzk3Y2FmNGZjMTAwYjZiYTk1YzQ2OGUzMmFjOTY5OGMxMDAifQ"
+        },
+        {
+          "resource": "repo://services/local-stack/Cargo.toml#L1-L12",
+          "version": "repo-lines-v1:sha256:8cbe096e9eb674e1a58284410595ee67f2568bd7ddff0ada05878087817a98ed:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhM2NkNWE4MWIzZjlhNjIxYWE0OTNkOTBjNDVmNDJhYjU3MWQ0ZTQyYjhhZTVhZmYzNTFjYjBhMDJkMDZkODIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM4MTc1MjNhMTkyM2VkZmMxZDgyOTllNDJlOGJlYTQyMjk3M2ZkMTk0NjViOTk2YjgzZTA3YWNiNzViYzQ0ZmMifQ"
         }
       ]
     },
     {
-      "id": "claim_35ac351b8d8e4927be1c245889549423",
-      "statement": "The actual coordinator endpoint is in-process, the approval binary uses local Ed25519 credentials, and the FROST provider lacks authenticated DKG transport and share refresh or recover/replace support.",
+      "id": "claim_ee0e68016fdf4e56a3acf51897f7b396",
+      "statement": "The chain-RPC service implements broadcaster and reconciler traits against real EVM and Solana endpoints for development-network money loops, but its source explicitly limits EVM signing to a single development key and does not claim a reviewed threshold-ECDSA backend.",
       "evidence": [
         {
-          "resource": "repo://apps/independent-approval-client/src/main.rs#L35-L47",
-          "version": "repo-lines-v1:sha256:f39ce2a058761a0f584c092c862edf8254546253f14f5a61283e568a8e184a30:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJiNzBlNzI3NDEzYzc2ZjlmN2I5MTY1NDIzM2NjYTYzMGExMWE3MmYyMjUzZWI4NjlmYTNlMDkwN2E2ZTk5YWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI0OGE5OGRjNjg4NTRiM2JlNWYxOTlkMDY2MzRiMTU3NGMwYjYyZTdjNjkzNjI2MGZjZjhkM2I4ODk3NzI0MGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBhMTY1Y2QyYWZjNzk0MmNmYmZkYTcxMmZmZTVjMzYxYzJlNmE2MTgxNjQ3ZGFjMmM4OTc0ZGQyZTk4M2NmZTQifQ"
+          "resource": "repo://services/chain-rpc/Cargo.toml#L1-L17",
+          "version": "repo-lines-v1:sha256:4955e6fa6af432402cee7619cff398b8d4a004b003e35719ae9a6b25dfba3694:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhM2NkNWE4MWIzZjlhNjIxYWE0OTNkOTBjNDVmNDJhYjU3MWQ0ZTQyYjhhZTVhZmYzNTFjYjBhMDJkMDZkODIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFmYjg4OTdmZTliNjExNTY1ZjU5ZGU2ZTdhNThiOWFiOWI1NDI2YTgxZmRiYjVkZmQxMDIwMzY3ZDJmZDMxNzciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdiOWM5ZTlkZTRjYmQ3MmNjZjFkMjJmMzgwZjUyMjE1M2FkNDIxMjlhYzhiMTMwOGViZGE1ZjIwZGY5YjgzYmMifQ"
         },
         {
-          "resource": "repo://crates/crypto-provider-frost-ed25519/src/lib.rs#L34-L49",
-          "version": "repo-lines-v1:sha256:c614165082a63061f2f9354d43599eb7f97d195189d03c9f06bcf30cbe47bd75:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhOTgzZDZjOTBlN2ViYzE1YWI5MTQxYjEzZmNjNWNmMDJiNTAyMDBkMTM1Y2VjYzY0YzEyYTIzNDkxOTdkNmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyMGU4OTAyMTg1YWI3NjkxYzI5MDI5MWFkZWMzZmExNzQzNTU3OWMyMWFlMzY2ZTc4NzVjNzZkMmM4Y2RlYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZjY2VjODZmN2Y3MWY4NGU1ZGViOTEwZDYxMGI0Zjg5MDNhMzZlOTdhMDJhNTViMmJkZDVmM2ZmNWMzZDE5N2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVkZWMyNmM1OWZiZmNmMjRjYjAwZTZhMjMwZTU3ODBhM2U1MjFjNDNmMGNmZGU3NjAyOWNiMjQ4ZTBmOTgzNDEifQ"
+          "resource": "repo://services/chain-rpc/src/lib.rs#L1-L14",
+          "version": "repo-lines-v1:sha256:cce60d7c51c2a3439994b68e203f07d93a9c97899f43c9410d9e5083620059b7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxNjRmM2Y2M2RlMzNjZWI0YTM1Yjg3YWE0NTI2YTJlMWYyNmRjMzBiMzRkNzBiNGJlOTc2NmYzNzg0NDg3ZTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjYTg1NTM0NzBjYzBkN2FkMzU4MDAwYjQ4MGYxOGRlYjljY2E1Y2M4NTlmMDE5N2ZlODgwNjAzYmZhMjRlNTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEyMTMxYzhlOTEyNzRjYzkyOGFmYWNlYTdjNTFkOGJkNTk4ZjRlMTMxNDljZjhjMDU1ZGQyMWZjZjEzZjQ2OWMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6fe5e7c6a699428badf1eea0ce7778b4",
+      "statement": "Signer-network and replicated-authority components implement authenticated transport and fixed-committee D2 composition, but the documented runtime has no committee handoff, verified chain observations, encrypted-storage deployment, production node entrypoint, or production qualification; removing a signer from a roster does not revoke an already-held share.",
+      "evidence": [
+        {
+          "resource": "repo://docs/signer-network.md#L194-L199",
+          "version": "repo-lines-v1:sha256:bd648201dc1a461517b32f904564365b5e056ac4b1c47c898ae99f527f8978df:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2VjOTBiNjUyZTUwN2EwZDBiNzEzZGM2N2IwZmYwNmMzMDVkM2Q0ZmVlNTRiYjI4ZTM0NmM3OGZlNWI5NzRiMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWE5YTUyOGNkOTY3OGQwZGM4YjJkZWM2ZGNhYWVhN2VmMThlYjQyMDgxMjQ5ZWIzZjE1NDgyMzllOWI3MDBjOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzU5ZmU3MTFlMjNkMDE2ODE4NThlYWUzYmQ4MWViOWJjZmU3ODczM2VlYzExNDA5N2VlMTQ4Yzg2MjI3NWM1YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzU4NzUxMDIyNmU5ZTU0OGRlN2UzYWFjM2RmMjY4YmM4YWIwYmNhMDdlNzlkNjA1Mjg0M2I3YzZiMTJkNjVmYyJ9"
         },
         {
-          "resource": "repo://services/coordinator/src/endpoint.rs#L41-L73",
-          "version": "repo-lines-v1:sha256:9af6d7f6d0ded4a55bae0643045919bff04b03914a61002b14a6fd92997536ef:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkxYTA2NTg5MGUwNDUxODljZmVjMDYyZGE0NDM0YzE4MWJjOTE5NzI0NzNhZDRhZWQxNTFkOGY5NmFmMWJiYzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNiNDNlMDgzNWEzMDM0Mjc1NGNhZjMwZjUxZWJhNGZiMjM1Mzg2NTA1OWUzZjM4YmY0ODZhYmEwYmU1NjNmNTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://docs/signer-network.md#L78-L118",
+          "version": "repo-lines-v1:sha256:369f8792e56553fe20809e95d63aef80379283ea5d57f9fd06f65f797e1b2a96:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIzNTk3M2Q1YjMwZGE5MTZlYjRlNDExNjcwY2RhYzJhNTAzZmQzMDZjZDkzZDNmNDQ3ZDk1ZTJkODBiMDc4ZjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZmZTVhNmI2ZTBiMDE4NmQyODljN2U1Nzk3NmEyZDlkNTMzOTI4NzkwOWViYWJmMDdiNDZmODI5YmYyZTZhNGIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgyNDA4ZDIwZTFlYjBlMjAzOTcxYzAxZmI2NWI0YzliYjAwNTk3ZmVkZDMzZGZlYzA1YWFiMGE3MDVlMmI4ODEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM1NDUzZTljMmVmMDZhYTg2ZTNjNjg0N2FmOGRhMDU0MjExYjQ0MmViNzM3NDFhMjM4YWIwZmNmMTlkZjY0ZDUifQ"
+        },
+        {
+          "resource": "repo://services/node-runner/src/main.rs#L1-L11",
+          "version": "repo-lines-v1:sha256:6e417eb7ad750312eb00a9dc628aa331549b8a14a1a508d6239bdf5be1dd7c22:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkOWM1Y2M5YmViZjkxMjFmMDJkZGMzNjRiNzVlMTgxNDNhMjRhZTM2ZDlkYzM1M2EzYWZiYWRiNDE3MDQ3MTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxOTE1N2RhNWJiYjViN2NkM2IzZGI3ZmQ1Njg2NGFhYmI1ZGM3ZmMwZTBjYTc5MmEzNjk5NTU0MWUyZTI3NDciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNjZDk0YTc2YmFhMTQ4YmY0NmVhYTAwYTdhNGM2ZTUzNTk3ZDdlNWVmZDRjYjU0Y2E4Njk0M2FjODA0ZDM4M2EifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_766e04ccf576488ba26e80f56dc85c6b",
+      "statement": "Protocol v1 is explicitly an executable development interoperability contract: its deterministic simulator Gate B exercise is separate from live RPC integration, independently operated signers, production threshold ECDSA, installation/recovery qualification, security review, and pilot approval.",
+      "evidence": [
+        {
+          "resource": "repo://spec/protocol-v1.md#L1-L16",
+          "version": "repo-lines-v1:sha256:f3a22ff1c2aff2908b1bd89e4e770fab8424937372bdfb6e23e5f7eb11752580:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2NWM1YzRkMTIwMjc1YjU1MjIxMmU4ODg1ZGRkMGM3N2RmZjIzNzgyNDMwOTAxMzgwYzAyNDA2NjhmNWY3MDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMyMmNiMGMzYWQzNzU0MjZkMGEzZTE0YTk0ZDg2MThmMTgzMzZmYzVmOGFlZDU0MzI3ZjM3ZDljNTZkZjA3ZmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEyMDBiNTM2MjM5MjU5MGE1YjJkYjI2ZjZkNWFiZjY4ZTJhNTM5MTY5OWZmYzAxNGNlYWIyNzY1NmJmYmFhM2EifQ"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-20T20:16:28.312Z"
+    "at": "2026-10-24T08:14:21.486Z"
   }
 }

@@ -1,24 +1,28 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:1649b2772bfe23be00c90108e23a791c13f4cd5a4275b7ded0c165d5b6d79f44",
+  "pageVersion": "sha256:ac8df118b9e3ebac82727f77d26618dbd15e4c11f23877872e12205042b58b92",
   "claims": [
     {
       "id": "claim_365517fe8d72421ca2de89ea9ada8e0a",
       "statement": "Signer trust roots independently enroll authority, administrative and approver keys, accepted adapter verifier builds and chain profiles.",
       "evidence": [
         {
-          "resource": "repo://crates/signer/src/lib.rs#L154-L173",
+          "resource": "repo://crates/signer/src/lib.rs#L156-L175",
           "version": "repo-lines-v1:sha256:7fabf5761c5f55e91917828c44b637651996654d5ada25b41ed8b4b9884b1187:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjljNzQ4MWIyYmRjOGE0NDliNWU3YTVjYmM2ZThiMGU1YTliNmRjMmFlZWNlOTJkMzk0ZDg2YWQzZTNhMjQ5YmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkMWM2NWMwZDY3ZmZlNmFlMjliN2EyOWY2YTRhMGM2NWVjN2RiODFiNmM1ZDZmYWZhYmRhODZmNTBmZDAyYmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU0ZTYzOWQ1NTU1NTc5Y2JlN2I0ZGQ2MmRmM2YwM2YzY2ZjZDhkYzNkY2JhNzQwZmYwOTVkYzFjMjRmOTNmZGQifQ"
         }
       ]
     },
     {
       "id": "claim_3dc579e6c8bc4cb08e440e67caabe6a2",
-      "statement": "Envelope verification independently checks scope, profiles, adapter builds, policy and destination quorums, grants, decoded native claims, local policy, reserved receipt and exactly one backend payload.",
+      "statement": "In D1 mode, envelope verification fails closed after independently checking scope and participant threshold, enrolled profile and evidence, a pinned accepted adapter build, administratively signed policy and destination bindings, enrolled grants, native re-derivation and local policy, a bound Reserved receipt, and exactly one payload for the local key and backend scheme.",
       "evidence": [
         {
-          "resource": "repo://crates/signer/src/verify.rs#L90-L307",
-          "version": "repo-lines-v1:sha256:53bebd2f028011905796b1e9eb892a608bef0748cfe93a88805414092ccb4c7c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjE4LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI2NDA4ODAwYmUwODEzYzg4NTA2NDE5NGVmNjE2Y2VmMmM0YzJjZDE4MGFmMDUwMjIyNjlkMzFlZmFlYmRmZjlkIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIwYTJmMjViZjAxZTBmZmUwNTIyYTg2NzBhM2QyM2FjYThmNDI5OWJjODQ0Y2ZlOTE1MmUwODJkZjViYThkMDU4IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI1ZDgyZWM1ODFjZWY1MDFlOGUwMTA3MzZhYTFlNjk2ZGVlZmZjYmVjMDE1ZDI3ZjFmZGJkYzQ3NmRiMGRmZmFkIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIxOWU3NjM1NWNmMTE5OTQ4MGMzZjk5ODM2YjE0ODZjODQxZDg5MWZhYWQ5MDRjNjA4ZTA5MzAyMmQzNzU3YWVlIn0"
+          "resource": "repo://crates/signer/src/lib.rs#L10-L48",
+          "version": "repo-lines-v1:sha256:9d84c70d6e73ae94bcc92051378eb9b251902f9aa759eb89c6760fd49c7b7a3f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3ZDE4M2U4NDAwNzg0MmQ0MTFmODU1NjhkMDU4YjUxNDZjNjVkMzAyMDllZWMzNWZiYTNiNDU5ZWNmNzg3N2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2YWYxMzVhNDg0ZDJkNjcxZWEyZTZhN2ExYWUwNGY4OWI0OTQ4MTI2Mzg2MmQxNDNjZGU1NTQ0MTM4NjI5MDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1NWZmYTc2NjdiMGI2MzFkODNjYjlmYWUyMGQwZTEyMzM1Yjg5ZWJjOWFhOGZmMjY3MzUwNmZlNTRmM2ZhMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFkZTdkYjlhNWYyNmJjMDFmMmFhMWYyMjUzMjE2MDg4OTA5YmM5N2RiMTdjYWZiZmZjNjI0NWMwNzk0YjFkNjcifQ"
+        },
+        {
+          "resource": "repo://crates/signer/src/verify.rs#L114-L399",
+          "version": "repo-lines-v1:sha256:dc166408759a9cc618734de6094f238adafa00bed9e4959ddfcb214fcf05a0c4:eyJzZWxlY3RlZExpbmVDb3VudCI6Mjg2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwNWJmYjczN2Q5Y2ZkOTBmOTlkYWU0ODI3ODI3MTliMjgyMjJhNzRkZmM0N2UxMjE4ZmQxOTQ0ODlmYzI4NDFkIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIwYTJmMjViZjAxZTBmZmUwNTIyYTg2NzBhM2QyM2FjYThmNDI5OWJjODQ0Y2ZlOTE1MmUwODJkZjViYThkMDU4IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIxNjJlZTU3ZTQxYThjMjBhZTAxNjRkZjI2MTQzOWRjYzQ5OWQzNTIwODM0MTUxNTE2ZDA0N2U4ZGVhZThhNDY2IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIxOWU3NjM1NWNmMTE5OTQ4MGMzZjk5ODM2YjE0ODZjODQxZDg5MWZhYWQ5MDRjNjA4ZTA5MzAyMmQzNzU3YWVlIn0"
         }
       ]
     },
@@ -27,56 +31,100 @@
       "statement": "Signer policy evaluation uses zero prior exposure per declared window and delegates cumulative exposure enforcement to the authority receipt.",
       "evidence": [
         {
-          "resource": "repo://crates/signer/src/verify.rs#L324-L338",
+          "resource": "repo://crates/signer/src/verify.rs#L416-L430",
           "version": "repo-lines-v1:sha256:b848ce54bae8094141b5cf8c74afb4a193c094f31f30244cb81188c545568515:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzNmU0MWZkYWI2OWVhZjg5ZGQwMGNmMWE1N2Y2Mjg4ZWU3ZDNjYjIxNTI1NjM1OGM0NTJhMWY3NDA5NTc2ZjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg1MDJiNzMwNWExMzUzMzliYTFkOTFiZDcyMTFhODMyZDI3MmY3MDNkYmIwYjVjOTZkNGE2ZTQ0ZDFmZjg1ODUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         }
       ]
     },
     {
       "id": "claim_6e9294e58265465cb9a2dc6db0d99231",
-      "statement": "Sessions reject reused ids, require the expected one-time record, and buffer share-producing rounds until release while enforcing message scope and generations.",
+      "statement": "A signer instance opens a session ID at most once; a stateful provider must allocate exactly one unconsumed record bound to that session, key epoch, and signer generation, while receive validates message scope and generation and buffers bounded share-producing rounds until release.",
       "evidence": [
         {
-          "resource": "repo://crates/signer/src/lib.rs#L405-L547",
-          "version": "repo-lines-v1:sha256:01c5390bd7ba47b0c252346933e5ff9437c5401bb1e34746340ba505cfba35f7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI1YTE0ZTRhNzljZDlhZjk5ZmM5NjU5NjA3YTYzYTMyNjA0NjRkZWY1ZDdhMWMwZjc1NDMwMGQ5Y2Q5M2RhYWY4IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI1MDcxYzZlOTIyZDY0ZTNjMmQxMmQxYjQwMDg0YzMxY2M0ZTc4MDdmYjQyZTdmNzIyOWNjODg2MDVlN2ZjOGI1IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlYjljMDVmMDM0NGUwNzc5MzI5ODE5ZTQ0YzU5YjM3ZDk5ZTM2MTI5MTQ5MTg3YjBiMmZlZTY1ZjcyYzk3Njg3IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0NWU0MTcwMjNiOTBhM2FlMTMxMDdhMTVkNjc0Mzg3ZTU5Nzc5MTg4YzE2NzM5NmE3MWIxMGVjYjFjYmU3ZDI5In0"
+          "resource": "repo://crates/signer/src/lib.rs#L423-L501",
+          "version": "repo-lines-v1:sha256:5b97753408ef507f751353698ca4f011e302da40e90878699d0b5fdaa7f8dbd4:eyJzZWxlY3RlZExpbmVDb3VudCI6NzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBlYTM5NTI0Y2NmZTBhZGY4ZWYyNTJhNTk0NjQ2N2ZjOWQ5NTcxYzlkYmQyYmNlZmI0MTBkYjhjNWY1NmQyMGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1YzI1MmE3ODVhOTNmZWNiZWQ1ZDE2OTU3Mjc2NjUwNDU5YjI2YjljOGQ2YzBiMzhlMmQwOWUxNzM2OWZlMjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5OWJkZWZlZWFjYTYzNDBlMDI5MGRjODZlODg5Yzg5ZDVlMTg5YWE1YmE0NGI1ODViM2I3MDczNGY0YTYyZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY0MWI1ZWRiZDI1ODk0NGYzNGQ5Y2M1NzJjOTU1NmQ3ZDY0NTFhZWNmZDQ0YTgxMzdiYTBlMzNmMWNhMDllMzIifQ"
+        },
+        {
+          "resource": "repo://crates/signer/src/lib.rs#L518-L575",
+          "version": "repo-lines-v1:sha256:06b23d1435611337b5d3141b4d52104d665d9e55839cb1f51f8cc2699810bdea:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxZTlhMGJhOWU4YzA2ZTllNjBlNTk3NWUwYjE2YjUxYzU1ZGNkYzljMGRmMjNmM2I4OWQ5M2I3MTJkNDU2MWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE2MmVlNTdlNDFhOGMyMGFlMDE2NGRmMjYxNDM5ZGNjNDk5ZDM1MjA4MzQxNTE1MTZkMDQ3ZThkZWFlOGE0NjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ2OGI4OTVjZmU2ZjUzMmE1ZDI0ODliM2QyMmIyYjIxNDRkNmExYTM1ZWQwMzY4ZWVmZGJhNzdmODhkZjBjMDYifQ"
         }
       ]
     },
     {
       "id": "claim_b653e598059243468234cd967754483d",
-      "statement": "Share or Complete output is withheld unless release has occurred and the stateful backend's ledger record is consumed for this payload; invalid output aborts the session.",
+      "statement": "Share or Complete output is withheld unless the session has been released and any one-time record is durably consumed for the selected payload hash; early, unconsumed, or wrongly bound output aborts the session, clears buffered work, and best-effort burns its record.",
       "evidence": [
         {
-          "resource": "repo://crates/signer/src/lib.rs#L551-L654",
-          "version": "repo-lines-v1:sha256:9b18d34f5f399ce7c1d6c095eb1b40691e1a7d6c1b2bf94b2ac0ff4199ad25f8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJhM2NmYjI0YmIwYzA2NGU1MmQyMzVkMGI5ZDVmMTEyOThlMDc1MThmZTY4ZDg5NWMwMTUyYzhmNWIxODFhNmQzIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0ODkzZjQwZTM3ODFlYjg5NmM4MmQwNDZhMDgwNjdhMTFlMzVjZGYyZjFkZmFmMjZmZWE5MGI4ZGI2Njc2NDEzIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI0NWU0MTcwMjNiOTBhM2FlMTMxMDdhMTVkNjc0Mzg3ZTU5Nzc5MTg4YzE2NzM5NmE3MWIxMGVjYjFjYmU3ZDI5IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkNTQ2MzkwZDg5ZWE1NmRmZDRlN2ExN2M0YzUyZDQ4OTRmNWJiZTk5YTE1M2NjZWUzMDBmYzkyZjQ2MGVhYmNhIn0"
+          "resource": "repo://crates/signer/src/lib.rs#L648-L720",
+          "version": "repo-lines-v1:sha256:047f561881f3a7fa60e1e0799b89039756c85ef08e92be4791f5eaae5ac5c486:eyJzZWxlY3RlZExpbmVDb3VudCI6NzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MzFiODc0OGQ1NTQ3OTQzZmY2YzJhYzNiMmYzZTBhOGMzYmUyYzJkNTc4NWE2M2Q4MzRjOTNlNzVhYjhkOWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUwZDBhMTRmYmYwNzllOWM5MDVhNzE4MTRlMGM2MTA3MDM0ODYwM2M3ZjMxMTc4Y2Q2YmZjODM0MjM5ZTMyODIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJjNTU0ZGMxOGYyN2FlODgwNmM3ZTgwYTdhNDgzZTlhOTY0OGFkOTZlNTc2OTVlMjA4NmI3YjcxOTZiM2M5ZDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVlZTQwMTMzM2JhZDdlYmQwY2ExMTBkOWM1NDNjZDBhMzFjMzdkMDRmZTdiNDY4NDczZmY1YTg0ZDBjMTU3YjEifQ"
         },
         {
-          "resource": "repo://crates/signer/tests/evm.rs#L235-L329",
-          "version": "repo-lines-v1:sha256:6cecb5d19b009d5e923f399d6d06cbd66e80a7e21a9ea0c1d540d12592d5607d:eyJzZWxlY3RlZExpbmVDb3VudCI6OTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjZmNWEyZTZjODZkOWFkNDBmNzBiYmUxYTljY2E1NDJkYWExNWYzNmY4ZjJlMTc5YTI4Mjc4OTA1M2M1MGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA4ODc1ZWVmYjllZWI0NjYwNzU5NzQwOWE2MGFlNTM5MzQwYjM0NmY2M2Y5ZjgwMThiMDg0NDc5NWNmZDY5NmUifQ"
+          "resource": "repo://crates/signer/tests/evm.rs#L235-L327",
+          "version": "repo-lines-v1:sha256:2d31590d36003475f5a2ea59d8d0b9fbd50331407151e6f10f498033069799cb:eyJzZWxlY3RlZExpbmVDb3VudCI6OTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjZmNWEyZTZjODZkOWFkNDBmNzBiYmUxYTljY2E1NDJkYWExNWYzNmY4ZjJlMTc5YTI4Mjc4OTA1M2M1MGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU2NmY5NjkwODUyMWEyZTgwYmM2NWQwODk2ZjJmMDRjNTVhZmQwNTQzMzVlNTVjOTFmNmI1YTdkM2NjODI1MGMifQ"
+        },
+        {
+          "resource": "repo://crates/signer/tests/evm.rs#L579-L597",
+          "version": "repo-lines-v1:sha256:0f3ab7741a8f0c65b6accf46e9f581fae6630299203dbbccb4f00533c4d82517:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdhZmU2Mjk5NjU3YjhlNDM0ZmE2YTY0NzY1Yjg5ZTA5OWY3NDJjMzc3ZjUyMzdiOTIyZjQ4Y2RlMjFiODExYTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE1MGE1ZjE0MTViMDllMGRhMTEwY2YzN2JiYjQ2NWZlYWU0OWNhNzU2ZjFmNTZlZDIzNDQ2MjkzOGEyNzQwZDIifQ"
         }
       ]
     },
     {
       "id": "claim_2020e48e341a40619b18660c10bf32ba",
-      "statement": "Signer open increments a durable generation and refuses an older ledger missing the previous generation fence, while key loading tombstones older key generations.",
+      "statement": "Each successful signer open persists an incremented generation after requiring the ledger to enforce the prior per-participant fence; an older or fresh ledger paired with existing generation state requires recovery, and loading a key tombstones its older-generation one-time records.",
       "evidence": [
         {
-          "resource": "repo://crates/signer/src/lib.rs#L276-L327",
-          "version": "repo-lines-v1:sha256:b2825ec925f9ba05867e86ca276026b8434116d5208575420ab5d7094a88b38c:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3OWNlZGUyZGQ5NTBiYWJmYWE5MGM0MTdiZTFiYzI3MmM0YzNmOTFhZDU1YjgzNThhYjVmNmE4MGU4YzJlY2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5YjE5ODJlOGRkNzQ4MTE4MTQ2YjM5YTJkMDA2MmY0MDgxZTM0Nzc5Yjg2NzVjMjM0YzRmYjEyNGRjMzkzOTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRlODBhNTNkZDc3ZDI4YWRhYzVkYmRiMGI2YmVlNjQzODk0NTdkMzAxY2I4NDYxYTM3ZDRiMmQxOWNhYjg3YWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFiNDdiZDIwNjg1MGQ4ZWI0Y2JkMzllODhiZDU5YTc5NzYxYTU4ZTYyOTRkMGZlZjU0YzBmZWZiOGNkMzQyYjAifQ"
+          "resource": "repo://crates/signer/src/lib.rs#L279-L337",
+          "version": "repo-lines-v1:sha256:e7763242b998200dccd9d7a7f87f445f7336108da3b9651f0ed9e3818347977c:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzMGQ0NDliMWQ2YjBhMjc5YzE1YjM5YjY1NTdiYjJjNzk0ZDZlMDZjMDEwNzI2ZjdjNjk1ZmJlYjVlMzViYWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY4NTY5ZjIzMzc5NGJlNTIwMTMzNmY1NDdhYjAyM2FlZTkxZjA0NWFiNDVmM2Y3OWViMzVhYTBlYjE2MjVhMTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA2MWU3NTE0YzZmMjBlZTA4MmM5YTU3MzI1MGM5ZDM0MjE5MjI0OGZjNzE5MTYyOGQ4N2Q1YTg5YzFiNTI1M2YifQ"
         },
         {
-          "resource": "repo://crates/signer/src/lib.rs#L350-L387",
-          "version": "repo-lines-v1:sha256:8810235f5f5b0c72c0d0021c8d8daa38d16921ee7a4aff2fc35752b88534ea06:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQxODk1NThlYjQ5M2MwNTNhOTU0YjQ4YjQxYzFjYmMxMDU1ZThlYmVmODk0OTM1MDQwZjQ5Njg0MTY0YmQ1YWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk4YzMwYTg0MmViZDlkYTQyY2EzMzU5MGUzZGViZGJlN2E0ODA5YzVkM2NkYjMwMzMzNGFmMTlkYjI4YjlhZjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFmZjUxYmE2MGVmYzEwYzhiODdiNmUzOWM1NjIwZTA1OGU0YmMzMzg3ZGZkZmQxYjU3Yzk3ZGI2YjAwOTU5MTgifQ"
+          "resource": "repo://crates/signer/src/lib.rs#L368-L403",
+          "version": "repo-lines-v1:sha256:23b165c4c1645e80234a9bc1cb085e6d6de7d8628f9ee48e5d61642bc0011984:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjczODcwZDQ5MjMxNmFjYWUxZWRiODMwOTAyZmNkYmFlYzEzODUzNmE5YWFlZjM1MTI3MjM5MTMyMWQ5NzczYTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk2MGE4NGEzYWMzY2JmOWUzMTlkYTQ5ZDYzNGJmNGE1MDMyMmExZDYyMWIyNzFlOWQ2ZGI2MGI4ODEwMTZlNjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNlMTJlNWEzNGY3MGY0ZDY2MDc0ZjA0MWRlYmNiMTg2MGM5NmZhZTAzNmI4MWY1ODg1YTYwNmViMjdhMGExOWMifQ"
         },
         {
-          "resource": "repo://crates/signer/tests/generation.rs#L42-L128",
-          "version": "repo-lines-v1:sha256:cec07ab99478f03df48856bc3bdc2d4cb4edf44ebfd2df530ac090cb55791ace:eyJzZWxlY3RlZExpbmVDb3VudCI6ODcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM4YTdkNzBiZGRjZjM0MDQ1NjYwZTllNGIwZGM4ZDQ4MDJiOWVlNGY3ZmRlYWE0YjhlNzU4YTc5ZmMxNzRjNmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ4MTI4NjM1MTY3ZTQxNTMyNzI2MTExZGRmMjdiODQ2ZGU5OWQyNTM5MTY1NGE3NDA5ZDQ1YTc3NjIyY2FlMzYifQ"
+          "resource": "repo://crates/signer/tests/generation.rs#L41-L127",
+          "version": "repo-lines-v1:sha256:771fd5a3b95fca6b1b7574523859ba2b4bf118ce7aa12b4099b60edeb07165f2:eyJzZWxlY3RlZExpbmVDb3VudCI6ODcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3NGFkZGI1Y2Y4MzhiNzcwNmNkYjAwZjYyM2I4NjhhNjYyNzY2NWVhOWQyMjE1YTU0ZDY0Y2U4MWNlN2QxMmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVmNmM3NmQ0Mjc2Y2ZlNTYzMjE3OTNmYWIxZTFiNDUxZjI3OTBiZDgwYmI4ZjEzNTRiYWM3M2IyMTA1NDVmNGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0b3ce81b20ba4b82ba2575de66d3aaec",
+      "statement": "D2 must be selected before key loading or sessions and disables D1 entrypoints; it admits only a local VerifiedLog with the independently pinned anchor, a fresh timestamp, and a non-regressing finalized floor, and rechecks current finalized authorization before releasing buffered rounds.",
+      "evidence": [
+        {
+          "resource": "repo://crates/signer/src/finalized.rs#L24-L39",
+          "version": "repo-lines-v1:sha256:f97083380a45e5bf6a28a50aaaca52facc9509936fa3ae835ad9932f322ec9ed:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzMGQ0NDliMWQ2YjBhMjc5YzE1YjM5YjY1NTdiYjJjNzk0ZDZlMDZjMDEwNzI2ZjdjNjk1ZmJlYjVlMzViYWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdhNGQ5ZGZlODFlOTcyODAyMTRjZmEwZjUzMTRhNGFkNzcyMzg3MTNhYzIzNGI2OGQ3OTQxOTk5N2EyMzk4ZWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY2MDZkNGVkMTFmYWZmZjU1YzlmODRmMzBhMDQ3ZDgyYWRmMzdiODU5NTYyZjY4Nzg1YjEyMmU2ODI3YTVmMTAifQ"
+        },
+        {
+          "resource": "repo://crates/signer/src/finalized.rs#L49-L67",
+          "version": "repo-lines-v1:sha256:c626347f9f159631ee2087b0bedbbe3e035586ec9a27eab020988c7a634a31a0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc0MTVlZmM4YmZmZDYzMDliYTVhZGQ4NmM5NDE1M2YyMzc3YmEyYWRjZWI5ZTdhY2RiZTIzNWUyOWRlNzJhODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE4OWY0YjdmYTIwNjA0OWMxNmQ2YTQzZGJjNDEzZGExN2ViZmU5YWU2NTFjZTgyNjEyODY5NDQ5YmZjYTY4N2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRkOTg0NTgyYjVmYmYyZGYzMzdmMGZiZjA3ZTk0NGQ3YmVkODQ2YTc0MzBlNmQyNzU1MmU3MzUyOWE4MGE0OTYifQ"
+        },
+        {
+          "resource": "repo://crates/signer/src/finalized.rs#L69-L128",
+          "version": "repo-lines-v1:sha256:5a6fd7f322c4a66f392abc04bb18b8e5025516870c5a599b016403f0fccad41d:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4MGJlYzA4Y2Q3YTU2YjBhNjE2M2EyNGY5NWMwZjZjNGI2Y2U4NWE2MTUwOWQyMWYxZTU1MmYwNzhjMGRkYTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE2MmVlNTdlNDFhOGMyMGFlMDE2NGRmMjYxNDM5ZGNjNDk5ZDM1MjA4MzQxNTE1MTZkMDQ3ZThkZWFlOGE0NjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b4cb506cf36b4453b7032d62e2dcc95e",
+      "statement": "D1 release validates a Release receipt against the opened reservation's envelope, session, candidate, reservation/version, policy, intent, rule, claims, and freeze epoch before feeding buffered share-producing messages; D1 and D2 evidence cannot release each other's sessions.",
+      "evidence": [
+        {
+          "resource": "repo://crates/signer/src/finalized.rs#L103-L124",
+          "version": "repo-lines-v1:sha256:a1866ccbc2460c7333b83f27bc25867edafc1fb7d126f60ba14dc4d24e9d7c14:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5NWZiZTQ0NjMxMmYwNDk1MzNlNWE5MTQwYmE1YjY0YmQ0MmNlNzhjMzAwMDNlMTMzZmQ1YzNiYzlmZjcxYjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE4ZWU0NTZhZGRmNjA2OTM0NGNkNjgyYTkwNDQ4YjI3NTlkMzFiMjZjOWZiOTUyYTgxNDljZjQ1NTQzYmIxMjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJlMzYzMzhkYWZjYmMyMjc0M2IwZmFhZDgxYjg5YThiMGVkNTFhMmE3NGMwMDAxODExNGEwNTlmNTVkOTk2YzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM5MzkwNTFiZjc0OGI5MDRiMTE4MjNlODc5NjU1YmEwMTRiMDZhMThkYWNiMmFmNTM5YTlhYmRlN2UwZTc4MGIifQ"
+        },
+        {
+          "resource": "repo://crates/signer/src/lib.rs#L587-L645",
+          "version": "repo-lines-v1:sha256:b1cbf1fb1d0b42779e748a2a768c5ab560145698e4d06fc27beb374acd5d12f8:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY1M2IyMzM2NjhiMmZkZGVlZTA4YTdjOGI2Y2YzYWU5MDI0OGEyMmVhNzNjOTllYzBkNjJlNDZkY2MzZDJlMGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJiOWUwMWZjMGMzZjAzMWU3MDFlZDUyZTVjZGViNmI3NjU4NzRmYmI0ZDE1ODI5NDI4YWM3YTgyZTI5NWQ5NWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE2MmVlNTdlNDFhOGMyMGFlMDE2NGRmMjYxNDM5ZGNjNDk5ZDM1MjA4MzQxNTE1MTZkMDQ3ZThkZWFlOGE0NjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkxZWZlYzRiYTcxZDhkZTdjZmIyZmU2ZWMzMWNiNGUzZmEwODY4NTJkOGEzMDlhMjlmNDU3M2ZmODQ1Y2Q0M2YifQ"
+        },
+        {
+          "resource": "repo://crates/signer/tests/evm.rs#L350-L392",
+          "version": "repo-lines-v1:sha256:42ecf6f25d36d8fec08958e3b0170cb759bc5f4148b343a10389193145f493a3:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNjMDZlZTIxYTVjNzJmMmNjZWQ5ZjE3NGU3MDAyMGY1MGYwNzk1MGQ4MmE0NTNmYmZlZmJhMDFhNmQ4MjZiNWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZkYjFhODRkOWY0ODU2YjM3Mjc0OTNmMzUwNzc5Mjk0ODY2YjA0ZGE5YmViZmUxZWUyMmQwNTc0OTFmODY2ZmYifQ"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-20T20:16:28.312Z"
+    "at": "2026-10-24T08:14:21.486Z"
   }
 }

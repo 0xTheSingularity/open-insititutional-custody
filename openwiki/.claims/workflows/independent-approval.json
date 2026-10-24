@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:f1122bb77d3f7774a12445e5b2523c18742c6e26ab94e5bdb641f68c5273de1e",
+  "pageVersion": "sha256:32b5e6133ab862f14ed6697b3d1da6344f9657009f78037f845f9a0ce1cda931",
   "claims": [
     {
       "id": "claim_615cc21c132d467cae2ffbd761b6e5f8",
@@ -46,7 +46,7 @@
       "evidence": [
         {
           "resource": "repo://apps/independent-approval-client/src/commands.rs#L265-L311",
-          "version": "repo-lines-v1:sha256:cfcb58bed802d4ca374bebe8d7aa09e1a8284117a190a0c3adae6ca4a556c607:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ1MDY3Mjc2NTYzYmYyZGQzNTlkYjA5NDEzY2NiNGNhMWQwZGQzNjFjMmRlNGJlN2FjZWU0MTg1YmZjNWU5ZDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRmMDBhZDY5MzA3MTZmMGM5M2RiYmFiZDM0MzEyN2YwZDc4NzBlOWI3MjMwNGNkMjhkNWJlMmU1ZDY2OTFjYmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM4YzM3MjFlZDM1NWRiNjcxZGZkY2RhOTE1YTI2ODc3NTgzZGY2NWViOGQ2ZGFjN2M0NGNmZmI5ZWY1MWJjOWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhYjM1YTgzMzM2OWY0YTg0MzgyODg5YzcwYzU2ZDVlYzc1OTA3OTkwZTk4ZmI5ZmNmZmUxMTRhMjdlMGJiMWMifQ"
+          "version": "repo-lines-v1:sha256:1427eea52cbc65731d90eed8317ccdadac1da0824351ebce12cc75ba9ed421dc:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ1MDY3Mjc2NTYzYmYyZGQzNTlkYjA5NDEzY2NiNGNhMWQwZGQzNjFjMmRlNGJlN2FjZWU0MTg1YmZjNWU5ZDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRmMDBhZDY5MzA3MTZmMGM5M2RiYmFiZDM0MzEyN2YwZDc4NzBlOWI3MjMwNGNkMjhkNWJlMmU1ZDY2OTFjYmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM4YzM3MjFlZDM1NWRiNjcxZGZkY2RhOTE1YTI2ODc3NTgzZGY2NWViOGQ2ZGFjN2M0NGNmZmI5ZWY1MWJjOWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhYjM1YTgzMzM2OWY0YTg0MzgyODg5YzcwYzU2ZDVlYzc1OTA3OTkwZTk4ZmI5ZmNmZmUxMTRhMjdlMGJiMWMifQ"
         },
         {
           "resource": "repo://apps/independent-approval-client/src/commands.rs#L67-L119",
@@ -56,29 +56,29 @@
     },
     {
       "id": "claim_edd9fa22fed44b409de4a0320ada2b81",
-      "statement": "The CLI has distinct exit codes 0 success, 2 usage, 3 refusal, 4 destination mismatch and 5 file I/O/parse errors, while grant-set verification fails on any bad grant.",
+      "statement": "The CLI has distinct exit codes 0 success, 2 usage, 3 refusal, 4 destination mismatch and 5 file I/O/parse errors, while grant-set verification fails when any grant is invalid.",
       "evidence": [
         {
           "resource": "repo://apps/independent-approval-client/src/lib.rs#L31-L62",
           "version": "repo-lines-v1:sha256:e41583ff436f46625d04fb45221a3e67bc6c2916902615fdbd794bd636ea16ee:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZlYmEyMWY1MzczYzQ5ZjAyOTBkMmIxNzc2ZWQ0ZDg2ZmQwODllMmY4ZDgzMDNkYWJjZDk1ZWQzMGEwYzNlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYxYjEyNDk4ZTg4NTEzZDRiODFjNDYzNGJlODViNDZjZjIyN2NlMTE2MTllMDIzZThkN2Q5YWVjNDIxOTk1OGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMxOTNmNjJhODk0YzI2ZTcwNzY4OTVkMDYxNDE0YWVhYTAwZWNiZTM1MWY5Y2M1ZjkyMWU1MzhhN2M0ZDc3MGQifQ"
         },
         {
-          "resource": "repo://crates/approval-verifier/src/grants.rs#L65-L79",
-          "version": "repo-lines-v1:sha256:c4a6c60f349df601373e856da741816ee7189833246c4e241d5f83ef098a6af4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ3ODJkOTdmNWY5Y2QyNzk0MDQzMmFiYjc4NjFkYTJkZDhlZTc4ZDM2NzUyYmUzNWE2YzVlOTQwZGFlMTBjZTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzMDI0M2QzYTkyZDY4MDg5MjIxNjZmYzcxZTFmNDEzYTBlMmViZmJiYjMzOWFhNGFjNmY4ZDNiMmM3ZGMwNzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY5NTJhYjlhZWY2YzAwODIwZjI5MDY0MGY3NjdiNDE3YzQ3ZTZjZGYyMDYzNGJjOGIxOTQwMTBjODNhYWU1YmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE1MjE2MDRiMzVmYzQwYWYwMGNiYTRlZWEyZmQ1ZTJjM2FmMTg2M2IzOTExODVkN2JmNGJiMDllNzJkMGM4YjMifQ"
+          "resource": "repo://crates/approval-verifier/src/grants.rs#L80-L95",
+          "version": "repo-lines-v1:sha256:57298978a7b644d1f63ad185a20a6984c4946f5f1a4575df84d04952a1c9fb4d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcyZDIyMjQ2OGUzM2QzNTg4MDYyYTQ1N2FhYzBmNTQ5ZGExZmRjNjhmZDA0ZGJkMGZjOTU2ZjE3N2Q0MWFkN2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZmOWE4MGFlZGJkMDUzZGYzMjYzZWUyNGVjMTZmOTcyNjM0Mjg2YjZjOWMyNGQ0Y2RlMjA4NzJjYWU5MzZiZmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEwMGRiMDQwZjI5MDliZjk3OGZmMGE5NTZhNTVlODNjNjUzNDE4ZGU2YmI2OGY4MDQxZGE5NzZmOGQzZDIyNzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3OTRkMDJhODEyMTk0NGQxNzZkMjY1ZTliYjljYzU5ZjZhYjg5MGJjYWRmOGFlZmRlYmRiYmI0ZjJlYTg0NDQifQ"
         }
       ]
     },
     {
       "id": "claim_f7565333caa84d8b83e4b0ac65b28e93",
-      "statement": "inspect-envelope compares package bindings but does not authenticate the authority receipt signature because the approval client lacks the authority key trust root; signers perform that verification.",
+      "statement": "inspect-envelope compares package bindings but does not authenticate the authority receipt signature because the approval client lacks the authority key trust root; signers verify the authority key, receipt signature, validity, and receipt bindings before signing.",
       "evidence": [
         {
-          "resource": "repo://apps/independent-approval-client/src/commands.rs#L598-L626",
-          "version": "repo-lines-v1:sha256:4baf73b9359b5ddb6f303ab289c9ae7077f87e1622f222d39dbe93199b769360:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFlNDcwNjliMDU4OGVlYTdmMWFiNmQyOTE0ZTgzMDYxZTZjNzk0NzE2ZGI4Zjk2OThlMGYzYmZjMzRkYjYyOTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwODk0OGNiNmMwOWQyNWYzZTU3NzQyODJiMjYxNzcwNTk0Zjc4ZWZmZGY4NzBhODc3Nzg4OGNlMDQxY2U1ZTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQzNjY1ZWI2MDI5ZjgyYTU2YWJlODcyMWE5MDczMWQ0OTk5NGJkZjI3YzljNmNkNzUwMjRjNDM0N2Q5YzYzNjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ4MDJiNmFkOTA2YmU5MTNjNjI0YWFlNTU1YWFhYTk4Njk2MDgwZGU0NTc4ODcwMmRkMDJjNTY3MWZkZWZjMWMifQ"
+          "resource": "repo://apps/independent-approval-client/src/commands.rs#L599-L628",
+          "version": "repo-lines-v1:sha256:9b4c339e0c7c411afb70a92b554125cc31de5013c3abaf7ef10064b2f19180d6:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFlNDcwNjliMDU4OGVlYTdmMWFiNmQyOTE0ZTgzMDYxZTZjNzk0NzE2ZGI4Zjk2OThlMGYzYmZjMzRkYjYyOTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkMTE5MWQ5Njg2OWRhOWI1NGYxMTk3YTQ2NDZkMmYxNTU0MmRmOTI2ZWYxZjc2YzljYTQ2NzMyMjVkNjQ1YjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQzNjY1ZWI2MDI5ZjgyYTU2YWJlODcyMWE5MDczMWQ0OTk5NGJkZjI3YzljNmNkNzUwMjRjNDM0N2Q5YzYzNjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
         },
         {
-          "resource": "repo://crates/signer/src/verify.rs#L48-L89",
-          "version": "repo-lines-v1:sha256:16583fc4b2f5e9250b5c4abd5c3612b8313075740e623a1e14db8e92cb66015c:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNhMDgzZTliOWI2NGM4ZWI1YzQ1ZTU0MzI1NzYzOTQ3ODI1NGRjODAyMTM4Y2UzMzRjYzZhZTljMWFmOTMwNzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA1YmZiNzM3ZDljZmQ5MGY5OWRhZTQ4Mjc4MjcxOWIyODIyMmE3NGRmYzQ3ZTEyMThmZDE5NDQ4OWZjMjg0MWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA1YmRhZTk5YjM2YmYyZDRhODhkODY1MDAxNzhlMjNjN2Y5OWQyNzY2NDNiYTJmZDlmNjA4OThmM2M5ZGM4ODgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxMjU3NTc2ZmZiZmM1NTk0N2VjYjBiZDMxNTg5NjExYWZmMzU0ODQzNjA0NTM5OGNmMGE2YzE5M2ExNTA3NjYifQ"
+          "resource": "repo://crates/signer/src/verify.rs#L54-L111",
+          "version": "repo-lines-v1:sha256:1a661564ef1ae40d78a5e0cd5284e5618698baf1852dd6300c1fed46701ceac9:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzMGQ0NDliMWQ2YjBhMjc5YzE1YjM5YjY1NTdiYjJjNzk0ZDZlMDZjMDEwNzI2ZjdjNjk1ZmJlYjVlMzViYWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwNzFjNmU5MjJkNjRlM2MyZDEyZDFiNDAwODRjMzFjYzRlNzgwN2ZiNDJlN2Y3MjI5Y2M4ODYwNWU3ZmM4YjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA1N2RhMjI1YWE5OTkwYWVhOTQxMzk4NmQwYTg5NjFlNmIwNWU5MzgwZTcyMTQxNzAyYmU0NTNmZDM0MDFiNjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVkODJlYzU4MWNlZjUwMWU4ZTAxMDczNmFhMWU2OTZkZWVmZmNiZWMwMTVkMjdmMWZkYmRjNDc2ZGIwZGZmYWQifQ"
         }
       ]
     },
@@ -95,14 +95,138 @@
           "version": "repo-lines-v1:sha256:f852043fce3e51de833e9a5643c09570b6d6dc62bab17581bf1bf86144baf8ca:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5MTFkNjlkZTQxNTZlZDgyZDIyMzFhYjU1ZmJmZjgyMTg0MjQ5MmNlZmU0MzYwZDVjYThhN2QyNmE2NzlhY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM1ZjZmNDY2ZTU5Y2ZjMzA3MDNjNDVmNzJhZjY1ZGU1NGFjMzYzZDM1NGNjMWEzMzMwMzUwYWNkNDUyNDM0YzQifQ"
         },
         {
-          "resource": "repo://crates/policy-kernel/src/lib.rs#L231-L241",
+          "resource": "repo://crates/policy-kernel/src/lib.rs#L223-L233",
           "version": "repo-lines-v1:sha256:01e6ae4810eab493b4a93a58c64a6a85b1983f5d1132cc531c77d51997d499f7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyY2NiZjE2OWJhOWYzNDI2NDVkNzc0ZmRkYWY3MWNjN2UyN2QwNDczY2IxYzU2YTkxYTYxOWU5NDYxYzc4Y2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYzYjE2OTQ3NDRmOWFlZWZjY2EzZTM2NTBlYjAzNTFhYTI2NmQ5ZjRhNjQ1ZDllZjE5MDE5NDJiYmQ2MTY2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdjZWM3NWVhMWRiMmE5NzgyMGQyNmQ2Zjg2ZjNhOWRmY2M0NDRmYjFmZDY0MDUyYjU4M2JkOWQ0MWFiMjYxOGYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d688561161974203be46d79e6b2cc419",
+      "statement": "TrustRoots is configured out of band with administrator keys, a quorum, enrolled profiles, and accepted verifier build hashes; before creating an IndependentVerifier it validates the roots and refuses any enrolled profile whose compiled pinned adapter build is not accepted.",
+      "evidence": [
+        {
+          "resource": "repo://apps/independent-approval-client/src/trust.rs#L1-L19",
+          "version": "repo-lines-v1:sha256:52dcd9d2656edfc33e56384a81f1b5fa986ad22188c9aac3518f4083b6837e54:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE4YzhlMGJlZGM4YTdiYWZjOGNjMmFmNjg0ZTgxYjAzNWFiNWQ1Y2ZhY2IzMmMxMTc4ZWVhOTZmNGVmNjhjMjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyMWVkNWI4MjY0MTVhMWJhMTcwODMwZDlkMDViMjg0Mjc2MTA0Njc2YTA4M2I5OWVhYzkxM2ViODE3Zjg3ODQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNlZmJhNDllZGNmYWQzZDYzODdhN2E2MjNjZGI2YzM5ZjRlNmM5OTMwZTJlMzQ3ZTc1NDY1ODg2NjllOGQ3YjMifQ"
+        },
+        {
+          "resource": "repo://apps/independent-approval-client/src/trust.rs#L103-L135",
+          "version": "repo-lines-v1:sha256:aab89ad123af45dad47de0da51ca5ec088145f2d7b3e1410455ea1f765bdf349:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFlZTFmYTU4MGExYjA2NWQ0MDJjMWE2NTBmZmI1YTY5M2I3Njc2OTk5ZDhkZjkyMGZkOTQ0ZmM3OGMxMmRhZTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwNzFjNmU5MjJkNjRlM2MyZDEyZDFiNDAwODRjMzFjYzRlNzgwN2ZiNDJlN2Y3MjI5Y2M4ODYwNWU3ZmM4YjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ0MTFkYjUzNDBlNjg1M2Y4NjI3ZTdhN2U2ODNlZjNjOWNjZDE1NTU1MzQ5Y2RmNWEyYjZlOTQ5ZGY5NmEzZTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA4MzY4MWIzNzRkOWEzODhkZmZjMzczMDM0ZWIwZWMyNTgwYjcyNGY4NWI5OWE1MTRmMjdhNzJiZjliZDEwZTgifQ"
+        },
+        {
+          "resource": "repo://apps/independent-approval-client/src/trust.rs#L157-L180",
+          "version": "repo-lines-v1:sha256:13a323d14494074994d4ca74301cc391474fc735eae88ae98ee3e94a98cedfed:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwNjM4OTQ4ZGM3YTU5N2NlMTYyM2U2ZjViNmQzZjRhZThkMDcwNmRlYmEyM2QzMDU4YjkxYjI1MDQwNzI1OTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM4ZGQ3YjNmNjg4OGM0NDUyMjk1MjM2MjE1Yjc4NDkwMGZmNWNmOWFlMWQwY2YyOWE4NmRkNjhlNjZlZTUwMWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFlYWU4MTkxM2QyNGYwMWUzNmMxZjBkNDkwZjM3NjY4OWI5MmFlYTQwNTM3MjBlYjY4YjgzZWM4ZjEyNWE4ZGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ3ZjEyZjgxNDM1MDUzYzhiYmNiMTUwOTk5YzRlMGZiZWNhZjc5NTExNjIxMDU3MGRkNzRkZTVmNTJhMjFiNDcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d6becd148d434c84b26db76184605970",
+      "statement": "The independent verifier authenticates policy and destination administrative quorums, validates cross-object and enrolled-profile bindings, hashes evidence, derives the wallet address from its key, and decodes and verifies candidate bytes; a decoded recipient mismatch is rendered as a warning but is not signable.",
+      "evidence": [
+        {
+          "resource": "repo://crates/approval-verifier/src/client.rs#L102-L164",
+          "version": "repo-lines-v1:sha256:7f274fbf5dc1547b765262c2f2622279603c00ebfdca7ba244b72873c9c1bd05:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFhYzc4NjgzZDIxOGZiMDQwOGY5ZDQwMTE1NDBiMmJkZTcxYzcxNDdkMDFlODc0YmMyZjFjOTg5MzNkODlkZTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYxYTg1YWJjNDg1MGUzNTAxMTc1YmUxMTljMjU1MjFkZDVhYTNmMzFkNDUzNWQxMmM2Mjc3ODU0ODJmZDAxMjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY5MzQxYTU5MzE4MzIxNjVjYTE3ODMxNzllYjdhZmY4MDg5MjI5OGI0NzNkZmFiMWQyNjNlNWQxMDk2ZmM2YzIifQ"
+        },
+        {
+          "resource": "repo://crates/approval-verifier/src/client.rs#L193-L218",
+          "version": "repo-lines-v1:sha256:b0c0cb3d4087bb799db2156695cc41d780b1f032b60178051304251fa8a8658c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE5MzFjOWRmZGViZjgxMWQ5NjNhOWFlZTgxZTE5ZjU1OGE1MjI2NjQ2NjQ5YzlkZjFmMzIwMDY5OGI5NmI3NzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmY2ExZGYzYjVmZTFjMGIwZGIwNWU4NjBhM2M0ODI0NTBmZDc3ZmE0MmYxZDE5NDdlMmE3ZjYzNDk2NzQ5NDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMxMzk4NjQ4OWNlMDk1NjU1NjMyNzI2NGYwODFkZjcwZTdjNGI3NTA5ZTcxNzAxMjhiODIyZjVmNWExMmIxNTkifQ"
+        },
+        {
+          "resource": "repo://crates/approval-verifier/src/client.rs#L279-L341",
+          "version": "repo-lines-v1:sha256:973efb72c72887f1d5f36b03cbf846b44670d980cb19ba47ba8c39fdec00b279:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwOWRlMmQ4ZmJlYmRkMjU1MDNmOGYzNjFjMWY0YTlmNTg5NjBjNmNjYmVmNDllYWEyZGI1MTViNTg2YTQ1NDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNmNDIzZGVhMDE5YjFjMzRkNTcyODQ5NDc0YzIxZTRiODQxM2IyYTgyY2UzNzg2ZDVkM2IyOTA3NTBhNzcxNzciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMzMzliM2U2NDI2Zjk5MTJhOTgwY2IxN2JkZTMwOTBiZjg1ZDk5NzA5MGNkYzIzNTA4NjE3OTJjMzRlY2ExMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3OTRkMDJhODEyMTk0NGQxNzZkMjY1ZTliYjljYzU5ZjZhYjg5MGJjYWRmOGFlZmRlYmRiYmI0ZjJlYTg0NDQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b8219bda2b5740408e66db143e0f32f5",
+      "statement": "Approval grants bind institution, environment, vault, intent hash, policy epoch, approver credential and role, a validity interval, and either an exact candidate preview or a bounded direct-transfer template; signing uses a domain-separated canonical body hash.",
+      "evidence": [
+        {
+          "resource": "repo://crates/approval-verifier/src/client.rs#L290-L341",
+          "version": "repo-lines-v1:sha256:f4db726cf76e87e85753572ef782e2aeff4ebee623fbc3d8d98c6c40ec0f7d3e:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc2Nzc4NDRmMTFiOTJkYTljM2U5MTIxNzJhNTdiNzcwYzNlN2ExMTUyMmNmMmFlNzk3NGM4YWIzMTRjMzkwMDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNmNDIzZGVhMDE5YjFjMzRkNTcyODQ5NDc0YzIxZTRiODQxM2IyYTgyY2UzNzg2ZDVkM2IyOTA3NTBhNzcxNzciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIzMzgwMmNjYWIyZjMwNjIzN2JjZGI5MWI2YzY1ZjdkZDgzOGM4NDc4NGIxYjZiZjg4NDYzNzE2NmIwMzM3NTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3OTRkMDJhODEyMTk0NGQxNzZkMjY1ZTliYjljYzU5ZjZhYjg5MGJjYWRmOGFlZmRlYmRiYmI0ZjJlYTg0NDQifQ"
+        },
+        {
+          "resource": "repo://crates/approval-verifier/src/grants.rs#L1-L19",
+          "version": "repo-lines-v1:sha256:f7a3ef09ac9b4015ea63ef47f3293b08ed6997d298055438377b4c15181608f0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMmM5YWU4NTdiMzM1NTU0N2M0NmRiYTYwOGZmMDRlZGIyMTM5M2YyNDVlZDhmNmZjNWYwM2M3NDk5M2JhMjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU5M2NkNTBiMmI0MWU5ODQ3ZDUzZmM5NTljNGY1M2ZmYjU3OGRjNmUyNGM4NjMzMDhmMzgwNTFkM2IwNThiYWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE1MjE2MDRiMzVmYzQwYWYwMGNiYTRlZWEyZmQ1ZTJjM2FmMTg2M2IzOTExODVkN2JmNGJiMDllNzJkMGM4YjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e4075eb3eb10485aa651b2602dd428ec",
+      "statement": "The API approval endpoint requires an authenticated principal with Approve access and accepts a grant only for a Ready intent when its credential and immutable intent bindings match; it verifies the grant against the active authority roster when present, prevents conflicting grant-ID reuse, and records a credential's approval with the authority before storing it.",
+      "evidence": [
+        {
+          "resource": "repo://services/api/src/http.rs#L129-L140",
+          "version": "repo-lines-v1:sha256:f95e61152d09c8f60e4d15ef99ea1ce040c54500fdf5ade0f85b6959551614eb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhjNjAzYWMwZGEyMWQxNDQyYTAyNTBlOGZjMzdhMjU0YTlkMzBjNjQyYmJkYTg5MmE2YzFjOTgzNTYyOGNjODAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI2OGE2NDdhYjE2NTNmM2ZlOWVhOTBkNTIyYjg0OTZlMzVhNjJlMGNjZDlkNjc1NzRmNzc1ZmRkNjJjYjJmZGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE5MTA5NjI2NzFkMmUyNjg0MGY5NGFjN2U3MjFhNWZmYzBlMzI5MTBhYzA4OTNlYzhlZTljMmU2NmNhMjFhMzQifQ"
+        },
+        {
+          "resource": "repo://services/api/src/http.rs#L69-L86",
+          "version": "repo-lines-v1:sha256:a43b56fefb80411791f1c2459afd3ed114a5dee28539b5f97d53297614dd8c05:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyMmY4OWYzYTUyYzQxMzA1NjkyYjIwMjYyODFlNjkzZTNkNGE3ZjgyZTM1NTQ2ZmQyMzYzNjBlZmMzYjkzOTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA1Mzk0MDU2MGM3Y2I4NGZmOTk3Nzg1ZmZjMmEwYTJjY2JjNjMwYTNhZTQ2MTc4YWViYmRhOGM3Nzg4MmMwMzciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU2NDcyNmY2MWU0NTNlMWJjZDJkZmU1NDA5ZjFjYzllMGQxNmI2M2YwZDZlMTNjM2JjNDc3MmQ0YTZjZDdhYTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZmNGZiNDc3NmU0Y2NkZTFhNGZhZDc1ZTQ4ZWYyZDIzZjU3ZDRkZmQ0NjllMTc1ZDQzMzhmMTJkYmFlMDQ2OGYifQ"
+        },
+        {
+          "resource": "repo://services/api/src/lib.rs#L318-L388",
+          "version": "repo-lines-v1:sha256:8bf209c09d7ec2cbfc43c000fe86971f0b139371e1d2149cbadb5b81de9dbb76:eyJzZWxlY3RlZExpbmVDb3VudCI6NzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2YTk1ZjAyNTc3ZTA3ZGEwNWQ4Mjg3ZDE1ZWMwODQxOTY3ZDg0NTkyZDNmOWFhNWIxMzNiYTkzZDMyYjBiOTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmMGQ3NTk1MGRmMGZmOWEzZWU5NjYzOWRjYzhmZjVlYWVkYjQwZDY4MmJlYTkyNjIyYjUyMGRkODg3ZDkzZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI4NWI5NjAwNjIxNThiZjQ3ZDhkZmNiNDg1M2I1MjA2MWIzMGNlYmQwNjQ3Yjg2NjFhZjIyNmIxMmQxYmNlN2UifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_22b2b77b42264d12b91940dc50d29f52",
+      "statement": "inspect-envelope recomputes the envelope-body hash and compares package-derived bindings and grant scopes, reports but does not verify the authority receipt signature, and refuses mismatches after reporting them.",
+      "evidence": [
+        {
+          "resource": "repo://apps/independent-approval-client/src/commands.rs#L499-L628",
+          "version": "repo-lines-v1:sha256:6348100435d40eaede323323b34113085d27febf689cb078077e3b92d662552c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5ODc3NGE1YTY3YzhlN2U4N2YwZWI3YWRhOWY5ZjE2NWI5ODI3NjBlYWQ3MWUwYWZjNDhmMDJjMmQyMmRlOTJiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0ZDExOTFkOTY4NjlkYTliNTRmMTE5N2E0NjQ2ZDJmMTU1NDJkZjkyNmVmMWY3NmM5Y2E0NjczMjI1ZDY0NWI5IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI2MDYzYzRkMWFmOGNkODliYjBiZGQ3NjU3ZmZjYmY2ODA2YTYxMGQ3OWQ2YzhkNGMzMDdjMjQxZGYzOTAwNTIyIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_b084b8a59b254648b0f684692f1b0062",
+      "statement": "Before signing, a signer verifies every grant against its enrolled roster and current time, requires its intent/vault/policy bindings, rederives the native operation and exact-preview or bounded-template coverage, evaluates policy, and validates an authority receipt's enrolled key, signature, validity, and binding to the envelope and reservation.",
+      "evidence": [
+        {
+          "resource": "repo://crates/signer/src/verify.rs#L270-L399",
+          "version": "repo-lines-v1:sha256:b83f40da14cc81e00ed5109c829f8f5325c06ad42ba0e240816cf5973e6175d6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJiMjViYTM5ZDFkMTIzZjVjZTk3MmY4ZDAwZTAyNjYzNjBkNjdjYmU2ZDA0Yjk4NDQ0YTcwZmY2ODdkZDRmOGRmIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIwYTJmMjViZjAxZTBmZmUwNTIyYTg2NzBhM2QyM2FjYThmNDI5OWJjODQ0Y2ZlOTE1MmUwODJkZjViYThkMDU4IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIzZTYyNGJjMTkzZWJkMGI2YjE0NjU5NGViYWU4YTc4OTlmNjAyNTZlNjM2Zjc1NWI2ZGUzNDkzM2EyOWVlNDIxIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIxOWU3NjM1NWNmMTE5OTQ4MGMzZjk5ODM2YjE0ODZjODQxZDg5MWZhYWQ5MDRjNjA4ZTA5MzAyMmQzNzU3YWVlIn0"
+        },
+        {
+          "resource": "repo://crates/signer/src/verify.rs#L54-L111",
+          "version": "repo-lines-v1:sha256:1a661564ef1ae40d78a5e0cd5284e5618698baf1852dd6300c1fed46701ceac9:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzMGQ0NDliMWQ2YjBhMjc5YzE1YjM5YjY1NTdiYjJjNzk0ZDZlMDZjMDEwNzI2ZjdjNjk1ZmJlYjVlMzViYWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwNzFjNmU5MjJkNjRlM2MyZDEyZDFiNDAwODRjMzFjYzRlNzgwN2ZiNDJlN2Y3MjI5Y2M4ODYwNWU3ZmM4YjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA1N2RhMjI1YWE5OTkwYWVhOTQxMzk4NmQwYTg5NjFlNmIwNWU5MzgwZTcyMTQxNzAyYmU0NTNmZDM0MDFiNjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVkODJlYzU4MWNlZjUwMWU4ZTAxMDczNmFhMWU2OTZkZWVmZmNiZWMwMTVkMjdmMWZkYmRjNDc2ZGIwZGZmYWQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6c0b8c594f3147a5a09132e3c77d0ec0",
+      "statement": "Approver key files encrypt an Ed25519 seed with PBKDF2-HMAC-SHA256 and ChaCha20-Poly1305, authenticate identifying header fields as AEAD associated data, reject wrong passphrases or modifications, and are written as new mode-0600 files.",
+      "evidence": [
+        {
+          "resource": "repo://apps/independent-approval-client/src/keyfile.rs#L128-L157",
+          "version": "repo-lines-v1:sha256:e5f64b687b5d2e5f39c6ad10c9cf17e548a495183a9e15ed3d8893b011a3e4cd:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxYTg3NWJlNDNmZjU3ZDI5MmVjYTkyMGVlNTU4NzA3MjA3ZTQ5NmEzZGM3YzY5ZTk5MmY3MGZmYTdiNDVhMTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYxMGYzNWE5ZDFkZmYwNzRhNTRjNTFlZGFlMjRjN2Y5ODllZmVmNzA2ZDZjZGE0OTFiZjI3NDI4ODZkNWIxMDYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk0YzNjZTA4ZTE0NjZhNzZiZmEwMzgwNDU4OTc5OGQ5YzIxMjI0ZTg5YmM0ODMxYWE5NDc3YWMxYzM1ZjU1ZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZhNjEzMmIzM2QzNDVjMWMzZDI2NDY4ZDZhZTE0NWQwYzEzYTk5MTc2MTg4NTljNzc0ZDBhYThkODNiODg0ODUifQ"
+        },
+        {
+          "resource": "repo://apps/independent-approval-client/src/keyfile.rs#L17-L22",
+          "version": "repo-lines-v1:sha256:579203e6e3495863eb1443c142f0300622023ab523d519c778636ecd32e3a3ab:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2UxMTMwNDJmZDhiYTU2NjhiMGZjMmZjMGNmZGUwOTBjNWUwNThkNWQ3OTI5N2YwNDBlNDdjYmJjYTlhMTA4ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTYwY2UzZDdhZmY1NDZmNDg3MjMxMDA4Y2M5MWZkZDNjNmY0MjIzM2M5ZmM0NzhlYTFiYzUxNTQ1M2YzNWM4OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjFiYjMyYWI3YmJhYmQ1MDVjZWRiNzZhNmFhNDgzMTBkYTNjMWExNjU0NWFjNGYyZjIzNzMzNmVhMDk2ZjMxYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmE0ZDY2NzM3NzljZDRkZjdjOTgzNzRlYmIyYmRhNmNkN2RhZDA1OTUyOTg1NjE2NWM4MzdhOWI3NTk0ZDZhMyJ9"
+        },
+        {
+          "resource": "repo://apps/independent-approval-client/src/keyfile.rs#L171-L204",
+          "version": "repo-lines-v1:sha256:d5919d780b37dfd1b74d01e5b80ae41bd45529039d4be30f164d02f611abae62:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZjFiM2QwOGY1MWIyNmY1ODU5Mzk0MmYyMDRmOTlhZDlhN2ExYjUxNzc1NDQ4ZGQ5YjM5NzQ1Mjk5MDcxNWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5M2M2ZjNjMTY3OTI1MDQyOWU1NjM1YTMxOTdkOTEwYTdlOTU2MDI4MDIzYzY3MmYzYjYxMzIwOTUxN2I0MzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcwNWEzNDczMmMyNTFhYjZhZDdlZjVkNDY5MDEzNGJhODg2YTFmYTE3OGU2Y2MxZDZjN2I0MTQxNTI3ZDQxMGYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a5a1fa81297449a3b5c9549c651c8fae",
+      "statement": "The approval-client integration tests exercise exact EVM and Solana grants, bounded templates, confirmation refusal, field-level envelope mismatch reporting, destination mismatch, and the CLI keygen-to-approve-to-verify-to-inspect flow.",
+      "evidence": [
+        {
+          "resource": "repo://apps/independent-approval-client/tests/approval_client.rs#L325-L485",
+          "version": "repo-lines-v1:sha256:fe9609e3768576925950f176b67be13c89e576e36abb1c24cc353e44e42d47f5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJiMTEwMjg4Yzg1ZDc5ZmIzM2YzMDg1MjkyZmU4YTUwOThlMDVhZDZhNDhmZDgzMmYyYjU0NTM2ZDdlZmM5YzMwIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI1ZGUzYTAwMTNmOTNiMDg2YjFmODM0ZGM1NzZiY2U3NDM3M2ZkMTZiYWJkODY1YjY0NmE3ODIyYjNiNWE3N2I4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI2YzgyMjVlOWU1MzRmNWZlOWU3YTJjMzZhY2EwODQwOGUxZmI3YWRjMmM3MDBlMTU0MDUwY2FhNzgyNzlhZTdlIn0"
+        },
+        {
+          "resource": "repo://apps/independent-approval-client/tests/approval_client.rs#L499-L581",
+          "version": "repo-lines-v1:sha256:9766a0a35eb3fc23b871b1fe71ecb91f1a876b5b33d248de6d38d25ee85a8982:eyJzZWxlY3RlZExpbmVDb3VudCI6ODMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY4NTViYzNhMmIyNzE0MTBjZTRkMjdlMjhmMmE1MDdmODBhOTA3OTQwZmRmM2I0MDEwMDkyYjcwMWE2MDk3YjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVlNDFkNjhmY2RlOTcwMWI0MWVmMmRhMzFjZmVkNDg5Mzk0OTI2MDNiNjUwMTVhMGE1ZWM2ZTQ1NWNlM2VjMDkifQ"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-20T20:39:06.439Z"
+    "at": "2026-10-24T08:14:21.486Z"
   }
 }

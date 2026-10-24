@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:a3acf87ba7b8e9c32c11106dedf3d2fde5a4dcf15eeb0957d8ece7458514c56e",
+  "claims": [
+    {
+      "id": "claim_de3c06763d0844c381d762bb78fb095a",
+      "statement": "All API routes authenticate a Bearer token, and authorization rechecks the active credential roster for the requested vault and scope rather than trusting a previously cloned principal.",
+      "evidence": [
+        {
+          "resource": "repo://services/api/src/http.rs#L37-L52",
+          "version": "repo-lines-v1:sha256:4379d501a8989fc7086f736558095ce8f5df9def405526bfe7c16b574ca25e07:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhMmMzNzg2YzhkOTVhMGNmNTA0NzRkNzhkZjc1YmY2NDg1YmVjZDcxM2JjMTYxZDM2MTY2MTdkYTJkZTVmY2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY0NzVlOTRhOTA0YWM0OWIzMTU0ZDQ2NzJhNjZlODYyOWI4NmRhYzc0ZTNlMjkzN2JlNjkyN2FlM2RhMTFjNTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRiYzk3ZmYwNDM1NTJmNDY0N2FiMDM4ZGNjNTQzNTNhNGMyOTExZDljNzUwYmMyM2ZmMWU1MDhhZjVhN2U2YTEifQ"
+        },
+        {
+          "resource": "repo://services/api/src/http.rs#L69-L86",
+          "version": "repo-lines-v1:sha256:a43b56fefb80411791f1c2459afd3ed114a5dee28539b5f97d53297614dd8c05:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyMmY4OWYzYTUyYzQxMzA1NjkyYjIwMjYyODFlNjkzZTNkNGE3ZjgyZTM1NTQ2ZmQyMzYzNjBlZmMzYjkzOTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA1Mzk0MDU2MGM3Y2I4NGZmOTk3Nzg1ZmZjMmEwYTJjY2JjNjMwYTNhZTQ2MTc4YWViYmRhOGM3Nzg4MmMwMzciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU2NDcyNmY2MWU0NTNlMWJjZDJkZmU1NDA5ZjFjYzllMGQxNmI2M2YwZDZlMTNjM2JjNDc3MmQ0YTZjZDdhYTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZmNGZiNDc3NmU0Y2NkZTFhNGZhZDc1ZTQ4ZWYyZDIzZjU3ZDRkZmQ0NjllMTc1ZDQzMzhmMTJkYmFlMDQ2OGYifQ"
+        },
+        {
+          "resource": "repo://services/api/src/lib.rs#L95-L134",
+          "version": "repo-lines-v1:sha256:dacce74916c6b2e67782ae9f0721e1f8a537fe0f182861f0e28a9032bf76bfcd:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliOTMxNTRhZGMyZTA0YmRkM2ZkNGQ5NGNmZTQ2ZmUxMTEwNzE5MjMxNWFlNDQ1MzcwMGQzZTc1YWUxNDIzNDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjljMzgyZTdkZTFmMTU0MjJiYTc5MTQ3Yzc1ODZiM2Q3MWUwNzkwZjFhMzg1ZjBlNTRmMjBkOWFmYWYwYzYzNzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEwMjdhNDI0NDM1MmYwNTQzNDE1ODk4ZTBiMmU4ODBlMTVlM2EyMzkxYjRmNzEwYzcwOWVmNTVhZmEzMjNhODAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6d2ddd49664148ce8fa6becfb5cb8957",
+      "statement": "API bearer capabilities are distinct from approval grants: create requires a proposer-bound propose capability, while approval intake requires approve scope and verifies that the signed grant binds the authenticated approver, intent hash, institution, environment, and vault.",
+      "evidence": [
+        {
+          "resource": "repo://services/api/openapi.json#L12-L40",
+          "version": "repo-lines-v1:sha256:61dda498a1592fbe2036c2ff2000a4b4ea125e6ab33b7ac210c1a2f98fec5a46:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFhZTAzMTc1MDQ3NWJhYjIzZDUzOGZjNDc0YTI0NDZhMDJhMWZlZDMyMTQ3ZTk1OWE0OGEwZTVmZTkwMTBhNTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5NTExZGZhZWFlMmViNDk1ZGViMTJiZjEwMWIyOWM0NjU5Zjg3NDU5ODU2NWFiOTIzZjYzNjJlODA2ZjUyYWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlYWI2MGI1ZjExNmQwYTJjNzQ3NThjZDMyMzczNmY2YjA4YmY0MWIxN2UwOGI2ZmNjZDE0NzAxNzc4YjBiY2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3ZjAxNTBkZTUxNjYyMzI5ZjI0MmY1ZTNmYjkzN2Y4MDFkZDI0MWU2YWY0NjQzYmY2MmE4MjMzNTM5YWJkY2IifQ"
+        },
+        {
+          "resource": "repo://services/api/src/lib.rs#L150-L184",
+          "version": "repo-lines-v1:sha256:19a23310c6b5ebe71f45847764cbcab2ac8123fab62f94d60b3ad7fb591e5d95:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhNGMyNGQwMTczYzJlMDkyMjI4NDdiOGZiMzJiMGUyOTQ0MTllYTQ1NTU4ZmM3MjU4ZjlmZjBlYjExMDMxYjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM1Y2RlZjgwODVhZTc0YWI2MzZkNjQ1OWY1YzZkNWZiZmIwZGIyNjRmMWIwZDc1YmFjNTE5YzliM2Y2NzE3YWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI2M2M4ZDg2MzE1YTExOTQwZWUzZWE4OTkwMTBiY2NjYzQ5YTBhZTY5YTI4MWIwNDFmNzAwOTRhZjdiMTg0ZGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFmOTc0NmEyOGY0ODNlNDUxMDI0NjRkN2RkNTkyZmEzNTM2ZmQ1NjIzNGFhZjUxMGQ3MzdhNTZiYWRiMGE3NzcifQ"
+        },
+        {
+          "resource": "repo://services/api/src/lib.rs#L318-L352",
+          "version": "repo-lines-v1:sha256:6e312bc0aa2a00cd4fcbb956d058fde30be553bad510ba9fc030b69b0ce8badf:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2YTk1ZjAyNTc3ZTA3ZGEwNWQ4Mjg3ZDE1ZWMwODQxOTY3ZDg0NTkyZDNmOWFhNWIxMzNiYTkzZDMyYjBiOTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJmYTA3N2FhMTIyMTgyYzFlNzBmN2EyMjRiNGIyNjNkMjc4ZDQzODRmMjI5MGE1MmVhNDg5OTQxYTk4MmI2YzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmMGQ3NTk1MGRmMGZmOWEzZWU5NjYzOWRjYzhmZjVlYWVkYjQwZDY4MmJlYTkyNjIyYjUyMGRkODg3ZDkzZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQyMzJjODA2MmQwOGFlODIxZTc4ZDA1NzhhYmRiZWMzY2NhODVjNjY1MDhiNWVkMzUxYjI5ZDAwMTdiYzM4Y2EifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_76cf522a71774186bf442b4a6552dcfe",
+      "statement": "Intent creation builds a candidate from deployment-owned catalog records, active authority policy, and current profile evidence rather than caller-provided signing inputs; it then registers the intent and persists a Ready record.",
+      "evidence": [
+        {
+          "resource": "repo://services/api/src/lib.rs#L200-L211",
+          "version": "repo-lines-v1:sha256:52b9c412f015d1b84bb63f0e29268e128dce563b1cd3dea2b3387bb375192da8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJmMDFlMWY5ZTQwNzdkMDY4NzBiNTQzZjlkYTM5MjczYWM0M2UwOWIwODMyNGI5ZWNjODU5NjMyNTA0NWQwMmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY1YzBiOGU4YmY3OTAyZjFiNGY4MjlmOGEyNjM0NjEyNDlhNDI2MzdlNzk4OWZkYmEyMjI2YWJhMjc4NTRlNjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA1NDUzOTg2ZTYxYmIzZmRmOTBlMzVkNzdmMTcxMzk0ZDYxMTU0YjA1MDMwM2IzOTFmNDJkNzVhMjBlMzgxYTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVhNzNkMGUyMGFkM2ZjZTM5ZTdhNWFjNGE4ZGVmZGM1MWRkZjlmNDIwM2NlMjI0ZjVkMmVmNWI2NWE0YTAxZWYifQ"
+        },
+        {
+          "resource": "repo://services/api/src/lib.rs#L244-L316",
+          "version": "repo-lines-v1:sha256:1a977c8c50200db137da3fdd917c0aee3b535eeb4f148ed9584e1b9f9a834c01:eyJzZWxlY3RlZExpbmVDb3VudCI6NzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhNmU0ZGRmMDI2MzliYjUzZTYzODIyN2M0YWVkNzE0YTliOGI0MTcyMjc5NGU2MTY4YjcwZjM4NTk5ODRiOGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmMGQ3NTk1MGRmMGZmOWEzZWU5NjYzOWRjYzhmZjVlYWVkYjQwZDY4MmJlYTkyNjIyYjUyMGRkODg3ZDkzZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZkZjcyY2ZhOWNiYTU3NWE1YWJmZGUzZDkyYTUxM2Y1MmU3ZDI5NDQ4YjVhY2FjMjlmMjYxNWU3MjRlODczYmMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8fec734adac34e3a8d98759c5dd228a1",
+      "statement": "Create idempotency is scoped to institution and the POST /v1/intents route; a repeated identical intent returns the stored candidate, while changed immutable content conflicts.",
+      "evidence": [
+        {
+          "resource": "repo://services/api/openapi.json#L12-L20",
+          "version": "repo-lines-v1:sha256:f47ec2a17509ef26c860674d1b7f7e4a51de33b2d77771e70de35a2c43dcef9d:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWFlMDMxNzUwNDc1YmFiMjNkNTM4ZmM0NzRhMjQ0NmEwMmExZmVkMzIxNDdlOTU5YTQ4YTBlNWZlOTAxMGE1OCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWI2MmY2MGQ4NTkwYTU3OWNmNDZmOGQ2NzM3OGM0YzU3MmI5NjJjZWNjZGI5MGM3YTVmN2I0MmI5NjA3ODJhNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmVhYjYwYjVmMTE2ZDBhMmM3NDc1OGNkMzIzNzM2ZjZiMDhiZjQxYjE3ZTA4YjZmY2NkMTQ3MDE3NzhiMGJjYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTRmOGFkOTgyMzc3NWE3Mjg2MTE1NjA1MDE3NGEyZjVkZTQzYzRhODA5OWIyODY5ZTgwN2I4NzFlYmNlOWEyZiJ9"
+        },
+        {
+          "resource": "repo://services/api/src/lib.rs#L150-L195",
+          "version": "repo-lines-v1:sha256:37cfd8079ae1e0fdd875cf062fc3a8f47c51f3cf31f777444d5ee47805c542b2:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhNGMyNGQwMTczYzJlMDkyMjI4NDdiOGZiMzJiMGUyOTQ0MTllYTQ1NTU4ZmM3MjU4ZjlmZjBlYjExMDMxYjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI4MDdmZGEwN2MyMDc5NGU0NDQ5MmE1ZGVhYzQ2YjQyNjA1OWE4NDY0YzQyNDk1MWM2MGIxMzEyZTRkMTM4NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI2M2M4ZDg2MzE1YTExOTQwZWUzZWE4OTkwMTBiY2NjYzQ5YTBhZTY5YTI4MWIwNDFmNzAwOTRhZjdiMTg0ZGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNiYWE2NGNkZDRmNjQzYWIzYTVhYWM5ZGI0ODMyZmFmMmUyMjdmOWExMzUwZTM2MzVmNWU3ZDI3ZDBmMDdjMDUifQ"
+        },
+        {
+          "resource": "repo://services/api/tests/http_flow.rs#L183-L210",
+          "version": "repo-lines-v1:sha256:141b178c688615af0e2102b39a185e6cebb9a1d555c1d6cf37cb4a1e3bb73812:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU0YTQ0NGNhNjE1ZGUxZTZkODYzOGIzZGYyNTY5MWQ2ODAwZDc5MGNhYzRkNTMzMTY5NDA4Y2QwZGM2YzY0YWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZTQyMDhjZDZmZmI4YzRhMzU0N2IyZjU0YWRhMTk5NzhjM2YzNjVlNzhmOTUwMmVmNTE0NWNkZDJhYTg1NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlmODE1YzdlMTAxMzhjYTM0N2Y5MzdjMGY2Njk5Y2JjYWYwZmFmODAyNGJmMjIxOGUyNWE3YmJkZWUyYTBmNDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk1YjdhNTdhZTMxMWQ1NDhlOGQ1MTMxNGI5ZDNiMWU1YWE0ODc5MTBmYzE4Y2YwMGUyZGQ5Yjk4MmFmZGI0MWIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_850dafbfe6a1417f8687fa1907826605",
+      "statement": "Approval ingestion accepts grants only while dispatch is Ready, verifies signature and expiry against enrolled credentials, idempotently accepts an identical grant ID/body, and can repair the API record from an authority-committed approval without replaying the authority mutation.",
+      "evidence": [
+        {
+          "resource": "repo://services/api/src/lib.rs#L318-L387",
+          "version": "repo-lines-v1:sha256:424ba2b7e2cd8be93e0c3b57380e7a9224d0928551ca74b1f19821f13acc501f:eyJzZWxlY3RlZExpbmVDb3VudCI6NzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2YTk1ZjAyNTc3ZTA3ZGEwNWQ4Mjg3ZDE1ZWMwODQxOTY3ZDg0NTkyZDNmOWFhNWIxMzNiYTkzZDMyYjBiOTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU4ZmExY2E5NzYwYmE1ZTNlNzJlMDc2MDc2YjVjMWQ5MjdmNjQxMDZmNTZiOWU1NTYyMjIxOGRjM2JmOTZiYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmMGQ3NTk1MGRmMGZmOWEzZWU5NjYzOWRjYzhmZjVlYWVkYjQwZDY4MmJlYTkyNjIyYjUyMGRkODg3ZDkzZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE0OWQzZDIzZDhlNGUwZWNiNDhkMmZkN2NkMmQ0MmQwODc0NjVhMTkyNzZjNzY3ODUzNjYyNzM4NjBhNWYzYWEifQ"
+        },
+        {
+          "resource": "repo://services/api/tests/http_flow.rs#L750-L814",
+          "version": "repo-lines-v1:sha256:e8499ee071e264667a750042e8e0a1660d258b71c4f6638b5376dd4a24514413:eyJzZWxlY3RlZExpbmVDb3VudCI6NjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxOTQ4NGVlZGYzNjRmYjhjMTJmMWViOThmYmY2YTliNGY2NTBmNDI3ODc0YThkNzM1OTAxMGFhZGU0MzFiYzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1OTM3Njc5MWU2OTQ3NmY3YTA3MTg5NmRjMjViOTEzN2VmODQyM2UzZTk2MzQwY2NmYWMzMzIzZDQyY2E1MWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d8ca533fcb9b47e0a24bf3f23edcc891",
+      "statement": "Before coordinator execution, submission evaluates current policy, grants, and exposure and CAS-persistently marks Ready records Dispatching; this serializes competing dispatch and cancel operations before any signer call.",
+      "evidence": [
+        {
+          "resource": "repo://services/api/src/lib.rs#L432-L485",
+          "version": "repo-lines-v1:sha256:a7547d48313b6c0f413ad6336b18f1a351bd4893fd33ae672d52f812167337f8:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRhZGY2NWYwMDkwZDA0NWQwNTU2NTFmOWJmMTQ3MmQ3OTJkNTE0ZTUwZjY0NGUyNjcxZWFhZmM2OGM4Y2RmNGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxNTkwZDFkMzE2OWEyZTJkZDg1N2E4N2EzYmQ1YTcxNWZjNTg2M2YyOTc2YTQxZGExZGRmOTA0MDFkMjI2M2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI2NzAyZDE0ZWFiYmU1ZTE2Mzk2ODgzN2JkM2FjZTM5NGRjMTMyNDdhNmQ3NmE4NzM3MmY3MmM2ZDQ5MmQ4OGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc4M2Y3N2Q0YzY3NTc0OTBhYTA3NDBhZTAwNGVlOGY1NTBhMGQ1YjFhOTgwODQ2OTcyOWE4NGE5OGQ5OTg5NGUifQ"
+        },
+        {
+          "resource": "repo://services/api/src/store.rs#L118-L139",
+          "version": "repo-lines-v1:sha256:fc47b84d2b74766c82dc84992a1d0d2643dd2e553a703392c1454ff003b55c66:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZkYzgxNmU0MzFiYzAzNDdjYjg0MmFhMGRlMDE5MTRmZDk2NWFhMjllMzEwNWE3MDYyMTc2MzA1NjQ4MjhkODYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwNzFjNmU5MjJkNjRlM2MyZDEyZDFiNDAwODRjMzFjYzRlNzgwN2ZiNDJlN2Y3MjI5Y2M4ODYwNWU3ZmM4YjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU4YzA3OWFkNDEwZmQwYTQ1NDk5Yjk0ZjJlMDY3YTE3ZGJkYTg4MGVlYzk3ZDZmYjBhNzYzZDdhYzc1MTY1OGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3OTRkMDJhODEyMTk0NGQxNzZkMjY1ZTliYjljYzU5ZjZhYjg5MGJjYWRmOGFlZmRlYmRiYmI0ZjJlYTg0NDQifQ"
+        },
+        {
+          "resource": "repo://services/api/tests/http_flow.rs#L555-L631",
+          "version": "repo-lines-v1:sha256:ae4a2eb21b2eefeb16dbc4a744897676f69553280c0e7178ab0ce07dfa9d06df:eyJzZWxlY3RlZExpbmVDb3VudCI6NzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxOTQ4NGVlZGYzNjRmYjhjMTJmMWViOThmYmY2YTliNGY2NTBmNDI3ODc0YThkNzM1OTAxMGFhZGU0MzFiYzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1OTM3Njc5MWU2OTQ3NmY3YTA3MTg5NmRjMjViOTEzN2VmODQyM2UzZTk2MzQwY2NmYWMzMzIzZDQyY2E1MWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc3NzJlOTI3NWNiNmEyNGZmYTg5NTJjY2E3N2U2YTRhNWEyYWRlNjNjZWQ0MzUxYzZiYzU4NjBhYWZlNTIyZDEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7e218071ecc5414e9810a9dd6312ba78",
+      "statement": "After completed coordinator issuance, the API persists the issuance and Signed state before broadcaster submission; a retry with stored issuance links and rebroadcasts exactly the stored signed bytes, while Dispatching without issuance returns IssuanceUncertain rather than signing again.",
+      "evidence": [
+        {
+          "resource": "repo://services/api/src/lib.rs#L390-L522",
+          "version": "repo-lines-v1:sha256:7b9433b3105ea194f9876e6f6c458b83b1e28b6bc7b3e41258ced610fea889df:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI4YzI4YjhmZGY4NDJmNjE1NGUwNTlkNWI0NTExZGVkMGI4ODdmZjAwYTUxNmNjN2I1YjZmZWI4ZGE1NGNjNGVlIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJjZTk5MjllYWYzZWRiNDNlZTZhNDgwMGE5Y2Q1ZjUxODY4MjEyYTU1ODc1NWQyYmVjZDZhYmFmYWM1ODJjZGQ3IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIwM2U5MmU1Nzc4YTNjZmNhOTI2OWM5MjM0MjE5MTNmNWQ1ZTI3MmYyNTc5YjAyMzYwZDRlYTYwYTdhYmZjNWVkIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlZDZkOTgzNWUxZmQ5OWNhMzUzOWU1M2EyNWY4M2JiNmI4YmFkZTk3ZDQyYzA1NzMzYjM4NWI0MjYwN2FlM2I4In0"
+        },
+        {
+          "resource": "repo://services/api/tests/http_flow.rs#L440-L553",
+          "version": "repo-lines-v1:sha256:44574f9a899e4499fc542cbd351d868c601d704d14f6a20c70900faca4edaed5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTE0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI1MTk0ODRlZWRmMzY0ZmI4YzEyZjFlYjk4ZmJmNmE5YjRmNjUwZjQyNzg3NGE4ZDczNTkwMTBhYWRlNDMxYmM4IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIxOWU3NjM1NWNmMTE5OTQ4MGMzZjk5ODM2YjE0ODZjODQxZDg5MWZhYWQ5MDRjNjA4ZTA5MzAyMmQzNzU3YWVlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJjZDU5MDk1N2MyNDY4MTkzMjZiMDQ0YTczZWQxNjVkYmZjOTg0MTYxMjkzNTMyNGVmNmIyMThjYTc0ZDk1YjNhIn0"
+        },
+        {
+          "resource": "repo://services/local-stack/tests/money_loop.rs#L673-L723",
+          "version": "repo-lines-v1:sha256:98f5f62f432bc3cb03dfefab9893ab15120338cc03341862da8155bd7d711e8b:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxOTQ4NGVlZGYzNjRmYjhjMTJmMWViOThmYmY2YTliNGY2NTBmNDI3ODc0YThkNzM1OTAxMGFhZGU0MzFiYzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc3NzJlOTI3NWNiNmEyNGZmYTg5NTJjY2E3N2U2YTRhNWEyYWRlNjNjZWQ0MzUxYzZiYzU4NjBhYWZlNTIyZDEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f270485a4e8a45269302f6a978d2834e",
+      "statement": "Cancellation is idempotent only while an intent is Ready; once dispatch has started it returns IssuanceUncertain because native authority may already exist.",
+      "evidence": [
+        {
+          "resource": "repo://services/api/openapi.json#L38-L40",
+          "version": "repo-lines-v1:sha256:259cac4c6e89e652beffac79ee5f69c7a18d0226c4fc0ea9b933cc3c2e6f2e30:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzFhZDg5OTM1ODQ1Y2RhNWYyMDBhYjBmNTg1MjU2ZDdiZTM5ZjY4NjQyZDJjODg2YzUyZDk3NWE0YjYyNTYyNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTk1MTFkZmFlYWUyZWI0OTVkZWIxMmJmMTAxYjI5YzQ2NTlmODc0NTk4NTY1YWI5MjNmNjM2MmU4MDZmNTJhZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjU3MDhiZjU5NzU3M2ViNDk5M2E5MzE1ZmQ2NzcyMzkyZWZlZGYwYzg1OTdiMGQyMTBmYWNhNTY5MGY3Mzc1YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDdmMDE1MGRlNTE2NjIzMjlmMjQyZjVlM2ZiOTM3ZjgwMWRkMjQxZTZhZjQ2NDNiZjYyYTgyMzM1MzlhYmRjYiJ9"
+        },
+        {
+          "resource": "repo://services/api/src/lib.rs#L525-L543",
+          "version": "repo-lines-v1:sha256:3ed78e658df214153cf01c0383e30e3dfe7e4c2ddcc046022592292a1071b3cc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE2NmNmZDNkZDY2MzIyYzMwMGEzYWZlYzg4YzJkN2U1N2MwZmJmZTFlYmQwMzk4NjQ2YTY0ZGUwYWE0MDA2YjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU4ZmExY2E5NzYwYmE1ZTNlNzJlMDc2MDc2YjVjMWQ5MjdmNjQxMDZmNTZiOWU1NTYyMjIxOGRjM2JmOTZiYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJlNDg2NWUyODA5ZjE1MTBlM2M0ZmNiOGU2ZTAwMDkwMWRiZTkxNDlhMTM2MTI4MzljZTgwNTJmZDQ1ZGYxZjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3OTRkMDJhODEyMTk0NGQxNzZkMjY1ZTliYjljYzU5ZjZhYjg5MGJjYWRmOGFlZmRlYmRiYmI0ZjJlYTg0NDQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_83a8d070b4114a01b35ea31464fda201",
+      "statement": "Operation refresh requires submit scope, polls the broadcaster, and republishes the stored intent operation state to the reconciler; operation reads are snapshots and do not themselves poll RPC.",
+      "evidence": [
+        {
+          "resource": "repo://services/api/openapi.json#L42-L48",
+          "version": "repo-lines-v1:sha256:ecaa6b70fbfbf5916e78d7984ccf328a918f768092917c438f082d77a7f5d22a:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjk1YzA2NDdiZWJmZjhjNGYwNGMyYWQ0MGRlNWVlMzUwZDY2NzBkOTY0ZTNiNzBhZjdlZjQyZGNjZjE5NGQ5ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2E5YWMwOTBmMjJiNjM0NzJjYzJhOTNmNzAwMTgzNDFhNmJhZWY3NGEyMWNmZmYwNDNhYmY3ODdlNGE0OTY2NCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjhhZDY4MjYwZDdhMDBlYThjMTY3YmJkZDQ3MjI1YTNhYWY1MmQ2MzFjZTNlNjUzMDcxZDg1OWJiMWQ0N2FkZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWYxNDE0N2MxOTlkZDVhY2Y4NzMxYTkzNWFhNWJkZGQzMGJhODExNWEzZjgzMzZiM2Q3NDQyMWE0ZDc2MTgzMCJ9"
+        },
+        {
+          "resource": "repo://services/api/src/http.rs#L177-L213",
+          "version": "repo-lines-v1:sha256:c73088843448aafa1aad4113ede4b78ce4029e5233f336e6a78ecbe1bb1f778a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVkODY0ODVlZWE2YmFlMWU5NjE5ZGUzYmUxZGI0NWEwYmU3ZjAzMTBmMzc2M2U0NDdjM2RhMTAyMjlmMzIxMGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY1NTgxNjE4NTA2MDZlNzdmYmViNTM1YTI2ZjA1YmNiZDFkOTRhZDdiMjY1ZDhjODZhZjNjOGMwMWY2MTY5M2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVjMDUwNGEzNjNjOTg1YTJiNWU1ODAxZDQzZTBhN2I2MDQwMmNlNmU1ZTBjN2I4OGMyOTZmZjVkZjNhZWY1YjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNkNGE1NzQ2ZWYwYTZhZDMxOGE5MTg2NWViZmI0YmI1MGUyMWJjMmQwMDlmZjYwYjVjN2Y4Yjk5NDFiNmZlYTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0e29ff42050945e3834b3645b8fa5728",
+      "statement": "The SQLite API intake store is bound to one institution/environment, uses WAL and FULL synchronization, detects corrupt intent JSON as RecoveryRequired, and applies compare-and-swap replacement to prevent concurrent record overwrites.",
+      "evidence": [
+        {
+          "resource": "repo://services/api/src/store.rs#L118-L139",
+          "version": "repo-lines-v1:sha256:fc47b84d2b74766c82dc84992a1d0d2643dd2e553a703392c1454ff003b55c66:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZkYzgxNmU0MzFiYzAzNDdjYjg0MmFhMGRlMDE5MTRmZDk2NWFhMjllMzEwNWE3MDYyMTc2MzA1NjQ4MjhkODYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwNzFjNmU5MjJkNjRlM2MyZDEyZDFiNDAwODRjMzFjYzRlNzgwN2ZiNDJlN2Y3MjI5Y2M4ODYwNWU3ZmM4YjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU4YzA3OWFkNDEwZmQwYTQ1NDk5Yjk0ZjJlMDY3YTE3ZGJkYTg4MGVlYzk3ZDZmYjBhNzYzZDdhYzc1MTY1OGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3OTRkMDJhODEyMTk0NGQxNzZkMjY1ZTliYjljYzU5ZjZhYjg5MGJjYWRmOGFlZmRlYmRiYmI0ZjJlYTg0NDQifQ"
+        },
+        {
+          "resource": "repo://services/api/src/store.rs#L23-L93",
+          "version": "repo-lines-v1:sha256:bf88e589cb8cef21c2033666cda5ec42623e4ce389760828691361f17d43fa60:eyJzZWxlY3RlZExpbmVDb3VudCI6NzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYwMzY2MmY3MWMwMjFiYTgyZDQ0MWM0ZTk2NDg4MmQxYTllMmFjMTZhZGQ1MjNmYTJlZGYzNjk3YTBhMDYzYTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5NmY4Y2IwODNmYTgwMGE0ZGNkMjk2OTcyMmQ3YjkyNjg2YWRkOWViZTM2NTU0OTJmYTY3MmIxYTdjZWQyNDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFlN2JkMjlhNDdhY2JkZjBkMWQyZmQ3NTQwZTU4NDUwYmZiNGQ3ZWYyNjRjYjI2MGZhOWY0ZjE1NjAxYWUwMzYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_45c5154b632d4fb4bf5d461aad70c19e",
+      "statement": "Institution-wide event replay and export require read authorization for every vault represented in the catalog, reconciler data, or authority families; event replay is cursor-based and export combines a versioned operations export with an authority checkpoint.",
+      "evidence": [
+        {
+          "resource": "repo://services/api/openapi.json#L58-L70",
+          "version": "repo-lines-v1:sha256:7bbef320d77f89a203c659278dc32d724a8041e32ae3fe8d91e5fb37bd877b5b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5NTkzZDRkNzFjZjJmZjVmM2E3OGFiYTE2ZWE4MjliN2QxYmZiZTc1NWM3MzZmN2M2YjNiY2U0M2QyOTVjZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJkMjMwN2ZkOWFkYzA3MGE3ZTRkMThjNjZmYjZjZmU0OTIxZjJjZTY5ZTgzZjk4MDc2ODZkMDA0Y2QxMGVhOTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY1NDc2YzhlYTNmNGE5MWQwMWJiYWVhZTQ3NjAxODVkYzAxMWE3MDJiZWYzZjlkZWZjNTQ2M2ViNWEyZmQwODMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA4NzllNmQwOWQwODdiMzNjMDQ5ZDk0MDAxODMwMGUxYzBkMzhiZDhiNWJjNjA1NTdiMmE3ZDI1ZDNkOWNjOTUifQ"
+        },
+        {
+          "resource": "repo://services/api/src/http.rs#L254-L318",
+          "version": "repo-lines-v1:sha256:4aeff861e030d4e6b37f26a0514fe60f8ad3ee3c1eae89c37d9551a28cbb4376:eyJzZWxlY3RlZExpbmVDb3VudCI6NjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEyMzM3YWMzMzZlYjQ4ODRiOTdiM2EyM2FiMTM3MDg0YjQ5ZDM5ZGVhMTRkNDliZjJjZjNiNDgyODRmNjIzOGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEwY2I3NmE2MmY2MzVhYjAwODVhYmMwYjc3ZTg5YTM3NzExZjg3ZDhhNTFlODY2YzA3NzczYzg1MTA0ZDNiN2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFjODY2MDFjMzMzYWRlNjZjOGE5M2Y4YWYxZmJhODJlMGU5MThkZGU0ZmM0YTVlOGQ3MTNlNDNkZjY1ZWRiZjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://services/api/tests/http_flow.rs#L687-L748",
+          "version": "repo-lines-v1:sha256:158fe8acf19b947ebb73e880907d0ceb2f1456131d7e72854fb375e79107464b:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxOTQ4NGVlZGYzNjRmYjhjMTJmMWViOThmYmY2YTliNGY2NTBmNDI3ODc0YThkNzM1OTAxMGFhZGU0MzFiYzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1OTM3Njc5MWU2OTQ3NmY3YTA3MTg5NmRjMjViOTEzN2VmODQyM2UzZTk2MzQwY2NmYWMzMzIzZDQyY2E1MWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyMmQyODFkZjc2MmFiMTQxNDIwNTdjMzI5NjdkYTIwNmZhNjk2OWMwNTZmODFhNjY2ZGE3MTQxYTc4NTYxZjcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6a56b5e99ee6429b8cfe3bf3cf83f0ea",
+      "statement": "The local stack merges the custody API with local diagnostic/control endpoints, ticks simulated chains before requests, and requires a separate operator credential for controls.",
+      "evidence": [
+        {
+          "resource": "repo://services/local-stack/src/http.rs#L43-L60",
+          "version": "repo-lines-v1:sha256:5bc78523b9b14df7cc7d4fdc40bd301b12638f00d42e8a1668814feec0f42300:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRlN2IxNjBhYmMwZWUzYzQ5ZTUxZjA3YjczOTg5MTZiOWUyZTNhMDk2YjNkODU1ODA2M2FiZTBkZTM2ZDgwZTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM1ZjZmNDY2ZTU5Y2ZjMzA3MDNjNDVmNzJhZjY1ZGU1NGFjMzYzZDM1NGNjMWEzMzMwMzUwYWNkNDUyNDM0YzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc4MGNiNmIzM2Y1ZDc3ZDViOGIxMWFhZWE3Nzg3NjJiYTA5MDBkOTk3Yzg4NmUyMjNlYmY3OTUxYmQ0ODJmN2IifQ"
+        },
+        {
+          "resource": "repo://services/local-stack/src/http.rs#L85-L110",
+          "version": "repo-lines-v1:sha256:ec921049121c17e3c2874bbef0163496fc73512bf6f827f4302bb571f0cfacc6:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjOWM1NjM1MDY4MzE3ODA2MjY5NzZiOTRjMjZkYzQwN2Y3ZmExMzhhNWY3Zjc1NTdiMGRhN2JiNzgxODc2YjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzMTYyOTAyOTQ5ZDY1ZDgxM2U5ZDQ4MGE1ZmZhN2U0NjhkMWU3ZmEyMjFmYWMwN2JkZDQ4Yjk5MWI3MTlmZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVlM2U2ZjgwNzI3ZGUzNDgwMDMzYTRkMTY5ZThiMTI3ODNlODc4NzRhNzI2MDNiZjZjZmMyY2RmNWVkY2I1N2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-24T08:14:21.486Z"
+  }
+}

@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:1a9489080633802166173d18aad477a3e63ec86626f03a1f04571f64d9719964",
+  "pageVersion": "sha256:55cc934f561942affa4feb903050fb809b42a9aac447a8713a4dcf72221586a6",
   "claims": [
     {
       "id": "claim_efc5e1f0c5ec4ad8bb5be50bcaf07121",
-      "statement": "The workspace has 21 packages spanning custody types/encoding, policy/authority, EVM/Solana, providers/signer, approval client, three service libraries, audit/durability, simulators/vectors and model.",
+      "statement": "The Rust workspace has 38 declared members and declares Rust 1.95 at the workspace level.",
       "evidence": [
         {
-          "resource": "repo://Cargo.toml#L1-L27",
-          "version": "repo-lines-v1:sha256:921dc52f65a2c8459a6e5bf1713bc9e0d040673c45de74ea4b8748cd89c910db:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzNGUxMDJjODYxZjk5NGQyYWFjZTkxMTRkMzkyZGJjMTYyMTkwZTAwYmU4ZmUzNTdkNDcyMTUwY2E0Mzk2MTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4Njk0MTJhMmU4ZDVmM2JhYjQxODg2YzEzYTA2YzZmMDk5MzM4N2NkZTcxMWQ4MzI2ZWRiOGQ1Nzc0ZWM5OWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk0M2QwZTQ4ZjJmYjUxMGMxNjdjZjMzZWNjOGFmMDk4NTFjZmI0MWFhZjExODMwYThhMmUxZjZiNjRmZjVlNjkifQ"
+          "resource": "repo://Cargo.toml#L1-L48",
+          "version": "repo-lines-v1:sha256:291cd77a36c3f32cae5d61cb2071c2e9713d37043dd2be39968fd90512962931:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzNGUxMDJjODYxZjk5NGQyYWFjZTkxMTRkMzkyZGJjMTYyMTkwZTAwYmU4ZmUzNTdkNDcyMTUwY2E0Mzk2MTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZjNWE1NzM0OGFmM2I4ZTJhNmQyNDhiZmMwMTUyMDlmYTlhNzNlM2ZjZTU3MTA5MGI5ZTFkOWEwNjJiODE4MjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZmMmU0MjM1MjI5ZjE1YTMxMzQzOTkwYjc2ZTA3ODUyNzg4ZGM4MDI2MGY1OWYzNjFhNzhkMDUyZjhlNmE4ODcifQ"
         }
       ]
     },
@@ -34,39 +34,73 @@
     },
     {
       "id": "claim_a6db2fa745ba4f61ad492c03ff7b8340",
-      "statement": "The signing pipeline reserves global resources before signer sessions, commits authority release before share collection, and leaves exposure outstanding until chain resolution.",
+      "statement": "The coordinator reserves global resources before opening signer sessions, commits authority release before share collection, and treats failures after release as possible issuance rather than aborting.",
       "evidence": [
         {
-          "resource": "repo://services/coordinator/src/lib.rs#L251-L313",
-          "version": "repo-lines-v1:sha256:986ada94121cc8fb3db71a68e31a6aa132e0d7045625ab3403b630f9a9d526f6:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU0MjFmNDVkYjU4MGQ2MjQ4MTZmMmJjZTc5YTI1YmVmZTU0M2JhNTA1MGZhMTAxODJhOGNiYWZmYWVlNjI5M2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MjJjNDJjZDE5YzZkMDNkODA4YzQ1MjcyMDU1MjgyNWI3ZWExYzViNDkxYjIxODUxMWNhYzc0MTVjZjlkOWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFkYzIzMDYwZDYyYjc4Mzc1OGM4MDZmMDExY2FkZjczNGRlNGNiNDZmYTQyZThjYjllNTIxYzU1MmI2Njg5MTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk5OWJkZWZlZWFjYTYzNDBlMDI5MGRjODZlODg5Yzg5ZDVlMTg5YWE1YmE0NGI1ODViM2I3MDczNGY0YTYyZDgifQ"
-        },
-        {
-          "resource": "repo://services/coordinator/tests/coordinator.rs#L145-L148",
-          "version": "repo-lines-v1:sha256:80b22f8b5f2c7c0d64dd856860fe2427443d38950aaaae9d78be51bee8a4dc3d:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzFjOWEzNDRmYTcyZjdlNmFjYzI4ZmNmZDNhYWYyMTgwNzBhMzE0ODcwZTkyNzY0OGYxYzA2M2IwMjRjMDc0NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTJjZDNhNmYyYTIzMmEyYjc2MWZiZmM3NGE4ZWYyM2M3NjNjYjdlYjI1NzY1MDUyNWQ5MDMxZjRiYjA1OTJiYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDAzZjA5ZWI2ZWY0MjM4ZDg1NmI2YjQxMTk2MTY3NGVlMTQxYTgzNWQ5OTY1NGVkYmYwZjZmMDI4ZTEyNWE5ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjAyMzQ0MjA2M2MzMTJmNTE2NTk2MmU5MzhmZjk1MjlhMGExNjcxODRlN2I0ZDZmYjY4MjZjZTBiMjI0ZWZkNCJ9"
+          "resource": "repo://services/coordinator/src/lib.rs#L258-L328",
+          "version": "repo-lines-v1:sha256:35b9c6f63e9a67ec7a51ed0a2efd71ddc6bced58ad2a609006d456d8f772a745:eyJzZWxlY3RlZExpbmVDb3VudCI6NzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU0MjFmNDVkYjU4MGQ2MjQ4MTZmMmJjZTc5YTI1YmVmZTU0M2JhNTA1MGZhMTAxODJhOGNiYWZmYWVlNjI5M2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFkYzIzMDYwZDYyYjc4Mzc1OGM4MDZmMDExY2FkZjczNGRlNGNiNDZmYTQyZThjYjllNTIxYzU1MmI2Njg5MTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRlZTVmMjE3ODcyYWRkZjg5MDdjNDRlMDlkOWJhMzhmNjliYTI0ZTJhNTNjZjBlMDRhNGIwMTcxZTE5YmZlMmYifQ"
         }
       ]
     },
     {
       "id": "claim_c573d1b894de4f75a2391f5fefb12d05",
-      "statement": "Conformance tests cover generated fixture equality, declared hash domains, real canonical producer results and native adapter compatibility with independent SDKs.",
+      "statement": "Conformance tests require committed vectors to match generator output, cover every declared domain tag, reproduce canonical bytes and hashes through real producers, strictly decode them, and cross-check EVM and Solana payloads with independent SDKs.",
       "evidence": [
         {
-          "resource": "repo://tests/golden-vectors/tests/conformance.rs#L1-L12",
-          "version": "repo-lines-v1:sha256:78c9bf9565b5969deb69614856efb255df84d71d5c603c53a789b58caf30a74e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA3MmRiNDA1MmQ3ZWEyNTU3ODZkNDBlZjc4ODE4OTk2NWIzYzM2ZGVlZTU3NTE4YzkzZWU1MDY3N2Q4ZDcyNzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5YjgwNzI4YzY3ZWRkYTdhNDM5ZGU3NDY3NTJlZjEzMDliMmE1MWRhMmViNjNkZDk4ZDdmNDAyMzYzOGM0YTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ3ZDQxNjkwNDlkM2ZjOTcyMDE5MzkzNDVjNDhhNzIxOWFlNzc0NTBiYWM4ZDkyOTdkYTZlZWVlNmI2OGE1YWYifQ"
+          "resource": "repo://tests/golden-vectors/tests/conformance.rs#L145-L170",
+          "version": "repo-lines-v1:sha256:a6ec74921d0ed7fc575d2e21b280c913f888a868f76e400ecc5305988753035d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3YzhlMDdkOGZhY2MzMTM5OWUxNWE3YzA4MmVmMGZmNzJhMGU4NWE4YWQ2MmQ2Y2NjNzIxNDYzNzQxY2RkZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFmNTdkMzAwY2M0YzlmZTUxZjE0OWY2NzFkMzYzMTJmNDExN2Q3ZjY5NjkyOGE3ZmU3MzYyYTU2MzdmYWVkNzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYyMzQzOWJkZTdjOTViYmZiYjRlZTEzODY1MmI0NTM3OWFhYTM5YjlmNzU1ZTk1MWUwZDExYjA2ZDkyMjA5ZDUifQ"
         },
         {
-          "resource": "repo://tests/golden-vectors/tests/conformance.rs#L278-L380",
-          "version": "repo-lines-v1:sha256:e75e9bf58924366430c5302444b73854034ae492d7184c1d3e4c5930d959df53:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJkMmNkNGRiNDhhMzUwZThmMGI0Nzk0NGM0NmUzZmZkYmJhMTMyZDIyOTBhOTFkNzAxMmI1NmViNDZjOGFiNGY2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3NGQxNGFhN2ViODExZjA0NDQ5NjRmMzFiM2ViOWRmY2ZjYWUxODMzNjIzYzdkMGIxNTVlMjc5MTBjMjljMTJlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+          "resource": "repo://tests/golden-vectors/tests/conformance.rs#L279-L380",
+          "version": "repo-lines-v1:sha256:68a9529846511b87009740ce7915aca7328ade0e79749af0253a317d22701d48:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJkMmNkNGRiNDhhMzUwZThmMGI0Nzk0NGM0NmUzZmZkYmJhMTMyZDIyOTBhOTFkNzAxMmI1NmViNDZjOGFiNGY2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0ODkzZjQwZTM3ODFlYjg5NmM4MmQwNDZhMDgwNjdhMTFlMzVjZGYyZjFkZmFmMjZmZWE5MGI4ZGI2Njc2NDEzIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3NGQxNGFhN2ViODExZjA0NDQ5NjRmMzFiM2ViOWRmY2ZjYWUxODMzNjIzYzdkMGIxNTVlMjc5MTBjMjljMTJlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIn0"
         },
         {
-          "resource": "repo://tests/golden-vectors/tests/conformance.rs#L53-L118",
-          "version": "repo-lines-v1:sha256:47093d7130894e46ab0df8b7c927130069c9ef6021023ba1efb9cfa924e9043b:eyJzZWxlY3RlZExpbmVDb3VudCI6NjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1MDRkZDA2MWNlYmY3ZWFhMzE3NmE5ZjY4ODFmZmY1NGY1MjE3OTk4OWRmMWM3Y2M1Yjc2YjA1MTczZDJjNjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkzNDIyNjdhOGYxOTI2MmZmYjljOGNiNzFmYmU4MmU0NzViYmI5ZDk3OTA2YWNhOWE2OGQzZDE5ZWE4NWQ2YWQifQ"
+          "resource": "repo://tests/golden-vectors/tests/conformance.rs#L53-L143",
+          "version": "repo-lines-v1:sha256:92230bc6bdb29bb066056942787569329f914325be841f5fc0dfa168aab89b3c:eyJzZWxlY3RlZExpbmVDb3VudCI6OTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1MDRkZDA2MWNlYmY3ZWFhMzE3NmE5ZjY4ODFmZmY1NGY1MjE3OTk4OWRmMWM3Y2M1Yjc2YjA1MTczZDJjNjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUxNGVhMzdlMmYyZDAzOWQ1MmI4ZjQ3OWU3NWE4ZDNkN2M5Y2U0MWRjZWFhOTkxM2RkNTE5OWZmMzJlOGIwODMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e19b50aeda194fd5ac579a04eb8bfcc8",
+      "statement": "The development-only `oic demo` command runs the custody money loop against a throwaway temporary state directory and development simulators, never accepts a user or production state directory, and cannot move real funds.",
+      "evidence": [
+        {
+          "resource": "repo://cli/oic/src/main.rs#L113-L145",
+          "version": "repo-lines-v1:sha256:d4f68f0f99b17631673bb141be07019899cf9f362725af2187c985da909aeb65:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU0YThlOWQwYTIyNmE3ZTJmMTlmNWUyYzJlMmU5NmJlZmExNDhkYTVjZTE2N2NhMDBjZGExZWUxNzc5ZTczOTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3NDYyOTU0MWQ5NmIxZTAxMWVmYjBmMTZlYjE0ZWYxZTJhOTM1ZDUyMDJkMGQwYjAzMjgzMzM3NGRlNmRiNmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVlYTZiYzdjMGQzNDFlMmVlZDJhMTU2M2E1ZDE5MTljNDA4ODRlZDc2MTZhZjAwM2NiZjkzYmJiZWY2ZWZjOGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA2M2UxOWRmY2ZlMzgwNTJjZDgzODBhNWI4NmYwNWZkMDg5NmVhNTIyNDE0NjQ4ODM3NTZiMWE1NmNiNDYyMTEifQ"
+        },
+        {
+          "resource": "repo://cli/oic/src/main.rs#L163-L181",
+          "version": "repo-lines-v1:sha256:84acc584e5dfbaeeefac137d4655bc28322c77fcd50b6ec09e545d2dcbb709d3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkxMzg4ZmQ1OGJlYzExNWFiY2VjMTk0NTg1MTY0MWRiNmNhYjc4NDEzZjk5ZWNiNzIyODBiMjlhM2FkZjhjOWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNiMmMxOGFhNTdhYjNhNGRhMTQ3MjcxMWFiZDFkZjllMTM4YzM3MzNjMDVjY2QyYWI3ZDQ5MzZkNjE4MTU3YTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyNDVhOTc4MDg2YjgxNDZiNDQzNDBlOGZlZDFhZTQ1NDM5MTQzN2I1N2VkOGE0NzJkMmM2MjQ3OWVjNGQ2NmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ0ZTgwMzdiYWNmODY4YTI3Yzg0ZGZjOWNjZjQ5MDFjOWZlNzBmOGRiNzY4MjczYjAwZjA3ZjViODJlNjRhZDYifQ"
+        },
+        {
+          "resource": "repo://cli/oic/src/main.rs#L2-L11",
+          "version": "repo-lines-v1:sha256:5776bd489d3b22b323f016220008a32c4460e4dbc57c46121a5fcfe68177741d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwNjU3MzdlMDcxZjlmYmNkZjU0YjhhZDM4ZTY2ZTRiNmYxZjlmYTFjMDFlZDZhZjlkOTY2NGQyMjJhOTY0MDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1NDczNzMwOTg4MTU3ZjZmM2Q3YTA5ODllZmIzZjljNzg4NmMwZjQxNDE0ZWIzZGQ4OWZhYTkyNjFhNTllMDQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoxLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI5OGQ0YzgyNzgyMWMyNDhlZDBjMWVhNDQ1ZDc5YjA1OTlkOTRiMDAyNTg2ZTc0MzkzYWE3NTNjN2FkOTNiM2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNiNGY5YjU4M2YxODhjZTcyZTMyYzVlMTBiNTQ3MTI5YzU3ZWViNGQxMDMyZDJmNmY3NDc4Nzc2ODQxMTAwMjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1331bfca63bb4cee9307ecb0812d8d88",
+      "statement": "The local stack runs D1 authorization, independent verification, signing, broadcast, and reconciliation against EVM and Solana simulators, but is explicitly not a production installation or a D2 deployment.",
+      "evidence": [
+        {
+          "resource": "repo://docs/local-stack.md#L1-L13",
+          "version": "repo-lines-v1:sha256:5a2e107033dd9c247df035fa2d26545d72ac80afa7ff18f377bc93999a943ced:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFmZjJlN2EwMGJmN2JkYmI3ZDJmYmU5MGZkMjEzOTcyZGJmNTUxNjBlZmViNTc3YmVmZTNiNDRmODRjNTE5OGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwY2JjNzUwOTE1ZDQ1ZWIzYzQzODcxYmI4YjRkNDg5YTgzODRmZTA1ZGQ5MDFmZjg4NTYyNTBkYzQxMDBlNzgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhOGU5M2FhMDFlOWM0YWU1MmJiODhhMTRkYTY3Y2Q5MTVhMzEzOGJjOGEyOGRhNTkxZTUwNTJhMGE3NTliYjQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e67859c410a848e0bde31af7bd47ff42",
+      "statement": "The documented full-workspace test command is `cargo test --workspace --locked`; the development guide records a 363-test successful run at checkpoint `0910530` on Rust/Cargo 1.99.0 and states that minimum-Rust, release, clippy, and coverage gates were not separately run.",
+      "evidence": [
+        {
+          "resource": "repo://docs/development.md#L49-L63",
+          "version": "repo-lines-v1:sha256:aa6d50a979bd9a668a1d867a4918e9ab8d4a376f96b625f590dcf96227ea96a3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNjN2JmM2E4NjhkYjEyMGM0YjE3YTEwYTA3OGRjMWMxMmIyNjk0NDcyYzRkY2Y1NzhmOGVlYThjYTMzY2VhOTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1YTc2ZmZiNzE3ZmNjY2ZiZTI5YzVjY2ZmNzkxZjMzNDRhZTkyOWIwNTNjMTZmMWU3ZmQxNjZlNjAzMTM5NTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmYTE3M2JlNDMyODhiODY3YmRhY2VjMmFjMmE2Y2I4ZmExZGU4NWM4MWRmZGIxYmI5OWJiMTk1ZjdiYmJkZjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI3N2Y3NjNhNzliNzUwYWY1OTkwYmIxNTJjMjM5YmVjYzkzNDkxZjVmMGQ5ZDk3OTYxOTAxNmUxM2U1YzBkMjYifQ"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-20T20:39:06.439Z"
+    "at": "2026-10-24T08:14:21.486Z"
   }
 }

@@ -1,45 +1,50 @@
 ---
-type: orientation-guide
-title: Open Institutional Custody quickstart
-description: Entry-point orientation and task-routing map for the implemented custody workspace, runnable tests, independent approval CLI, and source-grounded architecture and workflow documentation.
-tags: [quickstart, orientation, custody, rust, task-routing]
+type: repository-guide
+title: Repository guide
+description: Start a runnable development custody flow, then use this map to select the smallest architecture, workflow, integration, operations, or verification reference for a proposed change.
+tags: [repository-guide, custody, rust, development, task-routing]
+verified:
+  - by: openwiki/0.7.2
+    at: 2026-10-24T08:14:21.486Z
 sources:
   - id: openwiki-source-d8c6df206fe2a2bd0435a38f
     resource: repo://apps/independent-approval-client/src/main.rs
   - id: openwiki-source-651d1fb6c9e49916a916ab51
     resource: repo://Cargo.toml
+  - id: openwiki-source-14dbd82655071f5f89f9940f
+    resource: repo://cli/oic/src/main.rs
+  - id: openwiki-source-70991026f1538e8215a8789e
+    resource: repo://docs/development.md
+  - id: openwiki-source-04ce3d9a842d131a15af54ea
+    resource: repo://docs/local-stack.md
   - id: openwiki-source-1a6f79f0e829aa916057cc0a
     resource: repo://services/coordinator/src/lib.rs
   - id: openwiki-source-718c366195d907d22d3b4498
     resource: repo://services/coordinator/tests/coordinator.rs
   - id: openwiki-source-77536073843dda08e6a7ae69
     resource: repo://tests/golden-vectors/tests/conformance.rs
-generated: { by: "codex", at: "2026-10-20T20:39:06.439Z" }
-verified:
-  - by: openwiki/0.7.2
-    at: 2026-10-20T20:39:06.439Z
+generated: { by: "openwiki/0.7.2", at: "2026-10-24T08:14:21.486Z" }
 ---
 
-# Open Institutional Custody quickstart
+# Repository guide
 
-For human-facing setup and usage, start with the [root README](../README.md) and [documentation home](../docs/README.md). The guides cover [getting started](../docs/getting-started.md), [approval client commands](../docs/approval-client.md), and [development](../docs/development.md). This wiki supplies the deeper source-and-test reference and task map.
+Use this page to choose an entrypoint and then the narrowest reference page that owns the behavior you intend to change. The repository is a Rust workspace of libraries, services, development tooling, tests, and two CLIs; the root manifest currently lists **38 workspace members** and declares Rust 1.95.
 
-This repository implements Rust components for independently verified EVM/Solana custody authorization and signing. Its current 21-package workspace includes a policy kernel, authorization authority, pinned chain adapters, signer, development/FROST providers, independent approval CLI, builder/coordinator/broadcaster libraries, durable stores, audit, simulators and conformance/model tests.
+The repository supports a runnable **development** custody flow with real signatures and deterministic simulated chains. That is not a claim of a production deployment, live-chain operation, production threshold ECDSA, or a completed institutional product. Start with [Implementation and deployment boundaries](concepts/implementation-boundaries.md) whenever a request could cross that boundary.
 
-The source and tests are authoritative. RFCs specify additional product and network work; they do not establish a production installation, complete accounting/API service, or security audit. Read [implementation boundaries](concepts/implementation-boundaries.md) before treating a proposed requirement as shipped behavior.
+For human-facing installation and use, begin with the [root README](../README.md), [documentation home](../docs/README.md), and [getting started](../docs/getting-started.md). This page routes implementation work to the deeper reference.
 
-## Start here
+## Run the smallest useful flow
 
-Run from the repository root with a Rust toolchain and native linker:
+From the repository root, with Rust 1.95 or newer, Cargo, a native linker/build toolchain, and network access for an initial locked dependency download:
 
 ```sh
-cargo test --workspace --locked
-cargo run -p oic-approval-client --locked --bin oic-approve -- --help
+cargo run -p oic-cli -- demo
 ```
 
-The initialization run at `0910530` passed **363 tests, 0 failed, 0 ignored** using Rust/Cargo 1.99.0 and the lower-disk command documented in the [verification guide](testing/verification-guide.md). The manifest declares Rust 1.85, but that minimum was not separately tested with the current lockfile.
+`oic demo` runs the custody money loop in one process against throwaway development simulators. It settles an EVM development 1-of-1 secp256k1 transfer and a Solana FROST Ed25519 2-of-3 transfer, exercises independent verification against a tampered package, and discards its temporary state at exit. It neither accepts a user state directory nor moves real funds.
 
-To try the implemented transfer flow without live credentials:
+For a source-level integration starting at the coordinator, run either focused test:
 
 ```sh
 cargo test -p oic-service-coordinator --locked --test coordinator \
@@ -48,50 +53,69 @@ cargo test -p oic-service-coordinator --locked --test coordinator \
   solana_frost_2_of_3_end_to_end_for_every_signing_pair -- --exact
 ```
 
-These execute real cryptography and simulator effects through the library integration. Service crates do not supply an API-server launcher. The approval CLI consumes independently enrolled trust/profile files and a builder-produced package; [approval workflow](workflows/independent-approval.md) documents its complete command sequence.
+The EVM test builds, authorizes, signs, submits, and mines a registered ERC-20 transfer in the simulator. The Solana test performs the same signing path for every two-member subset of a three-member FROST key. These are simulator-backed integration tests, not live-chain qualification.
 
-## Runtime flow
+Use `cargo test --workspace --locked` for the broad suite after focused checks. The checked-in development guide records a 363-test successful run at source checkpoint `0910530` with Rust/Cargo 1.99.0, but it does not establish a separately tested minimum-Rust, release, clippy, or coverage gate. On a constrained disk, use the [documented lower-disk profile](../docs/getting-started.md#run-the-full-suite).
 
-```text
-register intent → acquire evidence → build/re-verify candidate → independent approval
-→ evaluate policy → reserve global budget/resources → verify signer sessions
-→ commit authority release → produce/aggregate shares → verify signed transaction
-→ durably submit → cross-check inclusion/finality → settle or prove invalidation
-```
+To exercise the authenticated HTTP flow and durable simulator state on one machine, follow the [local development stack](../docs/local-stack.md). It is explicitly a single-machine D1 trial with development credentials and simulators, not a production installation.
 
-The builder explains and constructs. Signers independently verify meaning and gate outputs. The authority owns cumulative exposure and ordered issuance/freezes. The broadcaster cannot sign; it preserves exact bytes and uncertainty. A missing acknowledgement or expired approval does not prove a possibly issued transaction was cancelled.
+## How the runnable flow maps to code
+
+The shortest complete library route is `services/coordinator/tests/coordinator.rs` and its `common` fixture. It enrolls trust and policy objects, builds a candidate with evidence, obtains independent approval, runs `Coordinator::execute`, and submits the verified transaction to a simulator. During signing, the coordinator reserves global state before opening signer sessions, commits authority release before collecting shares, and treats a post-release failure as possible issuance rather than a safe abort. Exposure therefore remains outstanding until chain resolution.
+
+The main ownership boundaries are:
+
+- **Builder** derives and verifies a candidate and evaluates policy; it explains a proposed payment but does not issue a signature.
+- **Authority** owns global reservations, resource locks, exposure, releases, freezes, and settlement.
+- **Signer** independently verifies the envelope and native meaning, consumes durable one-time state, and gates signature output on a valid release.
+- **Coordinator** performs signer protocol orchestration; after a committed release it must preserve uncertainty rather than retry as though no output occurred.
+- **Broadcaster and reconciler** preserve signed bytes, observe chain outcomes, and resolve outstanding exposure.
+
+Follow [Build, authorize, and coordinate signing](workflows/build-and-coordinate.md) for the caller contract and failure ordering; do not turn low-level authority calls into an unauthenticated external API.
 
 ## Task-routing map
 
-| I want to… | Read |
+| Proposed change or question | Smallest page to read first |
 | --- | --- |
-| Understand components, ownership, crate map and trust boundaries | [System overview](architecture/system-overview.md) |
-| Understand amounts, byte formats, object relationships and envelope hashes | [Security objects and canonical encoding](concepts/security-objects-and-encoding.md) |
-| Change rule ordering, hard denials, role/time or rolling-limit behavior | [Policy evaluation](concepts/policy-evaluation.md) |
-| Trace idempotency, reservations, nonce locks, replacement exposure and freeze races | [Authorization authority](architecture/authorization-authority.md) |
-| Build a preview/package and drive signing, including failures around release | [Build and coordinate](workflows/build-and-coordinate.md) |
-| Run `oic-approve`, enroll roots, review a card or sign/verify a grant | [Independent approval](workflows/independent-approval.md) |
-| Understand signer-local checks, destination quorum and output gating | [Signer boundary](architecture/signer-boundary.md) |
-| Extend EVM semantics, calldata, native signing, nonce or fee evidence | [EVM adapter](integrations/evm-adapter.md) |
-| Extend Solana messages, lookups, SPL/ATA checks or blockhash validity | [Solana adapter](integrations/solana-adapter.md) |
-| Change backend topology, FROST DKG/signing or sealed shares | [Crypto providers](integrations/crypto-providers.md) |
-| Recover file state, detect rollback, fence old generations or protect one-time state | [Durable state and recovery](operations/durable-state-and-recovery.md) |
-| Verify/export signed audit history or compare witness checkpoints | [Audit log](operations/audit-log.md) |
-| Handle lost acknowledgements, rebroadcast, reorg, source conflict or expiry proof | [Broadcast and finality](workflows/broadcast-and-finality.md) |
-| Write deterministic economic/finality/fork scenarios | [Chain simulators](testing/chain-simulators.md) |
-| Choose tests, run SDK differential checks, review vectors or bound model search | [Verification guide](testing/verification-guide.md) |
-| Separate implemented libraries from accounting/API/Commonware/light-client proposals | [Implementation boundaries](concepts/implementation-boundaries.md) |
+| Locate runtime owners, trust boundaries, runnable entrypoints, or the D1/D2 split | [Custody system overview](architecture/system-overview.md) |
+| Change canonical objects, typed JSON, CBOR, hash domains, commitments, or signed envelopes | [Security objects and canonical encoding](concepts/security-objects-and-encoding.md) |
+| Change rule precedence, denials, required approvals, evidence trust, or exposure inputs | [Policy evaluation](concepts/policy-evaluation.md) |
+| Change reservations, idempotency, locks, releases, freezes, receipts, or settlement | [Authorization authority and exposure](architecture/authorization-authority.md) |
+| Change D2 finalized authority, authenticated members, replicated state, or what followers verify before signing | [Replicated authorization and signer network](architecture/replicated-authorization-and-signer-network.md) |
+| Change signer-local verification, generations, one-time state, D1 release gating, or share output | [Signer verification and release boundary](architecture/signer-boundary.md) |
+| Change candidate construction, evaluation, coordinator sequencing, aggregation, or before/after-release recovery | [Build, authorize, and coordinate signing](workflows/build-and-coordinate.md) |
+| Change HTTP intent creation, idempotency, catalog/approval ingestion, dispatch, refresh, or evidence export | [HTTP intent lifecycle](workflows/http-intent-lifecycle.md) |
+| Change the independent approval package, confirmation, signed grant, or revalidation | [Independent approval](workflows/independent-approval.md) |
+| Change submission records, rebroadcast, finality, source conflicts, reorgs, or invalidation proof | [Broadcast, finality, and uncertain outcomes](workflows/broadcast-and-finality.md) |
+| Change EVM transaction semantics, evidence, signing payloads, replacement, or live-client integration | [EVM adapter contract](integrations/evm-adapter.md) |
+| Change Solana message semantics, lookups, SPL/ATA checks, expiry, or live-client integration | [Solana adapter contract](integrations/solana-adapter.md) |
+| Add or alter a cryptographic backend, FROST behavior, key-material boundary, or one-time signing contract | [Cryptographic providers](integrations/crypto-providers.md) |
+| Change durable stores, reopen behavior, fences, rollback floors, or conservative recovery | [Durable state and recovery](operations/durable-state-and-recovery.md) |
+| Change audit framing, signed history, checkpoints, projections, sink errors, or audit monitoring | [Audit log and checkpoints](operations/audit-log.md) |
+| Change indexing, holdings/journal reconciliation, deposits, funding, sweeps, or pause conditions | [Reconciliation and treasury workflows](operations/reconciliation-and-treasury-workflows.md) |
+| Add deterministic chain behavior, simulator faults, forks, or chain integration scenarios | [Chain simulators and chain integration tests](testing/chain-simulators.md) |
+| Select focused tests, vectors, model exploration, local-stack, network, or browser verification | [Build and verification guide](testing/verification-guide.md) |
+| Assess whether a request is implemented rather than runnable only in a development stack or proposed in an RFC | [Implementation and deployment boundaries](concepts/implementation-boundaries.md) |
 
-## Source entrypoints
+## Focused verification and extension work
 
-The root `Cargo.toml` lists real members and dependencies. `services/coordinator/tests/coordinator.rs` is the shortest complete integration route. `apps/independent-approval-client/src/main.rs` defines the user CLI. `crates/signer/src/verify.rs`, `crates/authorization-state/src/authority.rs` and `crates/policy-kernel/src/lib.rs` own the main verification/state/decision boundaries. `tests/golden-vectors/tests/conformance.rs` checks protocol commitments and native payload compatibility.
+Run a focused package test before a workspace run. The [verification guide](testing/verification-guide.md) maps package commands to encoding, policy, authority, adapters, providers, signer state, approval, orchestration, network, audit, simulators, vectors, and the bounded authority model.
 
-For exact capability limits, follow the adapter and provider pages. For planned work, read the three RFCs under `spec/` and compare their requirements with current code. Empty/reserved paths and declarations do not count as implemented systems.
+For serialized or adapter changes, run:
 
-## Using and maintaining this wiki
+```sh
+cargo test -p oic-golden-vectors --locked --test conformance
+```
 
-Use this page as a task map, then read the relevant page and its source/tests. Wiki pages include repository-grounded Claims; generated provenance and Claim sidecars are managed by OpenWiki. When source changes, run the host-driven OpenWiki update lifecycle with Codex as researcher/writer and OpenWiki as queue/Claims/finalization manager. Do not manually rewrite its indexes or control files.
+The conformance suite checks that committed files equal generator output, every declared domain has vectors, real producers reproduce canonical bytes and hashes, strict decoding round-trips, and EVM/Solana payloads agree with the respective independent Alloy and Solana SDK checks. Regenerate vectors only for an intentional protocol change, review the byte/hash diff, then rerun conformance.
 
-Maintain the root README and `docs/` as the human usage entrypoints. [Development documentation](../docs/development.md#updating-documentation) explains how to request a Codex-authored update and preserve the split between usage guides, implementation reference, and proposed RFCs.
+Use [chain simulators](testing/chain-simulators.md) for deterministic behavior and fault coverage; simulator success is not live RPC, validator, or production deployment coverage. Use the [local-stack guide](../docs/local-stack.md) for the separate runnable HTTP/D1 stack and its operational limits.
 
-The checked-in generated workflow is a separate scheduling mechanism; creating it does not establish that CI credentials, GitHub Actions, or a scheduled refresh have executed. Verify its configuration before relying on automation.
+## Entrypoints and documentation boundaries
+
+- `cli/oic/src/main.rs` owns the development-only `oic demo` entrypoint.
+- `apps/independent-approval-client/src/main.rs` owns `oic-approve`: `init-trust`, `keygen`, `show`, `approve`, `verify-grant`, and `inspect-envelope`.
+- `services/coordinator/tests/coordinator.rs` is the compact working construction example for custody orchestration.
+- `tests/golden-vectors/tests/conformance.rs` is the protocol-compatibility gate for canonical objects and native payload encodings.
+
+Keep user setup and commands in `README.md` and `docs/`; use `openwiki/` for source-grounded implementation reference. RFCs under `spec/` describe requirements or proposals and do not themselves make a feature implemented. When a public command, input, or supported workflow changes, update the relevant human guide as well as the owning implementation reference.

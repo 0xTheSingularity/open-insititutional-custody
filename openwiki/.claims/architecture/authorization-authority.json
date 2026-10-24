@@ -1,14 +1,18 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:e87bb3d0f6bfa3ec471c8a051eba064cd455174b9dddbf951a778a8086de6bfa",
+  "pageVersion": "sha256:f8b58826481a6f8e1855eb75d6b3ddfa931933c5b1bbb33ce7da136b98ec30a8",
   "claims": [
     {
       "id": "claim_564372f278d74deb995d22ce880bb7bb",
       "statement": "Authority mutations are fenced by writer token and use an atomic store transaction that publishes a private state copy only after successful persistence.",
       "evidence": [
         {
-          "resource": "repo://crates/authorization-state/src/authority.rs#L200-L271",
-          "version": "repo-lines-v1:sha256:e0b426e2df4d26a8ed335755877b2c84cc13b89a0d9b3f448e7c975811fdf756:eyJzZWxlY3RlZExpbmVDb3VudCI6NzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiOTI4YmI1MTBkOTIwOGVkZmI1MWU5YjdiZjU1MjdiNTIzZTNjODIwMjZjMTExYjEyYWNlMjZmMjgwYTVkZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjY2RhNDBlMzI0ODQwNWNlNmRkN2NiNDVhZmU5ZjMyNTQ4Y2FlOGIwMzZhNGM3MjY1MjdiMTFhZjgxNDk5ZDAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzMzZkOGZmMTlkNjk5N2JjZjE3NzQ2MWJjYjU5MDFlMWM2MzgwNzc4Mzk5YWMwY2NlMjIxOWE1NDEzNTZiN2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA0ZTFlMjFlMjFhOTFkNjY4NjRjNDI2M2RjMjQyZjA4ZTQwMDhjZTI5NjAxNDg5ODRkOGIwZjYyYmIxNzI3NTkifQ"
+          "resource": "repo://crates/authorization-state/src/authority.rs#L44-L63",
+          "version": "repo-lines-v1:sha256:4b36cff79fe3d467eb0be0d657ae69241b24dfd26a08dc650c5339090bac28ed:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiOTI4YmI1MTBkOTIwOGVkZmI1MWU5YjdiZjU1MjdiNTIzZTNjODIwMjZjMTExYjEyYWNlMjZmMjgwYTVkZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxODRmMTkyM2QxMWU3ODQzZDUzN2IzYWUwMDcyZGE3OGUzMzI3MmVhOTNjMmFmMmY3YjgwNDRhMWUxMDMxMTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzMzZkOGZmMTlkNjk5N2JjZjE3NzQ2MWJjYjU5MDFlMWM2MzgwNzc4Mzk5YWMwY2NlMjIxOWE1NDEzNTZiN2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYyMzA2ZWYzZjRlMjI0MTk3YzUzMDdjOGU3MmQ2NTdmNTdkOTc3OGZjNDZkNTc5MDMzNDVhODI2OGI2YjhlZDkifQ"
+        },
+        {
+          "resource": "repo://crates/authorization-state/src/authority.rs#L93-L113",
+          "version": "repo-lines-v1:sha256:4df89052f4c1f7987cbdd9925bfbc8fe09f4012010dce35df5360a9930006fe9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRiYzcwYmY2ZTQyOTZjZDk5YjY1YTYwOGQwODhkNzU4NTU0ZWEzOWYwYmMzZTk5MTQ1OGI4OTA2ZDE5ZDIxODAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjNGE3YTg1ODBjZjQyZjk3Zjg1YjNkMTU3YjVlNWEzMGMzZjFkNDYxYmM0MWEzZjMzNTVlNWQ1NzU3ZTgwOTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5OWJkZWZlZWFjYTYzNDBlMDI5MGRjODZlODg5Yzg5ZDVlMTg5YWE1YmE0NGI1ODViM2I3MDczNGY0YTYyZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNlY2VlMmVlMzQzMTBmMTY1OWU0YTg1NDU2MzJmZWVkZmQ1MTVjNDc2ZTZkNTgxZDkwZjFjYTQxNTI0NTYxMmMifQ"
         },
         {
           "resource": "repo://crates/authorization-state/src/store.rs#L19-L74",
@@ -21,18 +25,22 @@
       "statement": "Intent registration hashes the body and rejects idempotency key reuse with a changed body while returning the existing family on matching replay.",
       "evidence": [
         {
-          "resource": "repo://crates/authorization-state/src/authority.rs#L307-L343",
-          "version": "repo-lines-v1:sha256:5d26427a725f3c8fcdf4a1089038ee62a1f96a40a9754d76e55739638486ba07:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU0ZWM0NWNlZWE4YzMxNTE3N2Q5MWQ2ZmU2MzYwNzRhN2M2NGNhNThiNTliYjk5YWEwYjc1YWMzNGJkMjU0MjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5YjE5ODJlOGRkNzQ4MTE4MTQ2YjM5YTJkMDA2MmY0MDgxZTM0Nzc5Yjg2NzVjMjM0YzRmYjEyNGRjMzkzOTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2ZTFlNGIxMDIwMjE3MTQxY2NkNTBhMzY5ZmIyYTEzYTc5ZDcyMTFlMzcwYTk2MDYyNDFjZWU0ZjMyMWQ5ZTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ3NjBlMzExODIxYjU1NTQwODdhODY3ZmExZjlhN2VkMjQyZDg1ZjVmN2M4MGRkOTczNzQwZmFlYzFmNzRlYmMifQ"
+          "resource": "repo://crates/authorization-state/src/transition.rs#L326-L375",
+          "version": "repo-lines-v1:sha256:6b2ea3357d579d0d8cd03934b3c97539755afdcd2f717fe2cc1a18e3d7f13649:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMyYmYzYTVkMTk1M2FkYjBkYzQ2Y2RmODgyODI3MzkyNzAxNzA3MGNiMDk0YTc5YjZlNzhiZWIxMTc0Nzc0MTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5YjE5ODJlOGRkNzQ4MTE4MTQ2YjM5YTJkMDA2MmY0MDgxZTM0Nzc5Yjg2NzVjMjM0YzRmYjEyNGRjMzkzOTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQzNzE2M2IwZjdhYTAzM2VmMTZmMDdjNWIyNGQzNDk3Nzk2ZmQ4NzA3NmE3MmQyODdlZjVlNWFmNzg4YTRiOTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ3NjBlMzExODIxYjU1NTQwODdhODY3ZmExZjlhN2VkMjQyZDg1ZjVmN2M4MGRkOTczNzQwZmFlYzFmNzRlYmMifQ"
         }
       ]
     },
     {
       "id": "claim_98778c165aff474ab0db1741017c8a4b",
-      "statement": "Reserve accepts caller-provided Allow decisions and claims, checks stateful rule and approval bindings, and atomically acquires resource locks and checks derived rolling limits; it does not decode transactions or verify approval signatures.",
+      "statement": "Reserve accepts caller-provided Allow decisions and resource claims rather than decoding candidate bytes; it validates active-policy rule, grant bindings, operation limits, and derived rolling limits, then atomically locks resources and checks exposure. When ordered approvals are enabled, supplied grants are verified against enrolled credentials and recorded approvals.",
       "evidence": [
         {
-          "resource": "repo://crates/authorization-state/src/authority.rs#L380-L540",
-          "version": "repo-lines-v1:sha256:ea071db94d53baa5e9215944dcc54ae201bccd0bdf4a7786d63dce625bdfb788:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI4YjJjMjM1MmNlOGIxYTFmZGIyYWFkN2U0ZTljZWUzODFlMWNlNTgxMjRkZGRjMDgwOWI4YjFlZGU4NzEwZjdmIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI2MzVhY2I1ODUxMzU3YzRlMGViMDEzNDBhNzhlNTQwNWNhMmVhMjQ5ZjU1NzE3MzBmOTZkY2IwYzdiMmExNTNiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkMTEzYTAyZTEyZThkNmE3ZGYxNzIxNzM5Mjk1Yjc4Y2NkN2UyZWUwMTM4ODgxZTYwYzlhOTRjZTNhMGJiZGM0IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJhMTI3YmM3YzNjNTU5NDBmNzIzNWMxMDgxYTYwNzEzZjE1ZTMyMDNhZThjZDY5M2QwMGJlNzZlODU4YTMyOWI5In0"
+          "resource": "repo://crates/authorization-state/src/approvals.rs#L190-L207",
+          "version": "repo-lines-v1:sha256:930b395365f7f4970ad213e23acab20563b82a8e88a7ce08a601350748ce2563:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZmNTg1NmU1YTI4MWVkYjhkOTZkMWY1NTNlZmRkN2E3NWNjNzBjNTBiMjQ0YzBkNjgwNTZlZTA3ZTc5MzhjNDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4OTc3MWZlMWI2NjI4ODc1YWEyM2U3ZGJlNGFhNzE0NjFkMDBjZGZiNjZkZGYxMWI5ZDgyMGFjNTg5N2ZkZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNiNDk0MmFkYTIxZWUwOTE1ZGU1MWQwYTNlODkwZWMwNDEwYWViMzZmZTVjNmE2OTRiNGQ4NTlhZDYxYWU5NTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://crates/authorization-state/src/transition.rs#L407-L587",
+          "version": "repo-lines-v1:sha256:6f1ab01542465519e9fa6e4520c68ea1ee48c307e70aa2a2a8f1e89930182085:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJkZGUxMzNiZTY5NGI2YmEzZThjYjRhNzI3YzdlY2Q4Yzk2NGU3NzNiYjU5NjczYzliMGIwNzBmYjVmN2QwYmMyIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJkZWMyOGY0ZGZiNTA4OGIxOGI3OTE1ZTI5Y2NlNWVkNDhmOTE2ZWJjNGVkMDk3M2M1MzY2MGRmYjhlNTM0NGUyIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkMTEzYTAyZTEyZThkNmE3ZGYxNzIxNzM5Mjk1Yjc4Y2NkN2UyZWUwMTM4ODgxZTYwYzlhOTRjZTNhMGJiZGM0IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI3ZGEyMTY0ZmE2NGU2NWFmMGY5NDI1MDExZDE4MzU2MDY0ZDY3ZThkZGRiNTJhNDZlMTAyYjM4ZmEyNzY4ZjNhIn0"
         }
       ]
     },
@@ -41,16 +49,12 @@
       "statement": "Outstanding active reservations never expire by time, same-family exclusive EVM nonce replacements are charged by maximum, and other claims are additive.",
       "evidence": [
         {
-          "resource": "repo://crates/authorization-state/src/authority.rs#L480-L484",
-          "version": "repo-lines-v1:sha256:68266e88fcbadc0c2873b8856eddac3f4f229744343fe5d0c86e6b9dfd3fd9c2:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDM1NDVmNDhhNzNhNzRhNDM0YmE5YjlkNTNiMjVkMjM5MDI4ZGI2Nzg2NDM2NjIxNmFkYTU0ZmM5OTFlY2ExMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmFjMmJjNzViN2ExYjg3ZDBmMWUyMmMwYzI0NWZiYzkzNmI2ZWRjMDJjMjY2NDg5YzEzOWJhYzE2MmEyMjA3NyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWZmNzBlYTBiN2QyMDIyNmNmMTdkNDgzMjIxMTVhOTJkOWQ3YTRmY2I3NDhiZGQ0NDE5OTQ4YTAxNjBhOGYzNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjNkYjNjMmMwYTZkYWM5NWE0NzVmZWI3ZjIwNDczNTRhYzQ2Y2Q2ZDVmYjU0MmE0ZWVhMmFhZDUyNWIyY2M3YiJ9"
+          "resource": "repo://crates/authorization-state/src/state.rs#L249-L283",
+          "version": "repo-lines-v1:sha256:bb0c7afe543f75cf2fdef2cd36242f5135c9e500d76b6804a29a9bf3518e17b8:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4OTMyM2UwZTkxNmI0YzMxYTJhN2IzZTdkYmJhMDQyYTFkOGU0YzkzMjdhNzI4MzYwYmNlZWU5MzFhNmJlMjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRjZjY3MDdhYjdiMzMyMGMzZTFlY2RjN2IyMzYwZjMxYWU1MmQzZDU5Y2M3ZWU4NGRjZGVjMTY2Zjc1YjNmZWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJjNmRlOTZjZjM1Y2VjZjA1MmEyZjg2Mjg4ODQwNDlhZjFhZWI1YmIzMjY1NzQ0ZDlkYWRhZjllNGU2YWU5NzMifQ"
         },
         {
-          "resource": "repo://crates/authorization-state/src/state.rs#L233-L266",
-          "version": "repo-lines-v1:sha256:ba4471969286017012a0bf5ce57e0cab179c76e30e81707f07893cf6a8ef8eab:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4OTMyM2UwZTkxNmI0YzMxYTJhN2IzZTdkYmJhMDQyYTFkOGU0YzkzMjdhNzI4MzYwYmNlZWU5MzFhNmJlMjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJjMTZkNWMyOTQwNTE5NjBiNTcwOTJhYzQ2ZTI4Y2E3MTIxNDcwMDVkYzgzNzdlNTdkZWM2YTAxMTI0N2ZhMzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRjZjY3MDdhYjdiMzMyMGMzZTFlY2RjN2IyMzYwZjMxYWU1MmQzZDU5Y2M3ZWU4NGRjZGVjMTY2Zjc1YjNmZWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU3MWU3MDU0MGZhN2QyYzY3M2M5MzQ2ZmRhNjcxMTdiMGFkYmM2MmY2ZDAyYTZjMDZjMjg5Y2U1ZjdkYjBjMzYifQ"
-        },
-        {
-          "resource": "repo://crates/authorization-state/tests/authority.rs#L668-L722",
-          "version": "repo-lines-v1:sha256:1c5cb64dbf4bd54547ec7db494c8eb21b2a87ea62c3dd15188f9b5488c05d4e0:eyJzZWxlY3RlZExpbmVDb3VudCI6NTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFlZWNiMThhNThjMWVkN2I1NTQyMTNhZjg1ZTZmNzQxZjkxMTJhZDFhNDU5MTgwZTAxODNlNGYyZTQ2OWIyMTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA1MDU0ZmUzMWIxMTI1M2Y0Y2FlMmI2NDgwNWE0YWMyNzkwNDY5ZTYzMjk2MWE2ODg0YzQ5MWUwNWJmYmE5N2UifQ"
+          "resource": "repo://crates/authorization-state/tests/authority.rs#L789-L845",
+          "version": "repo-lines-v1:sha256:7769b08cf952d8b34408dec92c6e180a1457b3d4b204b4af504eef8732d4a8b4:eyJzZWxlY3RlZExpbmVDb3VudCI6NTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFlZWNiMThhNThjMWVkN2I1NTQyMTNhZjg1ZTZmNzQxZjkxMTJhZDFhNDU5MTgwZTAxODNlNGYyZTQ2OWIyMTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUxYmI0MmU0MDI5MTBjMzVlYzI4MzM0NTBjODA0NzRkNzY2OTU5MDhjNWNhZjFjNWZlZTliZDEyZWMxMTE3OWEifQ"
         }
       ]
     },
@@ -59,8 +63,8 @@
       "statement": "A first release rechecks freeze, epoch, deadline and freshness then commits possibly issued state before returning its receipt; a matching released replay returns the existing issuance and a fresh receipt.",
       "evidence": [
         {
-          "resource": "repo://crates/authorization-state/src/authority.rs#L569-L650",
-          "version": "repo-lines-v1:sha256:9313a17839e62df63fc768dbc771c30913b5b2cc68d4159fdb4fa5e7bd082ece:eyJzZWxlY3RlZExpbmVDb3VudCI6ODIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU0YWQ0Yjg1ZmY4ODFmNzdmOTE5Yjc0NmE1NDNjMTUxZGExYzE0YWYyYmI3YmM3YTNjMjgzZDI2YzY2OGZiZjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI0YWY0NWVhMjdhNjc0Mzg0NzIwZjYxOTc0ZDI4MmI5MmRhY2ZiMDY3NTU4ZTNiOTVhZGE3YWYzYWQzOTNkYWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU3MTkwOWRiMTQ3MDlmNjhlZDY1NTA2ZWY5ZDM2MzExMzM5NWNjZGQ5NWM5NDU1NDIzMGE2ZDk3OTBmZDllOGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIyNjNhOWY1ZGI2ODVhZWFkNzFhYTQ4ZjY2NTY5MzY4NDVmMmMxMWM1OGZkNmRhZDQxZTkwMTM3ZjYyNjBmM2QifQ"
+          "resource": "repo://crates/authorization-state/src/transition.rs#L600-L696",
+          "version": "repo-lines-v1:sha256:c8335842f983d2be7dd3af9fd65fa9bb280b477c2b60634b2260150afb16e522:eyJzZWxlY3RlZExpbmVDb3VudCI6OTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyMzhjN2QzMDc0ZGY3MjVhZTgwNTU1MDcyOWUxYzIzM2JmYmUzYjhjZDRlMmQxM2YyMDk0YWM3ODliOWYyYjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRmODM2Yzg1Y2UxYTQ2MGYyNDVhNzVkNDJhNTcwNTg1MDZmNzUxZDU3Nzc2MjM5ZmEzMTY5NzliYWY2OGYzOGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU3MTkwOWRiMTQ3MDlmNjhlZDY1NTA2ZWY5ZDM2MzExMzM5NWNjZGQ5NWM5NDU1NDIzMGE2ZDk3OTBmZDllOGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY4ZjRhYTM3OGE5NTk3N2U1ODNjMzBhNzE0N2U0NjNlN2E0Zjg1YzQyYWRjYWI5OGY0NzQ3MDM3NzQ5OTczOTkifQ"
         }
       ]
     },
@@ -69,8 +73,8 @@
       "statement": "A single designated responder can freeze while unfreeze requires admin quorum bound to the current freeze sequence, and approval expiry cannot cancel possibly issued signatures.",
       "evidence": [
         {
-          "resource": "repo://crates/authorization-state/src/authority.rs#L668-L803",
-          "version": "repo-lines-v1:sha256:a606894caaaff6c0187b768e249e87f264af952a2bd6af39dc642f7b0dba20d9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTM2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwNjk2ZjUwMWFhYjdhZmI5MzljNzA1NjQ4NDVhNjFkMzY1YmFhMmYwODVlYTIwMDllYmUyNjAxNDBjYjBjOTUzIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIwMWJhNDcxOWM4MGI2ZmU5MTFiMDkxYTdjMDUxMjRiNjRlZWVjZTk2NGUwOWMwNThlZjhmOTgwNWRhY2E1NDZiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI2M2Y1YzdhNjI2ZGIzZjNjNDBlZjEwNGE4ZjU1YmI5NGI5MDExYjY2MDZmMjZlODA3OTg5MzUwMDg2ZWM3ZDc3IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkM2ExOGIxNjk3M2Q4NjliZGMyNGFmOTk1MTdiN2FjOWRkZWMwZDllM2Y4ODNlNGQyNDA4MDFjOGFhZjUyNjgwIn0"
+          "resource": "repo://crates/authorization-state/src/transition.rs#L703-L834",
+          "version": "repo-lines-v1:sha256:24244f37934eb399d4a289bfec372a750beb4b42a839ec0bcc5469b0bb0f8d99:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI4ZTQ1ZGM0NWE5YzMzODRhYjljMDQzMjAwNmMzNGQwZmJlYzVjNGYyZDNiZmJmN2JmNGRmZGE2MzljZWZjNjUyIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI1YjUzNTY1OWQ1YjA0NjM0NTNjYjdmZTliYmYxZmViZGU1ZTlhMDg5YzE5MGM5ODM4NjAwYmNlMjJmYzkyY2RkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkN2U0YjA1ZjY0NWJiZGI5M2NkMzMxMWNjMTZhNmJmYzRlMWQzM2Q0YTcwZTNkYWQ3OWM2Y2YzNTdhNTI2MzA5IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI2OGY0YWEzNzhhOTU5NzdlNTgzYzMwYTcxNDdlNDYzZTdhNGY4NWM0MmFkY2FiOThmNDc0NzAzNzc0OTk3Mzk5In0"
         }
       ]
     },
@@ -79,18 +83,108 @@
       "statement": "Finalized failure settles actual fees without asset debit; pre-finality reorgs retain obligations, post-resolution reorgs require recovery, and definitive invalidation releases the candidate obligation.",
       "evidence": [
         {
-          "resource": "repo://crates/authorization-state/src/authority.rs#L809-L925",
-          "version": "repo-lines-v1:sha256:a04e898c77aef391abcbebe169d349428f22dbb73fa918cb0ad0ca335fb10c11:eyJzZWxlY3RlZExpbmVDb3VudCI6MTE3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI1NjQ1ZDZhODQ1YzMyNGVjOWMxZDY4MzIzYWZlZmE5Y2Y4MTFkNDM3OWZiNjlmNTc5NGFjODVmODA0Yjc1Yzk4IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmN2E3YWFhNWQ5NjBjYTdhNjUzY2IxMTI4MGZjN2U3M2UxOTMyZWIzYzdjYzcwMTdlM2YzZDUyZDU1Y2I4NWVmIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJmYzVjN2YxMTEyMTU5ODQ2YzUzZmMzYzlmMmM0ZGNjNGI0Y2YxZjA0N2JiNTI0NjRmMzFjNGIzZWIyMDA0YzFkIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlOWIyMmY2ZmI3MmUwMzVlZWE5NWJkNzRhMGUwM2VlM2QxMTEyN2IyM2JiNDAzMzUyMzNiNDI0MzA1OGRmMTNkIn0"
+          "resource": "repo://crates/authorization-state/src/transition.rs#L841-L966",
+          "version": "repo-lines-v1:sha256:8e59f8f7b62e3a3cf51fbfdfc22265c4d4645f303772a99cde211976bab51bfd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI0NTMzMDY5Yjg5ZjY3OTIyYmYyYWZkMTc5MDA4ZmM5NDk4ZTFmYzc4Y2I3MzJhZWU3NDg3ZmQxMTY3ZmIzNTg2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmN2E3YWFhNWQ5NjBjYTdhNjUzY2IxMTI4MGZjN2U3M2UxOTMyZWIzYzdjYzcwMTdlM2YzZDUyZDU1Y2I4NWVmIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4MzA2NjAwNjkyNzYxMDU3NWIxOTM4Mzk5YjcwNDYwZWRjMWI0ZmY5ZTViNGE1ZjFlMDI3MGUzZjI2YWEyNTFlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlOWIyMmY2ZmI3MmUwMzVlZWE5NWJkNzRhMGUwM2VlM2QxMTEyN2IyM2JiNDAzMzUyMzNiNDI0MzA1OGRmMTNkIn0"
         },
         {
-          "resource": "repo://crates/authorization-state/tests/authority.rs#L571-L650",
-          "version": "repo-lines-v1:sha256:5bbce6a626cd4771523b286a1e87193cc2684b65b5a67ab0d509cf251a547148:eyJzZWxlY3RlZExpbmVDb3VudCI6ODAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEyY2ExOTA0ODczMjgwMWVlMDgxNTdhMTViOTc0ZTU0NDI2YzA4ZDQ0NzRhNjY3ZjRmODY2NWU0NzRkMjRkMjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiZTM0YmViN2M1NjAzYjIyZTZiZjc4Mjk1YTI0YTBkNzkyNjRlYzYwYWZlODJhNTNhYzM5ZDU1MzA1MDJhYWIifQ"
+          "resource": "repo://crates/authorization-state/tests/authority.rs#L653-L769",
+          "version": "repo-lines-v1:sha256:50322de75492ecb18bbc73013bdfe0c2ff36cc29fa59c88719f334906b37f392:eyJzZWxlY3RlZExpbmVDb3VudCI6MTE3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJhMmNhMTkwNDg3MzI4MDFlZTA4MTU3YTE1Yjk3NGU1NDQyNmMwOGQ0NDc0YTY2N2Y0Zjg2NjVlNDc0ZDI0ZDI1IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI4NGU0MjA4Y2Q2ZmZiOGM0YTM1NDdiMmY1NGFkYTE5OTc4YzNmMzY1ZTc4Zjk1MDJlZjUxNDVjZGQyYWE4NTQzIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3ZjlhZDQ2M2JlNzFjNWY0MjA5NDZhZmJmMDdkMGZlOWY1ZjExZGE4MmYxZTk0OTAzY2MzMzk1ZDhjMWEwYjM4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI3ZjlhZDQ2M2JlNzFjNWY0MjA5NDZhZmJmMDdkMGZlOWY1ZjExZGE4MmYxZTk0OTAzY2MzMzk1ZDhjMWEwYjM4In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_c0f81ef8163a4ef4866381382c0c8184",
+      "statement": "Authority commands run a deterministic, keyless transition over explicit time inside the fenced store transaction; the authority signs returned receipt bodies only after that transaction succeeds and sends audit events after commit.",
+      "evidence": [
+        {
+          "resource": "repo://crates/authorization-state/src/authority.rs#L100-L113",
+          "version": "repo-lines-v1:sha256:e265db17673121d8721d1507b9abf729980d48e0007006139c066f5f3438a3a2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZjMTc1ZWVlODBhZTMzMDdlZmVlNGU4Mjk4NDk0ZjAzNGM3YzUyNWM5ODBkNzE3Y2M2OWVhNTVmNmIxYmZiMzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjNGE3YTg1ODBjZjQyZjk3Zjg1YjNkMTU3YjVlNWEzMGMzZjFkNDYxYmM0MWEzZjMzNTVlNWQ1NzU3ZTgwOTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE2MmVlNTdlNDFhOGMyMGFlMDE2NGRmMjYxNDM5ZGNjNDk5ZDM1MjA4MzQxNTE1MTZkMDQ3ZThkZWFlOGE0NjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNlY2VlMmVlMzQzMTBmMTY1OWU0YTg1NDU2MzJmZWVkZmQ1MTVjNDc2ZTZkNTgxZDkwZjFjYTQxNTI0NTYxMmMifQ"
+        },
+        {
+          "resource": "repo://crates/authorization-state/src/authority.rs#L174-L176",
+          "version": "repo-lines-v1:sha256:1c60640da0f7da75b9786072c30b5a00faa60d13d4aad79c2774ddc2f63de12e:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTg0MzBmM2M3YzNmNWMyMjUzODg1MGRhNzVlZDA4YzcxYmVkYjJlMzRjNTRhMWNhYjYxYWQ3MjhhOGRhZTQ5YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmVjYjIyYWRhMmUwNjdjYTZkMmRkZDg1Yzg4OTc5YzM3MzQ5ZmExNTMxZjkwMmE1MGEzZmY5ZWVmODRlZWRhZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDY3OGMzMzEwOTg4NzQxNGI5YmI3ZGUxMzljNjQxOGM3ODViYmY3NGUzNjA0Y2QxOGZkZDYxZDJkMjI2NTU2MyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjA3YWNhODc2MDJjNjIwMjk5YTA4OTg3NzI3MGI0N2I2NzcwYjVjYTY2ODJkZjJjZjNjOTRkNzVjZDExMmE3MCJ9"
+        },
+        {
+          "resource": "repo://crates/authorization-state/src/transition.rs#L216-L256",
+          "version": "repo-lines-v1:sha256:f906efb9ee19ab2227ebbebf9f8b1595b96f27d80593d456cd061e94894d5c67:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5MDdjNmQzYzM5MjBiZTZkYjlhNGRjNTg3OTkyNWYyZWFmYTBjYWIyM2FlNTAyYjUyNzVjMjgyOGIzMjQ5MDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU0MDNiYTlhOWQ1ZTI4ZmEyZmRiZDU1ZjcxYTFkZDFkNjMwOTc3MTdhNGFmYWU4YzZkNGY4OGIzYjkwNGZlZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAxOGJlNjVjNTJjYjIwYmU0YzI5ODRjMjJkMGVlNGViNTU4Y2I2MTZmOTIzZGJmMmIyY2FlMmMzODNlMjgxYmEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5558f33940704b899e2ad721520aa191",
+      "statement": "Administrative quorum can irreversibly enable ordered approvals by enrolling credentials, but enabling it is refused while legacy reservations remain pending. Recorded grants are bound to the current credential enrollment and revalidated at reservation and first release.",
+      "evidence": [
+        {
+          "resource": "repo://crates/authorization-state/src/approvals.rs#L190-L207",
+          "version": "repo-lines-v1:sha256:930b395365f7f4970ad213e23acab20563b82a8e88a7ce08a601350748ce2563:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZmNTg1NmU1YTI4MWVkYjhkOTZkMWY1NTNlZmRkN2E3NWNjNzBjNTBiMjQ0YzBkNjgwNTZlZTA3ZTc5MzhjNDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4OTc3MWZlMWI2NjI4ODc1YWEyM2U3ZGJlNGFhNzE0NjFkMDBjZGZiNjZkZGYxMWI5ZDgyMGFjNTg5N2ZkZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNiNDk0MmFkYTIxZWUwOTE1ZGU1MWQwYTNlODkwZWMwNDEwYWViMzZmZTVjNmE2OTRiNGQ4NTlhZDYxYWU5NTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://crates/authorization-state/src/approvals.rs#L56-L113",
+          "version": "repo-lines-v1:sha256:2a38a2af9e96ee007fd224ae450602b39d86a9ed37f8b35f0f3af107e4713506:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRjMTMxY2FmYzUxOWZhOTUxYjYyOWVhNzllM2E5M2ZlYjg5MzI5YjY0MzgwMmY2YTU3ODBhY2NmYTM2OTA0OTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZlMmVmNmFiNzdlMjVlMGFjNTc2NjAzNTI3OThjYjlhMjJhYzFhODFiMjFkYzVkZTNmYmVhNTA3NDA5NzJmZWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM4MGZhMGMyYjJkNTllYWIzZTI5NWRhNGE2NDNlYWM5MDc3ZDM0YTA5OGIxOGY5YzE0YmE2MmY1YTQ5MzQ4MzYifQ"
+        },
+        {
+          "resource": "repo://crates/authorization-state/src/transition.rs#L436-L464",
+          "version": "repo-lines-v1:sha256:f27883f676dc25c2010d1b78d16933f63cd00f2b146b491eff33f481b0471c4b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYyZTE0NDY2NjEyYzMzZTRmNGYzMWViY2QwZjU1MTkwMzk3Y2E3OTc5OGM1OTIzYWZkNDYxMjI4ZjgxMzgxMzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MjJjNDJjZDE5YzZkMDNkODA4YzQ1MjcyMDU1MjgyNWI3ZWExYzViNDkxYjIxODUxMWNhYzc0MTVjZjlkOWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZlOTc2MzAwMDZmYTdjMTQ0MDY3OWU1MDAwODQwZWI2MjkwNjVkYzljYTAzZjE1MmNhYjA5YzI4MTlmZWYyZDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMwMDM4Y2UyMDVlNDllOGI1ZTE5MDdjNmNlYzYzOGNjOTI4ZDIwNDUwY2YzNTAxMzdhNjU2MTUxZDE5MTNmYjIifQ"
+        },
+        {
+          "resource": "repo://crates/authorization-state/src/transition.rs#L624-L643",
+          "version": "repo-lines-v1:sha256:b92451f1dfc19e29bedbc024420c34c4ddfcd37525bcf4f6f5618229a903c3f8:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNmNDcyNmYzYTk3ZTNmYmIwOGMwMjBlN2I4YzMwMWUyYTNkZjIzN2Q0NGU3ZDI4NzNhNTYxMzA2ZmUxZWU4YmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0ZTA4ZmY3OTQxZjVkM2RmOTlmZDcyZTgxZWM4YWYyZDY5YTA2NjVhMTM5MzQ0YWZjNmE5MDgxYzdlNmViMzQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmNjQ4YTNiOWVhN2MxZjZkMTU3YjMxOTQ4OGY0OTQwN2VmOWRhOGY5ZGQ4NDE0YTI5MmJhMzE1MjJiMjEwZmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMwZjQ5ZDVhY2NjNjk0ODBiODdmN2UyZDE3ZDM4ZDNmODZmYmE3ZjQ0YWUyMTBhOTJiZDQyODI3OWFjNzdkNzQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_69e5d4e4dd89434bb32553c83956e244",
+      "statement": "Authority receipts and checkpoints are Ed25519 signatures over domain-separated canonical bodies; receipt verification binds kind, envelope, session, candidate revision, policy epoch, and validity time, while a checkpoint commits the authority epoch, sequence, and state hash.",
+      "evidence": [
+        {
+          "resource": "repo://crates/authorization-state/src/receipts.rs#L20-L33",
+          "version": "repo-lines-v1:sha256:196d43639e1432f703d2f2eeb7c18403d15b6bbb761b44b7da52c9af73d6223c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFjMDc4ZTk4NWI3ODk3MDVmMjRkNzhjYzA5ZDNkZWU4MTJiMWRlOThkZmFkOGY1MjQ4NzYzODg3YWQ5OTc4MDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY3ZWY1YzhlZDg5YWVlOTNkZWM2OGIzODNhMDZmMDNjMTUxZjhmOWQwMDE2ZjEyZjgwMGE0NDFiODQ3MWM1NjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU4NGU4NzFmM2VmZDgxZDViY2EzYWM2ZDNkNGU0ZTc4NDM4YWY3NDY1YWQwNDhmMTc1NTVmODUyYjAwZGIzNGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhjNmY1MDgwNTZkZDcwMDEyNDNlNTA2YmM3NzMwNjZkYmEyNzBiYjhhYzdmYjVhZmVjZThhNDRiZjVjMDBkYTAifQ"
+        },
+        {
+          "resource": "repo://crates/authorization-state/src/receipts.rs#L36-L106",
+          "version": "repo-lines-v1:sha256:ddd2b5398614528677dc193e7f112b5c71ff672255a3dfc54de197f89aae0fe9:eyJzZWxlY3RlZExpbmVDb3VudCI6NzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExNmQwZjNjMTNlYmYzZWFiZDlmZGQxM2RmMGQ1MmM2NGJlZmU1ZTMwNTZmYmYyYTEzZGU5NTYzYjU3NWM5MTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2MzBiYjI5MGRiZmVmZmVkYjZhODgyYTFlNWIwZWIyMzM4Y2I0YTljODQ5ZDEyZGM1ODUyYTBiNmUxODg1Y2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFjZGVhM2EzYzM0MTcyYjFhOTE0M2Y2MzA2MjVlM2VjYjU4M2IyNWI4MGRlNmY2NDJjMjNlMWE1NjQwNDI3OGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_83cd770abbdc48068dfc562a7ea4f2f0",
+      "statement": "The file authority store atomically persists canonical versioned snapshots and a commit-sequence high-water mark; opening rejects snapshots below the high-water mark or supplied floor, and witness opening verifies a signed checkpoint and detects same-sequence state-hash divergence.",
+      "evidence": [
+        {
+          "resource": "repo://crates/authorization-state/src/store.rs#L111-L141",
+          "version": "repo-lines-v1:sha256:4924c0c42b39f0e3b5c6c271887b9318ed3cdfaba20080fd645ad9411bd5e627:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiYjVmZGU4ZWM3YTQ2MGE3NzA2N2JjNjM1ZDk3NGRlNjk4YWM4MWE4NzQ2MzUwNWI1NWYzYjM3ZDA1OTQ4OWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkZjRmZGZmMjk1ZjE2ZTU4Nzg0OGQwMDcxN2M3MDIyMjJkZDM0ODhjMDU1MDg0YzMwMzA4YzhhZmVmOTlmYjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQwYmMxM2JiYTM1Njk4ODkwMDkxNWRhMTQ0MGY1Y2NkY2NlNGIyNzQzMzc3ZjM0NWQ5YmQ1YzBkZWUzYTk3MGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIyYTUwYWFlNGFmZjY5ZDNjOWU2NjE5MGQ2YzBlNTIyY2RlZDY0MWI2NDg0NTE2NWJjNmY4Zjc0N2UwOTk1N2UifQ"
+        },
+        {
+          "resource": "repo://crates/authorization-state/src/store.rs#L97-L161",
+          "version": "repo-lines-v1:sha256:64220e0eedfcd91efe904a01aa26c6f870d0c55ad9c2883424ab45f74cac6481:eyJzZWxlY3RlZExpbmVDb3VudCI6NjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjljOGMyMDdlMDViNWMzNjk2ZmE4Njg3Yzk1MDA5MzA1YzY5YjhlNmE1ZGI4Y2YxNjcyNjUxNzIxMzU4YmU1NDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNlOWRhMzk4OTA4OWJhYThkMjZiZDdlZThiZTc5MTBjYjg5NzY0NDk4YWJhZjYwY2ZhMzk2Mzk2MDhlMWVhMjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxN2FkNTA5ZjJiMTY1ODBkOTBjNmRmMDJlMTUwOWVjYWNhMDQyNmI4NThmOTI1YmU4OTM5Njk0MWQ1MTA2YjcifQ"
+        },
+        {
+          "resource": "repo://crates/authorization-state/tests/authority.rs#L1005-L1103",
+          "version": "repo-lines-v1:sha256:3cde0b0ba92b2828e2d7bb7b286828dc2cea8b35e8c5c5c4cea494ecd79403f3:eyJzZWxlY3RlZExpbmVDb3VudCI6OTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5ZjJiM2E2NzNiN2E0YWE5NDcxY2JjMWYxYzE1MjhhNDRiOTkxNzI3MDllYmRkZDRkYTM4ZmQzZWI4MmEwNjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAyM2QyN2U3Yjc0ZDdmNjZiM2NhZDM0NGYzMWY3Y2IxZTI1NjFhZWYyMDMyNTAxNDQ3NDgyYjRlMzU1ODcyNzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjljZDA4MzExYzg0MjliNjg0M2ZkYTVhYzhjYzQ2NjNiZmM1MmUyY2Q0ODYyOTI0NmE2NWM2YTJlYmM5NjdjMDQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_40cb79f09c024a45b58647bcaed3509a",
+      "statement": "Chain observations apply only to a possibly issued candidate revision: submitted and included keep obligations, conflicting evidence quarantines the family, and finalization of an exclusive EVM nonce candidate invalidates active same-nonce siblings.",
+      "evidence": [
+        {
+          "resource": "repo://crates/authorization-state/src/transition.rs#L841-L940",
+          "version": "repo-lines-v1:sha256:8ad586e81e77c51802bbab3343373695f9deacd6f70235f25c05601fe030e59e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI0NTMzMDY5Yjg5ZjY3OTIyYmYyYWZkMTc5MDA4ZmM5NDk4ZTFmYzc4Y2I3MzJhZWU3NDg3ZmQxMTY3ZmIzNTg2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJlYmVlODVlOTFjMDhmNWM1ZTllNjI0ODJhYjEwZGUwMjViNmZjY2VlYzcwOTgwYjE3YjYyZDE5MmI4Y2YwMzc5IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4MzA2NjAwNjkyNzYxMDU3NWIxOTM4Mzk5YjcwNDYwZWRjMWI0ZmY5ZTViNGE1ZjFlMDI3MGUzZjI2YWEyNTFlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI3ZTNhMjNkNzUzNGE3N2QwOTI3MDMwMWIxOTk3MDYyY2QzNWFiYzE4ZmJhYWQ3YjIyZmMxYjdiOWZlMzdlOTk5In0"
+        },
+        {
+          "resource": "repo://crates/authorization-state/tests/authority.rs#L683-L769",
+          "version": "repo-lines-v1:sha256:4f3748205e96a3dfd53da37143bcdff1e7b8aa2110e81ffe2d866fd8ae49a4b1:eyJzZWxlY3RlZExpbmVDb3VudCI6ODcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZTQyMDhjZDZmZmI4YzRhMzU0N2IyZjU0YWRhMTk5NzhjM2YzNjVlNzhmOTUwMmVmNTE0NWNkZDJhYTg1NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ2YmZiOGY3NmJjNmVlN2I4NWFmYzljNWFlYzViZmQ0MzExZWYxNmY2Y2M3OWMxMDNmYjcxODg2OTA1MDhmY2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgifQ"
+        },
+        {
+          "resource": "repo://crates/authorization-state/tests/authority.rs#L789-L828",
+          "version": "repo-lines-v1:sha256:16afec85aea0f2586199e66dc886e2b25427fc7604a108fc65e583685fe35459:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFlZWNiMThhNThjMWVkN2I1NTQyMTNhZjg1ZTZmNzQxZjkxMTJhZDFhNDU5MTgwZTAxODNlNGYyZTQ2OWIyMTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE0YTZmNWM5MTkxOGY4MjRjM2NmN2RmYTE3YzNlMjg3NWI3ZDk5MjE3ODYzMDQwYjAxMTMyZGI3ODhjMjc3YjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgifQ"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-20T20:16:28.312Z"
+    "at": "2026-10-24T08:14:21.486Z"
   }
 }

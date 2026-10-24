@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:2d7a832b3b336d680d0167f8f6132e7980a446f0bcd7e33638e5dfef0dced60f",
+  "pageVersion": "sha256:5000f4a2157776575da9a47f627974e494dd128d7bc06593fbaa029866a5e9e6",
   "claims": [
     {
       "id": "claim_42b164d61bf845e480497fa3bd242081",
@@ -60,29 +60,83 @@
     },
     {
       "id": "claim_05102d1b07c04657bcfd82cce710f4d7",
-      "statement": "Simulator reorg/fork controls atomically restore and replay non-finalized history and source-specific lies permit conflicting evidence without changing the chain.",
+      "statement": "Simulator reorg/fork controls atomically restore and replay non-finalized history, while source-specific lies can return conflicting transaction observations without changing the chain.",
       "evidence": [
+        {
+          "resource": "repo://crates/chain-simulator/src/evm.rs#L1075-L1099",
+          "version": "repo-lines-v1:sha256:5be5f45ccedd2b24fe5eae4b16589b203a5de639a87a87560d21ebb925faa73b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3ZDY4NmQzZDJkMzNjODJmYWZlNWQzNTNmNWQ3MzEwMzA5YTUyMzUzZDFhNTc3YzE0Njk2MGE1N2ZhZDU5MWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzNWMzZmUzNjFhMDM0YThmOTJlZTczODRlMzE2NjAxZTQ3NzZiY2E0NWVlYjU0YTlhMjk2NTc0Y2I1NmQ1ODUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
         {
           "resource": "repo://crates/chain-simulator/src/evm.rs#L975-L986",
           "version": "repo-lines-v1:sha256:b5e4e90aab7bc7f1ea70741f773124d136f04eb72761d536667813d767f3fd4a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ1OGZlZmE1OTRhZTdlOThhZWM3MjBjZmU5NThlOTcxMzI5NDBiMmFmM2M1ZGIzZmE0NWY0YjAxYmU3YmU5YWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwNzFjNmU5MjJkNjRlM2MyZDEyZDFiNDAwODRjMzFjYzRlNzgwN2ZiNDJlN2Y3MjI5Y2M4ODYwNWU3ZmM4YjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNkNzAwMjc1YzY0NjhmZTVlNzRjM2Y2MWY2ZDAyOWRlNDY0NzM0ZmE5N2Y1ZjQzYTI4YjJhYjRlNjk1OTQ2OGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhNjI1ZDE4NjFkOTE3MzcxZGFlYWRiZGIyMTA5OTVmMjJlZGQ2ZTkzYzQ5YzgxMjU4ZjgyMTk3MTdmMzhjYjYifQ"
         },
         {
-          "resource": "repo://crates/chain-simulator/src/solana.rs#L1202-L1212",
+          "resource": "repo://crates/chain-simulator/src/solana.rs#L1209-L1219",
           "version": "repo-lines-v1:sha256:1208622dee4ede0810ab7cf646cb54894033dec1489d127f99e80b22f8c26ec0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM4MDIwN2QyODU4OWEzMWZjODE5MGYzYjFlZDIxZDc1NzhhOTNkYmFiMGU5ODBjZTg2NDY0ZmJkODdiZWYyNmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwNzFjNmU5MjJkNjRlM2MyZDEyZDFiNDAwODRjMzFjYzRlNzgwN2ZiNDJlN2Y3MjI5Y2M4ODYwNWU3ZmM4YjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA1MjlhMWJiY2I1ODdjZDFjZGYyMjE3ZDY5M2M5NDMxMGRjOTRiZWMzNzY1ODdlNGZmOTdiMTJkZjQwYTJkZTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhNjI1ZDE4NjFkOTE3MzcxZGFlYWRiZGIyMTA5OTVmMjJlZGQ2ZTkzYzQ5YzgxMjU4ZjgyMTk3MTdmMzhjYjYifQ"
         },
         {
-          "resource": "repo://crates/chain-simulator/tests/evm.rs#L554-L586",
-          "version": "repo-lines-v1:sha256:2093f3896ccea736388031a9bd2beb71adde3c6479adea27ac4005873cb2a710:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE0MWRlODc0MWFiMzY2NTY5ZjNjZjA0YzMwOWNiYTQ2OWMzZmMxOTRhOWFlMjlhYjllNGI3YTQwZDUyM2VhMmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVlNDUwOTgwNzY1ZTkwM2ZkNDg3YzFmNWQwYWQwMTBkZjYxNmQxMjU5MWEzNDdmMzAwMzk1NjFhMDhlNGExMTYifQ"
+          "resource": "repo://crates/chain-simulator/src/solana.rs#L1317-L1339",
+          "version": "repo-lines-v1:sha256:81e2c4e323c6cb55ddb8a11dedcd004a2ef465ade06c4b3077855fd6ae66b613:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3ZDY4NmQzZDJkMzNjODJmYWZlNWQzNTNmNWQ3MzEwMzA5YTUyMzUzZDFhNTc3YzE0Njk2MGE1N2ZhZDU5MWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZmNmY2ZjcwYzA1NDI5ZDY4ZjljNjNiZjlhM2M3MTZkM2I2YzI3YTdmYjEyN2NlZDJhZjU5ZmYwNDVkM2E0ZWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE1MjE2MDRiMzVmYzQwYWYwMGNiYTRlZWEyZmQ1ZTJjM2FmMTg2M2IzOTExODVkN2JmNGJiMDllNzJkMGM4YjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_da34f2aefc32461eb9b588bada3cb832",
+      "statement": "Development funding is queued as a real faucet-signed transaction, while direct EVM and Solana setup operations update working state immediately and are recorded for the next produced block or slot.",
+      "evidence": [
+        {
+          "resource": "repo://crates/chain-simulator/src/evm.rs#L875-L952",
+          "version": "repo-lines-v1:sha256:6ee26621f371496424da0cce95d58bdd8568f63c6e2e1ad68a436f05db0930b2:eyJzZWxlY3RlZExpbmVDb3VudCI6NzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2ZjZlYTJjMDYzZTY3N2E1MWYxYTE5ZTljNGYyY2FlM2Y0YWYyOTU1MWUyYzNiNjRiNjc1N2JjMDgxYmUwMmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2NDE2OTMxNjE2NzI1OGQwYzE3OTg4ZGJkYjg1MmQ0MmIwZDkyY2NkYjdiZTliMTAwMzRkOWE2ZGFlZjcwNmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE2MmVlNTdlNDFhOGMyMGFlMDE2NGRmMjYxNDM5ZGNjNDk5ZDM1MjA4MzQxNTE1MTZkMDQ3ZThkZWFlOGE0NjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY4NzZjZTI3NjNkNTZhZGNjM2I5NjNiNGQ3OTQ1ZDBlOTBkOWFhZjBjZTM5MTcyMmFlMDRiNjljNmNjYTc5ODcifQ"
         },
         {
-          "resource": "repo://crates/chain-simulator/tests/solana.rs#L545-L566",
-          "version": "repo-lines-v1:sha256:d3c6dc9525a20b3cc40ffa17c50aaf0707c694bd88608419f5e933b3da029417:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE0MWRlODc0MWFiMzY2NTY5ZjNjZjA0YzMwOWNiYTQ2OWMzZmMxOTRhOWFlMjlhYjllNGI3YTQwZDUyM2VhMmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVlNDUwOTgwNzY1ZTkwM2ZkNDg3YzFmNWQwYWQwMTBkZjYxNmQxMjU5MWEzNDdmMzAwMzk1NjFhMDhlNGExMTYifQ"
+          "resource": "repo://crates/chain-simulator/src/solana.rs#L1118-L1188",
+          "version": "repo-lines-v1:sha256:ccf52eede8b538898cd7c56bff06050e873685dd705f31f0ca8e7dff64c1f406:eyJzZWxlY3RlZExpbmVDb3VudCI6NzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjMDVjNzJjNjVhYjkzODJkNDAzNzYyN2U2NmU3Y2FkMDcwMmU4ZGRmMWIwOGZkNTI1ZDYyNTI1YTAzNTUyMzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5OWJkZWZlZWFjYTYzNDBlMDI5MGRjODZlODg5Yzg5ZDVlMTg5YWE1YmE0NGI1ODViM2I3MDczNGY0YTYyZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUyYjMwNzU3MDAzN2Q5OGExNzYxYjgzZGU2MzMwNzBlZDRiMjA0MzQ1ZDQ5MWYzMmI0YTI0MjdjMWE4ODNlNDYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bf3145a23f1b4f21918f475eb2899ec5",
+      "statement": "The local development stack durably journals controls and signed submissions, verifies deterministic replay on reopening, and can inject a lost acknowledgement after a durable submission without changing the simulated chain result.",
+      "evidence": [
+        {
+          "resource": "repo://services/local-stack/src/chain.rs#L1-L15",
+          "version": "repo-lines-v1:sha256:159fa5af2e0c208db6dfcc451ba490dc9738fdbd143a24d8525f9a902eed9ec3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI4ZWQwNGEzYjZhMTFjNjBlY2UyZGM1NGQyNTYxNDBkMGZiMmMxNDBkNDZhZTFhNTc4YTJiMjc4MzYzZjIyZDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2M2NhYzIyNmZhN2FjOTE1MGUwMTZlODZiODM2YTViMjg5Y2MxNjU4YzNmYTA3YjI1YTdhY2Q5NDMxNTY5YTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY0ZDExNjUzNmRjMDRiOTIxMDdhNWFiNDU2NWJiZjUwNmZlNTE1YmJiNWQ4OWM0OTc2NjY4MDc3ZjdlMTBiZmUifQ"
+        },
+        {
+          "resource": "repo://services/local-stack/src/chain.rs#L176-L305",
+          "version": "repo-lines-v1:sha256:b1057accb01e4784cda318fa00487cff881dbf59f19c14d8fd4cc247817142bd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI0ZGM0YTE3NTRjMThkZDg3ZTI4NzNmY2NkZmQwYTk2MGJjYThmYWZiYzhhYzc5NDBlMDY5MTRkYmYwNDM2ZjEzIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJjZjJlNmIwZTFhNGEyNjJhNTk2ZjBlMGIyYzljODAyZWZiMDgwNDMyZTM3ODg3ZGNkMGZmODE3ODJiOTkwYmYyIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJmNmIwMTFkODJkNDRiNmM5YzIzZGMzYjY1ZjJlZWQ4ZmE3YTY3ZWFlNTZhN2I0MmUwOTNkZGI3MmQ1MGIxN2UxIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIyNjYyNTJjMGEzZDBjNzQzYzU2MTliMzEwMmU1MWZmZDk3ZjU1NzhlNDRkYmE5NDdkYzY2OTg1Mzc4OTU3MTY1In0"
+        },
+        {
+          "resource": "repo://services/local-stack/src/chain.rs#L362-L388",
+          "version": "repo-lines-v1:sha256:235f45162ccd0637fca5e07699a51ab394fd8ebbad9d86552652681227decf28:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlZjk2MzJmMTA3Y2JiMmJlYzM1Y2UyN2VmMDFmYjllYTYzMGJhZDc5NWNlZGQ1NDkyYzUzODM4ODQyYmU4MjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwYmVmZTRjYjE0NGFkOGEyZDg4YTFkZTU4N2M0YTZjMTZmYTdiNjhlNjFiMTBkMDA1OWMwZDQ0Nzc0NDhmNzEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMyZmVlYmJhZmVmYjkyYWUxMTliNjhiNmZlZjAxYjliNjliMmQ4ZWVlOGIyZWNkYzc4MGI5NjY1MzRjN2VjY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYwZDEzMTkzOTY2ODYyMmJjZDNmM2Y4NTkxYzEzM2QzZTg1YWEzZjVhOWMzOTU1MzgwNjJmZmJmZWUwNjgxMTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1548d81bac98475389d9bc616b5be0ca",
+      "statement": "Real-node integration coverage is separate and optional: the Anvil and Solana test-validator tests start their respective local binaries when available and otherwise print a skip notice and pass, while exercising JSON-RPC submission and observation paths.",
+      "evidence": [
+        {
+          "resource": "repo://services/chain-rpc/tests/evm_anvil.rs#L1-L12",
+          "version": "repo-lines-v1:sha256:80bdf8731bec484f8a7421b824aa0043ef7054b4ee02d7c5cf7a48afb25f8584:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE0Y2M3MDE3YzU0ZmVlNGZiZmU3YWViZTFlNThmMWU5N2M4MWNlMTU5NjJkMjMyMmU5N2RkOTliZmNhYWZkYjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU1NGI3MGUzZjIyMjkwYjkxMWVlOGRiZDYzMjUzODk0YjQ3ZmM3YjY3NWFlNjY5ZWI3OGJmYjk1NGJkOGJkNmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk5OTViNmQ1NjdkMGI5MzIwOTRmM2RjYmM2NzBjODA5MGViZWFhZGNhZjAwZDc5ZWQzODIwNzgyOTg4MTBkNDAifQ"
+        },
+        {
+          "resource": "repo://services/chain-rpc/tests/evm_anvil.rs#L27-L100",
+          "version": "repo-lines-v1:sha256:35a48b61c71ea80d73d74f7d610bc317fa2fb7ab2e9bbec31d2bf5d12f62df78:eyJzZWxlY3RlZExpbmVDb3VudCI6NzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiN2U2NjhlZDJmNmFjNWZhOTY4MzBiNGFmYmEwZDZiY2Y5NDQ4MmI5YWY0N2NlNGVjZGEyNTM4OGMwMWNlYzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNkMTZlMzc5NjA2OTY5OTNjMjk4ZWJmYjk3MDYyMTVkY2FmODRhZTBiOTM3MzNhNzE5Njk0ZDBjYWMyNzUzOGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI5MTdhMWJjZTNiYzgyMWU1MmUwMTc3MGY4MGRiNWJjNDcyNjA2MTZmNThlNGVjNzg0OTE1ZWYzYzYwZjdlNmMifQ"
+        },
+        {
+          "resource": "repo://services/chain-rpc/tests/solana_validator.rs#L1-L12",
+          "version": "repo-lines-v1:sha256:3ed31722a46017e691803e27b843be3fc1de650d0ea710fcd0f4e81d0d67e1e2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1MjcyNzUyNDUwNzA1ZGMwOTlmOWNhZjdiZTlmMWU3M2ZkNjMxNzU1ZDM4MjdmNmM3MDVkZmZkYTg5MDgxMzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2YWFhNmM1OGFlZDk5OGEzNTA0ZmJkODc1ODM5NzlhMDMzMGE1YjQ1ZTdkNGZmYWVhYWFiM2IwZDY4M2RlZDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNhYzY1MTcyODBhMmI3MzI3YmQ5OTAyYmU1ZDJkNDM2NjNlYzkyYzRhMGY5ODFhYjRlNjJjOWRiMjg5NTJlMTkifQ"
+        },
+        {
+          "resource": "repo://services/chain-rpc/tests/solana_validator.rs#L199-L259",
+          "version": "repo-lines-v1:sha256:69f044d5c7560b7b2ccc4e33ab8a11cc7cb280c9662d5e52f532566cdcc39276:eyJzZWxlY3RlZExpbmVDb3VudCI6NjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0ODJhOGNjY2U4ZTFjODc0MmNkODQyYzIyYTM5N2EwYTY5NTM1YTBlYTJjZWRhYmJhY2VkZDg3ZTg5ZmIwOGIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMwZGM4NWE2YTgzZTI3MmY5OTk1NWMzNzNjOWMwYTdlZTc2NjE4ZDVmOWExNDZiY2UzNmI5NGM5YTJhODlhNzAifQ"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-20T20:16:28.312Z"
+    "at": "2026-10-24T08:14:21.486Z"
   }
 }

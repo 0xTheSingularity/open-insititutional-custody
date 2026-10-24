@@ -1,11 +1,11 @@
 ---
 type: protocol-concept
 title: Security objects and canonical encoding
-description: Custody object relationships, exact and bounded approvals, envelope commitments, deterministic CBOR, hash domains, and precision-safe amounts and bytes.
+description: Security objects describe custody authorization, while a restricted deterministic CBOR profile supplies the bytes for commitments and signatures. REST JSON is a typed transport representation and is never the signed byte format.
 tags: [protocol, canonical-encoding, cbor, commitments, domain-types]
 verified:
   - by: openwiki/0.7.2
-    at: 2026-10-20T20:16:28.312Z
+    at: 2026-10-24T08:14:21.486Z
 sources:
   - id: openwiki-source-1fd8cdd3f0cea446db516a4a
     resource: repo://crates/approval-verifier/src/client.rs
@@ -23,71 +23,95 @@ sources:
     resource: repo://crates/domain-types/src/primitives.rs
   - id: openwiki-source-5ff1aed094752687edeb7935
     resource: repo://crates/policy-kernel/src/hashing.rs
-generated: { by: "codex", at: "2026-10-20T20:16:28.312Z" }
+  - id: openwiki-source-dafac7c46dcd9494f03343cb
+    resource: repo://crates/signer/src/verify.rs
+  - id: openwiki-source-82a686b7fe91792d6c563a6a
+    resource: repo://spec/protocol-v1.md
+  - id: openwiki-source-77536073843dda08e6a7ae69
+    resource: repo://tests/golden-vectors/tests/conformance.rs
+generated: { by: "openwiki/0.7.2", at: "2026-10-24T08:14:21.486Z" }
 ---
 
 # Security objects and canonical encoding
 
-`oic-domain-types` defines the objects shared across builders, approvers, authority, signers, adapters, and audit. `oic-canonical-encoding` turns those objects into deterministic bytes for internal commitments. JSON is a transport and fixture representation; its serializer output does not define the signed security format.
+`oic-domain-types` is the chain-neutral vocabulary that crosses custody trust boundaries. It deliberately owns neither cryptography nor I/O: canonical byte production belongs to `oic-canonical-encoding`, and interpretation of chain-native fields belongs to a pinned adapter. This separation matters because an object that is convenient to send as JSON must still be reconstructed as a typed value and canonically encoded before it can be committed or signed.
 
-## Object relationships
+## Two representations, one security preimage
 
-| Object | Meaning and bindings |
+REST endpoints accept and return Serde JSON representations such as `Intent`; that is a transport boundary, not an authorization format. `Amount` is a canonical decimal string in JSON (and in canonical CBOR) so a JSON client does not lose `u128` precision. In human-readable formats, `Bytes` is `0x`-prefixed hex and `Hash32` is hex; in canonical CBOR they are raw byte strings. `Hash32` decoding requires exactly 32 bytes, and typed `Bytes` deserialization has a 1 MiB limit.
+
+The signing preimage for a security object is instead:
+
+```text
+SHA256(UTF8(domain) || CanonicalEncode(typed object))
+```
+
+There is no separator, length prefix, or terminating NUL between the domain and bytes. `canonical_bytes` serializes the typed value to the restricted CBOR model; `domain_hash` then applies SHA-256. Never hash JSON serializer output, use JSON member ordering as a signature convention, or treat a JSON Schema validation as cryptographic verification. In particular, native EVM and Solana signatures use adapter-derived chain-native payloads rather than these internal SHA-256 domains.
+
+## Custody objects and bindings
+
+| Object | Security role |
 | --- | --- |
-| `Vault`, `ChainWallet`, `KeyDescriptor` | Institution/environment/policy scope, chain address and profile, signing scheme, key epoch, backend and participants |
-| `Asset` | Network plus concrete native/ERC-20-contract/SPL-mint identity, decimals and behavior profile |
-| `CounterpartyDestination` | Versioned network/address, allowed assets, activation and administrative signatures |
-| `Intent` | Immutable business request: transfer asset/amount/destination version, wallet/profile, purpose, fee cap and approval mode |
-| `Candidate` | One revision of exact native unsigned bytes and declared native signing payloads in an operation family |
-| `EvidenceBundle` | Scoped observed state, source identities, trust level, staleness and adapter-defined items |
-| `VerifiedOperation` | Adapter-rederived decoded operation, payloads, semantic hash and resource/outflow/fee claims |
-| `ApprovalGrant` | Credential-signed body binding intent, policy epoch, time and exact or bounded scope |
-| `ApprovalPackage` | Serialized object bundle independently consumed by approvers and signers |
-| `AuthorizationEnvelope` | Body commitments plus authority `Reserved` receipt; the `Release` receipt is delivered separately |
+| `Vault`, `ChainWallet`, `KeyDescriptor` | Establish the institution/environment and policy scope, native wallet address and profile, and key scheme, epoch, backend and participant threshold. A wallet is active only when its `active` flag is true. |
+| `Asset` and `CounterpartyDestination` | Identify an asset by network plus native/ERC-20/SPL identity and a versioned beneficiary address. A destination carries administrative signatures; an approval names its exact destination version. |
+| `Intent` | The immutable business request: wallet/profile, transfer asset, amount, destination/version, fee ceiling, approval mode, purpose, proposer and creation time. The implemented intent operation is `AssetTransfer`. |
+| `Candidate` and `EvidenceBundle` | Bind an intent revision to exact unsigned native bytes, declared signing payloads, adapter version/profile, and an evidence commitment. |
+| `VerifiedOperation` and `ResourceClaims` | Capture the adapter's independently derived transaction meaning, signing payloads, build identity, native resources, asset outflows, and native fees. An adapter must produce a supported decoded operation or fail rather than summarize an unknown transaction as a transfer. |
+| `ApprovalGrant` | A credential signature over `ApprovalGrantBody`, binding an intent hash, policy epoch, approver role and lifetime to either an exact candidate preview or a bounded direct-transfer template. |
+| `AuthorizationEnvelope` | Carries an authorization body and a `Reserved` authority receipt. The final `Release` receipt is separate, binds the same body hash, and gates signature-enabling output. |
 
-The only `IntentOperation` currently implemented is `AssetTransfer`. Additional `NativeResource` variants provide domain vocabulary rather than proving corresponding chain adapters exist. [Implementation boundaries](implementation-boundaries.md) distinguishes that schema surface from runtime support.
+```mermaid
+erDiagram
+    INTENT ||--o{ CANDIDATE : "has revisions"
+    CANDIDATE }o--|| EVIDENCE_BUNDLE : "commits hash"
+    CANDIDATE ||--|| VERIFIED_OPERATION : "native bytes rederived"
+    INTENT ||--o{ APPROVAL_GRANT : "grants bind intent"
+    AUTHORIZATION_ENVELOPE ||--|| ENVELOPE_BODY : "contains"
+    ENVELOPE_BODY }o--|| CANDIDATE : "commits revision"
+    ENVELOPE_BODY }o--o{ APPROVAL_GRANT : "includes"
+    AUTHORIZATION_ENVELOPE ||--|| RESERVED_RECEIPT : "contains"
+    RELEASE_RECEIPT }o--|| ENVELOPE_BODY : "binds hash"
+```
 
-## Exact and bounded approvals
+This shows the object commitments that carry a custody decision: the envelope binds a particular candidate revision and approvals, while both receipt phases bind its body hash.
 
-An exact grant names candidate id, revision, and `preview_hash`. That preview commits decoded operation and evidence hashes as well as candidate identity, so replacing the evidence or transaction meaning changes the approved preview.
+## Approval scopes
 
-A bounded direct-transfer grant names a `BoundedTransferTemplate`: wallet, network, asset, amount, destination id/version/address, maximum fee, successful-payment allowance, and permitted fillable fields. EVM permits nonce, fee fields, and gas limit; Solana permits a recent blockhash. The adapters still verify every byte and the authority still accounts for possibly live siblings. A template is not a general signing request or an automatic retry exemption.
+An `ExactCandidate` grant names the candidate ID and revision plus a preview hash. That preview commits to the candidate identity, decoded-operation hash, and evidence-bundle hash; substituting transaction meaning or evidence changes the approved preview.
 
-## Envelope and receipt commitments
+A `BoundedDirectTransfer` grant instead carries a `BoundedTransferTemplate`: wallet, network, asset, amount, destination ID/version/address, maximum native fee, maximum successful payments, and the only fields the builder may fill later. The defined fillable fields are EVM nonce, EVM fee fields, EVM gas limit, and Solana recent blockhash. This is not authority to sign arbitrary native bytes: signer verification still re-derives and checks the native operation, payloads, resource claims, destination, and declared bounds. See [independent approval](../workflows/independent-approval.md) for the approval workflow and [policy evaluation](policy-evaluation.md) for policy constraints.
 
-The envelope body commits scope, intent hash, family and candidate revision, enrolled profile hash, key/public key/epoch, adapter version/build, policy/allowlist epoch, native bytes and payloads, decoded/evidence/destination hashes, grants, reservation identity/version, resource/asset/fee maxima, issuance deadline, validity constraints, session and participants.
+## Envelope and receipt commitment
+
+`AuthorizationEnvelopeBody` commits the institutional and wallet scope; intent hash; family, candidate and revision; profile/key/public-key/adaptor/build identities; policy hash and epochs; exact native bytes and payloads; decoded-operation, evidence and destination hashes; grants; reservation and resource/fee maxima; deadlines and chain validity constraints; signing session; and participants. Its hash is:
 
 ```text
 envelope_body_hash = SHA256("OIC/AUTHORIZATION/v1" || canonical_bytes(body))
 ```
 
-Both authority receipt kinds bind that body hash, signer session, reservation, candidate, policy epoch, time window and commit sequence. Keeping the receipt outside the body avoids a circular commitment; the final release receipt is the separate authorization to expose share-producing output. See [signer boundary](../architecture/signer-boundary.md).
+The envelope includes only the `Reserved` receipt so the body does not recursively contain a receipt that signs its own commitment. Both receipt kinds contain the body hash, reservation and candidate identity, signer session, intent and resource-claims commitments, policy epoch, issuance/expiry times, and ordered authority commit sequence. Receipt verification checks the authority signature, receipt kind, every expected binding, and the half-open validity window. A signer additionally re-derives its trusted inputs: it rejects mismatched evidence, pinned adapter/build, policy/destination commitments, native bytes/payloads, decoded operation, and uncovered claims before allowing signing. See the [signer boundary](../architecture/signer-boundary.md).
 
-## Canonical profile
+## Canonical CBOR profile and failure behavior
 
-The codec accepts integers, byte strings, text, arrays, maps, booleans and null. It rejects floats, tags, indefinite lengths, undefined/unsupported simple values, non-shortest integer encodings, duplicate or unsorted map keys, invalid UTF-8, excessive nesting/items/size and trailing bytes. Map ordering follows bytewise lexicographic order of canonical key encodings. Successful byte-level decode must re-encode identically.
+The profile is a deliberately limited deterministic CBOR subset. It accepts unsigned and signed-range integers, bytes, UTF-8 text, arrays, maps, `false`, `true`, and `null`. It rejects floating point, tags, indefinite-length values, undefined and other simple values, non-shortest integer encodings, invalid UTF-8, unsorted or duplicate map keys, and trailing bytes. Map keys sort by the bytewise lexicographic order of their *complete canonical key encodings*, not JSON key order. Structs encode as maps keyed by their serialized field names; unit enums are text and payload enums are one-entry maps.
 
-The decoder bounds are `MAX_DEPTH = 64`, `MAX_ITEMS = 65_536`, and `MAX_TOTAL_LEN = 4 MiB`. Typed deserialization rejects unknown struct fields. Enums use Serde's externally tagged representation: unit variants as text and payload variants as a one-entry map, respecting declared Serde names.
+The decoder imposes a maximum depth of 64, at most 65,536 array items/map pairs across the input, and a 4 MiB total input limit. `from_canonical_bytes` first enforces those byte-level rules and then performs typed deserialization; it rejects unknown struct fields. `is_canonical` only establishes that bytes are one canonical value—it does not establish that the value is an authorized object for a particular schema or policy. Canonical encoding also rejects direct `u128`, `i128`, and float serialization; `Amount` is the domain type that supplies the safe decimal-text representation.
 
-`canonical_bytes` serializes through the restricted value model; `from_canonical_bytes` applies byte-level and typed checks. `is_canonical` validates the byte-level value, not whether it is a particular authorized domain object. Hashing a value does not replace semantic validation or schema-version checks at an entrypoint.
+## Domains and signed views
 
-## Primitive representations
+The `domains` module names internal commitment domains including authorization, intent, candidate, decoded operation, evidence, policy, approval, preview, authority receipt, resource claims, chain profile, audit, key/public key, configuration, destination, journal, reconciliation, workflow trigger, webhook, signer fence, network roster, verification attestation, peer message, authority block, and P2P. Domain separation is meaningful only if producers use the correct object view.
 
-`Amount(u128)` serializes as a decimal string to preserve exact precision, including in canonical encoding. Calculations expose checked arithmetic; callers must handle overflow or underflow. Display decimals come from registry metadata rather than floating-point calculations.
+For example, `policy_hash` and `destination_hash` deliberately encode unsigned views that omit their own `administrative_signatures`; those signatures cover the resulting hash. Approval signatures cover `ApprovalGrantBody`, and authority signatures cover `AuthorityReceiptBody`, rather than the wrapper that contains each signature. By contrast, raw native bytes and public-key material can use plain `sha256` where their producer specifies a raw-byte commitment. Changing a serialized field name, enum spelling, field presence, ordering of an array, unsigned view, or domain tag changes the commitment and is a protocol compatibility change.
 
-`Bytes` and `Hash32` are hex strings in human-readable formats and raw byte strings in canonical CBOR. `Hash32` requires exactly 32 bytes. `Bytes::new` and deserialization enforce the 1 MiB bound, but public tuple construction and infallible conversions can bypass that constructor, so external-facing paths still need their own validation and parser bounds.
+## Verification and change discipline
 
-Opaque identifiers distinguish object categories at the type level. Constructors and deserialization enforce identifier constraints; `unchecked` exists for already validated/internal construction. A typed value is not proof that every cross-reference or cryptographic binding has been verified.
+Golden-vector conformance re-encodes every domain input through the real producer, compares recorded canonical CBOR and `SHA256(domain || canonical)` outputs, strictly decodes vectors, verifies included Ed25519 signatures over the 32-byte hash, and checks native EVM/Solana payload derivation against adapters and independent libraries. It also demonstrates that the reserved and release receipts in an end-to-end flow bind the exact envelope-body vector.
 
-## Hash domains and conformance
-
-`domain_hash(domain, value)` computes SHA-256 over the domain string followed by canonical bytes. Tags in `domains` separate authorization, intent, candidate, evidence, policy, approval, preview, receipt, profile, audit, destination and operational commitments. They are **internal** domains, never replacements for EVM's native Keccak signing digest or Solana's exact message signing.
-
-Policy and destination hashes use explicit unsigned views excluding their signature arrays. Dedicated authority, audit and ledger formats add their own domain/format boundaries. Golden vectors cover these commitments and native payloads; use the [verification guide](../testing/verification-guide.md) before changing a serialized field, enum name, ordering rule or domain tag.
+Run focused checks before changing a domain type or codec rule:
 
 ```sh
 cargo test -p oic-canonical-encoding --locked
 cargo test -p oic-golden-vectors --locked --test conformance
 ```
 
-Codec tests include a layout vector, strict unknown-field and noncanonical rejection, domain separation, arbitrary-input no-panic behavior and decode/re-encode identity. Continue with [policy evaluation](policy-evaluation.md) and [independent approval](../workflows/independent-approval.md).
+A safe compatibility review follows the commitment from typed input through its signed view and canonical bytes to every verifier—not merely the REST handler. Continue with the [verification guide](../testing/verification-guide.md).

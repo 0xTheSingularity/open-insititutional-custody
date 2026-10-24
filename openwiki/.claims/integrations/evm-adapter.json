@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:58691722e4ac73f9548615589a35dbaad65abfff84fbd3d09401b68f74b96581",
+  "pageVersion": "sha256:f1fb0264d338af2170711211d19d5472e4ae72923144110a9702a70768b0f6c2",
   "claims": [
     {
       "id": "claim_3c75fcbdd91d4690a83442cacd64c8a2",
@@ -71,10 +71,96 @@
           "version": "repo-file-v1:sha256:03fc5788ea7ffddbc7d0f09fed8f1321dfe90ddc4ac0d580a32491c444701e7c"
         }
       ]
+    },
+    {
+      "id": "claim_6632fd53a5194675a76805683356af39",
+      "statement": "The EVM adapter is deterministic and performs no I/O or clock access; signer-local decode, candidate verification, signing-payload derivation, and signed-transaction verification are pure over their supplied inputs and chain facts arrive in an EvidenceBundle.",
+      "evidence": [
+        {
+          "resource": "repo://crates/adapter-api/src/lib.rs#L136-L138",
+          "version": "repo-lines-v1:sha256:5e886764b77d3756fea03d6f618e589f26276da5213af122458a7e5f5c3a2cff:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzkxMTAzMjY5ZDlmMTgwODg5ZTBhOGQ3MWQxMmE0MzRkN2JhODhiZDdkZGZmYmZhYTBiNGY4NDVhMTJlODg1MyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTc5ZjcyOWUzYWM1OWFjMmRkODA3ZmVkOTRiZWI1OTNmNWNjYTdiZDA3MDQwZjA4YzcyZDFhZDI3ZGI2MDhkZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODRkODFiNjA3NDU2MWUxMjZjMmExNTRiOGU5YjBlYzAxNTcyYTBiOTU2YWNkNGEyNjFmNWE4YmZhMGYyYWNkMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWUwMWI5NDVjYTljZTEwNjgxYTAzOGVjYzM2MDg1YjliMDBkMTdhZDdlZGJiZDkzYmRmMTg0MWM0NGZmMzI2OSJ9"
+        },
+        {
+          "resource": "repo://crates/adapter-api/src/lib.rs#L20-L22",
+          "version": "repo-lines-v1:sha256:5d90b39d19a503a0f71ca7230647321e931f6894a7cfb4ac0bbd4551db4053ed:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzE1ODVhMzEyNWQ0M2ZmNGVjY2Q0ODNkNGVjZGFkZDEyYzdmOTMyNWE5ZjA1NTEwN2UxYjcyMGZkNjQ0NDQ0MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDRjNmFiMGRmM2I3MjdjYjhiZWJkMWNkYTk1YTQ0YjE4YzJjOTE4ZTA5OTFkOTc2MTkwZTQ4NjUxYzE0NGFkMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmE0NTgxY2I5MmQwYTcwYWMwNzk4Zjc3M2EyMmU5NGU5MzY0MWFjNjdkMDhkYTQ5ZjY3ZGIxYmE4YzY1YTNjMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjE0NDIxMTQ0ODc2YjIyMzkyZDBlNTk5NzM1MGM5OGQ4NGNjYmZiZjBmNzAwMmI0NjgxMjYwZmJhODVhNGRlMSJ9"
+        },
+        {
+          "resource": "repo://crates/adapter-evm/src/lib.rs#L5-L12",
+          "version": "repo-lines-v1:sha256:7ff15c52bf76d7d9875acd37fa0a1c86966a088508993844840da9f06e00e65a:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTc1MjhlNjlkYjM4NjhmNTRlZDY0YmQ1YWEyOTNlMzU2YmVlOTRkMGQyYjAyMTQ1OWNjZDUyZjM2NjA5ZDZlZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiY2NlYTgxYjVkMTc1ZTY4MjE3ZjVhMzRhNmIxZWQyMzY0MDlmMzhmMGQyYjIxMDM3YTA4NTM1NWQ0NzI2YmY5ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzA3MTE5YTg0ZGEyYWI4ZGZhYzZiYzZkNGI0YjI4MGZjZGQ5OGM1ZmQyYjRhZGY4NWQyZGE2MmY2N2MyYjgzMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2NhZTljNDU0NWNiM2Y5YWQ3ZGE5NjAzZThjMjhlZDIzNGM5Y2QwOGRkZWFkZDVmZGEzNGJlMTZiOTg2YmUwYiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_15b9a5ea7de548ccbc4f3cb8b6547254",
+      "statement": "The live EvmRpcClient is a separate JSON-RPC transport/evidence boundary: it creates a type-2 profile, builds adapter-shaped evidence from pinned chain reads, broadcasts raw bytes only when the node returns the locally computed transaction hash, and provides transaction/candidate evidence to the broadcaster.",
+      "evidence": [
+        {
+          "resource": "repo://services/chain-rpc/src/evm.rs#L254-L298",
+          "version": "repo-lines-v1:sha256:a69b8c5542c50e65fa255857de3eba91f41da99b92b3d5f2df855daf1a84430f:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlZjk2MzJmMTA3Y2JiMmJlYzM1Y2UyN2VmMDFmYjllYTYzMGJhZDc5NWNlZGQ1NDkyYzUzODM4ODQyYmU4MjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiM2I3N2ZmZDRjNzlkMzA2ZDk3ZGU0ODIyYmJkNDgyZjI3Zjc2ZjZlNTEzNTU0NWU0ZDJmZTNiYzdkODFjOGYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI5YWQ5NGRiNDhjMzYwZGZjNTdlYzIyZjcxZjlmYTU5ZTkxYjQ2YWFlZmFkOWM4NmYwNjEyZWVmNjNiYjYyNzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBhYmQ4ODc2MTA1MzExYjQyNmIzMjg1ZTFhY2M2OTZlMGE3ZDlkN2NkMDQ4ZTc0YTIyNzU1MWJlNDIxMzYzNjkifQ"
+        },
+        {
+          "resource": "repo://services/chain-rpc/src/evm.rs#L570-L573",
+          "version": "repo-lines-v1:sha256:48344553bf32d42a11a64b5e12adb3c17b4f0f144bb421f60d7740a1c5b02f09:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjFhN2QxZWE1NWQ2ZjY0ZmI0YTA1ZGU1ZGExMWI0NmVhM2FlMDBjZGY4Njg4ODU0MTdkOTM0ZjY4NzIyZWM4YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjFlMTY4ZTA0MzcxZjFmNWYyZDczNDNiYWYyYTkwZWY3NTI3MmFiNTg5YTk4YTFmNGNlMmM0NjMxMmM0NmFmOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWE5ZGY2MGFiNmM1Yzk4YTdjNGUwOTYzNTNlZDQ3YmY0YzI3Y2ZhZmUwODg1NGJlZjUyN2MwOTUyMTBlYzA0NyJ9"
+        },
+        {
+          "resource": "repo://services/chain-rpc/src/evm.rs#L76-L126",
+          "version": "repo-lines-v1:sha256:557974f8c50ae19cb16af22f88c48167dfdbbd2ec3cafc683804529894381441:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI5OWVhMzg3NjYwNTNlMWY3YzY4ZTQwNTE2YzgxYTczN2RjMzM5MDMxYTJlNDAwMjQ3MTQwODdkMTEzZjZkNDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiM2I3N2ZmZDRjNzlkMzA2ZDk3ZGU0ODIyYmJkNDgyZjI3Zjc2ZjZlNTEzNTU0NWU0ZDJmZTNiYzdkODFjOGYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRjOTgzODY0YWU4ZTA4M2Y3NjZlNTI1M2M5NjE2YTg1OTlmMjFkOGRhODQ1NWI1ZmQ5ZTk1NDM0NTMzZmIxZGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c8789d810de34d4cb919d6a42925cff1",
+      "statement": "For candidate-family evidence, the RPC client includes signed bytes and sender nonce data, treats a receipt as included only if its block is canonical at the requested view, and searches a bounded 64-block canonical window for another transaction consuming a candidate nonce; lack of a located consumer leaves the adapter without definitive invalidation proof.",
+      "evidence": [
+        {
+          "resource": "repo://crates/adapter-evm/src/lib.rs#L727-L756",
+          "version": "repo-lines-v1:sha256:6dc5ab90343e8815b541f0c4b944b2d60f48e1dd775daffa4d14e0c71da2ab68:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZiNjUwZmMwY2IzNDdmYzIyYjJiYWQxOGMwYzcxZDczZmExZTcwNjliNzNmMjM0N2RkYWE0YWU2ZGNiYjM1OGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcwZTM3ZjdhNjUyY2RhYTg2MDBhMzNjZjhjNzQ1ZWFkNzNkMGVjY2U1YjZiM2Y2YzEzODQ0YzM2MDIzMjVjODciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNlNGM1MjE0YTI1MjQwYWNiZjFlOWQ2NGQzOGE5MjZmYWM3YzM3ZDFmZDRhZmIwMjJkOTZjMzJhZWM0MTc3Y2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYzNTgzNTdhODg4YzU4OGUyMmQ0NTUwYjM3OTcwZjY1Y2Q5YjZhNzVmODA4MmU3NTJlZTg2YmI3MWMwNjc4MTAifQ"
+        },
+        {
+          "resource": "repo://services/chain-rpc/src/evm.rs#L179-L241",
+          "version": "repo-lines-v1:sha256:ae7ec2b36074fe0b0eabaabf3de392724add3ffebc5f8837d3cfff8b5761911c:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxMTE4MGEyNTRjNDM2YTNmZThmZThlMTU1N2IwYzhiYjFhMmU3YTkzZGE0NDA4MjEwMGNmM2VjMGRmZGM5YjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzM2M3NDcyZDc3NTAwMGE4MTU3MTc1YTllNDc2ODJjYTNlNmQyODQwMDI5MzdkODFhOTJlODc0OTFhYjkwNDAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYyZDJmNTNmOTZhMzEyOGNkMDU2NzBjMWZmOWRmMWY5YTk5ZDFhYTNkYjljMGU5YmY0YzhhMTNiMTRlOTY4OGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUifQ"
+        },
+        {
+          "resource": "repo://services/chain-rpc/src/evm.rs#L280-L298",
+          "version": "repo-lines-v1:sha256:7fb8a0dfb92af476a4f6cd599d40dac346223a2ed46161d67100ba76b6ed970b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1NzBiMTdiYTBhMGFkN2Q0MmQyZTU3ODE1MGNhMmY0M2Y5NGNmMTg4ZTkzZWM1NGVjOGU4ODc2ZWE4NDE5MWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiM2I3N2ZmZDRjNzlkMzA2ZDk3ZGU0ODIyYmJkNDgyZjI3Zjc2ZjZlNTEzNTU0NWU0ZDJmZTNiYzdkODFjOGYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk4NmU5MDczY2EwMWQ0ZmY5OWMwMzc2MTUzMDU2ZTNmMDZmYzdiZTExZmI0MDA0ZGFiYjE3Njc3NzJhMjc1ZjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBhYmQ4ODc2MTA1MzExYjQyNmIzMjg1ZTFhY2M2OTZlMGE3ZDlkN2NkMDQ4ZTc0YTIyNzU1MWJlNDIxMzYzNjkifQ"
+        },
+        {
+          "resource": "repo://services/chain-rpc/src/evm.rs#L35-L36",
+          "version": "repo-lines-v1:sha256:79030dec332ac9149805164a0583c4591893a4c8fa27db40c2d8c3698ae9c8d1:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDUyZmExMTg3ZGM2M2MyNjlhMWNmMmIyZGMyZDZjMzJlOGQ1ZTk3YmY1Y2FjMTdiNWJjMTQ3NTM5ZDA0NThkNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMGUxMTQ5Y2NmMTQwY2Q2NTYyYjBlODA0OTc3NTY2NGEyOTJmZTYyZjk4ZjIyMTY3ZWY5ZTJmNjBjOTdjYjgwYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDlkZjQwZjdlNTQzZTFiM2RiYmYyYWNjNjlkZGE4NmFlMzJlN2NmYWM4YzIxNjgyNmFhOWFkMjA4OGEyODEzMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDM3MTZhNjJmY2IwNTQyYjc5ZGY5ZjYxZjEyMjhjMTk1OTk1NGFjYjk2Mzc5OGJiODUxZDAyMGIzMDY0ZDc3NyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_8918ddbd0a6d4ccf98288e5104aef809",
+      "statement": "As a reconciler BlockSource, the RPC client indexes fees, successful top-level native transfers, and well-formed ERC-20 Transfer logs; optional internal-transfer discovery requires callTracer traces and fails the block read rather than returning partial effects if tracing is unavailable or malformed.",
+      "evidence": [
+        {
+          "resource": "repo://services/chain-rpc/src/evm.rs#L350-L450",
+          "version": "repo-lines-v1:sha256:9dc02c87404e89a3fadf321045386971b724e1b847f35553a64f5f83615212e0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI2ZGFmMzkxMDgwZjNmMjQ1NDYyM2NhY2YyZTNiZDkyMzBjYWNjNzRmNzQwYzU2MWIzYjU0MzU5M2VmZWM4YTVjIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIzMjE5MWRmMWM4NzBlNGUzZGM0NDQzZDE3OGRmMGNkZWRiOGY2MTkzNDMwNDkxNmJjNzY2OWU4OWE1OGJhYzExIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJhMzRhMWQyZjMzYjM0MzI5NzU4MWYyZmExMWQ3N2FmZTdjZjhiZGJhNTE0NGQ1NmE4OWQ3MDUwMjdmMDI4MjVjIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI3MmU2YzIzMDk3ZjVmYzBhM2ViMWU5YmQ3NWZiNzVlNDA0MzcyODEzY2NhZWU4MDBlNGY0YzhjMGY4MDEyM2ZjIn0"
+        },
+        {
+          "resource": "repo://services/chain-rpc/src/evm.rs#L485-L551",
+          "version": "repo-lines-v1:sha256:a987819e577691e3e9dde0b0f2cd08d16dc22de46866c8544903baaae7f7624b:eyJzZWxlY3RlZExpbmVDb3VudCI6NjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlmOTNlMTBiNjk0ZDI2N2E0M2UyNjk2N2M0YmIwYzQ1YzhjMmU2YjQxYzBjN2YxYjlhYjIxODAzYzYwMzRlYjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwNzFjNmU5MjJkNjRlM2MyZDEyZDFiNDAwODRjMzFjYzRlNzgwN2ZiNDJlN2Y3MjI5Y2M4ODYwNWU3ZmM4YjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_83181401e70d40039327d5e1d29b8e82",
+      "statement": "The real-node Anvil integration test is separate from adapter unit and differential tests: when Anvil is available it builds evidence, submits and observes a native transfer, obtains candidate evidence, indexes effects, and checks the recipient balance; it skips successfully when the binary is absent.",
+      "evidence": [
+        {
+          "resource": "repo://services/chain-rpc/tests/evm_anvil.rs#L1-L12",
+          "version": "repo-lines-v1:sha256:80bdf8731bec484f8a7421b824aa0043ef7054b4ee02d7c5cf7a48afb25f8584:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE0Y2M3MDE3YzU0ZmVlNGZiZmU3YWViZTFlNThmMWU5N2M4MWNlMTU5NjJkMjMyMmU5N2RkOTliZmNhYWZkYjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU1NGI3MGUzZjIyMjkwYjkxMWVlOGRiZDYzMjUzODk0YjQ3ZmM3YjY3NWFlNjY5ZWI3OGJmYjk1NGJkOGJkNmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk5OTViNmQ1NjdkMGI5MzIwOTRmM2RjYmM2NzBjODA5MGViZWFhZGNhZjAwZDc5ZWQzODIwNzgyOTg4MTBkNDAifQ"
+        },
+        {
+          "resource": "repo://services/chain-rpc/tests/evm_anvil.rs#L27-L123",
+          "version": "repo-lines-v1:sha256:7447c30ff659a0ccf0ed6c661b2c06b7951cf57a87b8d1ecc0a39d893cf46ad1:eyJzZWxlY3RlZExpbmVDb3VudCI6OTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcwNjA1MGEwOWIxZmI5ZDc1OWZkZmIyNjQxZjJmMjJiZGExZmRhMTA3MTA5YTE2N2Q5YTk0Mjc2MDI4OWMzYmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNkMTZlMzc5NjA2OTY5OTNjMjk4ZWJmYjk3MDYyMTVkY2FmODRhZTBiOTM3MzNhNzE5Njk0ZDBjYWMyNzUzOGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI0NDg4MTA2ZjU4MjY5YjhiYzUxZDFlZTYxNTI0NmZkOTRmZTAxZDE3ZGQ1YTAxNDc4OTQxNzkxNjFlYWM2NTQifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-20T20:16:28.312Z"
+    "at": "2026-10-24T08:14:21.486Z"
   }
 }

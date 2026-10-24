@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:d24d1e377b440c49e112830a42c1e813b545cb8947d4f99fff69157736f3b188",
+  "pageVersion": "sha256:6f9fdff677ed5c41ea47f8d4cc3c055be4d651318b77f8a451e6e86714f1fa05",
   "claims": [
     {
       "id": "claim_e3ba5edd02f64147bf68bf91d8f9eb4c",
       "statement": "FileAuthorityStore persists bounded canonical snapshots and a high-water mark and refuses sequence rollback; open_with_witness validates a signed sequence floor and same-sequence state hash.",
       "evidence": [
         {
-          "resource": "repo://crates/authorization-state/src/store.rs#L108-L175",
+          "resource": "repo://crates/authorization-state/src/store.rs#L111-L178",
           "version": "repo-lines-v1:sha256:cbcda47887427c3365fb822731fdfbff4261d57062e0ff0c8f1e4d5fa2890f07:eyJzZWxlY3RlZExpbmVDb3VudCI6NjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiYjVmZGU4ZWM3YTQ2MGE3NzA2N2JjNjM1ZDk3NGRlNjk4YWM4MWE4NzQ2MzUwNWI1NWYzYjM3ZDA1OTQ4OWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQwYmMxM2JiYTM1Njk4ODkwMDkxNWRhMTQ0MGY1Y2NkY2NlNGIyNzQzMzc3ZjM0NWQ5YmQ1YzBkZWUzYTk3MGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjViMjNjYzE4NzZkNjViY2U3MDdiYmM4OTI4YmQyYmY2OWI1NTUyOTI5MGRiNDFiMzA4YzM3MDVkZTUwZTcxMDkifQ"
         }
       ]
@@ -35,8 +35,8 @@
           "version": "repo-lines-v1:sha256:d027a0a22b5fab1ecda50a4879502a9699344b523c472081ab210eb276aa911c:eyJzZWxlY3RlZExpbmVDb3VudCI6NTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJjY2I3OTE5NDhmZjA5NmM0YmU0ODJkNGI2MmQzYjM4OWNkNTUyNTM5NjQ4MzdjMjRkOTc2NjExZTgwMTQwNDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIwNWQ5MmY0YTU1MmZiNTczNjdhZjc4NzExNjYzMDY4OTc5YWViYTgwYTA4MzQ4N2U0NmZkNDU2M2QxYWZkNTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE1MjE2MDRiMzVmYzQwYWYwMGNiYTRlZWEyZmQ1ZTJjM2FmMTg2M2IzOTExODVkN2JmNGJiMDllNzJkMGM4YjMifQ"
         },
         {
-          "resource": "repo://crates/signer/src/lib.rs#L276-L327",
-          "version": "repo-lines-v1:sha256:b2825ec925f9ba05867e86ca276026b8434116d5208575420ab5d7094a88b38c:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3OWNlZGUyZGQ5NTBiYWJmYWE5MGM0MTdiZTFiYzI3MmM0YzNmOTFhZDU1YjgzNThhYjVmNmE4MGU4YzJlY2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5YjE5ODJlOGRkNzQ4MTE4MTQ2YjM5YTJkMDA2MmY0MDgxZTM0Nzc5Yjg2NzVjMjM0YzRmYjEyNGRjMzkzOTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRlODBhNTNkZDc3ZDI4YWRhYzVkYmRiMGI2YmVlNjQzODk0NTdkMzAxY2I4NDYxYTM3ZDRiMmQxOWNhYjg3YWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFiNDdiZDIwNjg1MGQ4ZWI0Y2JkMzllODhiZDU5YTc5NzYxYTU4ZTYyOTRkMGZlZjU0YzBmZWZiOGNkMzQyYjAifQ"
+          "resource": "repo://crates/signer/src/lib.rs#L284-L336",
+          "version": "repo-lines-v1:sha256:be04c04705b774fc7c5aa2b8310bed3e3b3d17552bca2c9bbf057ba6e18fd1f3:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3OWNlZGUyZGQ5NTBiYWJmYWE5MGM0MTdiZTFiYzI3MmM0YzNmOTFhZDU1YjgzNThhYjVmNmE4MGU4YzJlY2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5YjE5ODJlOGRkNzQ4MTE4MTQ2YjM5YTJkMDA2MmY0MDgxZTM0Nzc5Yjg2NzVjMjM0YzRmYjEyNGRjMzkzOTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRlODBhNTNkZDc3ZDI4YWRhYzVkYmRiMGI2YmVlNjQzODk0NTdkMzAxY2I4NDYxYTM3ZDRiMmQxOWNhYjg3YWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFiNDdiZDIwNjg1MGQ4ZWI0Y2JkMzllODhiZDU5YTc5NzYxYTU4ZTYyOTRkMGZlZjU0YzBmZWZiOGNkMzQyYjAifQ"
         }
       ]
     },
@@ -45,16 +45,20 @@
       "statement": "Coordinator file logs replay synced JSON transitions and prevent possibly issued candidates returning to pre-issuance states; broadcaster records pending attempts before chain calls and recovers them as uncertainty.",
       "evidence": [
         {
-          "resource": "repo://services/broadcaster/src/broadcaster.rs#L186-L238",
-          "version": "repo-lines-v1:sha256:ed2c2e1d5e442b7b65bb605fbbe803c42cada00839f75ff6ace40a7343b0ad89:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViYjc0ZWQ5YTM5NWUxNjZhZjcyODU0ZmRkZDFlOTM5OTk3ZDA5YzliNGQ2ZDA3ZWQ4NzZkYTk3ZmJkODMzN2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU3MzNhMDAxZWI3MjlkY2RjOWFkMWYwZDA1MzE5NGY1NmM4Yjk1Y2UzN2FkNDkwMTFmNmZjODg1YTM4ZjY2YjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJkYjdlYmZiZTYxYzUzZGI4OTQ0ODZmYzUwYmM3ZDgwMDIwZWEwOGVjYjcxNGE0YTJmYmE2ZTlmNzRhYzhkYTQifQ"
+          "resource": "repo://services/broadcaster/src/broadcaster.rs#L219-L279",
+          "version": "repo-lines-v1:sha256:9acd73afa53d6dc418d9cefa97d8c04ffbc7f53fbb344bbde7146acb38735a40:eyJzZWxlY3RlZExpbmVDb3VudCI6NjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViYjc0ZWQ5YTM5NWUxNjZhZjcyODU0ZmRkZDFlOTM5OTk3ZDA5YzliNGQ2ZDA3ZWQ4NzZkYTk3ZmJkODMzN2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU3MzNhMDAxZWI3MjlkY2RjOWFkMWYwZDA1MzE5NGY1NmM4Yjk1Y2UzN2FkNDkwMTFmNmZjODg1YTM4ZjY2YjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlkODNjNzdlMTkwZWQxNjJkNzE1MGVjMTE3MDViMGFlMzg2ZWM4N2E1ZTA4MzI1M2Q4YjI0YTNhNDA1NzBlOTEifQ"
         },
         {
-          "resource": "repo://services/broadcaster/src/store.rs#L1-L30",
-          "version": "repo-lines-v1:sha256:6d095e0fb35b7697219361bdf32d9ebd5a43c80fe40c6160ae62773da3a0f53c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE2NjhkYTQ2MTZkMDliNTY2NGU3YzE2YTNjOWEwZDU5ZGM0YThjYzg0NTk2YTQ4MDE2NjkxNDkwOTc3MGQ3YTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxNGFhYzc1YzQxNzMxODBkNTg4MmZiMTU5OWIzMDJiNDM5NzBiYmRkMGUxYzRiOWE4MzVmNmMxYTRkZGIyZmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVkMWM2NWMwZDY3ZmZlNmFlMjliN2EyOWY2YTRhMGM2NWVjN2RiODFiNmM1ZDZmYWZhYmRhODZmNTBmZDAyYmEifQ"
+          "resource": "repo://services/broadcaster/src/store.rs#L1-L8",
+          "version": "repo-lines-v1:sha256:9215d9f98819efefae46728c11f83318d70be305f5665a3663a2048eb87b24ca:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTY2OGRhNDYxNmQwOWI1NjY0ZTdjMTZhM2M5YTBkNTlkYzRhOGNjODQ1OTZhNDgwMTY2OTE0OTA5NzcwZDdhMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjg5MGY2YWY4ZDE0YTc2MzJjOGU0YTQzZjI4MGVmOTdhMTUzOWIyNGM4ODRmNTFmMGYwZDAzZjQxNDVlZDQ3MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzBmZjk2YTI2OWYzMzJkOGU2MmY3ZDlkMzA3YjQ5OGNmNmU1MjgwYmM4MDBkNTQzMDA3NDRmMzkzM2MwMGE3NiJ9"
         },
         {
           "resource": "repo://services/coordinator/src/store.rs#L1-L18",
           "version": "repo-lines-v1:sha256:60bd7b9240a12f4561f3da6e9a48ce8e4b77cae1b1a2ceca293d63cf70f15664:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1OWQ3MmFhOWU4NTFkNjczZWE0MmJjNWE2YTIzZTM4MzY4MjdkNGQ3OTIxMWY2ZjE2OTI0NTRlZGMxZGU0ODUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdjNGE3NGYwMWYxNmJmZDc3YTFhZTM3Njc1NDQ0Y2RlOGE2NWE0NjNmYWE2MDlkZTkyNGViYzE1N2ZlZWY4NTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRhOTE3OTljZWJiMWRlMDhlYjlkY2I1ZTQ3ZWNjMDYxNTExYzc3ZmY0YTk1NmZhOTcxMzM3MzJkMDFlMGU0NWMifQ"
+        },
+        {
+          "resource": "repo://services/coordinator/src/store.rs#L197-L255",
+          "version": "repo-lines-v1:sha256:3edbf451aecc96265d1f52b6a0a629b288722905b83411dae409f9612c1a4a7f:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ1ZTliYzk2OWNlNmZhNjkzNTY2N2I3Y2Y5MDY2NmZkZjhkY2VhNzY3YTZjMmFlMjFlYmJkNGRlYjY0MjM4N2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlkYzExOGEyN2Q1N2NkZTk5ZDA4ZDRlNWE2ODk4ODQ4YTdjNDBkMjgwNzBlYzJkMTAwZTZhMGNhMjlmZWFmNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhlMjI5M2E5YjU5MDYwOTRjNmM0Nzk3ODRhMmJiZjY0YTQ0Y2Q1MGJhMjY2ZWU0OTZlYjAyMzBmZWRjOTJjY2EifQ"
         }
       ]
     },
@@ -63,7 +67,7 @@
       "statement": "A local log and its sidecar rolled back together cannot independently prove freshness, so external sequence/checkpoint witnesses are required for that rollback boundary.",
       "evidence": [
         {
-          "resource": "repo://crates/authorization-state/src/store.rs#L126-L138",
+          "resource": "repo://crates/authorization-state/src/store.rs#L129-L141",
           "version": "repo-lines-v1:sha256:44512752659705a6146e580f9c9cc256a2c2d863f243a1684bea411d3359fb73:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0NDQ1MjViZjg3MzllZjg4N2YyNWEyNDBhNGQ1MjVjYWFiMjRkMDAwZGUxMTI1NmJmZmY0YTRkOWQyYjgxZjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkZjRmZGZmMjk1ZjE2ZTU4Nzg0OGQwMDcxN2M3MDIyMjJkZDM0ODhjMDU1MDg0YzMwMzA4YzhhZmVmOTlmYjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZkY2IyYjRkMmQwZDc3NDk0OWM4M2I2ODkwNjU1OWVmOTE4MjY0NjcwZTE1MjdkYTQ1ZTM4NjcwNGQzM2Q2MTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIyYTUwYWFlNGFmZjY5ZDNjOWU2NjE5MGQ2YzBlNTIyY2RlZDY0MWI2NDg0NTE2NWJjNmY4Zjc0N2UwOTk1N2UifQ"
         },
         {
@@ -71,10 +75,96 @@
           "version": "repo-lines-v1:sha256:d23a0b421c48f0ce1940a195cd84ebf58503450b92d9aba57f20a055e7a19e16:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc1OGVhOWIyNzliOTUzZTQwMThlOGI0ZDQ5OWY5NmIyNjdlYjI0NGM1MmEwNjUyZjYwM2FhNzYzMjUyNjkxZmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ1OGNlY2Q4MjU0NzgwNGMxMWJhM2FkNDhiMmJiMjM4NjAzMTQ4MjFmY2E3NzhhNWMxNTVmYjRmNTczNDZkNjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyNjM5MTRmZjZiMWZjM2RhZTJlOTQ2ZmVlN2ZhNDAzYTk0ZGYzYjcxNTk2MDM4MmU4NGM2NzgxNmFiZGIyMGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYyMDM5Zjg2YTg3ZmVjZjA0ZDdmY2FmNzQ0OTdiMmJlMDg5ZWM1NDMzODczY2IwYmUzNjRjMGIzMmU2NDdhMzYifQ"
         }
       ]
+    },
+    {
+      "id": "claim_4eb34b91d455476185e6690136ae56a9",
+      "statement": "ApiStore is a SQLite WAL intake store bound to one institution/environment; its compare-and-swap replacement protects intent dispatch state, while authority and signer state remain separate durability domains.",
+      "evidence": [
+        {
+          "resource": "repo://services/api/src/store.rs#L23-L63",
+          "version": "repo-lines-v1:sha256:d49b39146f463fdc8dd0c70249dbdef9c0130cbed39ade6b4f65cf846d83d2d8:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYwMzY2MmY3MWMwMjFiYTgyZDQ0MWM0ZTk2NDg4MmQxYTllMmFjMTZhZGQ1MjNmYTJlZGYzNjk3YTBhMDYzYTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5NmY4Y2IwODNmYTgwMGE0ZGNkMjk2OTcyMmQ3YjkyNjg2YWRkOWViZTM2NTU0OTJmYTY3MmIxYTdjZWQyNDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdiOTgzMzBjZGM4ZmIyNmQxZmMwZDYyNGZkNWY2NmY5NWZjOGU3NzQyMDgyMjczN2E0ZjA1YmU5NzkwNTIwMWIifQ"
+        },
+        {
+          "resource": "repo://services/api/src/store.rs#L7-L13",
+          "version": "repo-lines-v1:sha256:5707d511e14eba1bf91ca15aed84f048a0c9b6811eb8eebb14d019098e9368cb:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTE1ODY2NDYzOWZjNmFlNDBmZjEyMTZmN2IzNjBiOGQ5OTNlMzg4ZDQxZWQzZjU5MDU0NWM5OWU0MDc5YmNiMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmJiYjI2YTI2OGVhYzUwYzVhMGY2Nzc4YWNmODY0MTVmNjA3Y2U3ZDhlYmM4M2RlNzA0MTI5YmMyNWYwNDVmYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWEzZTg0YWJkNDhhMWExNWNiMDJjYjNiOWE0YzVlZThiZTkyMDQ4NTBmZWZkZTUyOGJjNzA0YjU3MmZlM2IwNSJ9"
+        },
+        {
+          "resource": "repo://services/api/src/store.rs#L95-L140",
+          "version": "repo-lines-v1:sha256:07ce372ed94cf3116c4d2322f5b822aa607470128ff5e585bf76c4668f8ad703:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjY2FmYzU5ZTE1YjY4NDllNTJmOTVjZWFiNDY0ODc0YjVlYTJkOTI2NWE5MGM3YjNlN2I3NDA2YmQ5ZjdkNDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI5NGRlMTZhZTkyODg2NThhMTE1YWFjOWMwNDZhMDVjZWFhMjY5YWZlOTQ5N2QzOGNkYThmOGRjMTliNmRlNzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2183a388f40244c3b4f8fb0f8aadc108",
+      "statement": "Local-stack startup separately opens authority, per-signer ledger and generation files, coordinator and broadcaster logs, simulator journal, reconciler store, and API SQLite under an exclusive process lock, then invokes broadcaster recovery.",
+      "evidence": [
+        {
+          "resource": "repo://services/local-stack/src/lib.rs#L101-L115",
+          "version": "repo-lines-v1:sha256:69a3a8eff191bb61073925deba760ad625f5551d49601ee9a797c3916d64664d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI0YWY0NWVhMjdhNjc0Mzg0NzIwZjYxOTc0ZDI4MmI5MmRhY2ZiMDY3NTU4ZTNiOTVhZGE3YWYzYWQzOTNkYWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI2NmFjOWFlMTZmZDkxYThhZDcxMWFiYmIwYTQ3ZGMzNDY0OTMzYzhhZDBiMTQyYzA5ZTUyNTAzY2ZlZDBlZGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg0M2NkYWI4OTFlYjJiOTVkMTNhZGViZjQ4ZDJkZWFmMTdiNjFhNjkzMjMwODYyY2E1ODliZmZlMzY5MDlkOGYifQ"
+        },
+        {
+          "resource": "repo://services/local-stack/src/lib.rs#L130-L150",
+          "version": "repo-lines-v1:sha256:04bd98abb6216e43a124394cb5f36ad1b723f531f8dc61fcba1916ad43ce0382:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4ZTE2N2YwYjQyMDViNTM0MWM5MmYxNGIxNDBmZTkyMWIyYWE2NWQwNTFhZjUxOWVlOTA3MTgwOGNiMTkyYzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjczMTNmZmExOTIzYWY1OGZiY2E5YzBkMDg3YWUzMDM3ZTVjNDg0MmVhYmEyOTcwOWExNmJhNDJjNjg4MTljMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc5NzQ3ZDg3YmE1MTg3N2Y3MjMxM2UyMDVjNTNlZTI0YzYyYjg1MjdiM2ZhMTlkODA1M2YwYmY0ZmIwYmMyMzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE2OGVkZTY5YzI0NDFiYzNhOWYwMGVhMWM3ZWNmNGYxOTkyMDhiZWQ2YmRjZDRkZDEzNDgzYWQ1Zjk0MmNjOWYifQ"
+        },
+        {
+          "resource": "repo://services/local-stack/src/lib.rs#L179-L247",
+          "version": "repo-lines-v1:sha256:71e8da9fd65ac0cf5da7496e0a7599a68fedb8c6fc1e71a4584a94fcdc373986:eyJzZWxlY3RlZExpbmVDb3VudCI6NjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxMDI2ZTkxMDk5NDZlYzNhMGQ5MDNlOGU2NGI4NzUwN2UyOWZlZWYyY2RkOTM1NWUyOGQwZDhkZmIzZWY2YjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjczMTNmZmExOTIzYWY1OGZiY2E5YzBkMDg3YWUzMDM3ZTVjNDg0MmVhYmEyOTcwOWExNmJhNDJjNjg4MTljMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNkY2ZiNTM2YzRjNzNlYTVhMjM4ZTI3ZjQyNTVhZDQzYWJmZjY3OTVjNGRkMjM2ZWE2YWJlNzY4ZGFmZTUwOTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA1NmJiOWIxZDVkOTFlNTU0Y2ZiY2M2NjhkZjc4ZTMwNDdiOGU3ZGI5ZjhiMjk4Nzc4MjlhYzc4YjI2Yjg5MmEifQ"
+        },
+        {
+          "resource": "repo://services/local-stack/src/lib.rs#L316-L341",
+          "version": "repo-lines-v1:sha256:c83f60857a794b226af01f84671eb7a0551f9c42cd316af5de6962371a1db796:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQwMWRkNzUwYWUwYmU4ZDg2Y2FkNTI1NGI2MzRmNTE0ZDE2MGQzNzBkNjNkZWUwNjAyYWVkMzg0YmYxYWMwMWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxNmQ4MTdhNjk4ZWY5ZTg5YmFiN2FlMDk5ZTBmOTRlNmIzYWVjZDc4MzQ1MThmYWI2NmRlYTAxYTFhMjhiNmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJhNTZlOWM0OThiZGQ0ZDM2MWFjNzY3MTliYTIxNjU1NzZmNjNiOGNjNzE1M2QzMDI4YjU5NzI3Nzk4YWMyNDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJiNmQ5YzE5ODI5NTMyN2M4ZWNhNzM1NmU4ZTE1NDc5YjIwMTc1YzA3OWI3MmZmMDg3MDg0NTdlOTk2OWFlMzUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_335e4d3eed264154a9a0ffee4b1e0cfb",
+      "statement": "Broadcaster recovery converts durable pending attempts left by a crash into Interrupted and SubmissionUnknown; resolution retains uncertainty unless chain observation resolves it or every evidence source provides definitive invalidation, while conflicting observations quarantine the family.",
+      "evidence": [
+        {
+          "resource": "repo://services/broadcaster/src/broadcaster.rs#L253-L279",
+          "version": "repo-lines-v1:sha256:dcc2a00c6f59b504835435c45bfae0add85cd2889e02a4b3f31feaebe7915448:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM2Mzc1OTY2YmRlODg4OWMzZTA4ODg1ZDhhNzMzM2Q4MWNiZGYzNjMwYjMxNmE2MDllMGU2MTQ1MmZhMjM3ZDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAwNjAzN2U5OWViYTUzMGVlOTcwMTY2OTMzY2VmZjdmOWVlMzc4YmI3MjhlOTMzOTYwZDhmNDFkODY2YTE5MDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlkODNjNzdlMTkwZWQxNjJkNzE1MGVjMTE3MDViMGFlMzg2ZWM4N2E1ZTA4MzI1M2Q4YjI0YTNhNDA1NzBlOTEifQ"
+        },
+        {
+          "resource": "repo://services/broadcaster/src/broadcaster.rs#L340-L390",
+          "version": "repo-lines-v1:sha256:75f14a8a425c4773d0256b6e22db903b3c5aaa2b0a7eee486f5d5f4e073b8ede:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ0YWFkZDFiNjQwYWM4Zjg3ODczYjM4MjU5YmMwZjJiMTQ5MWY4NTdhMTE2MGUxOGUyYTRiNjQ0MGJjNGQ2YzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2MGIyNDQyNzEwMWQ3MDVhZDExODU4ZmI5NGQ4YzVlNTAxOGJmZDBlYjllODZiMGUzMDRmY2M3M2UyZGFlZWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE2MmVlNTdlNDFhOGMyMGFlMDE2NGRmMjYxNDM5ZGNjNDk5ZDM1MjA4MzQxNTE1MTZkMDQ3ZThkZWFlOGE0NjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyMDJmZjZhOWJmNTE5ZDQ2NmQ0ZTA4M2E3MmFjOTUxOWMwOGIyNWMwODUwZTkzZmIwMTkxNGMyOTAxMzkyOWIifQ"
+        },
+        {
+          "resource": "repo://services/broadcaster/src/broadcaster.rs#L393-L435",
+          "version": "repo-lines-v1:sha256:039d7530e491a04c3fb715e08caa35a744d4c9a18f5b09a52f335ff54de0e616:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMzMDI2ZjViMTdlMmI5NzlhNzAzNjg0OTNjMDRkYWVjNjJjYTcyMTdkNDYyMzU4ODE1ZDA3ODkwMjk2OWE0N2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAwNjAzN2U5OWViYTUzMGVlOTcwMTY2OTMzY2VmZjdmOWVlMzc4YmI3MjhlOTMzOTYwZDhmNDFkODY2YTE5MDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://services/broadcaster/src/store.rs#L1-L8",
+          "version": "repo-lines-v1:sha256:9215d9f98819efefae46728c11f83318d70be305f5665a3663a2048eb87b24ca:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTY2OGRhNDYxNmQwOWI1NjY0ZTdjMTZhM2M5YTBkNTlkYzRhOGNjODQ1OTZhNDgwMTY2OTE0OTA5NzcwZDdhMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjg5MGY2YWY4ZDE0YTc2MzJjOGU0YTQzZjI4MGVmOTdhMTUzOWIyNGM4ODRmNTFmMGYwZDAzZjQxNDVlZDQ3MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzBmZjk2YTI2OWYzMzJkOGU2MmY3ZDlkMzA3YjQ5OGNmNmU1MjgwYmM4MDBkNTQzMDA3NDRmMzkzM2MwMGE3NiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_0b81ace76c06433199bc68fa784932bd",
+      "statement": "The local simulator journal fsyncs a hash-linked command and outcome plus local floor before applying an effect, verifies replayed simulator outcomes on reopen, and treats its floor as local crash protection rather than an independent rollback witness.",
+      "evidence": [
+        {
+          "resource": "repo://docs/local-stack.md#L145-L160",
+          "version": "repo-lines-v1:sha256:456bcf88c75cb66f870f380b1ddcf9b591e1b88b3fe4b1762d69d4c718fbc214:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVhZTYxNGVmNmJlOTc5ZmZjNTZiYmI0NmIwM2JmODA2ZGY5ODEyNmJkOTlkYTY2NTBmZTliZWJkYTZkZmI3ODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5MzgzNGU3MWU1MzA2Y2U5Y2Q4M2VhYjc4ZDgzM2UxOWRhYTU5ZWM3MGZiZTA4ZmU1NzhkODhhYjM4N2M1ZmEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwN2RjYTVjOGIxMmE4NGVlYTIzMzZjOGRkZmYwZmVkYzZmM2FhMjRlMDA3MmZlOGQ5ODE5N2E5YjQyMmY5NTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBhMDk0OTk3MjQ4NjczOWNiNzA1NzIwNWNkYmRjODc1MjUyMmZhNjdiZjcxZDExYzMwOWM5ZTMyMGZiN2Y5YjAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_33bf73cc0c8c4b2db3ed399e775db7a3",
+      "statement": "FileAuditLog verifies signed hash-linked history on open and rejects a head below its local high-water mark or supplied minimum.",
+      "evidence": [
+        {
+          "resource": "repo://crates/audit/src/file.rs#L2-L20",
+          "version": "repo-lines-v1:sha256:025c40f92205a935ac6f114054874248152217ade2b02864cc683a50c92e7e1e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwNjU3MzdlMDcxZjlmYmNkZjU0YjhhZDM4ZTY2ZTRiNmYxZjlmYTFjMDFlZDZhZjlkOTY2NGQyMjJhOTY0MDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU4Y2M5MDM0ZjlhNDc1OGVmZWM4NTcwZWFlY2Q3ZTc5Njk3NmMzMmViMDYxMmQ0YTY1MjAxNzRmYmUxNjA5N2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoxLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0NWJiOTRkYmFiOWIwMTJjNTY4ZTJiZmRhNWQ0M2JjY2RiOTJjNjEyYjRhOTYzYTkxNTdkZjUyZjljY2VjNmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUyOTAxNjc3NjY2NTVjOWMyMTcwM2I0ZTc1YWQzYWEyOWYyNWY0YWFiZDA2OGIzMDNmNzA0OTU4MDgzZTEzYjcifQ"
+        },
+        {
+          "resource": "repo://crates/audit/src/file.rs#L65-L123",
+          "version": "repo-lines-v1:sha256:357a697243309452723177baf453e57bfb768838d154376d9aae6ddd61a8262e:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZkYzY4ZWNmY2JkOThiZTQ4NDcxYWM0Nzc4MDU2NjU0YjhlNjU4MjliZTUwNjYyNmVhNDExOTgyOTY5NzU2MzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA0ZDgzNzlkNDBhMzkzYzE4ZWM2ODcwMWFiOWIwMjUzOWQxMDM0NGE3ZGFhMDEwNjY1MjU1M2RlMGIzZDViZDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRjYTU2ODFlNmNhODA2MGU5NWMzY2NjMDQyMGZmMzAzYTA3Njg0MDg1Y2MwNDMwOGFhZDdhZDM1Yjk5NmFmMmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIyYTUwYWFlNGFmZjY5ZDNjOWU2NjE5MGQ2YzBlNTIyY2RlZDY0MWI2NDg0NTE2NWJjNmY4Zjc0N2UwOTk1N2UifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-20T20:16:28.312Z"
+    "at": "2026-10-24T08:14:21.486Z"
   }
 }

@@ -1,73 +1,109 @@
 ---
 type: concept
-title: Deterministic policy evaluation
-description: Policy binding, hard-deny precedence, first-match rule selection, approval semantics, time windows, and the split between local and globally reserved exposure.
-tags: [policy, approvals, limits, determinism, fail-closed]
+title: Policy evaluation
+description: Deterministic policy decisions bind a candidate to the active policy, apply non-overridable safety checks, select one ordered rule, enforce limits, and count scoped approvals. This page also explains the caller authentication boundary and authority-supplied exposure input.
+tags: [policy, approvals, exposure, determinism, fail-closed]
 verified:
   - by: openwiki/0.7.2
-    at: 2026-10-20T20:16:28.312Z
+    at: 2026-10-24T08:14:21.486Z
 sources:
+  - id: openwiki-source-568a553b92bdd851ffe17f04
+    resource: repo://crates/policy-kernel/src/approvals.rs
   - id: openwiki-source-5ff1aed094752687edeb7935
     resource: repo://crates/policy-kernel/src/hashing.rs
   - id: openwiki-source-32fee8b5f4857b2429c56512
     resource: repo://crates/policy-kernel/src/lib.rs
-generated: { by: "codex", at: "2026-10-20T20:16:28.312Z" }
+  - id: openwiki-source-beebbb5db0d3f347ed543248
+    resource: repo://crates/replicated-authority/src/execution.rs
+  - id: openwiki-source-dafac7c46dcd9494f03343cb
+    resource: repo://crates/signer/src/verify.rs
+  - id: openwiki-source-e793f42b3a5f8174c8f456c9
+    resource: repo://services/builder/src/lib.rs
+generated: { by: "openwiki/0.7.2", at: "2026-10-24T08:14:21.486Z" }
 ---
 
-# Deterministic policy evaluation
+# Policy evaluation
 
-`oic-policy-kernel::evaluate(&PolicyInput)` is a pure decision function. It takes explicit time, verified operation semantics, authenticated grants, enrolled objects, and an exposure view. It performs no I/O, reads no clock, uses no randomness or floating point, and returns `Allow`, `Deny`, or `RequireApprovals` with stable reason codes.
+`oic_policy_kernel::evaluate(&PolicyInput)` is the stateless, deterministic decision point for one candidate. It reads neither a system clock nor external state: callers supply `FreshnessContext`, a verified operation, evidence, authenticated grants, and an `ExposureView`. Equal inputs produce equal `Decision` values and stable `ReasonCode`s. Configuration mismatches, missing exposure, stale evidence, and checked-arithmetic failure fail closed.
 
-## Authentication comes before evaluation
+## Authentication is a caller boundary
 
-`PolicyInput` assumes that its caller authenticated policy, grants, and evidence. The kernel recomputes policy and intent hashes and checks bindings; `evaluate` does not itself verify every grant signature. The builder calls `verify_grants`, signers independently authenticate policy/destination/grants, and the authority verifies administrative policy activation. Helpers in [`hashing.rs`](../../crates/policy-kernel/src/hashing.rs) verify explicit-scheme Ed25519 signatures and count distinct enrolled administrative credentials.
+`PolicyInput` contains security objects, but `evaluate` is **not** the signature-authentication entry point. It recomputes the supplied policy and intent hashes and validates their bindings, then evaluates the bodies of grants it was given. Before calling it, a builder, authority replica, or signer must authenticate policy and destination administration, independently decode and verify the candidate, and call `verify_grants` against the enrolled approver roster.
 
-## Fixed decision pipeline
+`verify_grants` rejects a set with more than `MAX_GRANTS` (64) entries or any invalid member. It verifies enrollment, enrolled role, signature scheme and signature, and the half-open validity interval `[issued_at, expires_at)`. It returns distinct credential IDs only after the whole set passes; different enrolled credentials assigned to the same person cannot satisfy a multi-person quorum. This is stronger than the kernel's later diagnostic count, which evaluates the supplied grant bodies after this authentication boundary.
 
-| Stage | Checks | Failure result |
-| --- | --- | --- |
-| Binding | Exact current policy epoch, activation epoch, canonical policy/intent hashes, matching institution/environment/vault/policy identity | `Deny` |
-| Hard denials | Denied destinations/assets, registered destination id/version/activation/assets, network and asset identity, standard asset behavior, evidence freshness/trust, decoded recipient/amount/native value/fee, grant count | `Deny`, before rules |
-| Rule selection | First rule in bundle order matching vault, asset, destination, and purpose | `Deny` if no match |
-| Rule requirements | Per-operation amount/fee caps, UTC operating window, rolling exposure, explicit automated-role permission | `Deny` |
-| Approval count | Bound, current grants from distinct allowed credentials, optional proposer exclusion | `Allow` or `RequireApprovals` |
+## Binding-to-approval order
 
-A later permissive rule cannot override hard denials or rescue a failed first matching rule. Empty rule scope lists match anything. `match_rule` is a public explanation helper that performs only selection; it does not authorize a candidate.
+The order below is binding. `Deny` at any stage stops processing; neither a later rule nor approvals can override an earlier failure.
 
-## Native meaning and freshness
-
-The decoded recipient must equal the registered destination address; the amount and concrete native/ERC-20/SPL asset identity must match the intent and asset object. Native transfer value must equal its amount, while ERC-20 native value must be zero. SPL native movement for account creation is bounded by adapter fee accounting. `Nonstandard` assets are rejected.
-
-Evidence observed in the future is rejected. Its permitted age is the tighter of the policy's limit and the bundle's declared staleness; equality at the age boundary is accepted. Evidence trust is checked against the policy environment. More than `MAX_GRANTS` (64) grants is a hard denial. An intent requesting zero successful payments is unsupported.
-
-## Limits and time boundaries
-
-Amounts use checked integer base units. For a rolling limit, the operation charge is the larger of its decoded amount and the sum of adapter-claimed outflows for the asset. The kernel evaluates:
-
-```text
-settled + outstanding + operation_charge <= max_outflow_base_units
+```mermaid
+flowchart TD
+    In["PolicyInput"] --> Bind{"Binding valid"}
+    Bind -- No --> DenyBind["Deny with binding reasons"]
+    Bind -- Yes --> Hard{"Hard denials clear"}
+    Hard -- No --> DenyHard["Deny with hard-denial reasons"]
+    Hard -- Yes --> Rule{"First matching rule found"}
+    Rule -- No --> DenyRule["Deny with no-match reasons"]
+    Rule -- Yes --> Requirements{"Rule requirements pass"}
+    Requirements -- No --> DenyRequirements["Deny with rule reasons"]
+    Requirements -- Yes --> Approvals{"Required approvals satisfied"}
+    Approvals -- Yes --> Allow["Allow with rule ID"]
+    Approvals -- No --> Need["RequireApprovals with reasons"]
 ```
 
-The exposure view must contain the exact asset/window pair; absent data yields `MissingExposureData`, and overflow yields `ExposureOverflow`. Equality at a limit is allowed. Outstanding exposure remains a separate input from settled window usage; the [authority](../architecture/authorization-authority.md) ensures it does not age out.
+This is the kernel's binding, hard-denial, rule, and approval decision flow.
 
-Operating windows use UTC seconds of day and the half-open interval `[start, end)`. `start > end` wraps midnight; equal endpoints or out-of-range bounds form an empty window. No configured window permits all times.
+### 1. Binding
 
-The [signer](../architecture/signer-boundary.md) supplies zero prior exposure for each configured window to enforce single-operation limits locally. The authority atomically checks accumulated exposure during reserve. A preview cannot replace that reservation check.
+The bundle must be at the authority's expected policy epoch and active at that epoch. The kernel recomputes `policy_hash` and `intent_hash`, and requires the policy, intent, and vault to share institution and environment; the intent must name the supplied vault, and the vault must name the policy ID. A failure returns `Deny` with all failed binding reasons.
 
-## Grant semantics
+### 2. Hard denials
 
-Every counted grant must bind the intent id/hash, institution/environment/vault, policy id/epoch, allowed role, and scope. Time validity is `issued_at <= now < expires_at`; expiry is exclusive. When `exclude_proposer` is set, the proposer's credential cannot count.
+Hard denials protect transaction meaning before rule lookup. They reject denied assets or destinations; mismatched IDs, network, version, activation epoch, or destination asset registration; and a `Nonstandard` asset profile. They also require the evidence network to match the decoded operation network.
 
-Exact grants bind candidate id, revision, and preview hash. Bounded grants bind wallet, network, asset, amount, destination id/version/address, maximum native fee, and a positive successful-payment allowance. Adapter verification additionally constrains which native fields may vary; the grant alone does not authorize arbitrary retries.
+The evidence timestamp cannot be in the future. Its maximum age is the smaller of the policy's `max_evidence_age_seconds` and the bundle's `max_staleness_seconds`; the exact boundary is accepted. Trust is environment-sensitive: validating nodes and cross-checked providers are accepted everywhere, a single provider is rejected on `mainnet`, and the development simulator is accepted only in `dev`.
 
-Distinct valid credential ids count once. Invalid or duplicate grants add reasons but do not force denial if enough other valid grants satisfy the threshold. If too few satisfy it, the result is `RequireApprovals`. The surrounding cryptographic verifier is stricter about malformed/unauthenticated grants and rejects an invalid grant set before evaluation. A zero-approval rule must explicitly list `ApprovalRole::Automated`.
+Decoded transaction semantics must equal the registered destination and intent: recipient, amount, and concrete native/ERC-20/SPL asset identity must match. Native transfers must carry native value equal to their amount, ERC-20 transfers must carry zero native value, and SPL native movement is left to adapter fee accounting. The decoded maximum native fee may not exceed the intent constraint. An intent allowing zero successful payments and a grant list longer than 64 are unsupported hard denials.
 
-## Commitments and focused tests
+### 3. Select one rule, then enforce it
 
-`policy_hash` and `destination_hash` exclude their own administrative signature arrays; signatures authenticate the unsigned object content. `preview_hash` commits candidate id, revision, decoded operation hash, and evidence bundle hash. See [security objects and encoding](security-objects-and-encoding.md).
+Rules are searched in bundle order. The selected rule is the first whose vault, asset, destination, and purpose scopes all match; an empty scope list is a wildcard. If a vault/asset/destination scope matches but its purpose does not, `NoMatchingRule` is accompanied by `PurposeNotPermitted` unless a later rule matches fully. Once selected, a stricter first rule cannot be bypassed by a later permissive rule.
+
+`match_rule` exposes this selection for status and approval-requirement explanations. It deliberately performs no binding, hard-denial, limit, or approval test, so it must not be used to authorize an operation.
+
+The selected rule enforces the per-operation amount and native-fee ceilings, its UTC operating window, rolling limits, and automated-path configuration. Operating windows are half-open seconds-of-day intervals `[start, end)`: `start > end` wraps midnight; equal endpoints and out-of-range bounds are empty and fail closed; an absent window permits all times. A zero-approval rule is allowed only when its roles explicitly include `ApprovalRole::Automated`.
+
+## Exposure and rolling limits
+
+For every configured rolling limit, the kernel requires an exposure entry for exactly the intent asset and that limit's `window_seconds`. It charges the larger of the decoded transfer amount and the checked sum of adapter-claimed outflows for that asset:
+
+```text
+settled + outstanding + operation_outflow <= max_outflow_base_units
+```
+
+All additions are checked. A missing entry produces `MissingExposureData`; overflow produces `ExposureOverflow`; equality at the limit is permitted. `settled` represents finalized debits in the window, while `outstanding` represents potential debits from reserved or issued operations and is not aged out by the kernel.
+
+The [authorization authority](../architecture/authorization-authority.md) owns the global state that produces this view and must atomically reserve exposure; a favorable preview is not a reservation. Signers have no global view: their local exposure helper supplies zero settled and outstanding values for every declared window, so they still reject an operation that exceeds a limit by itself while relying on the authority receipt for cumulative exposure.
+
+## Approval decision and scope
+
+If the selected rule requires approvals, the kernel examines grant bodies in supplied order (up to the hard 64-entry maximum). A grant must bind the same intent ID/hash, institution, environment, vault, policy ID/epoch, approved role, and current time. The kernel uses `issued_at <= now < expires_at`; it can exclude the proposer credential when `exclude_proposer` is set.
+
+Scope must correspond to the intent's approval mode:
+
+- `ExactCandidate` binds candidate ID, candidate revision, and `preview_hash`.
+- `BoundedDirectTransfer` binds chain wallet, decoded network, asset, exact amount, destination ID/version/address, and a maximum native fee at least as large as the decoded fee. It also requires a positive successful-payment allowance.
+
+A valid grant from a credential already counted is reported as `DuplicateApprover` and counts once. A body that fails kernel checks contributes its first failure reason but does not by itself force a denial: if enough other distinct, role-permitted grant bodies pass, the result is `Allow`. Otherwise the result is `RequireApprovals`, including the rule ID, required and satisfied counts, permitted roles, individual grant reasons, and `InsufficientApprovals`. In production call paths, pre-verification normally rejects malformed, untrusted, expired, or role-mismatched grant sets before they reach this diagnostic stage.
+
+## Commitments, integration, and tests
+
+`policy_hash` and `destination_hash` use unsigned views that exclude their own administrative signature arrays. An exact approval's `preview_hash` commits candidate ID, revision, decoded-operation hash, and evidence-bundle hash. See [security objects and canonical encoding](security-objects-and-encoding.md) for those formats and [independent approval](../workflows/independent-approval.md) for producing and checking grants.
+
+The builder's `evaluate` first verifies every grant against enrolled approvers, then invokes the kernel with explicit time and exposure. Signers repeat grant verification and kernel evaluation against independently reconstructed candidate semantics, but use a zero-prior local exposure view. The replicated authority verifies grants and provides the cumulative exposure view before accepting the decision. These layers keep policy evaluation deterministic while preserving independent authentication and stateful reservation checks.
 
 ```sh
 cargo test -p oic-policy-kernel --locked
 ```
 
-[`tests.rs`](../../crates/policy-kernel/src/tests.rs) covers hard-deny dominance, epoch/hash/scope mismatches, freshness/trust, exclusive grant expiry, duplicate approvers, proposer rules, bounded templates, midnight windows, limit equality, missing exposure and overflow, automated rules, and deterministic/property-based behavior. For the complete approval path, read [independent approval](../workflows/independent-approval.md).
+[`tests.rs`](../../crates/policy-kernel/src/tests.rs) covers binding failures, hard-denial dominance, evidence trust and age boundaries, native semantics, first-rule selection, operating windows, rolling-limit equality/missing data/overflow, automated rules, grant scopes and expiry, duplicate approvers, and deterministic property tests. The approval verifier's grant tests additionally cover signature, roster, role, and whole-set rejection behavior.

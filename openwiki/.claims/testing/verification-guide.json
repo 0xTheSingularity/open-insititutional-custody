@@ -1,40 +1,40 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:b5451e84b442dc09ae7c0af564ab4612ac00b95578610182a9b81d7c4c37b272",
+  "pageVersion": "sha256:760fa2a211617e3ef080b0268df3ad1ed26989eae64bcb92c9370f5999891d3e",
   "claims": [
     {
       "id": "claim_bae2b495ef834365b54c7a6866139d7e",
-      "statement": "The workspace declares edition 2021, rust-version 1.85 and 21 real member packages, including the independent approval binary and executable authority model.",
+      "statement": "The root workspace declares Rust edition 2021 and rust-version 1.95, while individual packages can override their edition; the signer-network package declares edition 2024 and rust-version 1.95.",
       "evidence": [
         {
-          "resource": "repo://Cargo.toml#L1-L35",
-          "version": "repo-lines-v1:sha256:efd20912f51133722904b3f703f0c066b5e61daa285b0ddf763b1202465e4148:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzNGUxMDJjODYxZjk5NGQyYWFjZTkxMTRkMzkyZGJjMTYyMTkwZTAwYmU4ZmUzNTdkNDcyMTUwY2E0Mzk2MTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcwZDgzYzk3NDc3YWVhNTZkZDU5ODEyZTc1MDM4OTRiNmE2NzY0YzMwMDNkZDY5YTdlNDY4YWI2NGI4YjAyMDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNlY2NhZGNiNWJiOTkyMDZkMzM0ODQ1OWFiOGM0MjVlODVhN2ExY2I3ZGNlYThlNmUzYzMzNjM0MDc4NGUxYzgifQ"
+          "resource": "repo://Cargo.toml#L43-L48",
+          "version": "repo-lines-v1:sha256:150ce9639a6167e969f3e9714429aead0db086c7c5edf7323baf0be04ce0739c:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDg2OTQxMmEyZThkNWYzYmFiNDE4ODZjMTNhMDZjNmYwOTkzMzg3Y2RlNzExZDgzMjZlZGI4ZDU3NzRlYzk5ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmM1YTU3MzQ4YWYzYjhlMmE2ZDI0OGJmYzAxNTIwOWZhOWE3M2UzZmNlNTcxMDkwYjllMWQ5YTA2MmI4MTgyOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDhhZjUxYTllNDA5NDkwOTZjYzdhNjM5ZTUyZGRjNmQ0MjdiN2VlMjNmOGNhNjkwNTA4MmI4YzQ0OGQ1ZGM4MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmYyZTQyMzUyMjlmMTVhMzEzNDM5OTBiNzZlMDc4NTI3ODhkYzgwMjYwZjU5ZjM2MWE3OGQwNTJmOGU2YTg4NyJ9"
         },
         {
-          "resource": "repo://apps/independent-approval-client/Cargo.toml#L1-L18",
-          "version": "repo-lines-v1:sha256:3013b70843ba9230550465e0d21ba06aabf63a79bdbdde19f1ca5547a1d0d5a8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhM2NkNWE4MWIzZjlhNjIxYWE0OTNkOTBjNDVmNDJhYjU3MWQ0ZTQyYjhhZTVhZmYzNTFjYjBhMDJkMDZkODIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkMzY0ODFlMjkxYzQwYjJiMzIxYWQyMmQ3Yzc0MmRkODM1MWRkNTJlNjg1MjkyMDc2MDJjZTc3MmE5YTQ5OWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZhZjI5MDI2OThmMTUzMzQ4NjEwNGJlZjcyYjM5ZWQ5MTU4MzE1YTRmYjVmZWVjNWE0YmFiYzk0MTQ4NjgzMjAifQ"
-        },
-        {
-          "resource": "repo://models/authorization-state-machine/Cargo.toml",
-          "version": "repo-file-v1:sha256:da217b9cdc1004baf53d43f2fd652d8b27435a36666ed92de4c415172b5a23a5"
+          "resource": "repo://services/signer-net/Cargo.toml#L1-L7",
+          "version": "repo-lines-v1:sha256:bcc3a9e939c165d990ed7b8a4842fb3d85cfc4dc6063c9131b4eb74eb192d1af:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGEzY2Q1YTgxYjNmOWE2MjFhYTQ5M2Q5MGM0NWY0MmFiNTcxZDRlNDJiOGFlNWFmZjM1MWNiMGEwMmQwNmQ4MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmViNTE0YjQ4ZWU2NzkyNjk4NzE4NjdlNjI2ZjFlYzRhNDAwNTdlYTI1NWFmMzA5MjE4NTFlZjEzZDhjMzY2MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGVlMGZmNzI1NDY4ODM2MmFhNjBkY2ViNDI3YjNkYzFjZGExMmVmYmVhZGY1NmQ3MWY3ODEyNmJhMTJmZThiMiJ9"
         }
       ]
     },
     {
       "id": "claim_aa15c33b54c14b80a1e8fea25255e457",
-      "statement": "Golden-vector conformance checks exact fixture regeneration, coverage of declared domains, real producer canonical bytes/hashes and native payload equivalence against Alloy and Solana SDK.",
+      "statement": "Golden-vector conformance requires committed files to exactly equal fresh generation, requires a nonempty per-domain-tag file, rederives canonical bytes, hashes, identifiers and typed round trips through real producers, and cross-checks native EVM/Solana payloads with Alloy and Solana SDK implementations.",
       "evidence": [
         {
           "resource": "repo://tests/golden-vectors/tests/conformance.rs#L1-L12",
           "version": "repo-lines-v1:sha256:78c9bf9565b5969deb69614856efb255df84d71d5c603c53a789b58caf30a74e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA3MmRiNDA1MmQ3ZWEyNTU3ODZkNDBlZjc4ODE4OTk2NWIzYzM2ZGVlZTU3NTE4YzkzZWU1MDY3N2Q4ZDcyNzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5YjgwNzI4YzY3ZWRkYTdhNDM5ZGU3NDY3NTJlZjEzMDliMmE1MWRhMmViNjNkZDk4ZDdmNDAyMzYzOGM0YTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ3ZDQxNjkwNDlkM2ZjOTcyMDE5MzkzNDVjNDhhNzIxOWFlNzc0NTBiYWM4ZDkyOTdkYTZlZWVlNmI2OGE1YWYifQ"
         },
         {
-          "resource": "repo://tests/golden-vectors/tests/conformance.rs#L278-L380",
-          "version": "repo-lines-v1:sha256:e75e9bf58924366430c5302444b73854034ae492d7184c1d3e4c5930d959df53:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJkMmNkNGRiNDhhMzUwZThmMGI0Nzk0NGM0NmUzZmZkYmJhMTMyZDIyOTBhOTFkNzAxMmI1NmViNDZjOGFiNGY2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3NGQxNGFhN2ViODExZjA0NDQ5NjRmMzFiM2ViOWRmY2ZjYWUxODMzNjIzYzdkMGIxNTVlMjc5MTBjMjljMTJlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+          "resource": "repo://tests/golden-vectors/tests/conformance.rs#L121-L187",
+          "version": "repo-lines-v1:sha256:5ea9344054a158ca277d062eb44c243035f226b5b57a091c63d76fc3dbe12108:eyJzZWxlY3RlZExpbmVDb3VudCI6NjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1MGViNDM4YTU3NGIzMzcyZGY3MmRjYWY5MDBhODZkMzJmOTBkNWNiYTY3NWNmZTZmODM2OWExODAyYWU5N2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiZDQxNjk0ZjYwNzZmOWE3MWQyMjcxYzgxN2IwOGRhMmRiYTc4ZTQ3ZTMyMzI4MTE3NTNmNDkwY2RiYWNlNTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZkYTAyNzE2MWMwNjdkNjNlNzAwMDUyNTc4NWY2Y2IyNWQwMTc1ZjEyYjg0ZGNkNGViNzJmNGI3MGI0Y2NlYWQifQ"
         },
         {
-          "resource": "repo://tests/golden-vectors/tests/conformance.rs#L53-L141",
-          "version": "repo-lines-v1:sha256:e2296c4f7ea0887576da3891ff4d1ee94a6beb2af5299623afebd4e49cf9a453:eyJzZWxlY3RlZExpbmVDb3VudCI6ODksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlmYjUyYjJkYmMzOTkzNzQyNTQwNmE2YzYxZWM1YzM5NmQ0ZTJiYjVmOTUxZTVlZTY1ZWFlMzc4NzZkNjQ2ZjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1MDRkZDA2MWNlYmY3ZWFhMzE3NmE5ZjY4ODFmZmY1NGY1MjE3OTk4OWRmMWM3Y2M1Yjc2YjA1MTczZDJjNjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjljMGExM2I5MTk3OTBmNTNmZjdlYjM0OTA5YThkMDYyMjdiMTZlMzYzNGU0Yzk3ODdkNGY5NzI4NmNjZjhhYTQifQ"
+          "resource": "repo://tests/golden-vectors/tests/conformance.rs#L279-L380",
+          "version": "repo-lines-v1:sha256:68a9529846511b87009740ce7915aca7328ade0e79749af0253a317d22701d48:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJkMmNkNGRiNDhhMzUwZThmMGI0Nzk0NGM0NmUzZmZkYmJhMTMyZDIyOTBhOTFkNzAxMmI1NmViNDZjOGFiNGY2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0ODkzZjQwZTM3ODFlYjg5NmM4MmQwNDZhMDgwNjdhMTFlMzVjZGYyZjFkZmFmMjZmZWE5MGI4ZGI2Njc2NDEzIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3NGQxNGFhN2ViODExZjA0NDQ5NjRmMzFiM2ViOWRmY2ZjYWUxODMzNjIzYzdkMGIxNTVlMjc5MTBjMjljMTJlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIn0"
+        },
+        {
+          "resource": "repo://tests/golden-vectors/tests/conformance.rs#L53-L119",
+          "version": "repo-lines-v1:sha256:18cbe60b00b1ebc4d2e3596dbdea0441959e8f250952defe9957a1b07fe0039f:eyJzZWxlY3RlZExpbmVDb3VudCI6NjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1MDRkZDA2MWNlYmY3ZWFhMzE3NmE5ZjY4ODFmZmY1NGY1MjE3OTk4OWRmMWM3Y2M1Yjc2YjA1MTczZDJjNjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkzNDIyNjdhOGYxOTI2MmZmYjljOGNiNzFmYmU4MmU0NzViYmI5ZDk3OTA2YWNhOWE2OGQzZDE5ZWE4NWQ2YWQifQ"
         }
       ]
     },
@@ -57,42 +57,106 @@
           "version": "repo-lines-v1:sha256:0d00d75fcf56df3cda988a3dc16ea720bb9ae83ce9faeb5bd3d2da23ef4ff239:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMWNkODk4YTczY2UzYTNlZDFiZTZlMTE3NDIyZmViNDZlZGQ4NGJiM2RhNzRiNDc3ZjUxYTQ1OTc4N2ZmOTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU4YjkyNGIwOTkxZGYyMmMwODUzNWY0YTNiYmJjZTBiZGEwZGM5NjE4ODcxMGI4MzU0MGVjNzE4OTBmODM2MjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNkYTg3NWYwNjIwMjcwMTAzYWRhNGJiYjI5NWNiNmI0MjQ0MDY3OTliZGU3ODBlZWE2NTk2YjBhMzZiN2Y2OTcifQ"
         },
         {
-          "resource": "repo://models/authorization-state-machine/src/lib.rs#L568-L599",
+          "resource": "repo://models/authorization-state-machine/src/lib.rs#L573-L604",
           "version": "repo-lines-v1:sha256:55a75e706b5966af2d04c26fe52e9b4cf797fcaf00a92721d9c9f3751e065045:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0M2M5NzllYTIwYWRhMWU1YzI0MTNhODlhMDJmZmVhMTI0NTFjMDljYmYzNjEzYzIyMGNmN2ExYWFhZjIyYTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOWE5MTZjNDg3YjRmOTAxODc0MDIxM2EzMzJiN2E5OTQ4ZmQ4Nzg2YTljMjM4NjdhMmJhMjgzZjBmZGVkZjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM4MWJjNTY2ZGE5ZWMxMTU0ODUzZDRmMWM4YTlkODUxZjg0MmZmZGU1MzBlNjEyOWI3Mzc3OGQ1Y2I5NTEyYWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE1MjE2MDRiMzVmYzQwYWYwMGNiYTRlZWEyZmQ1ZTJjM2FmMTg2M2IzOTExODVkN2JmNGJiMDllNzJkMGM4YjMifQ"
         }
       ]
     },
     {
       "id": "claim_8c87b913918040fb809eb415235da835",
-      "statement": "The workspace model test checks depth eight while the standalone CLI defaults to ten, accepts --depth, exits two on invalid arguments and reports exploration counts on success.",
+      "statement": "The authority-model workspace test explores depth eight; the CLI defaults to authority depth ten and replication depth eleven, accepts --depth and --replication-depth in separate or equals forms, reports counts for both checks, and exits two for argument errors.",
       "evidence": [
         {
-          "resource": "repo://models/authorization-state-machine/src/lib.rs#L606-L610",
-          "version": "repo-lines-v1:sha256:924855fc4783e2a5b14223898e92f2a6c065017bcd3978d4e0ca61817076d4ce:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTJiNWVkZjU5NDljZmVhNjc4MjJjZjY5MTEzMjM2M2Q2OGQ2ZjFlMTY5ZjVlMGQ0ZjdjMTRlNWZhMWU2ZDRlNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDllYzNiM2ZjOWNlZGYwODIwNGJjYzRhZTBhNWYxMzBjOGQ4MTNiODE1NDRlZDQ0ZWFhYmNhMDg4MTM5ODYzNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWM4YjYzMzQxY2RkNTgwOTI4ZmJiNjViZTA4MDUyMzFhNTgzZDEyZGI1ZjVhODIwYjFjYjJkNzgzYTUzN2VlOCJ9"
+          "resource": "repo://models/authorization-state-machine/src/lib.rs#L597-L615",
+          "version": "repo-lines-v1:sha256:a68003c7699d2a5a17f5e3fa07b00491151f90bbd8d3314315c34552969f1465:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg2NmRmYmI3NjgwOGFiOGJmZjc1MmNlY2Q0YTM4MGVhNjJkODNlNzExNjA0OGU2Y2ZjZjY3NjUxZWEyYWYxMjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZkODRhYmY1ZTdiYmZhMmIyZjU3YzYwMmU1ODVjYjQyZjc0YThmYWE0ODVjOGM5YzJhZTdkZmNmNzc1NDUyMDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVjOGI2MzM0MWNkZDU4MDkyOGZiYjY1YmUwODA1MjMxYTU4M2QxMmRiNWY1YTgyMGIxY2IyZDc4M2E1MzdlZTgifQ"
         },
         {
-          "resource": "repo://models/authorization-state-machine/src/main.rs#L7-L41",
-          "version": "repo-lines-v1:sha256:ee4e9ddab8a9bcf66c9b15df5a8d00b5d4fcdf434cd00e82d6c4c12cf5777f04:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhYzEzYTRkNjJlZWYzY2MzZDZmYWRlODFmYjhhZjUyZDA0NzlhMmQwMmI5MmI3N2Q1YzhjNTI5M2Y1NmMxYTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYzYjg0ZWNjNDdmM2EyOWUxYjJhMzAyMDVjMGYwZDRmMjAyZDA1NWMyNjEzZTNkOGYxMzNmMDNhYjYyZTAwNmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://models/authorization-state-machine/src/main.rs#L6-L66",
+          "version": "repo-lines-v1:sha256:97bcc19ee9d4ace5504028f771bd4c0d9473fc0825f7940392b6d35b6da3465c:eyJzZWxlY3RlZExpbmVDb3VudCI6NjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJkZTk3NzJlNmIxNWJkNmQ4YzdmYmQ5NmFkNDJkZmFjYjFjMmU0OTgyMjFkNmNjNmQ5MWE5YmM5MDhiZmExNGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY1MDljNTgzMmIyOTNlNWZmMzIwNjFkNjg5NzAyYTU5YzYzZGMxZTRhYmFkZmFjNTkwZTIyMzBiODAxMzAyMzQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU4ZjZhMjQ4Mzk0MWFlZjI5YTEwN2Q2MzliZDRlZmNmNDExNzNlOWQ0NDJiNTlhOGQwNjUyZTZjOTg1MzAzNGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
         }
       ]
     },
     {
       "id": "claim_a40590d8aa0343699da71c721d15dfe5",
-      "statement": "Coordinator tests provide executable EVM ERC-20 and every-two-of-three Solana FROST transfer examples rather than a server-launch workflow.",
+      "statement": "Coordinator integration tests assemble dependencies in process rather than launching a server: they sign and mine a simulated EVM ERC-20 transfer and execute a simulated Solana FROST transfer for every two-of-three signing pair.",
       "evidence": [
         {
-          "resource": "repo://services/coordinator/Cargo.toml",
-          "version": "repo-file-v1:sha256:d64a4c9405028a0854273460323befd43450d78240f94e602486afa9c2b6a0d7"
+          "resource": "repo://services/coordinator/Cargo.toml#L1-L32",
+          "version": "repo-lines-v1:sha256:14db9d3c360baa77a02f003ebc48ea6077d074fdab7b9a180259d7ea6079df66:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhM2NkNWE4MWIzZjlhNjIxYWE0OTNkOTBjNDVmNDJhYjU3MWQ0ZTQyYjhhZTVhZmYzNTFjYjBhMDJkMDZkODIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIzNDEwYTVmNzZmNTAzYTM4YTg2NmFhYzhkMDAwZjNiOWQ2Zjc5N2Y4OWNmMmE5Nzk0NGVmYmIzNjljNzk3OTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
-          "resource": "repo://services/coordinator/tests/coordinator.rs#L108-L181",
-          "version": "repo-lines-v1:sha256:3c9727edccbf17c03ef8820085515388e3dd66efa59ff85fb9f6bdcf32176dd0:eyJzZWxlY3RlZExpbmVDb3VudCI6NzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyNDJkY2I1MDZmOGU2NTcwZGNiN2UyNjRlNmI5MzczMDA5MTU4NDFlMDI1MTIyM2Q0MWEyMjNkNTczOGIyYjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgifQ"
+          "resource": "repo://services/coordinator/tests/coordinator.rs#L107-L181",
+          "version": "repo-lines-v1:sha256:020a83dbafbb9175d633928ac88010fce0ff8add76be0484a2662264b2aa0075:eyJzZWxlY3RlZExpbmVDb3VudCI6NzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6a0aceea06554deaaaad192f6c26d29b",
+      "statement": "The D2 local-stack script requires a new private run directory, refuses to replace an existing one, builds the signer-network example offline, and for each selected chain runs TCP replicas, HTTP nodes, live browser verification, and install-integrity checks; it explicitly limits the result to development evidence rather than production, attestation, or live-chain evidence.",
+      "evidence": [
+        {
+          "resource": "repo://scripts/local-stack/check-d2.sh#L1-L25",
+          "version": "repo-lines-v1:sha256:bfc488b183988f2e920dfecb62feeb7f16f5ea437e978a51d9ef4a75ad04a0f7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkOTVmYzA0YTgwYzk1MmY0OWNlNDE4ODYyN2M1M2IwZmJlOGM0NDA0MWI5NTJkNTkyYWNkMWRlOTk4NjE0NjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1OGQ1MWI4YzBmNTEyOTBmNmEwN2E2NTA4Y2NjOGM4YTA3Y2NjN2Y5MTVhZGQ0Yzg1NmUyMmFmOWFmYjZmMGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRhNzA4M2Q1OGFhZmU0NzZlMThjOGQ5YmEyMmUzNGIxMjU4MzgyNGU4YzBmYjU4MWQyYmI2MTg5MDBhODk2YTgifQ"
+        },
+        {
+          "resource": "repo://scripts/local-stack/check-d2.sh#L54-L90",
+          "version": "repo-lines-v1:sha256:5106617c9fcb23873e200b8fcd4471bbe888555de2e037c14124cd257221807a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNkMzA1Y2FiYzQ0MjNmZTg5OGU4YTRiZjcxMGY4OWNhYmNjM2IzYjljZjFiNGVhMjg5OTY1ZGJmMjAzMjgyZDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1M2U3NmMxNWRlNDQ3OGQ4MDRlY2Q0MmZhODFjYTE5M2Y2OWUyZTg4M2EyZWI0OTkwOWQwNTM5Mzg4MDlmN2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI5OTNhMDI5Y2RlZDk2ZmIzYTE4MDJhYmY2YzAwYjQ0YTdmMzRlYzk5MmJkOWU4MWVjY2Y1NjIxZTNmMzkxZjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_30d4daaaabe04302aed393f5921fe9e9",
+      "statement": "The browser harness uses Chromium, compiled WASM, and a virtual WebAuthn authenticator; in live mode it verifies that an HTTP 202 enqueue acknowledgement is not confirmation and waits for a durably ordered approval across four replicas before exposing the finalized recorded state.",
+      "evidence": [
+        {
+          "resource": "repo://apps/approver-client/tests/browser.mjs#L1-L19",
+          "version": "repo-lines-v1:sha256:54d02885f90490a9d806d8b907bd91c1e80153191e169c6a0f60d6199fbb8618:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIwYTcwZTkxOTlkNDhkNTFkYjRmNGVkYjg5Yjc0YWVmYzIzZDdjMDUwZTdmZGQ5M2I4OWI2MTRkNzdkM2QwZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM4MmRkMTQ4NGU2MTc4ZWZlNzViZTlhN2VlMTM1YTI5ZWRhZDlkZTE5YThjZTRlYzgyMjUxNzY1NDNjNzM0NjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA2NDA2ZTU2MDM3MjcyY2VmMmE5MDg1ZDU4MDQ2ZTM0ODMzMTBkZGE0NmY3MzNjYTQzZThkYTVkYmY1ZWU0MDQifQ"
+        },
+        {
+          "resource": "repo://apps/approver-client/tests/browser.mjs#L136-L165",
+          "version": "repo-lines-v1:sha256:fb6a9f0a3913cdcac075af933b2a3af63dbe0fc80b75f144f8aa5bf5e0f90f63:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRjNDU1ZWEzZjg5MWFmMTljMjQ1OWZkMzIwZDI5NzI2ZDVkYjJlOGNiNDU1MzBmODY1ZWNhM2M1ZjViZmM4YzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgwMzIyMzZhNTE4ZDc0NzQ1ZThlYWVhMjAxMDZmYjFhN2Q1NjRkNTlhMDQ3NGU2ZDI4ZGU1ZWE3ZTAyNTQ2OWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcwOTY1ZjQ4NjA2YTk1OTkxMjQwMDBjYzBmNGM0NmRlNGZmMWRiM2YyMDFmMTc1NDI2YWJmNTNhOGQ1NjlkYWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ5MWEyNTk5YTI0OGY2ZjdkNDNmNDM0ZTNmYTEwMjczZTE1NjI0ZTI1YjE4MWFhYzZkZWQ5MzM2ODhjMGRhZmEifQ"
+        },
+        {
+          "resource": "repo://apps/approver-client/tests/browser.mjs#L202-L205",
+          "version": "repo-lines-v1:sha256:3062de9dae424af620db9d7ddbe370aa106035d9a370af144197640c074a5ca7:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBkYzNkNmFiZTIyMTA0ZDdhODQzNzQzZTcyMTAyMjU5ZmE5NTE3OTY4NTA2ZTFjYmJjNDg0MTE5N2MzYjRjZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjE5ZjA2YTQyYTkzMTg0ZDY0YjlhMWM5YmY0NTdkMTZkZjQyY2RlOWUxMzlmYjJiOTI1YmFhODAzYjdmZmIzNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDA3OTYzNmUyNDRlMDI2MWE4MzQ4ZDM3NjliNDExMzFiNTg4YjNhMWUyZDY4ZDFiZDk5NDUxZTQwN2E1NmViNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDY3YTE5YzY0Zjk5NzMxZTQyNWJiNzVlZWM0YzdlOWQxZWYzZGNkY2Y4ZWZjYzg0OGJkZmM5MGZlNzQwN2FhMiJ9"
+        },
+        {
+          "resource": "repo://apps/approver-client/tests/browser.mjs#L97-L110",
+          "version": "repo-lines-v1:sha256:13314fd2527cd0a569e52b9cf42c3394adefd8ae4f111932092c77328e9c5f18:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdhNTBiNzIyZDE1ZjM5MDU4OTBkMTIxMmNhMzZlZWVhN2U4MTU0MDNiNmYxM2Y3ODM3ODgxYjAyZDRhYTE5ODMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmZjNmNjM1NDRmYTUwMjVjMzM2ZDgxYjA0MTM2ODBkNDVhOTBhMzkzOWU0NDgxZTY2Y2I2ODcxZDEyNWE4MzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcxODgzZGYxNjdlZmM5Y2JmNDE0MmQ2ZGQwMWVkNDM3MmY4ZGJlZTViOGM3MGVkNDgzM2Y3Y2Y5ZWE5NTQ3MDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjllZjEzYjM3Yjg5Y2Y2MDQwMDMzNzFkYjU2NzM1Y2VjMWNhZGE3M2I0MzZjN2YzNzcwOTBiMTIyOGY0NDE4MmYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bfb184e618584685bea65a3a7dee7c97",
+      "statement": "The network integration test is designed to cross real Commonware TCP, private Unix IPC, and separate FROST signer-core processes; fixture DKG signers are dropped before the network reactor begins, so a bridge does not retain a live signer share.",
+      "evidence": [
+        {
+          "resource": "repo://services/signer-net/tests/network.rs#L1-L4",
+          "version": "repo-lines-v1:sha256:4f1fd2f98ac768c908e46ceca2a4a63bc8b68fe9b6eb8eb34f07b42cba89bf03:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWI5MDQ5YTkzNDgzYjA3NjRkNDdjYjllODM0YjZiMWFlNWE4NWIxY2JiNmZhOWE3YTJlNDVjM2U1NDFmYjA0NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYmQxNDY1OTEwMzlhMDM0ZThiZWQyYjVmNTk5ZDQ1ZTZhNmViMTk2NTg5YzFkNmQ0NGY4YWFhMTY4ZWYwNjFjZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmQ0NTRlZTA3MDZmMWIxZDczYjYyMGJhNTBhMDIyYjg3YjMyYjQxZmU2MGM2Njk0ZjhlY2M1ZjY5OTI0OWZjNSJ9"
+        },
+        {
+          "resource": "repo://services/signer-net/tests/network.rs#L170-L214",
+          "version": "repo-lines-v1:sha256:d2a32eaba94a7b12d3813d6c66a656501474f491911ac7f4b664ec4d6ff5ba95:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMzZDVlYTdhZWUzYzUxODZkYWJmYzc4NmQ5NjU5YzFlZTBmNjFkYTUxYmNhYjI2MzdmNTkwMmZiY2Y0MzM0MjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZmNTE5ODNjOWU0OWI4YTZmMzE5ZTg5ODU3NmM0NzNlMmI3OTg0OTVmYjEyYTFiZWEyMzQ0ZDE3YTA3ZDExZjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg1N2ZkYTkxYmI5ZmVhZWY0NGIzODMxMWQ5ZDQxYjJjNTllNTU3ZWY3YjUyYTllMTFmZWJiMTllNGY1NDk2ZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg2OWQ0ZTlhNzlhNTg1MTIxOWVjMTVhOWVlZmE1NjJiMDRiMTliZjAyNDI2YjQyNjliYzU3Nzg2NDlkZTA2OGQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9bfd2f51b9ec4c6a9ac79bdd65078b49",
+      "statement": "Acceptance coverage is generated by scanning scenario-ID citations, and its own documentation states that a citation is not proof because assertions—not references—establish coverage.",
+      "evidence": [
+        {
+          "resource": "repo://docs/acceptance-coverage.md#L1-L13",
+          "version": "repo-lines-v1:sha256:9a00d9b744112e722a89895f442d0b38480d56fadc13a1690323d19dd860d303:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBmMjNjYTlkMzQ4MDhjNjJmODI3ZjY2NDk2NWI0MGIyOWVkM2Y4MzhmZjUxZTA5MjMxNGM0YmIzMmE3ODUwOWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM1NTljYjhmNzUwNmUxODY4MDc1ZDIzZjY1NjM3NzBiYzJhMzFjMzM0MzE0ODU3NjI1NGVjYmFiODg0MzA0MzMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFkMTYzYmI1N2Q5N2I3NDE1ODE5MWZjOWI1ZjM3ZWFmYTAzOTRiN2NlY2U0MGVkNGMxYmRiNWM4NDIxNDlmOWYifQ"
+        },
+        {
+          "resource": "repo://docs/acceptance-coverage.md#L56-L69",
+          "version": "repo-lines-v1:sha256:359774201dfccdd7187c821ecf633eb2076df6038a350a7399bb59cc0ea24fc8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU0YjEzOGNiYzQ4MzAwNjkwMzZhOGYwMTZkOWM5Zjc3ZDkyYWE5Y2JiMTdkNjEyNTk2ZjdjYzBiZTgzNTllZTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRhNmM3Mjg0MWE3M2RhODVjODRmZGFmYTlmYzZiMDE1ZmJjMTMyYjdjZTk5MmU5NjdlNjA4YmZmMjgwZTBkYWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5Mjk3MGZiNjE1MDIxOGM4MzA0ZDFiODBmNDI2YmEzYjRmN2FmZDRiZjgzZTYzYWU0NWIzYmVmNDg3NzYwZjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY5OTc4NjY0ODdkYTY2Y2Q2NjQ2MzZmZTYzMWY2NmI1YzMxMzhkZWZjNjRhMzZmMGVjOWU5MzAwYjAxYTZiZmQifQ"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-20T20:16:28.312Z"
+    "at": "2026-10-24T08:14:21.486Z"
   }
 }

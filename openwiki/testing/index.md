@@ -1,4 +1,4 @@
 # Files
 
-- [Deterministic chain simulators](chain-simulators.md) - Reproducible EVM and Solana development chains with real native signatures, explicit mining/finality, reorg/fork controls, economic effects, and adversarial evidence sources.
-- [Build and verification guide](verification-guide.md) - Workspace and focused Rust checks, executable transfer examples, SDK differential tests, golden-vector conformance, bounded model checking, and the scope of observed validation.
+- [Chain simulators and chain integration tests](chain-simulators.md) - Deterministic in-process EVM and Solana chains for adapter, broadcaster, and reconciler tests, plus the separate optional real-node RPC test coverage.
+- [Build and verification guide](verification-guide.md) - Select focused checks for custody behavior and understand what unit, integration, vector, model, simulator, network, local-stack, and browser verification each establish—and what they do not.

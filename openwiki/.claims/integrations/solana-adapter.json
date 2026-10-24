@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:acb72abbd3df3d5a9c6c1fb5fe5df012f2cc8bf01726f64f5a0810cfc1cc2b82",
+  "pageVersion": "sha256:d6249501599f20122156628190b7af1939e4822458964b595412f1f4d3c34afa",
   "claims": [
     {
       "id": "claim_06b41f7c952447eda93c4187d7b80d81",
@@ -79,14 +79,86 @@
           "version": "repo-lines-v1:sha256:1b74b1e9dee3915d37e56eda44824267f9a1ae73d9612ce122a18a5b2bcc96be:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWZlOTc4ZDVkODMwNzliNjhkMDg4YjY1MzJmNjZjYWUzOTRiODFkYjMwZDA2MjA2NTM0N2VjNDk2ZmE2YmRhOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDdlN2NiZDE1YjYyZDQ2NjVlZTMyN2NiY2EwMWQ1NDcxZWE3NmE4MjExMWNhOWZiZWQwMzc1NDM5ZDE2MDgwMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjk1YmExMGVmYjgzNThkYmNjZTkzM2Q5MzhkMmRiMWM0NTFlOWFjYTg1YmEyMzA3Yzk1ZWY0NGNiNzM5MjAxZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjcyNzA5NTRhMTc1ODQ2NTAzYWEyYmMyMmI5MWY2ZTAyYzYwYmUwNTAwNzg1YTRkNmUyOWI3NjA3NzJkYWVlMSJ9"
         },
         {
-          "resource": "repo://crates/adapter-solana/src/lib.rs#L992-L1066",
+          "resource": "repo://crates/adapter-solana/src/lib.rs#L1001-L1075",
           "version": "repo-lines-v1:sha256:cfeb96976cf38583c5da57f93489cec518eaade6aa13ecba032621a90aba807d:eyJzZWxlY3RlZExpbmVDb3VudCI6NzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkZjYyMmE1OTNjMmMwYWI3YTNiYWUxYmQzYWM1ZTlhMWVmZDAzMmE0ZDhmZmY3YWEwNmRkZGQ0ZjMwNjkxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBiNjA3M2U0MDVlNzdjMDdkOWFkYzUyYWVmMzM1YWEzNzRiYzhjNTA2NjVjOWY3NDliODI4NWZiNWVkYTFiMDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5OWJkZWZlZWFjYTYzNDBlMDI5MGRjODZlODg5Yzg5ZDVlMTg5YWE1YmE0NGI1ODViM2I3MDczNGY0YTYyZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ1MTdiYzgxMTNkMjAzZDUwYmNkNTM0YmM5MWEyYjc2YTk2ZDQyOTg1YmYwZmUzYjQ0ZWYzZTg0MjQyOTVhMWIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_032941e2b36f46e3957a4f52a1f64a14",
+      "statement": "`SolanaAdapter` implements the shared deterministic adapter lifecycle without I/O or clock access: chain facts must arrive in scoped evidence, while signer-local decode, candidate verification, signing-payload derivation, and signed-transaction verification are pure over their inputs.",
+      "evidence": [
+        {
+          "resource": "repo://crates/adapter-api/src/lib.rs#L136-L189",
+          "version": "repo-lines-v1:sha256:e4b3bc26a6e1cf07941d07d8e319fa1d1b8350a08410addaf86ff0aac5fee64b:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5MTEwMzI2OWQ5ZjE4MDg4OWUwYThkNzFkMTJhNDM0ZDdiYTg4YmQ3ZGRmZmJmYWEwYjRmODQ1YTEyZTg4NTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg0ZDgxYjYwNzQ1NjFlMTI2YzJhMTU0YjhlOWIwZWMwMTU3MmEwYjk1NmFjZDRhMjYxZjVhOGJmYTBmMmFjZDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM4NmM2NTkxNzNjMDQwMzdkNjI2NjY0YzliMDEwMWM4ZWFmZmYyMGVlYzM4NzI3ZjA2ZGM5NzNhZjMwYzU4N2MifQ"
+        },
+        {
+          "resource": "repo://crates/adapter-api/src/lib.rs#L20-L22",
+          "version": "repo-lines-v1:sha256:5d90b39d19a503a0f71ca7230647321e931f6894a7cfb4ac0bbd4551db4053ed:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzE1ODVhMzEyNWQ0M2ZmNGVjY2Q0ODNkNGVjZGFkZDEyYzdmOTMyNWE5ZjA1NTEwN2UxYjcyMGZkNjQ0NDQ0MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDRjNmFiMGRmM2I3MjdjYjhiZWJkMWNkYTk1YTQ0YjE4YzJjOTE4ZTA5OTFkOTc2MTkwZTQ4NjUxYzE0NGFkMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmE0NTgxY2I5MmQwYTcwYWMwNzk4Zjc3M2EyMmU5NGU5MzY0MWFjNjdkMDhkYTQ5ZjY3ZGIxYmE4YzY1YTNjMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjE0NDIxMTQ0ODc2YjIyMzkyZDBlNTk5NzM1MGM5OGQ4NGNjYmZiZjBmNzAwMmI0NjgxMjYwZmJhODVhNGRlMSJ9"
+        },
+        {
+          "resource": "repo://crates/adapter-solana/src/lib.rs#L5-L16",
+          "version": "repo-lines-v1:sha256:c52cb27aea8b9f0a865ec53352337e6d2df1f3cda27d08b5a6326cf74ece661e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNlZDRjNDZjOTI3M2Y2NGViMWMxMTNlOTVlMmEyYTY0NTg1NjczNmI5NDYyMGEwMTAyN2Q5NzEyYmMxZWU3MDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRmYmMyYjVmZWZhOTk4ZWRiMjRlOTQzNDZlNmE1YWNkOTU3MzEzOTExNmQ4MTE3MjliNjQ2NjVlY2FmNjMwODIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVhMmJhZjIxMDQzZGI3NGRmMjM1ODI0MmJiMGY2NWRjMmUwZjliZjNkOTAwZWJhNmY4M2YxMzRmZjg3YmIwZjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRjMDQ3Zjk1OWUwMjI4NzhiNTI0MGY5NzcwZWMyMzViNTE2YTc0OWEzMDM2NzUxMDE3MWI1YWIzYzk3NjAxNjAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ffda4950e9224128921606fe9ed781ed",
+      "statement": "The separate `SolanaRpcClient` binds to an endpoint genesis hash, produces build evidence from current RPC data, and submits base58 signed transaction bytes only when the node returns the transaction's own first-signature identifier.",
+      "evidence": [
+        {
+          "resource": "repo://services/chain-rpc/src/solana.rs#L115-L179",
+          "version": "repo-lines-v1:sha256:751ee1b54b1366ffe9db7d38811172e83cd7c25c6a5b4ca5705c3adcb152839b:eyJzZWxlY3RlZExpbmVDb3VudCI6NjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2Y2Q3YzM4NmFiZDEzMWM2N2E0MTc4NjExMTJlYzg5NmM5MjA5OTU5MGQ4MTJiNzY4NDJjNjNlNmRkZDY1YjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5YjE5ODJlOGRkNzQ4MTE4MTQ2YjM5YTJkMDA2MmY0MDgxZTM0Nzc5Yjg2NzVjMjM0YzRmYjEyNGRjMzkzOTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5OWJkZWZlZWFjYTYzNDBlMDI5MGRjODZlODg5Yzg5ZDVlMTg5YWE1YmE0NGI1ODViM2I3MDczNGY0YTYyZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJkZDZkMWEzZTIyODA1ZGY3MzEzNTI5MTUzOTNhMzdmNTM4MWExMDMxZjllMGIxNjE0MzE4ZGY1ZDgzYzgxNzMifQ"
+        },
+        {
+          "resource": "repo://services/chain-rpc/src/solana.rs#L265-L284",
+          "version": "repo-lines-v1:sha256:fc3dfe57cd8fe839996aed9838455b0db0a31e8462149df990f008734da2c5eb:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlZjk2MzJmMTA3Y2JiMmJlYzM1Y2UyN2VmMDFmYjllYTYzMGJhZDc5NWNlZGQ1NDkyYzUzODM4ODQyYmU4MjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI5YWQ5NGRiNDhjMzYwZGZjNTdlYzIyZjcxZjlmYTU5ZTkxYjQ2YWFlZmFkOWM4NmYwNjEyZWVmNjNiYjYyNzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIzN2Y0ZTAwMmYwZWZkOGQzNWM4MjRmNDBjZWJmYTRiNTVjYWEzYTY2MGJiYmY1Mjg2ZDNlYzkwZTU0NDI5MWIifQ"
+        },
+        {
+          "resource": "repo://services/chain-rpc/src/solana.rs#L85-L113",
+          "version": "repo-lines-v1:sha256:5a5e780ae1e5a2207ceffed955192904023348b2f696e41daf1f8c407cdc21aa:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZjN2UyYmViYzFjNWUwODkzNzYzOGUyOGI5Yjg2YTExNTNlNTIwZWM0MjVlOTY4YzRkZTZjMTNkMjkyNWExNmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMwZTVlM2Y0OGFhZmMxMWJmMTdkMTA1MTc5YzRjMjNkNWQwMzEzY2VkM2FmZTZmYTliNjlhYjNjYTEzOTE3MzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJiZDk1NGJlMjQ2NjIzYjYyMjAxNjJhMDZmMjYwMTM4ZTZjZTU2MmNhNmY3NWEyY2ZiNGM2NDY0NjcxOWRlNzAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_144291d1c920456c99355c7f5d1887de",
+      "statement": "The shipped Solana RPC client is development-oriented rather than a general mainnet evidence source: its evidence height is a slot despite blockhash validity being block-height based, it cannot resolve lookup tables for candidate evidence, and it reports stale evidence when historical balances cannot be queried at the checkpoint slot.",
+      "evidence": [
+        {
+          "resource": "repo://services/chain-rpc/src/solana.rs#L11-L23",
+          "version": "repo-lines-v1:sha256:bcd1c95e50e3f583853fb41d2c51e290adb95de492150377ed93a726a7325f0b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3M2Q3ZTAwOTdjMTMxOGE5OTU0MjE3NmI0YWU3NDQwMDkzNjNhNzlmNjg2ODE2NTZhM2JmNjAyN2EwNWI4ZWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBlYzA3N2Y5MzZiZmRjYWI4NTljZTkyMmZhYWU1MmZmMDM3MDA5YjVkNjI3NDU1YjYwYjIzZjA3MDc2Y2EyNDkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU2OWE2Zjg5YTBkYzllMmI4MTczOTM1YTk1OTUyZDQ3MDczMzcxNDU3N2NiMGIwODYxMzU5NTcxM2ViMmQ1NmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhjMGE0MWViMmZiNThkNzJlYmNiNjBhOTM1ZTA3ZTJjNmQwY2E2NjY4NDBmYjZjODU0NTRmZDFkMzhkNjZjZjUifQ"
+        },
+        {
+          "resource": "repo://services/chain-rpc/src/solana.rs#L297-L315",
+          "version": "repo-lines-v1:sha256:e5f8915cdadf31bf7b445f9b020877d076dd54dda476c42fc04f5a7890b2e63f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1NzBiMTdiYTBhMGFkN2Q0MmQyZTU3ODE1MGNhMmY0M2Y5NGNmMTg4ZTkzZWM1NGVjOGU4ODc2ZWE4NDE5MWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjliNjI5NmRmMmJmNmMwZTYwOWVkNGQzYWUzZTM0ZGFiNjZhYTViYTVkODM5OWExOTU1OGI3Yjk1MmE3ZTRiMGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM4ZTM1NzAzMzU4Yjc3MGVkZDBiMzY1ZjQ1MjU3YjBhMzAwZjE1MzMzNDdmMGEwMTdkYjNiNzI2ZTJhZDE5NzUifQ"
+        },
+        {
+          "resource": "repo://services/chain-rpc/src/solana.rs#L491-L535",
+          "version": "repo-lines-v1:sha256:e8b04c0358bd99f23c3e5ff9f04160037eceebea12c2408c1d95a83fbeca2681:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI4Y2Q5M2Y1ZGIyZTkxNGIwNWRiYjA2MzI1Y2ZmZjQ0ODQ3NzJhZWRjZjMxZDdmMmJkYTk0YWIzMDgyNTQwYzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRlMzM3ZGRhMzFlNTI1YWM0MjJhNzI1OGU3YWZmZDUxZGMzZDQ4YWQ3ZjYxNTdlNzU5ZTc1NTA2NTk3MDJkZGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ3M2MwOGMzODVhY2QxMDY4Y2FlMTVhMzZhMGYwMzk3OWU0YjNiNzUzMzBjYzUzNmU5MGEzMDlmYjkwMzEwNTQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_88c7b1baa99d42e1861606706659e56d",
+      "statement": "The live validator integration test uses FROST 2-of-3 to sign a legacy native-transfer message, submits the aggregate Ed25519 signature to `solana-test-validator`, then verifies observation, block-effect discovery, and reconciliation; it skips when the validator executable is unavailable.",
+      "evidence": [
+        {
+          "resource": "repo://services/chain-rpc/tests/solana_validator.rs#L1-L12",
+          "version": "repo-lines-v1:sha256:3ed31722a46017e691803e27b843be3fc1de650d0ea710fcd0f4e81d0d67e1e2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1MjcyNzUyNDUwNzA1ZGMwOTlmOWNhZjdiZTlmMWU3M2ZkNjMxNzU1ZDM4MjdmNmM3MDVkZmZkYTg5MDgxMzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2YWFhNmM1OGFlZDk5OGEzNTA0ZmJkODc1ODM5NzlhMDMzMGE1YjQ1ZTdkNGZmYWVhYWFiM2IwZDY4M2RlZDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNhYzY1MTcyODBhMmI3MzI3YmQ5OTAyYmU1ZDJkNDM2NjNlYzkyYzRhMGY5ODFhYjRlNjJjOWRiMjg5NTJlMTkifQ"
+        },
+        {
+          "resource": "repo://services/chain-rpc/tests/solana_validator.rs#L199-L291",
+          "version": "repo-lines-v1:sha256:882f65bad5fdc4c78a4397bed82a2603ad583b08992bad3ebce31c634ceea6e3:eyJzZWxlY3RlZExpbmVDb3VudCI6OTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMDljZDQ2ZmQ3ODE0NGRlMmYyODliMTU3NzJlYjQ4YmZmZWY4NzEwN2UxNjdiY2UxMTg5N2M1NWU2OGMxMzgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlmNmEwYWFhOGIxMzJkNGQ0ODljMmVlOTljMjE0MTYzYzJkMDFlMjBmYjk0MjhmNDczN2NhNmM4NDBjZGQyNWYifQ"
+        },
+        {
+          "resource": "repo://services/chain-rpc/tests/solana_validator.rs#L293-L393",
+          "version": "repo-lines-v1:sha256:a5c887091efbb7881e2937002c5de31e60c7606f37fa8b63fac179a7b45e30b4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI1MzgzNDBjMmRhOWEzMDZmZDM4MzBmZjRkOWFlZmJkNWMxYTA3ZDY1MzQ4ZGFmZGFhYTU1MDhjZWMxZDlkOGY2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI5YjRkNmJlZGVmOTg3MzI1N2Q1Mzc4ZTNmNGYxNDM5ZGE5NGE4Yzg5NGI3MzQwZTMyNDgzZWVhOGRmZjE3Nzg2IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJjYTExMDkwOWY5MzZlYzBmYTk2YTA5OTZmNDJmNDdkYmZkMTRkMWE3YmU2NjZjNzdhZDA0MTllZDYxZmVmZTdmIn0"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-20T20:16:28.312Z"
+    "at": "2026-10-24T08:14:21.486Z"
   }
 }

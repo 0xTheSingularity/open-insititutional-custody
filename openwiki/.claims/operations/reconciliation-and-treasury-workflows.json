@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:0594996ebfa190f4169f3b3b388bd391d8068afd53da09e54070e29a13259570",
+  "claims": [
+    {
+      "id": "claim_56220ad149a6414ba11625bc05e94bf0",
+      "statement": "The reconciler observes and plans operational workflows but has no chain keys or signing entry point; opening it verifies stored journal, event, and checkpoint evidence and binds its store to one institution and environment.",
+      "evidence": [
+        {
+          "resource": "repo://services/reconciler/src/lib.rs#L1-L7",
+          "version": "repo-lines-v1:sha256:5cdf61cea683d42e07b5ab485c15a1d591dc02700d9f6517fb14c56648e25375:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDViZDQxZGQzODAwYWYyZmY0MzFmZDI1MWE5MjBmNDBmN2RkZDQ0NDMwZGRhZmRjMTBiYTYxMjY5MGIyNDk1ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDlhZThmYWY3OGE2YjRjZjUzM2NjNzVhZjQ2YjBiMDc5NTg5NmNjZTcwZmRkODY3NmEyYTFhOWJiYmE1ODMwMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiN2QzMzUxNjA2YjAzNmIyODI0YWZjYTk3OTJiM2QyZmU1MzZiOTkxZGE2M2FhZmEyMmFkODVkZTAxMGNkOGNiMiJ9"
+        },
+        {
+          "resource": "repo://services/reconciler/src/lib.rs#L46-L84",
+          "version": "repo-lines-v1:sha256:534faab17ea0c22695ce11d9b85851b5164fd4bb9b993074a83992e7b6bc34a3:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY1OTk3MzRlNjI0ZmI1YmJiY2E1NDI1YmM2N2UwNmQ1ODc3OWQxMWFmNzMwODY3NmQ0M2ZiZTZkMjJlMzljNjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAzMzYwODI4ZmQ0YmU0NzkzYWJmZThlNTk3Y2VlMzA3ZjE2NDdhYzVmYzFlNjExY2M3Nzg4NGQ0ZmFjZDZjYmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhN2YxMjkyYmM5YmEwMWQ0YTg4YWRkNTRiZmVhNmEyZTM2ZTc5OTZlZDUyNDM2ZWZmYTY1Y2Y0M2RlNTMxYzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a7bd4944b0414d148df6aa26a1dbf71d",
+      "statement": "Reconciler synchronization retains scanned block hashes, detects and reverses forked canonical movements, accepts only finalized observations, and rejects a scan if head or finality changes during the transaction.",
+      "evidence": [
+        {
+          "resource": "repo://services/reconciler/src/lib.rs#L278-L438",
+          "version": "repo-lines-v1:sha256:ffc27540394f277b03328574fc242d5735aa0c95b77c2b327db54f3ca4f8db45:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJmYjU4MGJhYWRiOWE3YzJlNmUzYWNmNGE0MmM3ZDIwNjE1YzMyZDQ4ZDdjNDhlOWQyOGRjYTczZmJjOTQ1ZmViIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmOWIxOTgyZThkZDc0ODExODE0NmIzOWEyZDAwNjJmNDA4MWUzNDc3OWI4Njc1YzIzNGM0ZmIxMjRkYzM5MzkwIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlYjlhMDhiYzI5ZjZlYmViZTlhNWYwMTkwM2Q5ODQ1ZGJjYjU4NDJhNDU1ZjA3ZDVmNDAwMmRhYzMyYTVjNjA1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI1M2RhYWZkYjIzOWE5ZWM2NDZhM2Q3OGMzMGI5NjU1NGUyOTIyMGM3NmEzMWUzNGJkYTFiMTExODEwZmU1N2FiIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_8fcf82d4665f407282074c4b520e4d6a",
+      "statement": "Movement acceptance quarantines unsupported, nonstandard, inactive or retired, routing-reference, and dust cases without automatic funding or credit; accepted controlled-wallet effects are posted to the journal.",
+      "evidence": [
+        {
+          "resource": "repo://services/reconciler/src/lib.rs#L592-L739",
+          "version": "repo-lines-v1:sha256:bfd18c9414645d158bafd8e2cca4f3d70dbede255fa6689b2b52bd85bc7fef41:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQ4LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJkNjA4Y2I4NmVhMTU3Y2U0Nzc0NjJkNGM5MzNjNTZmMDdmZTZmZmIzYTM3MjQ1NzllZjM3MTI1YzEwNGZkZGFkIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0ODkzZjQwZTM3ODFlYjg5NmM4MmQwNDZhMDgwNjdhMTFlMzVjZGYyZjFkZmFmMjZmZWE5MGI4ZGI2Njc2NDEzIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJmZjBkNzU5NTBkZjBmZjlhM2VlOTY2MzlkY2M4ZmY1ZWFlZGI0MGQ2ODJiZWE5MjYyMmI1MjBkZDg4N2Q5M2U5IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlMzIxMmQ3ZGIzMmNmYzhkY2VmMTY3OTZiNTExOTI1ZTczNDIyMmExMzlkMjcxOWQwYWIyOTRjZWZhOTFjODIzIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_d9cf5de418bb471c97c7b9d68d1a1ee2",
+      "statement": "Holdings distinguish settled journal balance, pending canonical observed inbound balance, and availability after caller-supplied reservations; pending inbound does not increase availability.",
+      "evidence": [
+        {
+          "resource": "repo://services/reconciler/src/lib.rs#L1301-L1347",
+          "version": "repo-lines-v1:sha256:bc74645ebb3437f1e5a4960384df20e78ccfad8e703e8373bd5f2af4646d9cf6:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwZmRiNGI5Nzk4ZDMxMzlmYjA0YzNjOWRhYTgwOTc1OWU2MGYyODI2MGJkMzMyNzY5YTJjYjQ2ZTk3MTc3MTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY0NzVlOTRhOTA0YWM0OWIzMTU0ZDQ2NzJhNjZlODYyOWI4NmRhYzc0ZTNlMjkzN2JlNjkyN2FlM2RhMTFjNTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MTExMmJhYzdmYzJjYTY0YTA3OTk0NDYwYzg2ZDViYTk4YzRkZWI1NDY0ZjQwNTU1ODRmMjQ2NzQ5MmI5ODMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUwYTA0MGFkZTBkZjQ2MmJhMjcwZThjN2I4OTUwYmUxNWI4ZDEzNjBkZWEyZTMyOWFlMTIxOWE3ZGJiNDBhNzUifQ"
+        },
+        {
+          "resource": "repo://services/reconciler/src/lib.rs#L988-L1001",
+          "version": "repo-lines-v1:sha256:12b7510094140dd119963e766b1faff7dafe3e6c5cd126e39d28fb002df664cb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiMzA2MWUxOGQwMDVmOWFmNmU1ZjQyZjE4Mzg1MWY1MTg4ZWE4YTRiZGJlOWE5MGU3NTkyMTBmZmYzZTk0ZDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM1NDUzMjBmNTU2ODI2ZTZhYjFkNmY2ZjQzYmFlZmZjNTc0MTM1M2VkN2MxYWY5YTkzNzY0YmJkOGVjOWQ1MDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ4YzE0ZGU0YzJhOWQ3ZmE4NzExZDAyZWY2M2YyZjllMTM3MTY2YTQ5M2ZjZGRmYzIwNmY3MmNmYWMzN2YxMTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ccd79cc2da6244dc87995fac6cb0798e",
+      "statement": "Reconciliation only compares a fully indexed finalized checkpoint, signs a checkpoint and opens difference cases rather than silently adjusting the journal; resolving a difference requires an exact quorum-authorized correction.",
+      "evidence": [
+        {
+          "resource": "repo://services/reconciler/src/lib.rs#L1003-L1129",
+          "version": "repo-lines-v1:sha256:c9c066565a0c1fe07dfcca60cf92f8aea72d3c45aeb22b0a859a8b6a2ed32d39:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJiNDI4M2NhMjczNmIyMTFkMjJiYTA1ZGYxNmI2ZWNhZjk0NmMzZjZlYjk2OWE5ZWUxMGZlMjQ4MTA3MjFlMDg3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmOWIxOTgyZThkZDc0ODExODE0NmIzOWEyZDAwNjJmNDA4MWUzNDc3OWI4Njc1YzIzNGM0ZmIxMjRkYzM5MzkwIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkYTI5NGQ0NzEzNWM4MzU2NjczNTlkMGU4OTFjMWRkNTQ4NjhhODA0MTE2YjU5NzViNDc5ZGUxMTdkMTU2OWFjIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJiYjE2ZDU4NWU1ZTY5ZTA0Yzg3MmY1MmVkODViYzY0ODljMjRiOWY1ZjNlMjA0MWU1YmE2YmM1YzdmN2VhZDY5In0"
+        },
+        {
+          "resource": "repo://services/reconciler/src/lib.rs#L1132-L1271",
+          "version": "repo-lines-v1:sha256:2931d4d8e6718c2ae96898b4151b2f021b3bca301201082e312766b9e0e32cf6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI4YjZmYTQzYzU1ZDMxYjUzMjBhZmRiMGQzMTI3YzM0MWY4OGFjZWI3YjJhMTliMjc1YjAzY2ViMzEyNjFjNDI1IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmOWIxOTgyZThkZDc0ODExODE0NmIzOWEyZDAwNjJmNDA4MWUzNDc3OWI4Njc1YzIzNGM0ZmIxMjRkYzM5MzkwIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlYjlhMDhiYzI5ZjZlYmViZTlhNWYwMTkwM2Q5ODQ1ZGJjYjU4NDJhNDU1ZjA3ZDVmNDAwMmRhYzMyYTVjNjA1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIxOWU3NjM1NWNmMTE5OTQ4MGMzZjk5ODM2YjE0ODZjODQxZDg5MWZhYWQ5MDRjNjA4ZTA5MzAyMmQzNzU3YWVlIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_637ffaf54fe6499386d0f1f289f72e51",
+      "statement": "A sweep workflow is planned idempotently only from an accepted canonical inbound deposit at the exact active controlled wallet and asset; it may add a bounded native refill child before a token-sweep child that depends on it.",
+      "evidence": [
+        {
+          "resource": "repo://services/reconciler/src/workflow.rs#L16-L95",
+          "version": "repo-lines-v1:sha256:cbac1e79a5adf1bee12802dcfeefc0cf183c2d31b3af73bd90537eb1e317723f:eyJzZWxlY3RlZExpbmVDb3VudCI6ODAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY1OTk3MzRlNjI0ZmI1YmJiY2E1NDI1YmM2N2UwNmQ1ODc3OWQxMWFmNzMwODY3NmQ0M2ZiZTZkMjJlMzljNjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVmOGRlMjRlZTJjNjgyNzhjOGQzZWU0NWY5NTFhMWRlM2NkZmJhNTNjMmY1YzMxZDJiNWQzNjQwOTFiNjkxNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI5MWYyZDFmNDIyMzQ1OGEyMzIxNzAyOWVmZmZhMzcwNDFkNWI2NzZkMGQwMTdiZGIwN2I4OTc1YmEzMWYzYTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImViOWEwOGJjMjlmNmViZWJlOWE1ZjAxOTAzZDk4NDVkYmNiNTg0MmE0NTVmMDdkNWY0MDAyZGFjMzJhNWM2MDUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_57cee15163d24992bf3eef1674684451",
+      "statement": "Workflow child intents are ordinary immutable intents and `next_intent` does not sign them; it pauses for uncertain issuance, policy/freeze or trigger invalidity, stale evidence, fee ceiling, or insufficient funds, and it does not create a replacement child under uncertainty.",
+      "evidence": [
+        {
+          "resource": "repo://services/api/src/lib.rs#L390-L522",
+          "version": "repo-lines-v1:sha256:7b9433b3105ea194f9876e6f6c458b83b1e28b6bc7b3e41258ced610fea889df:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI4YzI4YjhmZGY4NDJmNjE1NGUwNTlkNWI0NTExZGVkMGI4ODdmZjAwYTUxNmNjN2I1YjZmZWI4ZGE1NGNjNGVlIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJjZTk5MjllYWYzZWRiNDNlZTZhNDgwMGE5Y2Q1ZjUxODY4MjEyYTU1ODc1NWQyYmVjZDZhYmFmYWM1ODJjZGQ3IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIwM2U5MmU1Nzc4YTNjZmNhOTI2OWM5MjM0MjE5MTNmNWQ1ZTI3MmYyNTc5YjAyMzYwZDRlYTYwYTdhYmZjNWVkIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlZDZkOTgzNWUxZmQ5OWNhMzUzOWU1M2EyNWY4M2JiNmI4YmFkZTk3ZDQyYzA1NzMzYjM4NWI0MjYwN2FlM2I4In0"
+        },
+        {
+          "resource": "repo://services/reconciler/src/workflow.rs#L99-L190",
+          "version": "repo-lines-v1:sha256:e9da016bc5a7f1052d0f2b1b47edcfea9cf7f0c8f8ef53d863f488bc4051913b:eyJzZWxlY3RlZExpbmVDb3VudCI6OTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzYjc2ZTgxY2YyMjUzNDk3YjJlZjZjNWFiY2M4Y2Q5OGE4NmExZWU1MDQzZjE4ZWZlZWJlMTg4ODc2ZTcxNGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExNzgyODJlMDZiOTcwY2I2NzVmMTc5NGMwZDkyNWQxYzU2NDZkNjcyODI3MDE5MDdkMDM5OWZhZmMwNzA0ZTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImViOWEwOGJjMjlmNmViZWJlOWE1ZjAxOTAzZDk4NDVkYmNiNTg0MmE0NTVmMDdkNWY0MDAyZGFjMzJhNWM2MDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImViOWEwOGJjMjlmNmViZWJlOWE1ZjAxOTAzZDk4NDVkYmNiNTg0MmE0NTVmMDdkNWY0MDAyZGFjMzJhNWM2MDUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c0a8988793384352bd0ed0d3b32b0b46",
+      "statement": "The workflow advances a dependent sweep only after its funding child is finalized successfully, fails on a child finalized unsuccessfully, and returns the same durable child intent after a lost acknowledgement or restart.",
+      "evidence": [
+        {
+          "resource": "repo://services/reconciler/src/workflow.rs#L132-L153",
+          "version": "repo-lines-v1:sha256:cb50703385a0f298e857cb8def73aab230a872adbbeff3c0619e94c468b564f0:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjczMGU0MGY5Yzc3YzAyOWNjYzQ2ZDZjYTE0ZjkyYmZkZWE1MzZmMzA4MTY1MWVkODg2OGIyNmE1YTFmNzI1YzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyOTYzNWY5YzZkODYzYWE4NzFiMGY4NzNmNjdmMDIwZDBlZDVjYzIwNjFlOTg3MTVhNmY1N2RkNTA4NDc5OWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMwMWIzOTNlZWQ2MDA5NmRhYjczZWVmYTUxYjM2MTdhODEwZmY1M2RiMWZlYjBjMzdmNzlkOGI2MWViOGQ3YzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE5YTc3ZWRhOTg5YzY0MTc0NjUxYjM2ZmRkNjM5ZjBmYjcxM2MzOTRjZDZkNGJiYzkwZTc0NzY5Mzc5ZGQ3MDcifQ"
+        },
+        {
+          "resource": "repo://services/reconciler/tests/money_loop.rs#L604-L731",
+          "version": "repo-lines-v1:sha256:ed5747ecfe81442a3be3409d244eec08e80168377392a2ea3ac43e4828e349c4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI4LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI4ODM1ZDQ5NTFhN2FhNWYyZjkwZjg1NjhlZjBhMzc1YTUzYzkxYjBiODJjMzQ0ZWI0ODM5Zjg2NzRiM2FiZDI5IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyMzBmMzU0YWU4MDdjZmVhNDY5MjVhMGIyYTlkZDA3NGQ2OGZkMTNkMjg2ZWY2YWEyMWIwZjg0M2VjOWM2NDNmIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3NDEzZmZjM2Q3NGQ1OGY3MjU5NzBiZjYzMzEyNjIxMWZjMGQzMjNhZDlmZmY3YmRhNDNkZTlkZTQyMTRiZGUzIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlYjAzOTQ5MDJmZGQ2OTVmOTgwZmJjMTE0YjViZGIxOTZlOTFiZTFiNWMwNzZlYjk0YmJkNTM4OWM1YjRmNzIwIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_e983f99ea6bb422cb43f43811d86d154",
+      "statement": "The operations store uses an exclusive writer lock and high-water-marked atomic snapshots; an ambiguous persistence failure poisons the live store and a rollback below the high-water mark requires recovery.",
+      "evidence": [
+        {
+          "resource": "repo://services/reconciler/src/store.rs#L159-L280",
+          "version": "repo-lines-v1:sha256:8de17e7a664dbdb721f06cf7d06c63052aa34d29a4e04cadd1103fcf2a148ae2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIyNDViOWQ3NjhjZWM0YjgwZmFmYWFjMDcyYjc4NzA5OTYzMjQ3NzBiYWMxMjhmNWYzM2MzN2JhN2JmYmMyZjQwIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0ODkzZjQwZTM3ODFlYjg5NmM4MmQwNDZhMDgwNjdhMTFlMzVjZGYyZjFkZmFmMjZmZWE5MGI4ZGI2Njc2NDEzIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlOTZmOGNiMDgzZmE4MDBhNGRjZDI5Njk3MjJkN2I5MjY4NmFkZDllYmUzNjU1NDkyZmE2NzJiMWE3Y2VkMjQyIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI3OGYxOTUyODdhZWU2NTMzYjMzZGE2MjUzMjk2OWFjMjYzNTQyY2JlZmEzODZhNTkzMGQwYTE1YjQ4ZmNkMDM2In0"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-24T08:14:21.486Z"
+  }
+}

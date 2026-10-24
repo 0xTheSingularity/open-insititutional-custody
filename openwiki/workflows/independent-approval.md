@@ -1,8 +1,11 @@
 ---
 type: workflow
-title: Independent approval workflow
-description: Verify and display an approval package independently, pin trust roots, generate protected approver credentials, sign exact or bounded grants, and inspect envelope bindings with the local CLI.
-tags: [approval, cli, verification, credentials, display]
+title: Independent approval
+description: How the independently distributed approval client verifies an approval package, obtains human confirmation, signs a scoped grant, and how the API and signers revalidate that grant before signing.
+tags: [approval, verification, grants, cli, authorization]
+verified:
+  - by: openwiki/0.7.2
+    at: 2026-10-24T08:14:21.486Z
 sources:
   - id: openwiki-source-3e07a24493723baddccec72b
     resource: repo://apps/independent-approval-client/src/commands.rs
@@ -12,6 +15,8 @@ sources:
     resource: repo://apps/independent-approval-client/src/lib.rs
   - id: openwiki-source-d8c6df206fe2a2bd0435a38f
     resource: repo://apps/independent-approval-client/src/main.rs
+  - id: openwiki-source-581b3e2ad298c98b110c03d8
+    resource: repo://apps/independent-approval-client/src/trust.rs
   - id: openwiki-source-04315589794678311270f065
     resource: repo://apps/independent-approval-client/tests/approval_client.rs
   - id: openwiki-source-696182ea5ebbbeff3f375730
@@ -24,37 +29,52 @@ sources:
     resource: repo://crates/policy-kernel/src/lib.rs
   - id: openwiki-source-dafac7c46dcd9494f03343cb
     resource: repo://crates/signer/src/verify.rs
-generated: { by: "codex", at: "2026-10-20T20:39:06.439Z" }
-verified:
-  - by: openwiki/0.7.2
-    at: 2026-10-20T20:39:06.439Z
+  - id: openwiki-source-0d08c78bf66df4772adf61d2
+    resource: repo://services/api/src/http.rs
+  - id: openwiki-source-6feee42777610be9514dec19
+    resource: repo://services/api/src/lib.rs
+generated: { by: "openwiki/0.7.2", at: "2026-10-24T08:14:21.486Z" }
 ---
 
-# Independent approval workflow
+# Independent approval
 
-`oic-approval-verifier::IndependentVerifier` reconstructs transaction meaning from an `ApprovalPackage`; `oic-approval-client` exposes it as `oic-approve`. The client approves business meaning, not a chain transaction signature, and never holds MPC key shares.
+Independent approval separates an approver's trusted review and signature from the coordinator, API, and MPC signing shares. The `oic-approve` CLI decodes the package's native candidate bytes with adapters compiled into the client; it does not trust console-provided descriptive text. Its trust file supplies the administrator roster and quorum, enrolled chain profiles, and accepted adapter build hashes. The client currently pins EVM and Solana adapters.
 
-For a shorter operator walkthrough and input-file checklist, start with the [human approval client guide](../../docs/approval-client.md).
+This workflow produces an `ApprovalGrant`, not a payment authorization by itself. The grant is later accepted by the API and is checked again by every signer alongside the package, policy, native bytes, and authority receipt. For policy outcomes after collection, see [Policy evaluation](../concepts/policy-evaluation.md); for how the builder and coordinator construct the later envelope, see [Build and coordinate](build-and-coordinate.md).
 
-## What is independently checked
+## End-to-end flow
 
-The verifier authenticates administrative policy and destination quorums, checks cross-references, finds an enrolled chain profile and pinned adapter, binds evidence by hash, derives wallet address from the key, and decodes native bytes. Registry labels and an editable destination display string cannot override the decoded recipient.
+```mermaid
+sequenceDiagram
+    participant Operator
+    participant Client as oic-approve client
+    participant Adapter as Pinned adapter
+    participant Api as API
+    participant Authority
+    participant Signer
 
-It derives preview/intent/semantic commitments and, in bounded mode, the permitted direct-transfer template. The card shows scope, network and concrete asset identity, full sender/recipient, registry destination/version, amount in base units and registry decimals, maximum native fee, purpose/policy epoch, evidence age and warnings. Terminal text is sanitized to prevent untrusted control/bidi text rewriting what is shown.
-
-Rendering can expose a destination mismatch or stale evidence to explain refusal. The CLI's `approvable` checks reject wrong beneficiary and future/stale evidence before signing. Adapter checks enforce the profile's accepted evidence trust levels; the policy kernel and signers separately enforce environment-specific trust restrictions. The core `approve` re-renders from current inputs, requires agreement with the confirmed display (allowing evidence age to advance), and signs only the corresponding exact preview or bounded template.
-
-## Build and command discovery
-
-```sh
-cargo build -p oic-approval-client --locked
-./target/debug/oic-approve --help
-./target/debug/oic-approve approve --help
+    Operator->>Api: GET preview package
+    Api-->>Operator: ApprovalPackage
+    Operator->>Client: show or approve with package and trust roots
+    Client->>Adapter: Decode and verify native candidate bytes
+    Adapter-->>Client: Verified operation and display values
+    Client->>Operator: Render independent approval card
+    Operator->>Client: Confirm y or yes
+    Client->>Client: Sign scoped ApprovalGrant
+    Client-->>Operator: Write new grant file
+    Operator->>Api: POST grant to intent approvals
+    Api->>Api: Check caller, binding, roster, signature and time
+    Api->>Authority: Record enrolled approval
+    Api-->>Operator: Updated intent record
+    Api->>Signer: Submit envelope with grants
+    Signer->>Signer: Revalidate grants, policy, native bytes and receipt
 ```
 
-All examples below run from the repository root after building. They require operator-supplied enrolled profile and public administrator keys, plus an actual package exported from the builder. Test fixtures in [`tests/common/mod.rs`](../../apps/independent-approval-client/tests/common/mod.rs) demonstrate construction; no production enrollment or package service is shipped.
+This sequence shows the package retrieval, local decoding and confirmation path, then the distinct API ingestion and signer revalidation boundaries.
 
-## Trust and credential setup
+## Establish trust and protect the approver credential
+
+`init-trust` creates a trust-root JSON file from out-of-band administrator public keys, a quorum, and one or more enrolled `ChainProfile` files. It records the verifier build hashes of the adapters compiled into the binary. On every use the client validates a nonzero satisfiable quorum, distinct administrator credentials and keys, distinct profiles, a pinned adapter for every profile, and acceptance of that adapter's build hash. A package cannot select a new adapter or profile merely by supplying its text.
 
 ```sh
 ./target/debug/oic-approve init-trust \
@@ -64,9 +84,7 @@ All examples below run from the repository root after building. They require ope
   --admin-quorum 2 --profile /path/to/enrolled-profile.json
 ```
 
-Replace angle-bracket values with independently enrolled **public** keys. `init-trust` pins the adapters compiled into this binary; loading roots with foreign build hashes is refused. Trust files are not obtained from an untrusted coordinator as authority to broaden approvals.
-
-Provide a passphrase of at least 12 bytes in an environment variable through an operator-controlled secret mechanism, then run:
+`keygen` creates a separate Ed25519 approval credential; creating it does **not** enroll it in the authority's approver roster. The file is newly created with mode `0600` on Unix and encrypts the 32-byte seed with PBKDF2-HMAC-SHA256 (at least 600,000 iterations) and ChaCha20-Poly1305. Its format, credential id, role, public key, and KDF parameters are AEAD associated data, and decryption also checks that the recovered key matches the header public key. A wrong passphrase or modified protected data therefore refuses to open. Pass the passphrase by an environment variable rather than on the command line.
 
 ```sh
 ./target/debug/oic-approve keygen \
@@ -74,9 +92,9 @@ Provide a passphrase of at least 12 bytes in an environment variable through an 
   --role treasury_approver --passphrase-env OIC_APPROVER_PASSPHRASE
 ```
 
-The generated Ed25519 credential uses PBKDF2-HMAC-SHA256 (default/minimum 600,000 iterations) and ChaCha20-Poly1305. Header fields are associated data; tampering or a wrong passphrase refuses decryption. New credential files are mode `0600`. Public credential id/key/role must separately be enrolled in the approver roster used by the builder and signers; local key creation does not enroll it.
+## Review and sign a grant
 
-## Review, approve, verify
+Retrieve the preview package through the authenticated API endpoint `GET /v1/intents/{id}/preview`, then copy it to the independently operated client. `show` parses the supported package schema and renders a card; `approve` follows the same verification path before it can sign.
 
 ```sh
 ./target/debug/oic-approve show \
@@ -86,20 +104,43 @@ The generated Ed25519 credential uses PBKDF2-HMAC-SHA256 (default/minimum 600,00
   --trust /tmp/oic-trust.json --package /path/to/package.json \
   --key /path/to/approver.key.json --passphrase-env OIC_APPROVER_PASSPHRASE \
   --grant-id grant-1 --ttl-seconds 300 --out /path/to/grant.json
+```
 
+### What the card proves
+
+The independent verifier first verifies administrator quorums on the policy and destination records. It checks that all registry objects agree on institution, environment, vault, policy, wallet, key epoch, profile, asset, and destination version; it requires an enrolled profile and its pinned adapter. It recomputes and binds the evidence hash, derives the wallet address from the registered public key, decodes the candidate bytes, and verifies those bytes against the intent. The displayed recipient comes from decoded native bytes, not an editable destination label.
+
+A decoded recipient different from the registry address is still displayed with a warning so the operator can see the problem, but `show`, `approve`, and grant verification refuse it. Before approval, the CLI also rejects evidence timestamped in the future or older than the tightest evidence, policy, and profile window. The fixed-width card renders exact integer-derived amounts and sanitizes all untrusted display text, making controls, bidi characters, and non-ASCII text visible rather than executable terminal content.
+
+Approval mode determines the signed scope:
+
+- **Exact candidate** binds the candidate ID, revision, and recomputed preview hash.
+- **Bounded direct transfer** binds wallet, network, asset, decoded amount, destination ID/version/address, fee ceiling, and maximum successful payments. Only adapter-defined fields may be filled later: EVM nonce, fee fields, and gas limit, or Solana recent blockhash.
+
+`approve` requires a positive TTL and checked expiry arithmetic, reloads and re-renders the inputs, and refuses if the re-render differs from the confirmed card other than advancing evidence age. By default, only `y` or `yes` confirms; `--yes` skips that prompt, not verification. It will not overwrite an output path and writes only after successful local grant signing and self-verification. Thus rejection of verification, key decryption, or human confirmation leaves no grant file.
+
+The resulting grant signs a domain-separated canonical hash of its body. Its body binds institution, environment, vault, intent and intent hash, policy and epoch, scope, approver credential and role, and a validity interval. A grant therefore cannot be moved to a different operation, vault, or policy epoch.
+
+`--now <unix-seconds>` supplies a deterministic clock for inspection and tests; otherwise commands use the system clock. It should not be used to treat a stale production package as current.
+
+## Verify and ingest the grant
+
+A recipient can independently check one grant against the same package and supplied approver credential:
+
+```sh
 ./target/debug/oic-approve verify-grant \
   --trust /tmp/oic-trust.json --package /path/to/package.json \
   --grant /path/to/grant.json \
   --approver "treasury-1=<ED25519_PUBLIC_KEY_HEX>=treasury_approver"
 ```
 
-`approve` prints the independently computed card and requires `y`/`yes` by default. `--yes` explicitly bypasses interactive confirmation but preserves verification. A positive TTL is required, expiry arithmetic is checked, and existing output files are not overwritten. Failed verification, wrong passphrase or declined confirmation writes no grant.
+This checks the Ed25519 signature, enrolled credential/role supplied to this command, validity interval, package identity bindings, and either the exact preview or the bounded template. Shared grant-set verification fails the entire set when any grant is invalid, while returning distinct credential IDs for a valid set.
 
-Exact mode binds candidate id/revision/preview hash. Bounded mode binds fixed wallet/network/asset/amount/destination/version/address/fee ceiling and adapter-permitted fillable fields. Deliver the grant to the builder/coordinator; creating it neither reserves a budget nor broadcasts a payment. `verify_grants` rejects the whole set if any signature/role/time check fails, and returns distinct enrolled credentials for successful verification.
+To ingest a grant, POST it to `POST /v1/intents/{id}/approvals` with an API bearer credential that has `Approve` scope for the intent vault. The API requires the grant credential to match the authenticated principal and checks the immutable intent, hash, institution, environment, and vault bindings. It verifies the signature and time against the authority's active approval-credential roster when available (otherwise its configured roster), rejects a changed reuse of a grant ID, caps the grant count, and accepts approvals only while the intent is `Ready`. With an authority roster, it also records one approval per credential at the authority before persisting the API record; repeating an identical grant supports recovery of a lost acknowledgement.
 
-`--now <unix-seconds>` is available for reproducible fixture inspection; absent it, the CLI uses its system clock. Choosing a historical time for a test is not a way to revive a stale production approval.
+Submitting the intent is a later operation. It evaluates the collected grants and current policy, persists the dispatch transition before coordinator execution, and treats errors after dispatch as potentially uncertain rather than authorization to create a replacement payment. See [HTTP intent lifecycle](http-intent-lifecycle.md).
 
-## Inspecting an envelope
+## Inspect the later signing envelope
 
 ```sh
 ./target/debug/oic-approve inspect-envelope \
@@ -107,14 +148,20 @@ Exact mode binds candidate id/revision/preview hash. Bounded mode binds fixed wa
   --envelope /path/to/envelope.json
 ```
 
-This recomputes the envelope body hash and reports field-by-field package bindings and mismatches. It explicitly does not verify the authority receipt signature because the authority key is not an approval-client trust root. Every signer performs that check along with its release and one-time-state checks; global exposure belongs to the authority. See [signer boundary](../architecture/signer-boundary.md).
+`inspect-envelope` recomputes the envelope body hash and reports each binding that affects the approver's view: intent, candidate, profile and adapter build, key, policy and destination hashes, native bytes and signing payloads, decoded operation and evidence hashes, reservation, verified claims and fee/outflow maxima, grant bindings/scopes, and receipt body bindings. A mismatch is refused (or is a destination-mismatch exit), but the command deliberately does **not** authenticate the authority receipt signature: the authority public key is not a trust root for this client.
+
+That limitation is intentional, not a substitute for the signer boundary. Each signer checks its enrolled authority key, receipt signature, receipt validity and session/envelope/candidate/policy/reservation bindings. It also revalidates every grant against its enrolled approver roster and clock, confirms each grant's intent/vault/policy/scope binding, rederives the native operation and bounded template where applicable, and evaluates local policy before honoring the reservation. This makes local envelope inspection diagnostic while keeping authorization enforcement at the authority and signer trust boundaries.
+
+## Failure signals and test focus
 
 | Exit | Meaning |
 | --- | --- |
 | 0 | Command succeeded |
 | 2 | Usage or argument error |
-| 3 | Verification/freshness/confirmation refused |
-| 4 | Decoded destination differs from registry |
-| 5 | File read/parse/write failure |
+| 3 | Verification, freshness, signature, scope, or confirmation refusal |
+| 4 | Decoded destination differs from the registry destination |
+| 5 | File read, parse, create, or write failure |
 
-`cargo test -p oic-approval-verifier -p oic-approval-client --locked` covers compromised-console address text, wrong native recipient, missing quorum, stale evidence, pinned roots, protected key files, wrong passphrase, confirmation, exact/bounded grants, envelope mismatch reporting and executable CLI flows. Continue with [build and coordination](build-and-coordinate.md) or [security objects](../concepts/security-objects-and-encoding.md).
+Focused integration tests cover exact EVM and Solana grants, bounded scopes and their allowed fillable fields, refusal on wrong role, expiry, changed candidate, wrong passphrase, and non-confirmation. They also exercise field-level envelope mismatch reporting, the destination-mismatch exit, and the real CLI path from key generation through approve, verify, and inspect. The verifier grant tests additionally cover tampered bodies, unknown credentials, role mismatch, expiry/not-yet-valid grants, and an invalid member causing grant-set verification to fail.
+
+For object formats and security commitments, see [Security objects and encoding](../concepts/security-objects-and-encoding.md).

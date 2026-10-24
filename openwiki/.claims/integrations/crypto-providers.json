@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:f41fdd51f3bd8ce91119617b22b2a16fad48d7d8205827d07518a4234c6cc523",
+  "pageVersion": "sha256:fa5c2edb43cff44db25bab6799c5b9b0717cd396f5562df14744705b48b53a7d",
   "claims": [
     {
       "id": "claim_960f1ebea8a3471094f82910cc44cbee",
       "statement": "Provider descriptors declare exact topology, message convention, one-time state and first share-producing round, and check_topology refuses to expose all-participant or single-key backends as unsupported threshold configurations.",
       "evidence": [
         {
-          "resource": "repo://crates/crypto-provider/src/lib.rs#L213-L246",
+          "resource": "repo://crates/crypto-provider/src/lib.rs#L248-L281",
           "version": "repo-lines-v1:sha256:f1d5ebdc9746b8bb77a43692795868edef82bac3b1addb7bd9f7e07358711b9f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0M2Y0ODgwMGUwYjBhNGI0ZjU0NmJlZDE5NWU0Mjc4ZjlkNzNmNjllZWM5Y2RkMjQzMjYwZmNjY2E3Yjc1MDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
@@ -53,7 +53,7 @@
           "version": "repo-lines-v1:sha256:76fcad19cf936c97df33d86c890ac0918ba1dc214af54ee36131b48cb856bfa7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTM2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJiZjIzMWZlNTliMzdlZjBjZGQ1NzEzNDIyNzgxMTQzYmRhMDAyYTA5ZmZhMmY1Mjc1ZDUxMTMyZDMwMzRiY2M2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIzM2M4OWNhODgwNzQyZjYxMDU0MDcyMzk0Y2ZiNzQ0ZDJkMGEyYzJjZTdmZjg4ZmNlMmFiMjZlY2U5YmIxNGZiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJmOWI2MzY1MGYzNzJjOWFhZDJhMzY5YTU4YWYwZWUxMGM3MWIyNDRhNGEyOWVmNzAzOTVjNTU2ZmRjMTY4NmM3IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIzOTE0ZDcwYzc1OTEwOWFjNWMxZjAyNzFhZWJlYTQyZjhkOGQ1YWI4ODJkYWVlN2FmOTZhZmZiNjdlMzUyZDgyIn0"
         },
         {
-          "resource": "repo://crates/crypto-provider-frost-ed25519/tests/frost_provider.rs#L306-L446",
+          "resource": "repo://crates/crypto-provider-frost-ed25519/tests/frost_provider.rs#L388-L528",
           "version": "repo-lines-v1:sha256:3bc7e228e8dda0c5edb7916f36427bee7989c0abb16e09c140b8e0d36e748d97:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJiYzZjMzI2ZGY0NDcwNTk0ODU4NGVjM2I2ZTM1NmZiNjUwNmFjMzEyMzE1YjY4M2E4MmZmNzNiMzgzMzhkMjNlIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIwMWJhNDcxOWM4MGI2ZmU5MTFiMDkxYTdjMDUxMjRiNjRlZWVjZTk2NGUwOWMwNThlZjhmOTgwNWRhY2E1NDZiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3ZjlhZDQ2M2JlNzFjNWY0MjA5NDZhZmJmMDdkMGZlOWY1ZjExZGE4MmYxZTk0OTAzY2MzMzk1ZDhjMWEwYjM4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJmODUwM2Y1NDhiZGE2NTJlN2Q3OWRmZjY2ZjI4YjI4MTRlYWU4ZDBlNWRiNTRkZTFlNmZhMjMwNjRlNGM3ODBlIn0"
         }
       ]
@@ -81,14 +81,84 @@
           "version": "repo-lines-v1:sha256:c614165082a63061f2f9354d43599eb7f97d195189d03c9f06bcf30cbe47bd75:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhOTgzZDZjOTBlN2ViYzE1YWI5MTQxYjEzZmNjNWNmMDJiNTAyMDBkMTM1Y2VjYzY0YzEyYTIzNDkxOTdkNmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyMGU4OTAyMTg1YWI3NjkxYzI5MDI5MWFkZWMzZmExNzQzNTU3OWMyMWFlMzY2ZTc4NzVjNzZkMmM4Y2RlYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZjY2VjODZmN2Y3MWY4NGU1ZGViOTEwZDYxMGI0Zjg5MDNhMzZlOTdhMDJhNTViMmJkZDVmM2ZmNWMzZDE5N2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVkZWMyNmM1OWZiZmNmMjRjYjAwZTZhMjMwZTU3ODBhM2U1MjFjNDNmMGNmZGU3NjAyOWNiMjQ4ZTBmOTgzNDEifQ"
         },
         {
-          "resource": "repo://crates/crypto-provider/src/lib.rs#L198-L204",
+          "resource": "repo://crates/crypto-provider/src/lib.rs#L233-L239",
           "version": "repo-lines-v1:sha256:b7c7700ed3efbcfd04f2755b3f206f3671c6bd8c6001d754430749c32b20b845:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmZlMjYyZGJjNTk5MThlNDA5YmM2OTc1ZDAxZTQ0NTNiMzU5ZWQ3OWU4NDUwNTNjNjIxYjBjMjBkOGIxNWE4OCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWVlNDk3MmY0M2Y0MjY4ZTQxNGJjMzhkZjNkNzE4YjEzYzE4YTFjMjAxN2I4YTEzZTRjNjc4MTA2Y2I5NTliYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjViOWQzNDA1ZTdjZGQyNTU5ZDRlOTZhNTg3MzdjYzc1YWRmNzM3ZjUwYTIzM2IzYjFiNjRhMTA3NjY0NjhlOSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_95d7fb63a41d4fea9bebbbac12dd3261",
+      "statement": "The signer boundary independently verifies authorization and withholds protocol input at or after a provider's declared share-producing round until release; it also requires the stateful provider's ledger record to be consumed and bound to the selected payload hash before returning a share or complete signature.",
+      "evidence": [
+        {
+          "resource": "repo://crates/crypto-provider/src/lib.rs#L66-L73",
+          "version": "repo-lines-v1:sha256:5c298b4700c5ed2925ab485bf3db3772e0194494dfbd3d2ad7c6bd8321113355:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2Q0NTlkZjU0OTAzMjY4Y2EzMmI4Mzk0NDUwMTAzZDBhYzRjOTMzZGQ5ZGVmZjI3OGEyNDgxMDk4NTU0MjJmZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmI4Y2ZkMjgwYTcwZmQ3OTE0MjdjN2UwYTk0OWY3ZjczYjliM2JiMzFkNWI0ZGJlM2RmNmZkZDU5N2NkMmYwMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzc2MDVkZWMyNzMxOTk5MjBiZDQyMTcxYmQzNjA3NTYwYjM0NjVhYWQxYjEwNjI0ZTg5YjljNGNkY2Y5NjljNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjQyMWFlMTM1NDE1ODFkZDcxZjcyMzNkNjE4NDBjNjA4Nzc4OTJiYmEzMTM5N2NhNGFlNzEwMTUwY2Q1MjEzZCJ9"
+        },
+        {
+          "resource": "repo://crates/signer/src/lib.rs#L78-L86",
+          "version": "repo-lines-v1:sha256:93e68e9fb54b0e7408695f2a6e03a94764408e4212d503426df5f6a3c4894938:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTVmNTBlNDcwZjQyYjM5ZWY5Yjc0MjE5MDk1MTM1M2Q5MjNmZGNiZGE2YzAyMDMyYjhlZWUxMGUwZjYwNWFiNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjY0NzIxZjFkOGRlOWJmYTBmYzg3YzJkODliMTBhYzFmNjMzMWRkNjdjNjc1YzUwODU1ZThlMjMyOTQ4NTMzNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjMyMDhiMjg4MGFiMjE1MTg5MWRlNWM4YzllZDI1MWNhYzg0Y2MzNjA5N2FiMjE3MzQzYjhlNjkzMzRhYTE5NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzhlNzJmMmNlNzYyNmQ4YTkyM2NjYzhhZmUzNWQzNGE5OGM3YTkxMWM3MmRlNzNlZDI0MWIyNTE4ZDQzNzJkOCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_24f3f5adf84a471eae8f0762c3dccf78",
+      "statement": "A FROST session may select any enrolled subset meeting the key threshold, but the current signing package and aggregation require commitments and shares from every member of that selected set, so a non-cooperating selected signer requires a fresh session with another viable subset.",
+      "evidence": [
+        {
+          "resource": "repo://crates/crypto-provider-frost-ed25519/src/lib.rs#L611-L689",
+          "version": "repo-lines-v1:sha256:dac8a2e4b298ade7f84cedfd07709e249218ac49c6bbc378b9ef69be884ee500:eyJzZWxlY3RlZExpbmVDb3VudCI6NzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhMWRlMmZkYWIxNzk0N2U1NjI1Mzc0ZDQ4ZWVlNTJhOWZkMWE0MzY5MWI1NTY2NWVjZTdkYzMwODdjZTU0YzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ZDdkMTc4NDI1NmVmZTg0ZDU1NjQzZjFkMzdiYTQ1MWJjNTIwNmQxMmM2OTMzZTY5ZmFhMmNlZTRiMmQ0OWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMxMThmNjliZjRiNmJiNWYyM2U3NWUwMTI2YjYxODEzMmU4NDU0NDYzMzJmYTE4ZjAyM2E2OGJjNWFiNWU1YzMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY3MDMzMDk1ODg1NzBmMWFmNmY3NWMzZDY2MDMzY2ExMzAzOTk5OWQ1NGQyMjFjOGM3OTgwMzEwNmRhZjg3OWEifQ"
+        },
+        {
+          "resource": "repo://crates/crypto-provider-frost-ed25519/src/lib.rs#L797-L834",
+          "version": "repo-lines-v1:sha256:12c2cd2080ab90370fd73713cd82096ebe104f92a3e988c88e94056cc142ef15:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzMTZmYjUyMTBiZWY2ZDA3MTc2ODAyODEzMjU1NWQ5NzRiYjI2NTc2MGNlMTgwMzBhZmZjOTQyOTEwOGUxZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2MDFmMjVjOGYxMWJjMGE0N2U1ZGZiMWRiN2ZmN2FhMGQ4ODUxZTc0ZDBhMmVhYjJkZmFlYzA2YjUwZmMxOTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5OWJkZWZlZWFjYTYzNDBlMDI5MGRjODZlODg5Yzg5ZDVlMTg5YWE1YmE0NGI1ODViM2I3MDczNGY0YTYyZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRkZmMyMDdiZjk5YWY4YTZkZGQyNGNmZDI0ZDEzMGFhNGU1YjBlNDAyM2ZjYWRlYTFmNWFjYWJmNjk2NzFkY2IifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_89dd9599b0f54682ae6468780d02bd7a",
+      "statement": "The coordinator drivers route backend protocol traffic but carry no authority: FROST relays broadcast commitments and a signing package, while the development driver sends one payload-hash-bound release message; signers recheck inputs and apply the release gate.",
+      "evidence": [
+        {
+          "resource": "repo://services/coordinator/src/driver.rs#L120-L224",
+          "version": "repo-lines-v1:sha256:efbb364b46843a47ea5c40389ea9f32edcb321e827c709936cb6464192ef4309:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJmMzBhOWJlMmE2NzhkY2MxZmJkOTU4NTU5Mjk3MzNmMGIzZjcwNDU1ZWRhYzNhNTExNTc5YzA3ZTFjZmMzYzEyIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0ODkzZjQwZTM3ODFlYjg5NmM4MmQwNDZhMDgwNjdhMTFlMzVjZGYyZjFkZmFmMjZmZWE5MGI4ZGI2Njc2NDEzIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIxOWU3NjM1NWNmMTE5OTQ4MGMzZjk5ODM2YjE0ODZjODQxZDg5MWZhYWQ5MDRjNjA4ZTA5MzAyMmQzNzU3YWVlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJhOTk1NjIxMDZkMjg2MzY5OTRhYzlhMjBiZjlkZTA1ZGFkOGZlMzI4YTQyNGM4Mzk0MGFlMjcwMGUxYTQ3ZWJmIn0"
+        },
+        {
+          "resource": "repo://services/coordinator/src/driver.rs#L2-L19",
+          "version": "repo-lines-v1:sha256:4cc6f6b0e649c6552be6168d50b4332bd234f854c1c1d0bb2542ed4beacd1690:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwNjU3MzdlMDcxZjlmYmNkZjU0YjhhZDM4ZTY2ZTRiNmYxZjlmYTFjMDFlZDZhZjlkOTY2NGQyMjJhOTY0MDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxNzk0N2UyMTA2NGIyZjJjZDU5NmY3ODM2YWEwMWQzYjI2ZWZkOTE4NWQ0Yjg1YjYyN2YyMTIxYWM3ODYzZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoxLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgyMjFiYmU2MGY0YmFlY2ZkY2Y4YmI3ZGZmODliMWYxZDk0OTcyY2UwNTFhNDc3N2ZkMGJjMzc2N2U1MzQyYTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlkYjI5MmExOTZlNGQ3NmI2YjFmZWYwZWNlOWE1ZmJmOTdlNDFhNzFlMmE3MmYyYmU3M2RkNDRmZmQ1YjA1YmQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fc37450d3f64469c96231a3db8b798df",
+      "statement": "The file-backed one-time-state ledger durably appends and fsyncs checksummed canonical-CBOR mutations before successful return, detects rollback against a supplied or retained high-water mark, and has no OS-level file lock; it stores record metadata rather than secret nonce material.",
+      "evidence": [
+        {
+          "resource": "repo://crates/one-time-state-ledger/src/lib.rs#L15-L42",
+          "version": "repo-lines-v1:sha256:e5e589d812aeef15f35f91b63a998d5e3577397bfde74ab3782590a7866b530a:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVjYTIxMDUzMmM0NTljYjM2Mzk4MGQxZjYzN2MzYzc4MTYxMTg5NDhhOTRmZGE2MjNjOWU0YjBjZGIxOTc4ZWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1N2I2ZjQ3MmM1Nzg2NDY5M2FlMTA5M2MxYTRkOWU2ZTQwZjMwYmM2NDEyNDliOGRiZDFkNDg4NjczZWI3MjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMxZGZhYWE5NTUxZWU1ODBlMmMwMTEyMzM4MTkyMmZhMDM4NTFkMzZhMmI3ZjdjNjhhYThiMzIxNGI2M2YyZDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE5N2M1Nzc0MWYwMjEzOGViNGQ5ZDVhMTA0ZGRlY2Y2NDViY2U2N2RkNmY2MWI5YTAyNWI4NGJhMzVmMzFhNWEifQ"
+        },
+        {
+          "resource": "repo://crates/one-time-state-ledger/src/lib.rs#L398-L495",
+          "version": "repo-lines-v1:sha256:ada90ea2ff336ac9325e400a3a805b37ab69f46026c25d94c7ce42999b4a477c:eyJzZWxlY3RlZExpbmVDb3VudCI6OTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEyNmRmODY1ZmIwMDIyZmY5YjNhOTVjNWYxNmNlZWY5OTYwMGEwMzQ2NWFiNGVmNzkwNWFiZjU5NDJjYjNlYjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ5MzdjZmRlZTc3NWQzOTNmMTVmMmQxNjdiMjczMTAyZjBiZmE5N2YxYTZiYzljZDY4OTU5MDkyOGYxN2NiMzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVkMzJiODgwMjZmMzk5MWNlYzg0YzA1ZDkwYWVhMjI2ZjhjYTUzNTc2MzA3YTVlMWQxM2U2OTcxMzcwNzdmZGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fda5c99ebb624e01b881b44f4c3eb5c0",
+      "statement": "A FROST sealed-share backup can be loaded by a correctly provisioned replacement instance in tests, but the backend declares neither share refresh nor recover-or-replace; removal therefore does not revoke an existing share and key replacement plus asset migration is the available remedy.",
+      "evidence": [
+        {
+          "resource": "repo://crates/crypto-provider-frost-ed25519/src/lib.rs#L543-L588",
+          "version": "repo-lines-v1:sha256:2fd401d177b3178024375fd083a10ff897d5a5bb1068e8e27410811276b9f76c:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZhM2U3Nzg2NzczZjVkMzUzYWM1MTc4NjhjYjA2MWJmZjU3ZDI3ZTdkNmU4ZTQ0MGMyNTY0NDE3NTRmOWU5YTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1OTNmMzk3N2I3MWEzZGQ3ZGE4NGEzNTRjNGEyZDNhNGViMWIzNTBkMGRkOGVmZmI2ODNiNTQyMzgwYzBmYmEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI5Mjc4OTAxYTBlOTJhNDEwN2NhNjBkNWM4ZTcwNGYxNGRkYzYyM2VlNDlhNjU5MjcyMzZiMjY2YmE2NzlhZjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZkMmI0YTIzYzA4MDEyZWM1N2M2ODViZmY1MTI2ZGQwZmVkNzkyZTljZTYyNjE0OTI0YzFiYjU3MWY1MTk5ZTUifQ"
+        },
+        {
+          "resource": "repo://crates/crypto-provider-frost-ed25519/tests/frost_provider.rs#L266-L337",
+          "version": "repo-lines-v1:sha256:611005b34f30e1e1b85efe33584563f66f7987f085aa22402a1a23f5e727be4b:eyJzZWxlY3RlZExpbmVDb3VudCI6NzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwYmZiYTZiYzdlOTRiNWE4YjJiNjEzYzc1NjQyY2MxNTZhNDlkZTcwOWJhMWZkMmIzZmVmYzk4MjY5MzVjZWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZkNWFmMzA0ZjMxNmVlNDkzMTgxZmI3YzU0YWNmZTg2ZjI3ODZjNGRmYjQxMGU0YmZlZDU5MjNmMzdkNmEyZTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiM2M3ZWE2NDEwYThlYTJkYWEyYmEzZjFkYzE5YmYxNGExNmU5ZWFjZDBjYzY1NjVlMGJiMGFiMDc0YWMzMjgifQ"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-20T20:16:28.312Z"
+    "at": "2026-10-24T08:14:21.486Z"
   }
 }

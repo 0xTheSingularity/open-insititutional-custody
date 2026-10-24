@@ -1,11 +1,11 @@
 ---
 type: operations
-title: Signed audit log and checkpoints
-description: Signed event chains, replayable file storage, witness checkpoint comparison, authority sink integration, and the limits of audit redaction and failure coupling.
-tags: [audit, checkpoints, persistence, witnesses, integrity]
+title: Audit log and checkpoints
+description: Signed append-only audit chains, crash-safe file recovery, independent checkpoint witnesses, and authority-event projection with explicit sink-failure monitoring.
+tags: [audit, checkpoints, recovery, integrity, monitoring]
 verified:
   - by: openwiki/0.7.2
-    at: 2026-10-20T20:16:28.312Z
+    at: 2026-10-24T08:14:21.486Z
 sources:
   - id: openwiki-source-09a0bdd0a43480a51cba765d
     resource: repo://crates/audit/src/chain.rs
@@ -17,60 +17,96 @@ sources:
     resource: repo://crates/audit/src/sink.rs
   - id: openwiki-source-94c645cf438f32d119ca39ca
     resource: repo://crates/authorization-state/src/authority.rs
-generated: { by: "codex", at: "2026-10-20T20:16:28.312Z" }
+  - id: openwiki-source-ca5ec0d2f2ba31c636cb280f
+    resource: repo://services/witness/src/lib.rs
+generated: { by: "openwiki/0.7.2", at: "2026-10-24T08:14:21.486Z" }
 ---
 
-# Signed audit log and checkpoints
+# Audit log and checkpoints
 
-`oic-audit` supplies `AuditLog`, `MemoryAuditLog`, `FileAuditLog`, signed checkpoints, and an adapter from authority events. It records verifiable history of actions and object commitments; it does not serve as the authorization-state database or a financial journal.
+`oic-audit` provides signed, append-only evidence of actions and committed-object references. It is **not** the authorization-state database, and a durable audit event is not the same thing as authority transaction success: the authority commits its own state before it calls the audit sink. Treat the two stores and their recovery signals separately.
 
-## Event integrity
+## Signed event chain
 
-Each event body includes sequence, previous event hash, timestamp, actor/action, object commitments, policy epoch and detail. Sequences begin at one and advance exactly by one; the first previous hash is zero.
+An `AuditLog` seals one `AuditEvent` per successful `append`, exposes its signed head through `checkpoint`, and supports ordered export with `events_since(sequence, limit)`. Event sequences start at one, increase by exactly one, and the first event uses `Hash32::ZERO` as its previous hash.
 
 ```text
-event_hash = SHA256("OIC/AUDIT/v1" || canonical_bytes(body))
+event_hash = SHA256("OIC/AUDIT/v1" || CanonicalEncode(event_body))
 ```
 
-The service key signs that hash with explicit-scheme Ed25519. Event ids are derived separately from a domain-separated commitment to all body fields except the id itself, avoiding a circular hash. `verify_event` checks content validity, id and signature. `verify_chain` additionally enforces contiguous order and hash linkage, optionally continuing from an already verified head.
+The audit service signs this hash using `Ed25519Pure`. The body holds the sequence, prior event hash, timestamp, actor, action, object commitments, policy epoch, and detail. Its `event_id` is separately derived from a domain-separated commitment to all body fields except the identifier, avoiding a circular definition. `verify_event` revalidates the bounded content, derived id, and signature; `verify_chain` additionally checks strict sequencing and hash linkage, and can continue from a previously verified `(sequence, hash)` head.
 
-`events_since(sequence, limit)` returns entries strictly after the supplied sequence. A caller can export/replay a prefix, retain its verified head and continue incrementally.
+Append-time bounds deliberately constrain what can enter the log: actor, action, and commitment labels must be nonempty and at most 256 bytes; detail is at most 4,096 bytes; and there are at most 64 commitments. Details containing case-insensitive `begin private key`, `seed:`, or `share:` are refused. That is a narrow tripwire, not secret redaction: callers must never pass secrets, nonce material, or key shares, and should commit to sensitive objects instead.
 
-## File durability and replay
+## File log lifecycle and recovery
 
-`FileAuditLog` stores frames of four-byte big-endian length plus canonical CBOR event, bounded by `MAX_FRAME_BYTES`. It syncs event data before acknowledgement and advances `<path>.hwm` using atomic replacement. Opening replays and verifies event ids, signatures, service-key identity, order and linkage.
+`FileAuditLog` stores a stream of frames: a four-byte big-endian payload length followed by canonical-CBOR `AuditEvent` bytes. An append seals the successor, writes and syncs its whole frame, then advances `<path>.hwm` by an atomic replacement whose file and parent directory are synced. The append is acknowledged only if both steps succeed.
 
-| Reopen condition | Behavior |
+```mermaid
+flowchart TD
+    Seal["Seal signed successor"] --> Frame["Write and sync frame"]
+    Frame --> Hwm["Atomically advance HWM"]
+    Hwm --> Ack["Return event"]
+    Frame -->|"write failure"| Rollback["Truncate to acknowledged prefix"]
+    Rollback -->|"truncate failure"| Poison["Reject later appends until reopen"]
+    Hwm -->|"HWM update failure"| Durable["Event remains durable"]
+    Durable --> Warn["Return availability error"]
+```
+
+This is the `FileAuditLog::append` durability and failure path. A high-water-mark update failure is especially important operationally: the event is already in the file and the in-memory head advances, but `append` returns `AuthorityUnavailable` because rollback protection was not advanced. Do not blindly retry such an error as though no audit event exists; reopen/replay or inspect the log before deciding how to reconcile it.
+
+On `open(path, expected_min_sequence, config)`, the implementation replays the complete file, checks service-key identity, and verifies every event id, signature, sequence, and link. It compares the verified head to the maximum of the local `.hwm` and supplied independent minimum **before** changing the file.
+
+| Reopen condition | Result |
 | --- | --- |
-| Incomplete final frame | Discard the unacknowledged tail; expose discarded byte count |
-| Complete malformed or invalid event | `RecoveryRequired` |
-| Wrong service key or broken hash chain | `RecoveryRequired` |
-| Verified head below high-water mark or caller's expected minimum | `RecoveryRequired` |
+| Final length prefix or payload is incomplete | Truncate only that unacknowledged tail, sync it, and report the discarded byte count through `truncated_tail_bytes()` |
+| Zero, oversized, or otherwise impossible frame length | `RecoveryRequired`; leave the file untouched |
+| Complete frame cannot decode, names a different service key, or fails chain verification | `RecoveryRequired` |
+| Verified head is below `.hwm` or `expected_min_sequence` | `RecoveryRequired` for suspected rollback |
 
-Incomplete writes and invalid complete history are treated differently. Supplying an independent minimum sequence matters when a backup could include both the log and its local high-water mark. See [durable state and recovery](durable-state-and-recovery.md).
+An independently retained minimum protects when an old backup includes both the event file and its local sidecar. Preserve it or a checkpoint outside the file's failure domain; do not “recover” by deleting `.hwm`. See [durable state and recovery](durable-state-and-recovery.md).
 
-## Independent witnesses
+## Checkpoints and independent witnesses
 
-An `AuditCheckpoint` signs service key id, sequence, head event hash and time under `OIC/AUDIT_CHECKPOINT/v1`. Hash chaining alone cannot prevent an operator who controls the signing key from presenting different signed histories.
+A checkpoint is a service-signed statement of `(service_key_id, sequence, head_event_hash, time)` under `OIC/AUDIT_CHECKPOINT/v1`; an empty log has sequence zero and a zero head hash. A checkpoint authenticates the service's claim but is not independent evidence while it remains solely with that service.
 
-`compare_checkpoints` verifies both checkpoints and returns consistency, extension or divergence. Different-sequence comparisons require exactly the bridging events; each is verified before a verdict. Missing or malformed bridging history is an error, not proof of equivocation. `first_divergence` verifies two complete histories and identifies their first differing event.
+`compare_checkpoints` verifies both checkpoint signatures and requires they name the same service key. Equal sequences are either `Consistent` or `Diverged`. For different sequences, the caller must supply exactly the later history's events from `low + 1` through `high`; every bridging event is signature-checked and the chain is linked from the lower checkpoint. Missing, malformed, or internally inconsistent bridge data is an error, not evidence of equivocation. `first_divergence` verifies two complete histories before returning their first different sequence (or `None` when one is a prefix).
 
-Witness storage and checkpoint exchange are caller responsibilities. A local checkpoint never becomes independent merely because it is signed.
+The witness service retains authenticated observations in its own hash-linked journal. For audit checkpoint messages, it uses its enrolled audit-key binding, verifies an included bridge before comparison, retains observations by key and sequence, and records `AuditDivergence` evidence if comparison returns divergence. Once evidence exists, the witness is quarantined until operators investigate; a higher sequence alone does not prove an audit history extends a lower one.
 
-## Authority and signer integration
+## Authority projection and failure visibility
 
-`AuthorityAuditSink` maps every authority event to an `authority.*` action, a commitment to the complete authority event, and commitments to referenced objects. Detail includes the authority commit sequence; the sink tracks the last known policy epoch and explicitly marks unknown epochs.
+Attach `AuthorityAuditSink` with `Authority::with_audit`. The authority first commits its fenced store transaction; it only calls `AuditSink::record` for the emitted events afterwards. `record` returns `()`, so an audit append failure cannot roll back, block, or turn a successful authority command into a failed one.
 
-The authority's `AuditSink::record` has no result channel and runs after the state mutation commits. An audit append failure therefore **does not roll back or block that committed authorization operation**. The adapter exposes `last_error`, `failure_count` and `recorded_count`; callers must monitor them and enforce any operational halt policy outside this hook. The sink's own lock serializes mapping/appends, while authority commit sequence remains the ordering reference for the underlying state.
+```mermaid
+sequenceDiagram
+    participant Caller
+    participant Authority
+    participant Store
+    participant Sink
+    participant Log
+    Caller->>Authority: command
+    Authority->>Store: transact transition
+    Store-->>Authority: committed output and events
+    Authority->>Sink: record each authority event
+    Sink->>Log: append projected audit event
+    Log-->>Sink: event or error
+    Sink-->>Authority: no result channel
+    Authority-->>Caller: committed output
+```
 
-The signer separately exposes `SignerEvent` and `with_event_sink`; applications can wire that hook to audit. This crate ships an authority adapter, not a complete signer/network audit collection service.
+The sink projects each `AuthorityEvent` into an `authority.*` action, always commits the complete source event as `authority_event`, and adds domain-separated commitments for named objects. Current variants include opening, policy activation, credential change, approval recording, reservation, release, freeze/unfreeze, abort, and observation. Detail contains the authority commit sequence and relevant identifiers. `PolicyActivated` supplies its own epoch; later events use the sink's most recently known epoch, or `Epoch(0)` with `policy_epoch=unknown` until one is known. Its mutex holds epoch mapping and append together so concurrent records observe policy activations in append order.
 
-## Input and disclosure bounds
+Monitor `failure_count()`, `last_error()`, and `recorded_count()` on every `AuthorityAuditSink`. A nonzero failure count means committed authority changes may be missing from the audit log; alert, review the affected scope and authority commit sequences, and apply any halt or remediation policy at the application boundary. The sink advances its remembered policy epoch even if the corresponding append fails, so a later successful event can carry the current epoch without proving the missing event was backfilled.
 
-Append validation bounds actor/action and commitment labels to 256 bytes, detail to 4,096 bytes, and object commitments to 64 entries. Detail containing case-insensitive `begin private key`, `seed:` or `share:` markers is rejected. This is a narrow tripwire rather than a comprehensive secret scanner. Never supply secrets or protocol nonce/share material; prefer commitments to the relevant objects.
+For authority state semantics and durable transaction boundaries, see [authorization authority](../architecture/authorization-authority.md). Audit evidence complements rather than replaces reconciliation of potentially issued transactions; see [reconciliation and treasury workflows](reconciliation-and-treasury-workflows.md).
+
+## Operational verification
+
+Run the focused acceptance suite:
 
 ```sh
 cargo test -p oic-audit --locked
 ```
 
-[`tests/audit.rs`](../../crates/audit/tests/audit.rs) covers signed chaining/tampering, validation, replay, partial tail recovery, foreign keys, rollback, witness divergence, complete authority event mapping, sink failures and file reopen. For the events' stateful meaning, read [authorization authority](../architecture/authorization-authority.md); for signer output gating, read [signer boundary](../architecture/signer-boundary.md).
+The audit tests exercise tampering and incremental verification, input bounds, file replay and torn-tail behavior, foreign keys and rollback detection, checkpoint comparison/divergence, complete authority-event mapping, sink failure visibility, and reopening an authority sink backed by a file log. Witness contract tests additionally cover authenticated checkpoint observation and quarantine behavior.

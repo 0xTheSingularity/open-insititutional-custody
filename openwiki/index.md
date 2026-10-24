@@ -4,7 +4,7 @@ okf_version: "0.2"
 
 # Files
 
-- [Open Institutional Custody quickstart](quickstart.md) - Entry-point orientation and task-routing map for the implemented custody workspace, runnable tests, independent approval CLI, and source-grounded architecture and workflow documentation.
+- [Repository guide](quickstart.md) - Start a runnable development custody flow, then use this map to select the smallest architecture, workflow, integration, operations, or verification reference for a proposed change.
 
 # Directories
 

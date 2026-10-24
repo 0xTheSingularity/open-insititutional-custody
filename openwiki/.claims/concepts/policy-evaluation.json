@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:600a99a7f7e584bb624205ac64f1cac50471b28cef3d259af85a2ff7c9d07fa9",
+  "pageVersion": "sha256:92dcd947dbeb8dda45785c9ae0a87828a97061a16803c2a153073dabfa5f3be4",
   "claims": [
     {
       "id": "claim_fdfac3524bd54887822d474a65de824f",
-      "statement": "Policy evaluation is pure with caller-authenticated objects and orders binding, hard denials, first matching rule requirements, and approvals into Allow, Deny or RequireApprovals.",
+      "statement": "`evaluate` is a pure, deterministic, fail-closed decision function over caller-supplied inputs: it checks binding, then hard denials, selects the first matching rule, enforces that rule, and finally returns Allow or RequireApprovals from approval evaluation; any earlier failure returns Deny.",
       "evidence": [
         {
-          "resource": "repo://crates/policy-kernel/src/lib.rs#L1-L56",
-          "version": "repo-lines-v1:sha256:22db3615b059d00d4d7f976d7316e15cc18fde6a2994e00307e5d8154b54d297:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQwYTVmOTJlMTQwMTNkNTQ3YzY5OGIxOTU4ZGZkY2MwOGZmNTI5NjUzODNlZjAzZjMwYmNjZDg1ZmFiY2Q0ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQzM2NhYzU4Mzg1YWQ4NTgzZTM5NmQ1OGUwN2Q2ZGEzM2VmNTVmYzhlYmJlNGJlMzkxOTZmODc5MjRmMGI2NjIifQ"
+          "resource": "repo://crates/policy-kernel/src/lib.rs#L1-L16",
+          "version": "repo-lines-v1:sha256:db6fb7deb2199aa64a7aecadff4537584a8040fddf5835823fd3c6690051cc41:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQwYTVmOTJlMTQwMTNkNTQ3YzY5OGIxOTU4ZGZkY2MwOGZmNTI5NjUzODNlZjAzZjMwYmNjZDg1ZmFiY2Q0ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVhMDA2MWU0OGJkMGIwMTM1MGQwZWMxMjdhZGNkYTdlYjBkNDFhMWYxN2I0ZDQ4N2M0OGYwOGQzMzY3MmYxNzMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ2NDY4NWE1ZDU2MjM2ZGIwYjFkMjJkZGMzMDNhZTdhYThkMGEyOWJmOWM4ZWIyZWUxODk5MmIxYTg4NGFjMjkifQ"
         },
         {
-          "resource": "repo://crates/policy-kernel/src/lib.rs#L140-L187",
-          "version": "repo-lines-v1:sha256:5941c619febe4db366ede421473c82cd9c94ada84a7415b97d80f7cd51019d26:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0MGYwOGVkNzdjYTU5ZTc3Nzk0MTQ3MTJjZDBiODYyMjU4YWEzNjExYzUyZDU0MjFmNTNlYjNjZDUyM2ZiZDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkwODE1NWJlNDQ3YWU4NTFkMzcwM2I3M2ZjNzdmNmMzZjI4M2Y5MjNmNGE3ODliMGY0NTFlZDcwYWE0ZDBkYzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE4MTE3OWU2MTJmMDA5ZmUyNjQwZmI2NGFkOGRlZTc2NDRiYjg3NjE1ODg2Y2E0MDkwNjZjMGRiNzFkNmZmNDAifQ"
+          "resource": "repo://crates/policy-kernel/src/lib.rs#L160-L179",
+          "version": "repo-lines-v1:sha256:06da905cc372bc6ed78a815a4101dd4a77343f47b153dc0de696ef5361f77976:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhjYzgzYjRmNTg3ZDIzMjAyMDVjOTE2MWI3YjE4OGY0MjAyZjYwMzQ4Y2I1Nzk4MjA1ZTUyY2VjZWQ0NTA3ZTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE4MTE3OWU2MTJmMDA5ZmUyNjQwZmI2NGFkOGRlZTc2NDRiYjg3NjE1ODg2Y2E0MDkwNjZjMGRiNzFkNmZmNDAifQ"
         }
       ]
     },
@@ -21,7 +21,7 @@
       "statement": "Hard denials precede rules, enforce decoded intent and registered asset/destination meaning, and reject future/stale or insufficiently trusted evidence and more than 64 grants.",
       "evidence": [
         {
-          "resource": "repo://crates/policy-kernel/src/lib.rs#L233-L328",
+          "resource": "repo://crates/policy-kernel/src/lib.rs#L225-L320",
           "version": "repo-lines-v1:sha256:abd0fce9284ab4cf26afae203a81e3915bc2eeadf9a49131320784b5b04640d1:eyJzZWxlY3RlZExpbmVDb3VudCI6OTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdmN2NlZmMwN2U1ZTRkYjBhNzk0MzFmNjE0YjhmOGIyZDZjNTUzZGQ1MGEyMDQ3OTEzMWNlMTJiYTA5NWE0YmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY2OGUxYzY0ZDllM2VjYjhmMTlmOTYzZTM5NDc2OWEwZTA3YjE4YmE4Y2FjYWIxMDk5YWMwZWRhODgwMmZlYWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIzNzIyN2M3NzFlNDM4MjM1N2YyYTE3NTFhMWNkNDNiZDlkMDljZWU1M2UxN2JjZGUyZjExMzQ2MjY3YmYyNTMifQ"
         }
       ]
@@ -31,7 +31,7 @@
       "statement": "Rules select the first matching ordered scope, empty lists match all, and match_rule alone performs no binding, limit or approval enforcement.",
       "evidence": [
         {
-          "resource": "repo://crates/policy-kernel/src/lib.rs#L330-L363",
+          "resource": "repo://crates/policy-kernel/src/lib.rs#L322-L355",
           "version": "repo-lines-v1:sha256:b7f8b85eeafafbf2cf5a6ba8ee5e01f6aece0096ea81280bfe2a23fe44e22fc7:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlkYzFhNWM1YTcxNWQ2YTAxMDdhM2QyMDNkNGMwYjU3ZGZlMDYyNTFkZTU5YWI4ZGQwM2UxYzk3NGZiMWMyNmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYzYjE2OTQ3NDRmOWFlZWZjY2EzZTM2NTBlYjAzNTFhYTI2NmQ5ZjRhNjQ1ZDllZjE5MDE5NDJiYmQ2MTY2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYxZjk2YTk0YmRmY2RkYzVmNjBhODc0OTk3MDZhZjY0OWFmNGI0NmVjNGM3MGFkZDVlMmU4MDg5MjAyNDNlMWUifQ"
         }
       ]
@@ -41,18 +41,18 @@
       "statement": "Rolling checks charge max(decoded amount, claimed outflows), require the exact exposure window, fail on overflow and permit equality at limits; operating windows are half-open and can wrap midnight.",
       "evidence": [
         {
-          "resource": "repo://crates/policy-kernel/src/lib.rs#L365-L426",
-          "version": "repo-lines-v1:sha256:48df1f3993226605e2fcfe9ee38039c30ca03e015fe3ce864baaf5442608a5a0:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhNGQ4OTY5YzhjYjkyOWM0YzBhOTI4N2VkNzMyODQ5YWNlZjE1ZWM2YjMyZmNiNjMwZDVhMjBiMDk5NDU4NjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFmYjQ3MTA2YmEzMDNmYjZiNzA1MDFhZGQ4ZWYxOTcyMTA0MzRkM2M1NWVhNmU2Zjc0YWE2NTNkYTAxNmYyODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA4MTQ5Yjk4NjY3MjdjNTcwZjcxYWJjODllNWZkMDVjNmZlMmExNzU4ZTc5M2UyYzAyOTE1MWFlMWM0MGJmMGUifQ"
+          "resource": "repo://crates/policy-kernel/src/lib.rs#L357-L417",
+          "version": "repo-lines-v1:sha256:3f1fc5a2cf41eb15fb30bddc7cf97fb5ac2c8c314792c4d42099699511feb192:eyJzZWxlY3RlZExpbmVDb3VudCI6NjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhNGQ4OTY5YzhjYjkyOWM0YzBhOTI4N2VkNzMyODQ5YWNlZjE1ZWM2YjMyZmNiNjMwZDVhMjBiMDk5NDU4NjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFmYjQ3MTA2YmEzMDNmYjZiNzA1MDFhZGQ4ZWYxOTcyMTA0MzRkM2M1NWVhNmU2Zjc0YWE2NTNkYTAxNmYyODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA4MTQ5Yjk4NjY3MjdjNTcwZjcxYWJjODllNWZkMDVjNmZlMmExNzU4ZTc5M2UyYzAyOTE1MWFlMWM0MGJmMGUifQ"
         }
       ]
     },
     {
       "id": "claim_d31d28cb5a28419e832e6963e118bfbe",
-      "statement": "Approval validity uses issued_at <= now < expires_at and distinct allowed credentials, with optional proposer exclusion and separate exact/bounded scope bindings; enough valid grants can Allow despite invalid or duplicate grant reasons.",
+      "statement": "After callers authenticate grants, the kernel evaluates grant bodies in a fixed order: they must bind the intent, domain and policy, be valid at `issued_at <= now < expires_at`, match exact or bounded scope, use an allowed role, and satisfy optional proposer exclusion; only distinct passing credential IDs count, while failing or duplicate bodies add reasons and enough other passing bodies can still Allow.",
       "evidence": [
         {
-          "resource": "repo://crates/policy-kernel/src/lib.rs#L428-L506",
-          "version": "repo-lines-v1:sha256:1ddd43354535c3167651423bcc759d10e64c71d791219ef51f42b245474a7493:eyJzZWxlY3RlZExpbmVDb3VudCI6NzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3OWQzNDBmNGRkYWYwNzNmMTk4NGExYzgzM2QwOGJjMTc4ZDNiMmI4MjQyYzJjZDQ4NmRhNjA5OWRhOGY4MmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYzYjE2OTQ3NDRmOWFlZWZjY2EzZTM2NTBlYjAzNTFhYTI2NmQ5ZjRhNjQ1ZDllZjE5MDE5NDJiYmQ2MTY2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE1MjE2MDRiMzVmYzQwYWYwMGNiYTRlZWEyZmQ1ZTJjM2FmMTg2M2IzOTExODVkN2JmNGJiMDllNzJkMGM4YjMifQ"
+          "resource": "repo://crates/policy-kernel/src/lib.rs#L419-L491",
+          "version": "repo-lines-v1:sha256:8a97f2e5e3492f03286d47be96e167029bc2312b031c7579a56bf92e0b1724a5:eyJzZWxlY3RlZExpbmVDb3VudCI6NzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3OWQzNDBmNGRkYWYwNzNmMTk4NGExYzgzM2QwOGJjMTc4ZDNiMmI4MjQyYzJjZDQ4NmRhNjA5OWRhOGY4MmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA3ZGZmZGZhODliMTc3MjJkODUyOWYyYTMyZjFkOGU5ZDVkZDZhM2ZlY2FiYjIzNjk3OWI0ODkyYjBmNGQ0YTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYzYjE2OTQ3NDRmOWFlZWZjY2EzZTM2NTBlYjAzNTFhYTI2NmQ5ZjRhNjQ1ZDllZjE5MDE5NDJiYmQ2MTY2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE1MjE2MDRiMzVmYzQwYWYwMGNiYTRlZWEyZmQ1ZTJjM2FmMTg2M2IzOTExODVkN2JmNGJiMDllNzJkMGM4YjMifQ"
         }
       ]
     },
@@ -65,10 +65,80 @@
           "version": "repo-lines-v1:sha256:5f6e70860a3cacfffacf1f245b5738c3f05311052c57635d790d2dff5335b337:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA4LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5MzhmZGIyOThjZGEwMDZmOTJjZWU5ZGJiMDc2NzljNzE4YmM5NGU4OGQxNGI0MGQ4MDE1ZGYyMTQxYmRjMzFlIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI3ZDQ1NTBmYWMyZWQ4NTAyZTFiMDcyMDhmOTg3N2VlNjBkM2MyODI3Y2Y5NDFmYjYzYWZhYWNiMzViZWY0Y2VhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkZDFmMTdmNTI5OTUyZGQ1MWJmMDhkNmZjZjJmYTJiN2ExMjc1ZjQwODAxYjEwYzNiYzAzYWViNzI0MjczOTlhIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJiM2JiM2Y5ZTg2YmFlYWYwMjFkZDA4NDNkMTQxNjJjMTVlNDVmYjhmNzNlNjJiYWVmMGEyZmI4YTc1MGRiOTE2In0"
         }
       ]
+    },
+    {
+      "id": "claim_abc1d8ed932d4e2b96d15ef9161a2994",
+      "statement": "Grant authentication is outside `evaluate`: `verify_grants` rejects oversized or partially invalid sets after checking enrolled credentials, roles, validity, scheme and signatures, and prevents different credentials belonging to one person from satisfying a multi-person quorum.",
+      "evidence": [
+        {
+          "resource": "repo://crates/policy-kernel/src/approvals.rs#L117-L138",
+          "version": "repo-lines-v1:sha256:4840946dfbcbff47e7cb03cf8c0f81f2c7bfebb0dfd5d3f2812ba17a2825ca9a:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQwZjA3NjIyNjc2YmJmNzI3ZGYxYzliZDZmZTE3ZjZkNzU3NmFiNTk2YmEwOGE1M2U1YzFlMDMyMGQxMTFhOTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzMDI0M2QzYTkyZDY4MDg5MjIxNjZmYzcxZTFmNDEzYTBlMmViZmJiYjMzOWFhNGFjNmY4ZDNiMmM3ZGMwNzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://crates/policy-kernel/src/approvals.rs#L67-L115",
+          "version": "repo-lines-v1:sha256:f41f8ded6cb915f4926e8694583b8f715512403735dbd80360c1930c22421404:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiMmU3MWU1NTFmMTljOWI2ZWFjMmVkNWUxZjVhNWNmYjkwNWNjYmMxMjJhM2UzNTQ2YzJiY2Q0YTQyMTgyN2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJmYWU1MTE5ZTdmYWYxM2U5ZjhlNzk0ZDc0ZjNiZWRmNmY2M2VmNTNmODA5NGEyYzUzY2IyNmM4ODk4OTcxYjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ3OGFjODgzNDQ1MTY5M2NhNDFmYTVlNmQxZTEzNTMxNTI1YTA4ZjA1MWE5MDNkNjA4YjFjYWQ5ZWYxNDc5MGYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_159a744596934ad797a087569e860500",
+      "statement": "Evidence age uses the tighter policy and evidence staleness bound, rejects future observations, and applies environment-specific trust: validating nodes and cross-checked providers are accepted everywhere, a single provider is rejected on mainnet, and a development simulator is accepted only in dev.",
+      "evidence": [
+        {
+          "resource": "repo://crates/policy-kernel/src/lib.rs#L223-L233",
+          "version": "repo-lines-v1:sha256:01e6ae4810eab493b4a93a58c64a6a85b1983f5d1132cc531c77d51997d499f7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyY2NiZjE2OWJhOWYzNDI2NDVkNzc0ZmRkYWY3MWNjN2UyN2QwNDczY2IxYzU2YTkxYTYxOWU5NDYxYzc4Y2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYzYjE2OTQ3NDRmOWFlZWZjY2EzZTM2NTBlYjAzNTFhYTI2NmQ5ZjRhNjQ1ZDllZjE5MDE5NDJiYmQ2MTY2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdjZWM3NWVhMWRiMmE5NzgyMGQyNmQ2Zjg2ZjNhOWRmY2M0NDRmYjFmZDY0MDUyYjU4M2JkOWQ0MWFiMjYxOGYifQ"
+        },
+        {
+          "resource": "repo://crates/policy-kernel/src/lib.rs#L283-L294",
+          "version": "repo-lines-v1:sha256:d35f6a8763436052c0dd39609739fefccb296efd903517e311e7646c45c59707:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVhOTk4NTMxNmNiN2QzN2U0ZmRiYTlkOTdhMjUzYzRiYjBkYjAzOTEzN2Q3NGZkNWFjMDUxNGY3NjAxMTM3MGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZlOWYyOTc4MzRiZjM1MjhkNTBmNmIyMjRmYzgwZTNhNGFmYTRjNTcyOTA1ZjMzMTk0ZGYzOTY5MmVmZDZiYTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIyYzVlNzEzNjMxYTI0NWI5NjE0MTJjNjljM2FiYjNjYjBiZWNkNDU0OThhYjQ5YjU2Mzc1MTI4NzViOGEzMDEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bae801b9ca834bd3a08a6e33086f71b9",
+      "statement": "The kernel checks each rolling limit against an exact asset/window exposure entry using checked `settled + outstanding + max(decoded amount, claimed outflows)` arithmetic; absent data or overflow denies, and equality with the maximum is allowed.",
+      "evidence": [
+        {
+          "resource": "repo://crates/policy-kernel/src/lib.rs#L374-L416",
+          "version": "repo-lines-v1:sha256:084c7d7327a7f61bbff7e2504da7d9025e35d4c1dab13086a24b54bcc41fe15f:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjODY2MTVjMTQ0MDU3ZTIzZjFhZWI5ODVlNDliMjM1ZTc0MDc4ODJhNjdjZjJkYjBhZTk0ODkxZTk3ODA0MzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4MzE5YjdjZDQ2MWJlYmIyNzQxN2VjOGM5YjA2ZDdmY2JmNmZmNzAyYjQwYjk0MGRmYmEwODZkODM2NzYwZDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJkNTU2OGYxM2U5YzM1ZTVhMjAwZThkMzkxY2ZmNjA4YzFhZjk4MDZlZTEzMDcyOGM2NDA3ZTI1ZWM3YmI2MTgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_86ffdd66035e4023a91ff5ea48ffb8e1",
+      "statement": "Signers authenticate grants and evaluate reconstructed candidate semantics but intentionally supply zero settled and outstanding exposure for every declared rolling window; the authority-side cumulative reservation is therefore a separate global enforcement boundary.",
+      "evidence": [
+        {
+          "resource": "repo://crates/signer/src/verify.rs#L270-L281",
+          "version": "repo-lines-v1:sha256:3f69fcae75320deb6d5a224c6cb27b9a259c9761f146661fa16a8bec533f4bd6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIyNWJhMzlkMWQxMjNmNWNlOTcyZjhkMDBlMDI2NjM2MGQ2N2NiZTZkMDRiOTg0NDRhNzBmZjY4N2RkNGY4ZGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNlNjI0YmMxOTNlYmQwYjZiMTQ2NTk0ZWJhZThhNzg5OWY2MDI1NmU2MzZmNzU1YjZkZTM0OTMzYTI5ZWU0MjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNmMDBlMjUzM2M1NmQ4NTFmZTUzMjMyNTdjNmQ0YjA3ODM4ZTNlYzc4YzVkYzk3ZDViMzJiYzU1ZWQxYTNjOTEifQ"
+        },
+        {
+          "resource": "repo://crates/signer/src/verify.rs#L355-L380",
+          "version": "repo-lines-v1:sha256:3cc800256a87636a11208c2c4b4bfa47095911e7c01f9139de14ca0c81577d91:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3YTZjNTYwNzYyNTc1ZTE3NmFmZGQ2ODM1MzIwYWJkYTAwODlmMzYzODJiNzVkNWIwMDRjM2I0ZDBiMmEyNjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2NjlmOTRlZGE4YTViNmRjYTkzYzc0MWYxMTkzNGViZjg4NWU5ZTJlZWQ2MzhiOGU5MTExZGY1ZDE4YjllMzciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRhOWY4NmQyOGU3ODRmOWZkMzFmYjcyZDE1ZjYwY2JjZWFhZmRkNjY5Y2JkNWI2ZGE3ODg4YTAyMzMyMWViYjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRkYzY4ZTg5ZjJlYWNjODcwOWZiNjU5MzdmN2YwNGY2YzlhMjc4ZmY5ZDM0NzliM2Y3MTUwYTQ4MzgwZDY5ZmMifQ"
+        },
+        {
+          "resource": "repo://crates/signer/src/verify.rs#L416-L429",
+          "version": "repo-lines-v1:sha256:4249ee1508d89a40ab66a0137aa346f82f70a7b4d5390cf8b9317ff212a09a6d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzNmU0MWZkYWI2OWVhZjg5ZGQwMGNmMWE1N2Y2Mjg4ZWU3ZDNjYjIxNTI1NjM1OGM0NTJhMWY3NDA5NTc2ZjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg1MDJiNzMwNWExMzUzMzliYTFkOTFiZDcyMTFhODMyZDI3MmY3MDNkYmIwYjVjOTZkNGE2ZTQ0ZDFmZjg1ODUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_20960e13ee0c40419f4eaf878a27c306",
+      "statement": "The builder verifies all grants against its enrolled approver roster before invoking the kernel, while replicated authority execution independently verifies grants, builds an exposure view from settled and outstanding state, and rejects a decision that is not Allow or differs from the proposed decision.",
+      "evidence": [
+        {
+          "resource": "repo://crates/replicated-authority/src/execution.rs#L174-L206",
+          "version": "repo-lines-v1:sha256:26ec1d854f0a3e3c1aa82a6881ec4fe462572779ac032bf037e067ef4a5906f8:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI2YjQ5Y2VlZGQ3MTQ0ZGY5NzI0MDJiZDk5Y2ViN2ZiZjY4MjMzZWRmOTAyZGNmNjk0NDM4MWY0NjgyOTc0OGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1NDNlYTIxMzEzZTkzNDc4NDQ1MmY2ZmVhZmRkYzFiOGIyZjRjYjJmNDc5ZTA0YjE4YmQ5OWVmMzU0ZDMwNjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY2NDlmMzM2Y2EzMWMwN2FlN2E5OGQwY2RkM2Y2OTJhODA1ZmNlOTkxODMyNDU4NGJlNzU3OTBiMGIxNjNmNDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFlOTVlYWZkMGY0M2ViNTQ3ZDI5MjBlZmU5ZWVlNzk3OTgzYTA4ZjI3ZDE0NDQ0ZTUyN2I0YmQwZmNiMmNmOGMifQ"
+        },
+        {
+          "resource": "repo://services/builder/src/lib.rs#L201-L246",
+          "version": "repo-lines-v1:sha256:423611efc6c8325f64842b1e3c2ece40948d1ac0a7d75ee136177185990ea732:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk5OTU4M2IzMGQzMzMzOWIyMDU1ZjBkMDJhNzgxZjg4NzI0NjM0YWFkM2Q2YmZhNjRmMTZhMWFiZmY3OWI4OTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJkYjdlNTZlNWU4ZThjN2RlODJlNTBjMWI2YTc0NDkyMjVkMGZiMzNhZTNjOWVjYmU4ODNhYWNkMDg5YTI5OWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MDcwMjgxNDk1ZGU3OWRhMWIzNzViODU4MDc2ZWEyYjFiYmFiNTkzOTFhNDhkNTMzYmI5NTY1NDNjNGE2MTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBlOWM5ZDNjNjM4ODIxYWIzMmRiNWUwMjE0M2JmZWVkMTViMTAyNjdjMzI1YTFmZTkzYjBiOTVlMTM0ZmZhOTYifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-20T20:16:28.312Z"
+    "at": "2026-10-24T08:14:21.486Z"
   }
 }

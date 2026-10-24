@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:21def306be253d7e5cd822a5699004c91e051cf412393981f5e82cdf0f6a9823",
+  "claims": [
+    {
+      "id": "claim_b42e57c058244c589fa612b45b648dd7",
+      "statement": "A `Follower` is independently provisioned with genesis, execution, finality trust, and a retained minimum floor; on open it replays persisted entries by verifying finalizations and re-executing blocks, and rejects history below the independent floor.",
+      "evidence": [
+        {
+          "resource": "repo://crates/replicated-authority/src/follower.rs#L35-L43",
+          "version": "repo-lines-v1:sha256:d291cc3d12943f0be8d4b44d79b73d75355fc223013bb0f5ece34580c6d632ae:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzQ4NmY1Y2VmNmZkNzVjOWI4ZmNkNjBiZmUxMzc2MWFmNWJmM2ZmODZlODRiOTdlZDU4NjJlYmY0MjlmMGQwNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzM0MTZjN2E0YWY3N2JhY2NiZWY4MTNmODkxYTJkZDZhMWFhZTFjYTA3NTQxOGQ5ZmQ4MzhlOWUyOGUxMDQ5NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTllNzYzNTVjZjExOTk0ODBjM2Y5OTgzNmIxNDg2Yzg0MWQ4OTFmYWFkOTA0YzYwOGUwOTMwMjJkMzc1N2FlZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGYxMmVhOWMxM2U3NzhiOGZmMzllNTE1MmY3ZjcwOTExNWVlNzEyYzk2NTRmNDJmMTYwZDYwZjI1OWI1ZjhiMiJ9"
+        },
+        {
+          "resource": "repo://crates/replicated-authority/src/follower.rs#L89-L193",
+          "version": "repo-lines-v1:sha256:16a79f00388d612db4b5e560abeb1ae1fcff627cc63836bedb0bcdc5a3a2d310:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJjZTRjZmM2NTRjZjMxNDFlNDFmOTU3ZmFhMGI4ZjRhNjZiOWRmNjE2MTIyYmE3ZDU4YWQzZDFhMTc3NDk5NjQxIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmOWIxOTgyZThkZDc0ODExODE0NmIzOWEyZDAwNjJmNDA4MWUzNDc3OWI4Njc1YzIzNGM0ZmIxMjRkYzM5MzkwIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJjODNkYzNhYWZkMjA1YjNjOWI4MTg3ODk4M2RhYjNmYzJmY2M3OGQ2ZDgxY2ZkMzhmYjc5NTZiMjQ1NWY5MGM1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIxYmQyODNkOTFhZjNmYjFhMmI1YzI3ZTc3MTA1MTMwZTZiYmM5MWVlY2E0NTVmMDdjY2E2OWUzYTY3NzRmNTU5In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_552dde763368491faa00498da3b5f3a6",
+      "statement": "A follower authenticates a descendant certificate but re-executes every contiguous ancestor before atomically syncing and publishing the certified tip; checkpoint size is bounded, and failed append/sync leaves the follower requiring reopen.",
+      "evidence": [
+        {
+          "resource": "repo://crates/replicated-authority/src/follower.rs#L211-L268",
+          "version": "repo-lines-v1:sha256:adc98c48a7978332ac3c0e81c75076aa83445e9122f67a2f50384059e43affd4:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM4MjFjZmM5NjNmNzczNjZkMWJlNTgxMDhmODdlOGNlODQ0Yjg5MzA2ZDhhMmNiMTNkMzJjZTQwZmVmMDc1N2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJlYjkwMjQwM2UyODY0NDY4YmI4ZGQ2YTU5MDk3ZjAxNzlkN2YxYjYzZjRlMjJkNGFiYjhjMDI5Nzg1MmJkNDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZiMjBlNzhiOGRlMmI1ZDBlYzRlNDgwN2I0ZTNhODFmYzIyYjczMTQ4Mzg2ZWVmNzM1ZjZjYzFlMTIyYjRkZWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFmNmQ0YjI2MzEyNzkxN2I5MjVkNGEyMTBmNDUwOTMxZDBmMzdhOWE3MmZjZTNhNDc0MDIyNTNkMjE0MmFkODMifQ"
+        },
+        {
+          "resource": "repo://crates/replicated-authority/src/follower.rs#L490-L498",
+          "version": "repo-lines-v1:sha256:9d2918caea2b2342c57aa838cc53d05e93a05eb4bab97396737db38cee403e02:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMGFhOTIzMzBhZTliOWYyZjE1YmViMmYyMTE4MTJlZWVmMjI5YTc1N2IyZmQ4ODI2MzI1ZjFhODkzMTA4Yjg2ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzVmNmY0NjZlNTljZmMzMDcwM2M0NWY3MmFmNjVkZTU0YWMzNjNkMzU0Y2MxYTMzMzAzNTBhY2Q0NTI0MzRjNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_b2764376daa04890854e43dfa18f7363",
+      "statement": "`VerifiedLog` is a process-local, non-serializable capability minted only from a healthy synced follower; its `authorize` method requires an exact finalized reservation binding in `Released` state and a corresponding issuance record.",
+      "evidence": [
+        {
+          "resource": "repo://crates/replicated-authority/src/follower.rs#L373-L385",
+          "version": "repo-lines-v1:sha256:646e57750d65ab434e86550682d31814440891fbd593ff5899af3f5e78a5da6a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0ZGIwZDFiN2ViN2NkMzhkZGRkMmFjOGY3MTMwNDcyNmIwNDcwZGVjZTk0ODk2M2U0YTllZjgyODQ4YzNhOWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5YjE5ODJlOGRkNzQ4MTE4MTQ2YjM5YTJkMDA2MmY0MDgxZTM0Nzc5Yjg2NzVjMjM0YzRmYjEyNGRjMzkzOTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBjYmVjMTFkNjVmY2NjNWNmMjI5MGEyOTE1YTVlYjljYWI3NjRlYTEyNDM5MTJiYzkxNDMxNGZlYzE5ZmI2NjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAzZDI0NjdhYWU1Y2NmMWJlZjA1ODZhZjRlMmY5ZTM2YTRkZDY1MWE5MDczYzc4MmU1ODQ1NjdlODA5YzgxZmIifQ"
+        },
+        {
+          "resource": "repo://crates/replicated-authority/src/follower.rs#L401-L480",
+          "version": "repo-lines-v1:sha256:ca3b02e5ce0d7fd9b3d98bf3e501bd7498a0bdbe0b2283667696461003f38812:eyJzZWxlY3RlZExpbmVDb3VudCI6ODAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMmEwNTUzODkxY2MwOThlZDYyNDJkNTkwNzk5NzU4Y2NmMWI0NjdjNmYyZTE1MDZjMTdhN2MyNWFjNGYyMzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJiYjFkZTRjZjBjNjY0YmMxYmYwOGQ5MzE0Mjc4YWM1MDZhY2JmZDMwZTBiNTJhMmJlZTM5OTgyYmY0YzgwZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMxYzFmMjgyZGE0ZWExZTU0ODA4NTkyNjYxNTliYTExNzBmMGI0NjU5N2MzODNkZWZkZDc2MjAyNThiODMxZmYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_84ca97f748be44c696d6f415b23688c9",
+      "statement": "The replicated runtime publishes its authorization capability only after follower sync and re-execution, publishes no capability at genesis, and treats progress snapshots as non-authorizing status.",
+      "evidence": [
+        {
+          "resource": "repo://crates/replicated-authority/src/runtime.rs#L251-L302",
+          "version": "repo-lines-v1:sha256:abdd6cbf784cfa20e7baf2aa587722cd7d2836aa0f019957ce9b50bfb136f15b:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIzMWI5M2ZlMDJhZDhlNzA5ZjQ4MGUzNzUyNTYzNzZiZDA2NzdjNWFjODk1YjYzYmU3ZTU4ZDVkMzVhNDA0MzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMxMTNkYWE5NTBiMGFkYWM5NjI1OWMzZGMzMmNkMWU0N2FjOWYxYzExN2Y3OTc2NTE4NDI2NGYzOWMxMDMwZmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgyMmExZjAxZWRmNTgxYzUzNmY5NzBmMmZmOGYwNDYzZTJhYmYzZjIwNjA1OWMwYzk0ZWZhYzZjYzNhNGY5ODIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZjZThkMTM3ZmE0NGFjNjY0OGIzYTRhNmY1NmY1MGJhYmE2NzczNDE0NWQwNDc0YTRlNTU1Njk3ZmQyNmJlYzgifQ"
+        },
+        {
+          "resource": "repo://crates/replicated-authority/src/runtime.rs#L71-L109",
+          "version": "repo-lines-v1:sha256:84e8f41e1cdb4847e69fa8c6685f912808c25b4afa275c730e759108dd113296:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3ZjEwMzI0MTgwMmYyZDRlMmExODdiZDM3MmU1YjViN2FlYjA3MzY0MWYwYWFjZjA3ZDFlNWZiMmIyZTk2NGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBmMTAxNmMzNTI0OGJmYzcwY2I2MDdhZDBjZTBkYzUxNjVkMTFjNTY4YTUxNDU1Y2Y2ZGUwNmEzNWFiMGVhMmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgxOTIxZWMxMTk0OGExOTFkYTRmNDQ5MjMwYmQ5NTJkYmNjNDU2ZTcyZjY0NmY2OTJiNzQxODQ5OTE2YzE2M2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg4MmIxMWMwODc0MmU3ZjdiZjQzMDE4NWIxODEwMTNlMDU3ZTA1Yjc0YWM4ZDUwOTIxNTBjNjg3MzRhYTZlNjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_33d241e8656345699b3b812405bbb66e",
+      "statement": "A keyless D2 follower runs no voting engine or proposer, authenticates finalization certificates itself, and may catch up through the finalized delivery path without a vote key.",
+      "evidence": [
+        {
+          "resource": "repo://crates/replicated-authority/src/runtime.rs#L221-L249",
+          "version": "repo-lines-v1:sha256:d5dae847ee77b0bfb453e18af01f09df3dbaa59f275e487f70622c3938ef9161:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3NmRkM2RkMzU2NDY5NjM4OGE2MzU3MmFlZjljODkxMjNjMDc5ZmExMjU1ZmNhN2U2YmNmMjc1MzYyYjNhZWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZmMjI5YzM3NTdlNGRmYjg5NGIzYmI3MWJjMDlhNWQ1YzhkNTE4ZjU3MDkyNzUxMjhhMTQyNDBiNTdlYmJiYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU0YzkwMThhODhjY2JhNDNiMDU1YzU3Yzc1NjMyODdhNmI2NmNiMmU2NTQzMTI3NzdiODY2NGUwZDlkZDVjZWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiZWUzMDg1Y2ZjNjU2N2M4MDc4YzE0YjQ2MDhiNDM4N2RmZTZiYzBkYjAwNDE0ZGNkNGMzMzE0ZGNkMDMxYjEifQ"
+        },
+        {
+          "resource": "repo://services/signer-net/src/consensus.rs#L53-L59",
+          "version": "repo-lines-v1:sha256:cdc1a1468aa8904a748080b4dee137b154dfd07cdd6eacb44f573b234bbaf6a2:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTJlY2E5Yzc5NmIwNmY3YzMwMjBhNjUzNGIzMGY1ZWRhMmVmNDZjYWVkYjY3ODRiM2ZhNGJmMGNiMmM1MzQwYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDk3YzA0YzNlODJkMWVhMzJiZTAyZjk3NTk0YzIxYjUwNjFmODQ5MTNmYmNmNWIyMDE0MThiYTYxZGQ4ZjE4MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmY4MzY2MTc4N2NmMDE1ZjJhZjdmOTQ2MTJkYTNlZGQ4ZjI4YWM4YWZjZTNlODdkNDJlMzg0M2JhMWI5NjM0OCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_09527e5a802447a695717217a4250e9b",
+      "statement": "`ConsensusHost::start_follower` requires an independent primary Signer and signed ACLs for replica-to-signer certificate/block/backfill traffic and reverse backfill; it does not grant the follower consensus vote or resolver channels.",
+      "evidence": [
+        {
+          "resource": "repo://services/signer-net/src/consensus.rs#L156-L221",
+          "version": "repo-lines-v1:sha256:c306a0df5a2ce67815051ab1bc0e742d8e6aa3e0c28672b233534fa67d6c23ab:eyJzZWxlY3RlZExpbmVDb3VudCI6NjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5ODI1NDFjOGNmOWE5NGI5YTRhODI3ZjQ3YjRlOGIyZmU3YzllZDM3MTI3MjZlOWU0MTM4NGUxNmJiODg0NTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEzZTA4MDdlNzJlYTNiZjFhM2FmNzRhYWZhNzVhMmFiMWUxMWVlZjI5MjU0MGFmZWE4YTMyMWU4Y2FhYmQwYTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRjOWE0YmFiYTY3N2U3N2E1YmFmOTNiN2U3ZGVlNDY5MzQzMTliOWY2Y2YyNjAxNjQ5YjNiMjNjZTBhM2EyZDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc2NjdkMDc3OGEzNzk4MDE5MzgwMzdmZTcyZGYxNjlkMTdiODdhZDAzODY1ODc5YWZjODdiOTkwZGY4ODRmNzUifQ"
+        },
+        {
+          "resource": "repo://services/signer-net/tests/consensus.rs#L533-L620",
+          "version": "repo-lines-v1:sha256:3de2d2b180d121e19867819eeb00a183c30cf4ffd3a021fc28d74e2ff39d0054:eyJzZWxlY3RlZExpbmVDb3VudCI6ODgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcwZmYwOWQ3NGM2Zjk2YzU4ZDAzMDgwOGQzYzQ0NjY1NzE3NGMzNzkyMjIwODlmZTQwNjhjMTFlZTBhYTJmZGYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRmYWI3MTBkZGY3ODU5ZTU3NTc2NGE5MTNhMDAyYzc0NTg1ZmZhNzAwMTUxMGNiODgxMWRhODNkMmNmNzRiMzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNlYjE2Njk1YjAyMDhjN2JlYWEwZmY1OGNmN2EzMDcyNTViMWEwYWVkY2Y1NDY1MjNmZjEzNWM1NmQ4YTBjNGUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_431e46be58d949fe93bec3a0353e4990",
+      "statement": "D2 must be selected before keys or sessions via `with_finalized_authority`, which pins anchor, floor, and maximum age, disables D1 entrypoints, and rejects stale, mismatched, or regressing finalized-log views.",
+      "evidence": [
+        {
+          "resource": "repo://crates/signer/src/finalized.rs#L10-L66",
+          "version": "repo-lines-v1:sha256:33f1a268f1b356f3911ffabc5d49675b847f98beba12df77609604dd6ce3244e:eyJzZWxlY3RlZExpbmVDb3VudCI6NTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4NDk3ZjI1ZjI1NDc1YTc0MzFjN2E3Mjc3MTc5Y2QxMDgwZmUwNTVkZWE0YTcwZTRlZmYxNTA0MTUyZTcwNWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwNzFjNmU5MjJkNjRlM2MyZDEyZDFiNDAwODRjMzFjYzRlNzgwN2ZiNDJlN2Y3MjI5Y2M4ODYwNWU3ZmM4YjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM2NmQzMWQ2YzBkN2Y3NDE5Yjk2NmU0ZWU0MDhkMGMyYjU2MjA2NjJkODM0MzFlYTY1NmUwZWFlYjZiNGMzZDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc1NTdmYzNhYWJhNzhkODc5NTNlYTFiY2Y5M2FkMzNkYmI3MGM4YzgzZDVmZGQ4OThmYTcxN2FkMDMzOGZiMTgifQ"
+        },
+        {
+          "resource": "repo://services/signer-core/src/lib.rs#L299-L305",
+          "version": "repo-lines-v1:sha256:7c25cc21682232d33043ce6049ea270dac8055ab52da154bae7e70113f4d7bb1:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzIyODA3ZjBiYzE3MDVmMzc4OTRhZjA3OThmMzkxNDQzOTM2NWRkOGQ5YzI4OGIzMThlMjU4ZmQxMmZmYzkzZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWExMDMyOTFiOGFlOTQ2ZTNjODQ3ZjM0MjQxZTQ3OTFiOTVjOWI2ZGRhN2UzODJlN2Q3ODY4ZmRjYTIxNzUwZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDE5ZDMxNzk5MjY0NDY2MWQ5YmQzYmQ5ZmU3MjE5NzkyY2Y2OWNmZWU5ZTE2YjJkZjQ5YjQ3MzNiYmIxNTE3NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjVhMWUwNmRiNTYzOWU2NWExZjg4NTg0YWNhYThkMjIwYzgxNTI2Yjk2Y2FmNDM4ODdjMmY5MjdjODJlNmJmMyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_9711494f04df4873bf4fec2fbcf86698",
+      "statement": "Signer-core accepts finalized-log evidence only from its local watch source, records the source floor to its audit log before signing advances, and releases a D2 share only after rechecking the local log, finalized Release, freshness, and current ordered approver grants.",
+      "evidence": [
+        {
+          "resource": "repo://crates/signer/src/finalized.rs#L103-L127",
+          "version": "repo-lines-v1:sha256:178f6f708141211365daeda6a09f4e968ebff8fee83902a5568da27bacb6702d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5NWZiZTQ0NjMxMmYwNDk1MzNlNWE5MTQwYmE1YjY0YmQ0MmNlNzhjMzAwMDNlMTMzZmQ1YzNiYzlmZjcxYjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1YzI1MmE3ODVhOTNmZWNiZWQ1ZDE2OTU3Mjc2NjUwNDU5YjI2YjljOGQ2YzBiMzhlMmQwOWUxNzM2OWZlMjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJlMzYzMzhkYWZjYmMyMjc0M2IwZmFhZDgxYjg5YThiMGVkNTFhMmE3NGMwMDAxODExNGEwNTlmNTVkOTk2YzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3OTRkMDJhODEyMTk0NGQxNzZkMjY1ZTliYjljYzU5ZjZhYjg5MGJjYWRmOGFlZmRlYmRiYmI0ZjJlYTg0NDQifQ"
+        },
+        {
+          "resource": "repo://services/signer-core/src/lib.rs#L189-L220",
+          "version": "repo-lines-v1:sha256:c89ef0212713ee5aa21e734caa343085aa8c72a728d5b520c0199f5ca37d92b0:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzNTJlY2VkM2M5YzQ5ZjE4MWU0MzI3NjljMTRkNGY2NTA0MTEyZTZlMjkwYTFiOGU3NTUyZjMzMjkxOWZkNzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ4MjE1ZWEzYzIxZWUwM2IwMWMxNTYzY2Y3MDVlYTljMWNkMDc1MzBhNzBjZmMyZmJmNjk2YzcyYzkxZDhiMTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhmN2M4ZWI2MDRiNTRhMTkwZTUxMjI3ZDBiODFkYjNjNzQ5ZGZjMzBiNzM4ZjM1NzNlY2U3NzI1MDVkZmZiNjQifQ"
+        },
+        {
+          "resource": "repo://services/signer-core/src/lib.rs#L367-L375",
+          "version": "repo-lines-v1:sha256:4a3649b97b005ea5ed7be20ca5231b70d6391158a836f2698ff8328c2e339a5d:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzUxYTRmNDkxZTYwNjcwZGY1NzZjNWQxYWIxOTQ5MThhZGQ3NDk0N2MyZGM5YzM5Y2IyY2U2MjI1YTcwNmJlMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzAyYWUyMWY0NTJlZjUyZWU4YzFjYzgxMzZmYzdiZmZiYjBmYzJhMTMzZGUyMGNhOWY0MTFjNmEwOTc1MWQ5YSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDliOWUwZmZhNDQwMDdkN2RmNjI4NGRhY2Q0MjMxYzE0MmY5ODM1NGRhZWMyOTEzY2JiMDRmMjVjNzhlZmEyNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiM2IzZjYyMmQyYzczNzM0MmNjMjZmNWQ3OTM2NGFlM2UyOTRiYzVkZDAxMzIwNjAyMmMzNmMyNjU1ODAwMjUxNyJ9"
+        },
+        {
+          "resource": "repo://services/signer-core/src/lib.rs#L432-L480",
+          "version": "repo-lines-v1:sha256:4e89b912ec988039f443fd9e5ab56b278fe7bb5faf2883656f14c681bdd798c6:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZlZTgwZDUzMDdhNzgxYjA0ZTkxZjdiMDdhYjNhOGI0NTg4ZmVmNmMxMTM2Yzg5OGQ1M2VhYjMzY2U5Y2Y0N2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkYTNmNmZkZGMzMWJhNjE0MGFmMWQ0ZjU4NTRmYWM0MWFkZjk2ZWYzYmExMTIzYTRjMjU4ZmQ5N2U4ZmQ1MjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhZTdkYTA3YWZhYjg0YWRlNzRhNWE2ODU2OGJjOGUyMzM5NTM2YWFkYzZhN2E5MDU5NGI2OTJjY2ExYWE5ZTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA5MTY3NmUzNjM0ZDAwZWY2Zjg5ZTJjZmRmZmVmZWMwNTM0MWMyMDdmOTU1YzEwNjI5MjdiODIzZTQ4Y2RkNjQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5dbe737f0a094eeba460775c6042b8e7",
+      "statement": "The authenticated transport validates roster and local-key configuration at startup, requires roster epoch/hash convergence for non-control sends and delivery, and enforces named-recipient ACL, size, quota, and blocked-peer controls.",
+      "evidence": [
+        {
+          "resource": "repo://crates/node/src/transport.rs#L164-L262",
+          "version": "repo-lines-v1:sha256:7ba00171dfaa8f5a0b474c66cb29b6c187b79e0ebe8d1beecd6dcc570a70a292:eyJzZWxlY3RlZExpbmVDb3VudCI6OTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5OTY3NmRiNTY4NjVmMWRiMjhjZWNhODVhNGU0MDQxOWM3Mjg2OGU5MDAzNGQyZTU3NDRmNTMwZWFkM2FjMDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MWFhNzVkNzA4MjM2MWMxNmEwZjBhMmQ2Zjk0YzMxZTEzMmNiYzEzN2VkYWVlNjkyOGMxMTBkODk1Yjg1OWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhkY2IzNGVmYjQ1OGM3ODNmZGY5MTZmNWIzMDVlOGIyODY5NmM1NDkwMTU0ZWY2NzkyYzY3MTZlZjMwZjcwZDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEzNjM2NTZkNTI4MDI4MDBhNDJhYzAyZTFlZWE4OWEzZGZmZTRmYTdhMDgzYjEwNTM3YTc1MTI2NmIwZGI0OTEifQ"
+        },
+        {
+          "resource": "repo://crates/node/src/transport.rs#L350-L417",
+          "version": "repo-lines-v1:sha256:850db6a4cf4d801b40e8331e0481d3ae5a293c5ef250ff5eb00240b30b16ec79:eyJzZWxlY3RlZExpbmVDb3VudCI6NjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk4YjRjYmIxMmYxMjA1ZDI4YWI0NTM3ZDhjMmU3MTE1Zjk4YmNmNjZmY2EwNDY4ZGYyODNjZWY0NTZiNGU2ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MjJjNDJjZDE5YzZkMDNkODA4YzQ1MjcyMDU1MjgyNWI3ZWExYzViNDkxYjIxODUxMWNhYzc0MTVjZjlkOWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE0NjE3Mjk3MjEyNWI2ZWVhOThiOGEwZjFjN2MwM2FlYTYzY2M4NTIwOTk5YjRhMzgxMGE2YTY5MzRhZmM5YzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiNDdmYjM5MGE4MDJiMGU4OGQ5YWZmYTI3MTRiM2Y3MDNmMzE5YTkyMjNjNDU4MWE4MmI3Njg2NDg4ZmI3YjUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3829f62cec7445dc9e10ccaa7a5a1c2d",
+      "statement": "The current runtime is fixed to one committee with no implicit epoch rollover, and its storage is confidential but requires an encrypted-storage deployment supplied by operators.",
+      "evidence": [
+        {
+          "resource": "repo://crates/replicated-authority/src/runtime.rs#L1-L4",
+          "version": "repo-lines-v1:sha256:21d68b359a3aaef5742ce608ae9af42b38be34aceed19bc85c45dbcaaf79de05:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzkxYmNlMDkwNjQ1OGJkNjc2NWJkNTk2OTVlY2M3ZDI3ZmY0MDA2MTMzNTliZTY1NjE2Y2Y1M2MzZjhlYjg2NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTU5NTMyMDAyZjUyYTI3YzE1ZjgyMGY4NWQ0MjNkNTQxNmRkMjY5MWQ3NDYwZDllYzAwYTQzMmZkMjBiNDU1ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzUzNGMyMjZjYjg4MDg2N2RmMTViMzdmZTI0MjEzYTNiODYxZjEyN2EzOGVlOGI0OWJhODJiYmQ4ZjMxMjNlNyJ9"
+        },
+        {
+          "resource": "repo://crates/replicated-authority/src/runtime.rs#L144-L164",
+          "version": "repo-lines-v1:sha256:0c6eea2e830fdcfe1eec15e14d3629d8ddd51eefd6618ccd496f5453a71a489f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1MTJkYWNlNGQ2Zjg1MzE4ODVmZjliODMxYjE4N2VjOWFlNTc0YTk1ZGI3ZGQ4ZjA4MjBjMTBlNjgyNGM1MjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZlZmJjOWE2ZWIyZDYxNTg2M2M3MDlkOWM5OWYyNmJiYTI2Mjc3NmU0MTA2MmQ4YTFhMDdkOTUyMWQ2NDUxMTAifQ"
+        },
+        {
+          "resource": "repo://docs/signer-network.md#L194-L199",
+          "version": "repo-lines-v1:sha256:bd648201dc1a461517b32f904564365b5e056ac4b1c47c898ae99f527f8978df:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2VjOTBiNjUyZTUwN2EwZDBiNzEzZGM2N2IwZmYwNmMzMDVkM2Q0ZmVlNTRiYjI4ZTM0NmM3OGZlNWI5NzRiMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWE5YTUyOGNkOTY3OGQwZGM4YjJkZWM2ZGNhYWVhN2VmMThlYjQyMDgxMjQ5ZWIzZjE1NDgyMzllOWI3MDBjOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzU5ZmU3MTFlMjNkMDE2ODE4NThlYWUzYmQ4MWViOWJjZmU3ODczM2VlYzExNDA5N2VlMTQ4Yzg2MjI3NWM1YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzU4NzUxMDIyNmU5ZTU0OGRlN2UzYWFjM2RmMjY4YmM4YWIwYmNhMDdlNzlkNjA1Mjg0M2I3YzZiMTJkNjVmYyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_f36895a3a14d4546868c8ecb50e2ac14",
+      "statement": "Focused tests exercise certificate tampering and invalid execution roots, real Simplex partition/recovery and keyless catch-up, signer-core finalized release gating, and an authenticated TCP-to-IPC-to-FROST signing path.",
+      "evidence": [
+        {
+          "resource": "repo://crates/replicated-authority/tests/contracts.rs#L203-L260",
+          "version": "repo-lines-v1:sha256:5e2fc4947afe3c81da25219486924143ed7cadcf7a95d7afeb9cabf3fc75700f:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1OTM3Njc5MWU2OTQ3NmY3YTA3MTg5NmRjMjViOTEzN2VmODQyM2UzZTk2MzQwY2NmYWMzMzIzZDQyY2E1MWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc2NTk2NWUyYzczOGE5YmM5MzRjMDQ5NDg5ZWEwOGMzYzAzZjc4OGMzZmIzOGU1ODA1YjkzOTA1NWY4OTdkNTEifQ"
+        },
+        {
+          "resource": "repo://crates/replicated-authority/tests/runtime.rs#L88-L233",
+          "version": "repo-lines-v1:sha256:38535ebc3bb88d2d59a99d82d9124c99bdc2818632c560d3e68251c9b75ddada:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQ2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJkMmNkNGRiNDhhMzUwZThmMGI0Nzk0NGM0NmUzZmZkYmJhMTMyZDIyOTBhOTFkNzAxMmI1NmViNDZjOGFiNGY2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIxODJjM2I5Y2ZjODA3MTE3YWNlNzRiNzZlYjY5YThmN2Y0YTZlODBiMTc5MzQ4ZTMxYzQwZTZmYjg0ODhjOGQyIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3YjliZWQ2NWQ3MGYxM2IwMjhhMGMyMTczZmM2ZjU5MjkzMTNhZjczMjM4YmI1NWVjNWRkMWQ0ODJjNDg2OGU4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MiwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJjZWIxNjY5NWIwMjA4YzdiZWFhMGZmNThjZjdhMzA3MjU1YjFhMGFlZGNmNTQ2NTIzZmYxMzVjNTZkOGEwYzRlIn0"
+        },
+        {
+          "resource": "repo://services/signer-core/tests/finalized.rs#L22-L94",
+          "version": "repo-lines-v1:sha256:923ade0c4415d6b6f4e7ce496f6c3124395410b30950d4ed5a41e986991b5059:eyJzZWxlY3RlZExpbmVDb3VudCI6NzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyY2Q0ZGI0OGEzNTBlOGYwYjQ3OTQ0YzQ2ZTNmZmRiYmExMzJkMjI5MGE5MWQ3MDEyYjU2ZWI0NmM4YWI0ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEyNzVkMjEzNmQ3ZGI5ODIzYTgxOWViMzI0MGJmNDAxODAwY2RlMmUxMGVmMGMxMjk5YjYyZTA1NTA2YzY2NGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdmOWFkNDYzYmU3MWM1ZjQyMDk0NmFmYmYwN2QwZmU5ZjVmMTFkYTgyZjFlOTQ5MDNjYzMzOTVkOGMxYTBiMzgifQ"
+        },
+        {
+          "resource": "repo://services/signer-net/tests/finalized.rs#L1-L4",
+          "version": "repo-lines-v1:sha256:be6dd6a4e15e83b6e8cd518804a99ef25a57390bbd71b6ae24cc5a2ea9eaed58:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzZkOWUwYjMyZmM2ODIxYmY3ZDRiYWJlOThkMDU5NjM4ODc3MzU3YTNmMmYyN2U3MjU0NDg1ZDcxMzY0NDU5NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjU0MDZlZGJlYTI5MzAzM2Y1YmFiNGZjMjRkNTRjZjRiNDExYzM1MWNhOWIxZGM0NDc0YjU4ZGE5MWUzNDE4MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGQ0YzRjOWI1YzMzYTIyYjBkYjliNDcyMDk5MGE3M2QxOWQ1MDEyOGQ4ZDg2MjQ0ZDkzNjJkNWIxNzQ4NzQ2ZiJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-24T08:14:21.486Z"
+  }
+}
