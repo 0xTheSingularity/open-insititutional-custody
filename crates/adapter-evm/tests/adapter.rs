@@ -512,6 +512,13 @@ fn observe_maps_lifecycle() {
     ev.items.insert(tx_key(&hash), obs(true, 2, None));
     assert!(matches!(EvmAdapter.observe(&signed.chain_tx_id, &fx.profile, &ev).unwrap(), ChainObservation::Finalized { .. }));
 
+    // Audit 0001-08: the same confirmations seen at the latest head are only
+    // inclusion. Finality comes from evidence at the finalized view.
+    let mut latest = ev.clone();
+    latest.state.commitment = "latest".into();
+    latest.items.insert(tx_key(&hash), obs(true, 50, None));
+    assert!(matches!(EvmAdapter.observe(&signed.chain_tx_id, &fx.profile, &latest).unwrap(), ChainObservation::Included { .. }));
+
     ev.items.insert(tx_key(&hash), Bytes(vec![0xff, 0x00]));
     assert_eq!(code(EvmAdapter.observe(&signed.chain_tx_id, &fx.profile, &ev).unwrap_err()), ErrorCode::StaleEvidence);
 }

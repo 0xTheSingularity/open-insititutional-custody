@@ -663,7 +663,10 @@ impl ChainAdapter for EvmAdapter {
         let fee_paid = (obs.gas_used as u128)
             .checked_mul(obs.effective_gas_price.0)
             .ok_or_else(|| OicError::unverifiable("gas_used * effective_gas_price overflows u128"))?;
-        if obs.confirmations >= profile.finality_depth.max(1) {
+        // RFC 0001 §9.4: finality comes from the chain's own finalized view,
+        // not from a confirmation count over the latest block. Evidence taken
+        // at any other commitment can show inclusion at most.
+        if evidence.state.commitment == profile.finality_commitment && obs.confirmations >= profile.finality_depth.max(1) {
             let raw = get_item(evidence, &tx_key(&hash))?;
             Ok(ChainObservation::Finalized {
                 tx_id: tx_id.clone(),

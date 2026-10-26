@@ -101,14 +101,15 @@
         {
           "id": "0001-08",
           "section": "§9.2-§9.4, I10",
-          "status": "diverges",
+          "status": "partial",
           "severity": "medium",
           "summary": "EVM verification thinner than spec: chain-id-only network identity (no genesis binding), fixed 65000 gas limit with no simulation, no L2 fee component, finality is a fixed confirmation count defaulting to 1 where the spec forbids fixed counts, no EIP-7702 delegation or allowance inventory.",
           "evidence": [
             "crates/adapter-evm/src/lib.rs:376-389",
             "services/chain-rpc/src/evm.rs:69-70",
             "crates/adapter-evm/src/lib.rs:665"
-          ]
+          ],
+          "fixed_in": "PR #41: the EVM adapter reports Finalized only for evidence taken at the profile's finality commitment (the chain's finalized view). Before this, the live client's latest-head evidence with the default finality_depth of 1 made a transaction final one block after inclusion, and the broadcaster accepted that. Test observe_maps_lifecycle; chain-rpc live-node tests and oic demo pass. Remaining: chain-id-only network identity (no genesis binding), fixed 65,000 gas limit with no estimation or simulation, no L2 data-fee component, and no proxy implementation check."
         },
         {
           "id": "0001-09",
