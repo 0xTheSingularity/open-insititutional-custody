@@ -192,6 +192,7 @@ pub struct MaterialEnrollmentUnsigned<'a> {
     pub wallets: &'a std::collections::BTreeSet<Hash32>,
     pub vaults: &'a std::collections::BTreeSet<Hash32>,
     pub keys: &'a std::collections::BTreeSet<Hash32>,
+    pub destinations: &'a std::collections::BTreeSet<Hash32>,
 }
 
 impl<'a> From<&'a MaterialEnrollment> for MaterialEnrollmentUnsigned<'a> {
@@ -204,6 +205,7 @@ impl<'a> From<&'a MaterialEnrollment> for MaterialEnrollmentUnsigned<'a> {
             wallets: &e.wallets,
             vaults: &e.vaults,
             keys: &e.keys,
+            destinations: &e.destinations,
         }
     }
 }
@@ -224,6 +226,7 @@ pub fn material_enrollment<'a>(
     wallets: impl IntoIterator<Item = &'a ChainWallet>,
     vaults: impl IntoIterator<Item = &'a Vault>,
     keys: impl IntoIterator<Item = &'a KeyDescriptor>,
+    destinations: impl IntoIterator<Item = &'a CounterpartyDestination>,
 ) -> OicResult<MaterialEnrollment> {
     Ok(MaterialEnrollment {
         institution_id,
@@ -233,6 +236,7 @@ pub fn material_enrollment<'a>(
         wallets: wallets.into_iter().map(chain_wallet_hash).collect::<OicResult<_>>()?,
         vaults: vaults.into_iter().map(vault_hash).collect::<OicResult<_>>()?,
         keys: keys.into_iter().map(key_descriptor_hash).collect::<OicResult<_>>()?,
+        destinations: destinations.into_iter().map(destination_hash).collect::<OicResult<_>>()?,
         administrative_signatures: vec![],
     })
 }

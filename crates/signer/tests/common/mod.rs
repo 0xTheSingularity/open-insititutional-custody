@@ -204,6 +204,7 @@ impl World {
             [&m.wallet],
             [&m.vault],
             [&m.key],
+            [&m.destination],
         )
         .unwrap();
         e.administrative_signatures = self.admin_quorum_signatures(material_enrollment_hash(&e).unwrap());

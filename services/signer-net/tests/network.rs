@@ -765,7 +765,7 @@ impl Harness {
         fs::set_permissions(dir.path(), fs::Permissions::from_mode(0o700)).unwrap();
         let (roster, admins, placeholders) = roster(world, &sol.chain);
         let mut roots = world.trust_roots(vec![sol.chain.profile.clone()]);
-        roots.enrolled_materials = Some(world.enroll(&sol.chain.asset, &sol.chain.wallet, &sol.chain.key));
+        roots.enrolled_materials = Some(world.enroll(&sol.chain.asset, &sol.chain.wallet, &sol.chain.key, &sol.chain.destination));
         sol.chain.nodes.clear(); // No live participant provider in the network process.
         let cores = sealed
             .into_iter()

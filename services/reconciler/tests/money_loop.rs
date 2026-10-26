@@ -354,7 +354,7 @@ fn evm_wallet(
     let adapter: Arc<dyn ChainAdapter> = Arc::new(oic_adapter_evm::EvmAdapter);
     let wallet = wallet_for(adapter.as_ref(), &profile, &keygen.descriptor, id);
     let mut roots = world.trust_roots(vec![profile.clone()]);
-    roots.enrolled_materials = Some(world.enroll(&asset, &wallet, &keygen.descriptor));
+    roots.enrolled_materials = Some(world.enroll(&asset, &wallet, &keygen.descriptor, &dest));
     let node = open_node(
         &pid(1),
         roots,
@@ -800,7 +800,7 @@ fn sol_wallet(
         .enumerate()
         .map(|(i, p)| {
             let mut roots = world.trust_roots(vec![profile.clone()]);
-            roots.enrolled_materials = Some(world.enroll(&asset, &wallet, &dkg.descriptor));
+            roots.enrolled_materials = Some(world.enroll(&asset, &wallet, &dkg.descriptor, &dest));
             let node = open_node(
                 p,
                 roots,

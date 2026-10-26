@@ -305,7 +305,7 @@ pub fn bootstrap(state: &Path, handoff: &Path, approval_public_key: [u8; 32]) ->
         administrative_signatures: vec![],
     };
     policy.administrative_signatures = signatures(&admin_keys, policy_hash(&policy)?);
-    let mut material_enrollment = material_enrollment(inst(), environment(), Epoch(1), &assets, &wallets, [&vault()], &keys)?;
+    let mut material_enrollment = material_enrollment(inst(), environment(), Epoch(1), &assets, &wallets, [&vault()], &keys, &destinations)?;
     material_enrollment.administrative_signatures = signatures(&admin_keys, material_enrollment_hash(&material_enrollment)?);
     let p = Provisioned {
         schema_version: 2,

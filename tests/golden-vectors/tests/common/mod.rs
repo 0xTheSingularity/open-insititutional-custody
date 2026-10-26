@@ -760,7 +760,7 @@ pub fn evm_flow() -> EvmFlow {
         SignerIdentity { participant_id: p1.clone(), institution_id: inst(), environment_id: env_id() },
         {
             let mut roots = world.trust_roots(vec![profile.clone()]);
-            let e = oic_policy_kernel::material_enrollment(inst(), env_id(), Epoch(1), [&m.asset], [&m.wallet], [&m.vault], [&m.key]).unwrap();
+            let e = oic_policy_kernel::material_enrollment(inst(), env_id(), Epoch(1), [&m.asset], [&m.wallet], [&m.vault], [&m.key], [&m.destination]).unwrap();
             roots.enrolled_materials = Some(oic_policy_kernel::sign_material_enrollment(e, &world.admins[..2]).unwrap());
             roots
         },

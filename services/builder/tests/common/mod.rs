@@ -113,9 +113,10 @@ impl World {
         bundle
     }
 
-    /// Admin-quorum enrollment of one chain's asset, wallet, and key plus the vault.
-    pub fn enroll(&self, asset: &Asset, wallet: &ChainWallet, key: &KeyDescriptor) -> MaterialEnrollment {
-        let e = oic_policy_kernel::material_enrollment(inst(), env_id(), Epoch(1), [asset], [wallet], [&vault()], [key]).unwrap();
+    /// Admin-quorum enrollment of one chain's asset, wallet, key, and
+    /// destination plus the vault.
+    pub fn enroll(&self, asset: &Asset, wallet: &ChainWallet, key: &KeyDescriptor, destination: &CounterpartyDestination) -> MaterialEnrollment {
+        let e = oic_policy_kernel::material_enrollment(inst(), env_id(), Epoch(1), [asset], [wallet], [&vault()], [key], [destination]).unwrap();
         oic_policy_kernel::sign_material_enrollment(e, &self.admins[..2]).unwrap()
     }
 
@@ -456,7 +457,7 @@ pub fn evm_chain(world: &World) -> EvmChain {
     let dest_addr = [0xde; 20];
     let destination = world.sign_destination(destination(&profile, "dest-evm", dest_addr.to_vec(), oic_adapter_evm::address::eip55(&dest_addr)));
     let mut roots = world.trust_roots(vec![profile.clone()]);
-    roots.enrolled_materials = Some(world.enroll(&asset, &wallet, &key));
+    roots.enrolled_materials = Some(world.enroll(&asset, &wallet, &key, &destination));
     let node = open_node(&p1, roots, adapter.clone(), dev.clone());
     node.signer.load_key(&key, &keygen.sealed_shares[0].1).unwrap();
     let chain = Chain { profile, adapter, source: Arc::new(EvmSimulatorEvidence(sim.clone())), key, wallet, asset, destination, nodes: vec![node] };
@@ -531,7 +532,7 @@ pub fn sol_chain(world: &World, spl: bool) -> SolChain {
     let mut nodes = Vec::new();
     for (i, p) in ids.iter().enumerate() {
         let mut roots = world.trust_roots(vec![profile.clone()]);
-        roots.enrolled_materials = Some(world.enroll(&asset, &wallet, &key));
+        roots.enrolled_materials = Some(world.enroll(&asset, &wallet, &key, &destination));
         let node = open_node(p, roots, adapter.clone(), providers[i].clone());
         let sealed = &dkg.sealed_shares.iter().find(|(q, _)| q == p).unwrap().1;
         node.signer.load_key(&key, sealed).unwrap();

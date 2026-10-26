@@ -230,6 +230,7 @@ fn a03_envelope_replayed_for_another_vault_network_key_or_environment() {
         [&m.wallet],
         [&m.vault],
         [&m.key],
+        [&m.destination],
     )
     .unwrap();
     enrollment.administrative_signatures =
@@ -789,4 +790,27 @@ fn material_enrollment_requires_admin_quorum_and_names_the_key() {
     let body = c.setup.body_for(&c.setup.m, &verified, vec![], "sess-no-key-enrollment", vec![pid(1)], DEADLINE);
     let env = c.setup.reserve(&c.world, body, &verified);
     rejected(&node, &env, &c.setup.m, now(), ErrorCode::ScopeMismatch);
+}
+
+/// Audit 0001-02: an admin-signed destination version that a newer
+/// enrollment no longer lists is superseded and cannot be signed for.
+#[test]
+fn superseded_destination_version_is_refused() {
+    let c = evm_case(0);
+    let mut newer = c.setup.m.clone();
+    newer.destination.version += 1;
+    newer.destination.address.0[0] ^= 0xff;
+    newer.destination = c.world.sign_destination(newer.destination);
+    // The current enrollment lists only the newer version.
+    let mut roots = c.world.trust_roots(vec![evm_profile()]);
+    roots.enrolled_materials = Some(c.world.enroll(&newer));
+    let node = open_node(&pid(1), roots, c.setup.adapter.clone(), c.dev.clone(), Arc::new(InMemoryLedger::new()), Arc::new(InMemoryGenerationStore::new()));
+    node.signer.load_key(&c.key, &c.sealed).unwrap();
+    // The old version still carries a valid admin quorum, but is no longer enrolled.
+    let verified = c.setup.verify_for(&c.setup.m);
+    let body = c.setup.body_for(&c.setup.m, &verified, vec![], "sess-superseded-destination", vec![pid(1)], DEADLINE);
+    let env = c.setup.reserve(&c.world, body, &verified);
+    rejected(&node, &env, &c.setup.m, now(), ErrorCode::ScopeMismatch);
+    // The case's own node, whose enrollment lists that version, accepts it.
+    assert!(c.node.signer.verify_envelope(&env, &c.setup.m, now()).is_ok());
 }

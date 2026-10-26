@@ -46,6 +46,7 @@ pub fn registry_enrollment(r: &oic_replicated_authority::Registry) -> MaterialEn
         &r.wallets,
         &r.vaults,
         &r.keys,
+        &r.destinations,
     )
     .unwrap();
     e.administrative_signatures = admin_signatures(oic_policy_kernel::material_enrollment_hash(&e).unwrap());

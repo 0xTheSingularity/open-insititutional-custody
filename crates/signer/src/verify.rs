@@ -286,6 +286,12 @@ impl Signer {
         let d = &m.destination;
         verify_destination_admin_signatures(d, &roots.admin_keys, roots.admin_quorum)?;
         ensure(destination_hash(d)? == b.destination_hash, scope("destination does not hash to the envelope destination_hash"))?;
+        // An admin-signed but superseded destination version is not in the
+        // current enrollment, so it is no longer signable.
+        ensure(
+            roots.enrolled_materials.as_ref().is_some_and(|e| e.destinations.contains(&b.destination_hash)),
+            scope("envelope destination_hash is not a currently enrolled destination version"),
+        )?;
         ensure(d.network_id == w.network_id, scope("destination is registered on a different network than the wallet"))?;
 
         // ---- 5. Grants ---------------------------------------------------------

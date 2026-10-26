@@ -210,8 +210,9 @@ pub struct CredentialSignature {
     pub signature: SignatureBytes,
 }
 
-/// The asset, chain wallet, vault, and key descriptor records an institution
-/// enrolled, pinned by their envelope commitment hashes. Like
+/// The asset, chain wallet, vault, key descriptor, and counterparty
+/// destination records an institution enrolled, pinned by their envelope
+/// commitment hashes. Like
 /// [`PolicyBundle`], `administrative_signatures` sign
 /// `SHA256("OIC/MATERIAL_ENROLLMENT/v1" || CanonicalEncode(all other fields))`,
 /// so the set a signer accepts is anchored to the same administrative keys
@@ -228,6 +229,9 @@ pub struct MaterialEnrollment {
     pub wallets: BTreeSet<Hash32>,
     pub vaults: BTreeSet<Hash32>,
     pub keys: BTreeSet<Hash32>,
+    /// `destination_hash` of each currently enrolled destination version.
+    /// Leaving out an older version supersedes it.
+    pub destinations: BTreeSet<Hash32>,
     pub administrative_signatures: Vec<CredentialSignature>,
 }
 
