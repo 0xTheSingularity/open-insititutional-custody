@@ -250,7 +250,7 @@
           "severity": "high",
           "summary": "All channels share one 128-entry inbound queue and one event queue; one flooding admitted peer starves Hello (5s convergence TTL) and authority.rpc replies, causing refused sessions and IssuanceUnknown.",
           "evidence": ["crates/node/src/transport.rs:18,258-259,333-340"],
-          "fixed_in": "PR #41: each channel has its own bounded inbound queue (drained round-robin) and its own bounded event queue whose sends wait their turn for the shared receiver. Real-socket test real_socket_flood_on_one_channel_does_not_drop_another_channels_message fails on the old transport and passes on the new one."
+          "fixed_in": "PR #41: each channel has its own bounded inbound queue (drained round-robin) and its own bounded event queue whose sends wait their turn for the shared receiver. Real-socket test real_socket_flood_on_one_channel_does_not_drop_another_channels_message fails on the original shared-queue transport and passes on the per-channel one. Hello frames also get a dedicated inbound queue; that part is defense in depth with no test that fails without it (the receiver drains inbound queues continuously, so overflow at quota-limited rates was not reproduced). The test failure first attributed to Hello starvation was the sender's own flood exhausting its channel-0 quota, fixed by pacing the test flood."
         },
         {
           "id": "0003-07",
@@ -267,7 +267,8 @@
           "status": "partial",
           "severity": "medium",
           "summary": "Coordinator crash recovery: no reconciliation of in-flight operations on restart; approval expiry unreachable over authority.rpc, so a crash before Release strands reserved exposure.",
-          "evidence": ["crates/authorization-state/src/authority.rs:239-247"]
+          "evidence": ["crates/authorization-state/src/authority.rs:239-247"],
+          "fixed_in": "PR #41: nothing in production called expire_approvals, so reserved exposure whose approvals expired stayed reserved. Authority::expire_due_approvals (commits only when a reservation is due, so an idle check is a read) now runs every 5 s on a background thread in the node-runner authority and the local stack, released when the authority is dropped. Test expire_due_approvals_commits_only_when_a_reservation_is_due. Remaining: the coordinator does not reconcile its in-flight OperationStore records on restart."
         },
         {
           "id": "0003-09",
