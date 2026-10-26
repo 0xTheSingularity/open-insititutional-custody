@@ -81,7 +81,7 @@ pub fn check_freshness(trust: &TrustRoots, p: &ApprovalPackage, now: UnixSeconds
     let max = ev.max_staleness_seconds.min(p.policy.max_evidence_age_seconds).min(profile.max_evidence_age_seconds);
     if age > max {
         return Err(OicError::stale_evidence(format!(
-            "evidence is {age}s old, maximum {max}s. fix: a candidate's evidence cannot be refreshed; create a new intent and approve it within {max}s of creation"
+            "evidence is {age}s old, maximum {max}s. fix: a candidate's evidence cannot be refreshed; create a new intent and approve it before its evidence is {max}s old"
         )));
     }
     Ok(())

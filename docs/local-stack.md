@@ -99,12 +99,14 @@ treasury funding workflows. Each control requires a unique stable command ID;
 repeating that ID with the same contents is idempotent, different contents fail.
 
 **Timing matters.** A candidate embeds chain evidence with a short freshness
-window (60 seconds for the approver here; the policy allows 120). The window
-starts when the intent is created and the evidence cannot be refreshed. If it
-expires, approval and submit fail with `StaleEvidence`/`PolicyDenied`; create a
-new intent and run approve and submit promptly. To avoid typing a passphrase
-inside the window, export `OIC_LOCAL_APPROVAL_PASSPHRASE` before creating the
-intent — `approve.sh` uses it when set.
+window (60 seconds for the approver here; the policy allows 120). The window is
+measured from the evidence's `observed_at` timestamp, captured when the
+candidate is built at intent creation, and the evidence cannot be refreshed. If
+it expires, approval and submit fail with `StaleEvidence`/`PolicyDenied`;
+create a new intent, then approve and submit before its evidence expires. To
+avoid typing a passphrase inside the window, export
+`OIC_LOCAL_APPROVAL_PASSPHRASE` before creating the intent — `approve.sh` uses
+it when set.
 
 ```bash
 umask 077
