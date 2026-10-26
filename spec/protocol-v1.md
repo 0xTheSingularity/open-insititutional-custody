@@ -83,8 +83,9 @@ deterministic CBOR profile:
   not floating point or formatted dates. Preserve u64 precision in clients.
 - An absent optional value is represented by null when the struct serializes
   it; do not omit it from a signed preimage. Typed canonical decoding rejects
-  unknown fields. REST JSON parsing is distinct and may normalize ignored
-  fields; always sign the reconstructed typed object's canonical bytes.
+  unknown fields. REST JSON parsing is distinct; intent create rejects unknown
+  top-level fields with HTTP 400, and other routes may normalize ignored
+  fields. Always sign the reconstructed typed object's canonical bytes.
 - Decoder bounds: depth 64, 65,536 collection items, total input 4 MiB; individual
   `Bytes` values are bounded to 1 MiB. HTTP request bodies are bounded to 1 MiB.
   Identifier constructors accept 1–128 ASCII graphic bytes. The transparent

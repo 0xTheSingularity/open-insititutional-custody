@@ -180,6 +180,41 @@ async fn transfer(
             .0,
         StatusCode::UNAUTHORIZED
     );
+    // Issue #25: an under-scoped caller gets 403 before the body is parsed,
+    // so a malformed body is indistinguishable from a valid one.
+    assert_eq!(
+        call(
+            &app,
+            "POST",
+            "/v1/intents",
+            "reader",
+            Some(serde_json::json!("not an intent"))
+        )
+        .await
+        .0,
+        StatusCode::FORBIDDEN
+    );
+    assert_eq!(
+        call(
+            &app,
+            "POST",
+            "/v1/intents/some-id/approvals",
+            "reader",
+            Some(serde_json::json!("not a grant"))
+        )
+        .await
+        .0,
+        StatusCode::FORBIDDEN
+    );
+    // Issue #26: an unknown top-level field is rejected, not silently dropped.
+    let mut extra = body.clone();
+    extra["evil"] = serde_json::json!("x");
+    let (status, error) = call(&app, "POST", "/v1/intents", "proposer", Some(extra)).await;
+    assert_eq!(status, StatusCode::BAD_REQUEST, "{error}");
+    assert!(
+        error["detail"].as_str().unwrap_or_default().contains("evil"),
+        "rejection names the unknown field: {error}"
+    );
     let (status, created) = call(&app, "POST", "/v1/intents", "proposer", Some(body.clone())).await;
     assert_eq!(status, StatusCode::OK, "{created}");
     let record: IntentRecord = serde_json::from_value(created.clone()).unwrap();

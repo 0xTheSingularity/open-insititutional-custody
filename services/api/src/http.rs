@@ -52,6 +52,29 @@ fn principal<S: AuthorityStore>(
     })
 }
 
+/// Reject a caller whose credential holds `scope` on no vault at all, before
+/// the request body is parsed. An under-scoped caller then receives HTTP 403
+/// whether or not the body is well-formed, so parse success is not an oracle.
+/// The full vault-specific check still runs inside the domain call.
+fn require_scope<S: AuthorityStore>(
+    api: &Api<S>,
+    p: &ApiCredential,
+    scope: Scope,
+) -> Result<(), HttpError> {
+    let held = api.credentials.iter().any(|c| {
+        c.token_hash == p.token_hash
+            && c.credential_id == p.credential_id
+            && c.scopes.contains(&scope)
+    });
+    if held {
+        Ok(())
+    } else {
+        Err(HttpError::from(OicError::scope(
+            "credential lacks the requested scope",
+        )))
+    }
+}
+
 /// Run synchronous custody work off the async worker and return JSON.
 /// Domain errors retain their HTTP mapping; a stopped worker becomes HTTP 500.
 /// A worker failure does not establish whether the operation took effect.
@@ -93,8 +116,10 @@ async fn create<S: AuthorityStore + 'static>(
     body: Result<Json<Intent>, JsonRejection>,
 ) -> Result<Json<IntentRecord>, HttpError> {
     let p = principal(&api, &headers)?;
-    let Json(intent) =
-        body.map_err(|_| OicError::invalid_request("invalid intent JSON or request size"))?;
+    require_scope(&api, &p, Scope::Propose)?;
+    let Json(intent) = body.map_err(|e| {
+        OicError::invalid_request(format!("invalid intent JSON or request size: {}", e.body_text()))
+    })?;
     let key = headers
         .get("idempotency-key")
         .and_then(|v| v.to_str().ok())
@@ -134,8 +159,13 @@ async fn approve<S: AuthorityStore + 'static>(
     body: Result<Json<ApprovalGrant>, JsonRejection>,
 ) -> Result<Json<IntentRecord>, HttpError> {
     let p = principal(&api, &headers)?;
-    let Json(grant) =
-        body.map_err(|_| OicError::invalid_request("invalid approval JSON or request size"))?;
+    require_scope(&api, &p, Scope::Approve)?;
+    let Json(grant) = body.map_err(|e| {
+        OicError::invalid_request(format!(
+            "invalid approval JSON or request size: {}",
+            e.body_text()
+        ))
+    })?;
     blocking(move || api.approve(&p, &IntentId::unchecked(id), grant)).await
 }
 /// Dispatch or retry an intent through the API submission path with submit access.

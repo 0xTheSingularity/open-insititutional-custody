@@ -240,8 +240,11 @@ pub struct IntentConstraints {
 }
 
 /// Immutable business intent (§13.2). The idempotency key scope is
-/// (institution, route, canonical body).
+/// (institution, route, canonical body). Unknown fields are rejected on
+/// deserialization so client mistakes (typos, stale clients) surface as an
+/// error instead of being silently dropped before signing.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Intent {
     pub schema_version: u16,
     pub intent_id: IntentId,
