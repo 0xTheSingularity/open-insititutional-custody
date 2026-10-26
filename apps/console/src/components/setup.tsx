@@ -33,8 +33,12 @@ export function SetupView({
   const steps = [
     {
       title: demo ? "Console service" : "Local preflight",
-      detail: demo ? "Read-only sample data" : "Service and durable state",
-      complete: true,
+      detail: demo
+        ? "Read-only sample data"
+        : preflight.durable_state
+          ? "Service answered; state database writable"
+          : "State database not verified",
+      complete: demo || preflight.durable_state,
       href: "/setup",
     },
     {
@@ -53,7 +57,12 @@ export function SetupView({
     },
     {
       title: "Local test transfer",
-      detail: "Awaiting custody API integration",
+      detail:
+        preflight.custody_bridge === "configured"
+          ? "Custody API configured. Send one from Transfers; this checklist does not track it."
+          : preflight.custody_bridge === "disabled"
+            ? "Unavailable in hosted samples"
+            : "Set the local custody API origin and bearer on the console server",
       complete: false,
       href: null,
     },

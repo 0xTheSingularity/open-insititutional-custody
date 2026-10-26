@@ -53,6 +53,7 @@ import {
   type CustodyOperation,
   type LocalCatalog,
   type LocalStatus,
+  lifecycleDisplay,
   requiredApprovals,
 } from "@/lib/custody-model";
 
@@ -70,20 +71,21 @@ const preDispatch = new Set([
   "POLICY_EVALUATED",
   "AWAITING_APPROVAL",
 ]);
-function stateLabel(state: string) {
-  return state.toLowerCase().replaceAll("_", " ");
-}
+const toneClass = {
+  success: "border-success-border bg-success-surface text-success",
+  attention: "border-warning-border bg-warning-surface text-warning",
+  danger: "border-destructive/40 bg-destructive/10 text-destructive",
+  neutral: "",
+} as const;
 function StateBadge({ state }: { state: string }) {
+  const display = lifecycleDisplay[state as keyof typeof lifecycleDisplay];
   return (
     <Badge
       variant="outline"
-      className={
-        state === "FINALIZED_SUCCESS"
-          ? "border-success-border bg-success-surface text-success"
-          : "border-warning-border bg-warning-surface text-warning"
-      }
+      title={state}
+      className={display ? toneClass[display.tone] : toneClass.attention}
     >
-      {stateLabel(state)}
+      {display ? display.label : state}
     </Badge>
   );
 }
@@ -761,10 +763,15 @@ function TransferDetail({
         <CardContent className="space-y-6">
           <div className="flex flex-wrap items-center gap-3">
             <StateBadge state={operation.lifecycle} />
+            <p className="mt-1 text-xs text-muted-foreground">
+              <span className="font-mono">{operation.lifecycle}</span>
+              {" · "}
+              {lifecycleDisplay[operation.lifecycle].action}
+            </p>
             <Badge variant="outline">Dispatch: {record.dispatch}</Badge>
             {operation.issuance && (
               <Badge variant="outline">
-                Coordinator: {stateLabel(operation.issuance.lifecycle)}
+                Coordinator: {lifecycleDisplay[operation.issuance.lifecycle].label}
               </Badge>
             )}
             {record.last_error && (

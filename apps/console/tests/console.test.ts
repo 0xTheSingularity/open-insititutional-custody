@@ -133,6 +133,21 @@ test("stale, malformed, and authority-expanding commands leave saved state uncha
   assert.equal(state.setup.revision, 2);
   assert.equal(state.production_ready, false);
   assert.equal(state.blockers.length, 5);
+  assert.equal(state.preflight.custody_bridge, "not_configured");
+  assert.ok(state.blockers.some((b: { title: string }) => b.title === "Local money loop"));
+  // With the custody bridge configured, the console no longer claims the
+  // money loop is disconnected.
+  process.env.OIC_CONSOLE_CUSTODY_ORIGIN = "http://127.0.0.1:8787";
+  process.env.OIC_CONSOLE_CUSTODY_TOKEN = "test-bearer";
+  try {
+    const bridged = (await call("setup")).body;
+    assert.equal(bridged.preflight.custody_bridge, "configured");
+    assert.equal(bridged.blockers.length, 4);
+    assert.ok(!bridged.blockers.some((b: { title: string }) => b.title === "Local money loop"));
+  } finally {
+    delete process.env.OIC_CONSOLE_CUSTODY_ORIGIN;
+    delete process.env.OIC_CONSOLE_CUSTODY_TOKEN;
+  }
 });
 
 test("EIP-55 checksum, Solana byte length, and both sides of the CSV limits are enforced", async (t) => {

@@ -154,6 +154,38 @@ export const lifecycles = [
   "REPLACEMENT_PENDING",
   "DEFINITIVELY_INVALIDATED",
 ] as const;
+type Lifecycle = (typeof lifecycles)[number];
+/** RFC 004 §7 display label and safe action per exact lifecycle state, and
+ * §9 tone: green only for a verified outcome, amber for wait or
+ * uncertainty, red for denied or failed, neutral for ordinary progress. */
+export const lifecycleDisplay: Record<
+  Lifecycle,
+  { label: string; action: string; tone: "success" | "attention" | "danger" | "neutral" }
+> = {
+  DRAFT: { label: "Draft", action: "Edit or submit where permitted.", tone: "neutral" },
+  BUILT: { label: "Checking", action: "Wait for verification.", tone: "neutral" },
+  VERIFIED: { label: "Checking", action: "Wait for policy evaluation.", tone: "neutral" },
+  POLICY_EVALUATED: { label: "Policy checked", action: "Submit for approval where permitted.", tone: "neutral" },
+  AWAITING_APPROVAL: { label: "Awaiting approvals", action: "Open the verifier; inspect expiry.", tone: "attention" },
+  RESERVED: { label: "Funds reserved", action: "Inspect. Exposure is held.", tone: "attention" },
+  AUTHORIZED: { label: "Authorized", action: "Inspect. Exposure is held.", tone: "attention" },
+  ISSUANCE_COMMITTED: { label: "Signature may exist", action: "Do not cancel; ordinary cancellation is no longer safe.", tone: "attention" },
+  SIGNING: { label: "Signing", action: "Do not cancel; ordinary cancellation is no longer safe.", tone: "attention" },
+  SIGNATURE_OBSERVED: { label: "Signed", action: "Inspect, or make the approved initial submit.", tone: "attention" },
+  SUBMITTED: { label: "Submitted to network", action: "Inspect the transaction. Never resend as a new payment.", tone: "attention" },
+  INCLUDED: { label: "Included, awaiting finality", action: "Wait for finality.", tone: "attention" },
+  FINALIZED_SUCCESS: { label: "Finalized successfully", action: "Check reconciliation separately.", tone: "success" },
+  FINALIZED_FAILURE: { label: "Finalized with execution failure", action: "Inspect actual fees. A new payment needs a new authorization.", tone: "danger" },
+  REJECTED: { label: "Rejected", action: "Inspect the reason.", tone: "danger" },
+  APPROVAL_EXPIRED: { label: "Approval expired", action: "Create a new intent if still needed.", tone: "danger" },
+  ABORTED_BEFORE_ISSUANCE: { label: "Cancelled before issuance", action: "No signature was issued.", tone: "neutral" },
+  ISSUANCE_UNKNOWN: { label: "Outcome uncertain", action: "Investigate. A signature may exist; do not re-sign.", tone: "attention" },
+  SUBMISSION_UNKNOWN: { label: "Outcome uncertain", action: "Investigate. A signature may exist; do not re-sign.", tone: "attention" },
+  REORGED: { label: "Chain reorganization", action: "Tracking the canonical outcome.", tone: "attention" },
+  REPLACEMENT_PENDING: { label: "Replacement pending", action: "Inspect the original and the candidate family.", tone: "attention" },
+  DEFINITIVELY_INVALIDATED: { label: "Proven unable to execute", action: "Inspect the evidence.", tone: "danger" },
+};
+
 export type CustodyOperation = {
   operation_family_id: string;
   lifecycle: (typeof lifecycles)[number];

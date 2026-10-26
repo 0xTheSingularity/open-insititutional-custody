@@ -4,6 +4,8 @@ import {
   readCatalog,
   readIntentRecord,
   readOperation,
+  lifecycleDisplay,
+  lifecycles,
   readStatus,
   requiredApprovals,
 } from "../src/lib/custody-model";
@@ -369,4 +371,24 @@ test("read models reject rounded sequences, invalid holdings, unsupported lifecy
       },
     }),
   );
+});
+
+test("every lifecycle state has an RFC 004 label, action, and tone", () => {
+  for (const state of lifecycles) {
+    const d = lifecycleDisplay[state];
+    assert.ok(d.label && d.action, state);
+  }
+  // Green only for a verified outcome; red for denied or failed.
+  const tone = (t: string) =>
+    lifecycles.filter((s) => lifecycleDisplay[s].tone === t).sort();
+  assert.deepEqual(tone("success"), ["FINALIZED_SUCCESS"]);
+  assert.deepEqual(tone("danger"), [
+    "APPROVAL_EXPIRED",
+    "DEFINITIVELY_INVALIDATED",
+    "FINALIZED_FAILURE",
+    "REJECTED",
+  ]);
+  // Uncertain outcomes never read as done or failed.
+  for (const s of ["ISSUANCE_UNKNOWN", "SUBMISSION_UNKNOWN", "REORGED"] as const)
+    assert.equal(lifecycleDisplay[s].tone, "attention");
 });
