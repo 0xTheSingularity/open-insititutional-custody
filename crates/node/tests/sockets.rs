@@ -857,12 +857,18 @@ fn real_socket_flood_on_one_channel_does_not_drop_another_channels_message() {
         let a = Transport::start_loopback(context.child("a"), config(&roster, 0), PaddingProfile::Disabled).unwrap();
         let mut b = Transport::start_loopback(context.child("b"), config(&roster, 1), PaddingProfile::Disabled).unwrap();
         deliver(&a, &mut b, 1, 0, b"warm-up").await;
-        // Flood channel 0 well past the old shared 128-entry queue while b is not reading.
+        // Flood channel 0 well past the old shared 128-entry queue while b is
+        // not reading. About 50/s keeps a's own Hello within the channel quota
+        // and lasts longer than CONVERGENCE_TTL, so b's Hello handling must
+        // not be crowded out by the flood either.
         let mut accepted = 0;
-        timeout(Duration::from_secs(30), async {
+        timeout(Duration::from_secs(60), async {
             while accepted < 250 {
                 match a.send(&id(1), 0, b"flood".to_vec()).await {
-                    Ok(()) => accepted += 1,
+                    Ok(()) => {
+                        accepted += 1;
+                        sleep(Duration::from_millis(20)).await;
+                    }
                     Err(e) if e.code == ErrorCode::Conflict => sleep(Duration::from_millis(5)).await,
                     Err(e) => panic!("unexpected flood rejection: {e}"),
                 }

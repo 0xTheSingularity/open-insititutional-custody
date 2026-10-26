@@ -351,6 +351,10 @@ async fn run(
     let (mut network, mut oracle) = lookup::Network::new(context.child("lookup"), config);
     oracle.track(policy.roster.body.roster_epoch, peers);
     let mut inbound_queues = Vec::new();
+    // Hello keeps roster convergence alive (CONVERGENCE_TTL). It gets its own
+    // queue so data flooding channel 0, which Hello shares, cannot expire it.
+    let (hello_incoming, hello_queue) = mpsc::channel(CHANNEL_QUEUE_SIZE);
+    inbound_queues.push(hello_queue);
     let mut channel_events = BTreeMap::new();
     let mut senders = BTreeMap::new();
     let mut workers = Vec::new();
@@ -361,10 +365,14 @@ async fn run(
         senders.insert(channel, sender);
         let (incoming, queue) = mpsc::channel(CHANNEL_QUEUE_SIZE);
         inbound_queues.push(queue);
+        let hello_incoming = hello_incoming.clone();
         workers.push(context.child("inbound").with_attribute("channel", channel).spawn(move |_| async move {
             while let Ok((from, bytes)) = receiver.recv().await {
-                // A busy consumer drops this channel's arrivals only.
-                let _ = incoming.try_send(Incoming { from, channel, bytes });
+                // A busy consumer drops this channel's arrivals only. The
+                // variant byte is an unsigned routing hint; the actor still
+                // validates the whole frame.
+                let queue = if channel == 0 && bytes.as_ref().get(2) == Some(&HELLO) { &hello_incoming } else { &incoming };
+                let _ = queue.try_send(Incoming { from, channel, bytes });
             }
         }));
         let (deliver, mut pending) = mpsc::channel::<Event>(CHANNEL_QUEUE_SIZE);
@@ -380,6 +388,7 @@ async fn run(
             }
         }));
     }
+    drop(hello_incoming);
     let mut next_queue = 0;
     let mut network_task = network.start();
     let mut network_finished = false;
