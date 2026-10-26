@@ -71,6 +71,9 @@ struct HaltState {
 struct State {
     halt: HaltState,
     sessions: BTreeMap<SigningSessionId, NetworkSession>,
+    /// Refused session opens per gateway since start; journaled at powers
+    /// of two so a misbehaving gateway cannot fill the journal.
+    rejected_opens: BTreeMap<NodeId, u64>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -184,7 +187,7 @@ impl SignerCore {
         // sequence) must not lower the halt sequence this node reached.
         signer.ratchet_floor("halt sequence", halt.sequence).map_err(|_| rejected(ErrorCode::RecoveryRequired))?;
         let core =
-            Self { signer, config, participant_key, scope, clock, state: Mutex::new(State { halt, sessions: BTreeMap::new() }), finalized_log: None };
+            Self { signer, config, participant_key, scope, clock, state: Mutex::new(State { halt, sessions: BTreeMap::new(), rejected_opens: BTreeMap::new() }), finalized_log: None };
         core.journal("node.roster_applied", BTreeMap::from([("roster".into(), core.scope.roster_hash)]), Epoch(0))?;
         Ok(core)
     }
@@ -512,13 +515,24 @@ impl SignerCore {
                 _ => None,
             };
             if let Some(session) = session {
-                let _ = self.config.audit.append(
-                    self.config.node_id.as_str(),
-                    "signer.session_rejected",
-                    BTreeMap::new(),
-                    Epoch(0),
-                    &format!("session={session} from={from} code={:?}", e.code),
-                );
+                let count = {
+                    let mut state = self.state.lock();
+                    let n = state.rejected_opens.entry(from.clone()).or_insert(0);
+                    *n += 1;
+                    *n
+                };
+                if count.is_power_of_two() {
+                    // The session id is attacker-chosen: commit to it by hash,
+                    // never as journal text. `from` is a roster-admitted node.
+                    let session_hash = oic_canonical_encoding::sha256(session.as_str().as_bytes());
+                    let _ = self.config.audit.append(
+                        self.config.node_id.as_str(),
+                        "signer.session_rejected",
+                        BTreeMap::from([("session".into(), session_hash)]),
+                        Epoch(0),
+                        &format!("from={from} code={:?} refused_from_sender={count}", e.code),
+                    );
+                }
             }
         }
         // Do not send detailed adapter/backend inputs back to a net process.

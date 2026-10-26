@@ -325,8 +325,11 @@ fn tampered_open_and_gateway_mpc_forgery_produce_no_output() {
         .filter(|event| event.body.action == "signer.session_rejected")
         .collect();
     assert_eq!(rejected.len(), 1);
-    assert!(rejected[0].body.detail.contains(envelope.body.signer_session_id.as_str()));
-    assert!(rejected[0].body.detail.contains("code="));
+    // The attacker-chosen session id is committed by hash, never as text.
+    let session_hash = oic_canonical_encoding::sha256(envelope.body.signer_session_id.as_str().as_bytes());
+    assert_eq!(rejected[0].body.object_commitments.get("session"), Some(&session_hash));
+    assert!(!rejected[0].body.detail.contains(envelope.body.signer_session_id.as_str()));
+    assert!(rejected[0].body.detail.contains("code=") && rejected[0].body.detail.contains("refused_from_sender=1"));
     assert!(network.clients[0].outbound_at(0).unwrap().is_none());
     assert_eq!(network.clients[0].deliver(&node_id(3), vec![0; 16]).unwrap_err().code, ErrorCode::PeerNotAdmitted);
 
