@@ -22,6 +22,21 @@ with no enrollment, or one without the quorum, refuses to sign. Local-stack
 installs provisioned before this change (schema 1) must be deleted and
 bootstrapped again; `start.sh` says so.
 
+The enrollment also lists the current version of each destination, so a
+newer enrollment that leaves out an old version stops signers from paying
+it. Each signer keeps the highest enrollment epoch and halt sequence it has
+reached as floors in its one-time-state ledger: an older enrollment, or a
+deleted or restored halt file, is refused with `RecoveryRequired`.
+
+- Solana: a source token account with a delegate, or with a close
+  authority other than its owner, is refused.
+- Signer network: each channel has its own transport queues, so a peer
+  flooding one channel cannot crowd out `Hello` or `authority.rpc` replies.
+- Console: the transfer view states how many approvals the policy
+  requires, lifecycle states use the RFC 004 labels, safe actions, and
+  colours, and the setup checklist no longer reports unverified steps as
+  complete.
+
 - Authorization-state hardening: pre-freeze-epoch snapshots migrate on load,
   releases are refused across a freeze-epoch change, and stale v1 reservations
   recover by abort only.
