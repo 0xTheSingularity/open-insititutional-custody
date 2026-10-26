@@ -1,9 +1,8 @@
 #!/usr/bin/env sh
 # record-demo.sh — record the <=20s `oic demo` terminal GIF for the README.
 #
-# This repo's build host did not have the recording tools installed, so the GIF
-# at docs/assets/oic-demo.gif is a placeholder until this script is run on a host
-# that has them. Do NOT install tools blindly in CI; run this locally.
+# Re-run this locally to refresh docs/assets/oic-demo.gif after the demo output
+# changes. Do NOT install tools blindly in CI.
 #
 # Prerequisites (install whichever pair you have):
 #   - asciinema + agg   (preferred)   https://asciinema.org  /  https://github.com/asciinema/agg
