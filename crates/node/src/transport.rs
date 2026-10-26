@@ -16,6 +16,11 @@ pub const MAX_MESSAGE_SIZE: usize = oic_peer_wire::HEADER_LEN + oic_peer_wire::M
 /// A roster may lower these per-peer/per-channel messages-per-second limits.
 pub const MAX_QUOTA: u32 = 100;
 const QUEUE_SIZE: usize = 128;
+/// Per-channel bound for inbound arrivals and for delivered events. Each
+/// channel has its own queues (RFC 0003 §4.2, T12): a peer flooding one
+/// channel fills only that channel's queues and cannot crowd out `Hello` or
+/// `authority.rpc` replies on another channel.
+const CHANNEL_QUEUE_SIZE: usize = 32;
 const CONVERGENCE_TTL: Duration = Duration::from_secs(5);
 // Unsigned container hints: version:u16, variant:u8, epoch:u64, roster_hash:32.
 const PREFIX_LEN: usize = 43;
@@ -309,6 +314,27 @@ fn closed() -> OicError {
     OicError::new(ErrorCode::AuthorityUnavailable, "transport stopped")
 }
 
+/// Receive from the per-channel inbound queues round-robin, starting after the
+/// channel served last, so no channel can monopolize the actor loop.
+fn next_fair<'a>(queues: &'a mut [mpsc::Receiver<Incoming>], next: &'a mut usize) -> impl std::future::Future<Output = Option<Incoming>> + 'a {
+    std::future::poll_fn(move |cx| {
+        let n = queues.len();
+        let mut closed = 0;
+        for offset in 0..n {
+            let index = (*next + offset) % n;
+            match queues[index].poll_recv(cx) {
+                std::task::Poll::Ready(Some(message)) => {
+                    *next = (index + 1) % n;
+                    return std::task::Poll::Ready(Some(message));
+                }
+                std::task::Poll::Ready(None) => closed += 1,
+                std::task::Poll::Pending => {}
+            }
+        }
+        if closed == n { std::task::Poll::Ready(None) } else { std::task::Poll::Pending }
+    })
+}
+
 fn converged(peers: &BTreeMap<NodeId, Instant>, peer: &NodeId) -> bool {
     peers.get(peer).is_some_and(|seen| seen.elapsed() < CONVERGENCE_TTL)
 }
@@ -324,7 +350,8 @@ async fn run(
 ) {
     let (mut network, mut oracle) = lookup::Network::new(context.child("lookup"), config);
     oracle.track(policy.roster.body.roster_epoch, peers);
-    let (incoming, mut receive) = mpsc::channel(QUEUE_SIZE);
+    let mut inbound_queues = Vec::new();
+    let mut channel_events = BTreeMap::new();
     let mut senders = BTreeMap::new();
     let mut workers = Vec::new();
     for acl in &policy.roster.body.channel_acl {
@@ -332,15 +359,28 @@ async fn run(
         let quota = Quota::per_second(std::num::NonZeroU32::new(acl.quota.min(MAX_QUOTA)).unwrap());
         let (sender, mut receiver) = network.register(channel, quota);
         senders.insert(channel, sender);
-        let incoming = incoming.clone();
+        let (incoming, queue) = mpsc::channel(CHANNEL_QUEUE_SIZE);
+        inbound_queues.push(queue);
         workers.push(context.child("inbound").with_attribute("channel", channel).spawn(move |_| async move {
             while let Ok((from, bytes)) = receiver.recv().await {
-                // A busy consumer drops arrivals, never blocks another channel.
+                // A busy consumer drops this channel's arrivals only.
                 let _ = incoming.try_send(Incoming { from, channel, bytes });
             }
         }));
+        let (deliver, mut pending) = mpsc::channel::<Event>(CHANNEL_QUEUE_SIZE);
+        channel_events.insert(channel, deliver);
+        let events = events.clone();
+        workers.push(context.child("events").with_attribute("channel", channel).spawn(move |_| async move {
+            // Waiting senders get shared-queue space in arrival order, so a
+            // flooding channel takes turns with the others instead of filling it.
+            while let Some(event) = pending.recv().await {
+                if events.send(event).await.is_err() {
+                    break;
+                }
+            }
+        }));
     }
-    drop(incoming);
+    let mut next_queue = 0;
     let mut network_task = network.start();
     let mut network_finished = false;
     let mut views = BTreeMap::new();
@@ -383,7 +423,7 @@ async fn run(
                 }
                 Some(Command::Shutdown) | None => break,
             },
-            Some(inbound) = receive.recv() => {
+            Some(inbound) = next_fair(&mut inbound_queues, &mut next_queue) => {
                 let Some(from) = policy.identities.get(&inbound.from) else { continue };
                 if blocked.contains(from) { continue; }
                 let bytes = inbound.bytes.as_ref();
@@ -410,7 +450,9 @@ async fn run(
                             }
                             None => payload,
                         };
-                        let _ = events.try_send(Event { from: from.clone(), channel: inbound.channel, bytes: payload.to_vec() });
+                        if let Some(deliver) = channel_events.get(&inbound.channel) {
+                            let _ = deliver.try_send(Event { from: from.clone(), channel: inbound.channel, bytes: payload.to_vec() });
+                        }
                     }
                     _ => {}
                 }

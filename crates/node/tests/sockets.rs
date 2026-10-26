@@ -846,3 +846,57 @@ fn real_socket_padding_rejects_mixed_malformed_and_oversized_before_delivery() {
         eprintln!("padding: both mixed-profile directions, malformed length/tail, ACL oversize and forbidden role produce no event; valid traffic still progresses");
     });
 }
+
+/// RFC 0003 §4.2 / T12: while the receiver is not reading, a peer flooding one
+/// channel fills only that channel's queues; a message on another channel is
+/// still delivered once the receiver drains.
+#[test]
+fn real_socket_flood_on_one_channel_does_not_drop_another_channels_message() {
+    run(|context| async move {
+        let roster = fixture();
+        let a = Transport::start_loopback(context.child("a"), config(&roster, 0), PaddingProfile::Disabled).unwrap();
+        let mut b = Transport::start_loopback(context.child("b"), config(&roster, 1), PaddingProfile::Disabled).unwrap();
+        deliver(&a, &mut b, 1, 0, b"warm-up").await;
+        // Flood channel 0 well past the old shared 128-entry queue while b is not reading.
+        let mut accepted = 0;
+        timeout(Duration::from_secs(30), async {
+            while accepted < 250 {
+                match a.send(&id(1), 0, b"flood".to_vec()).await {
+                    Ok(()) => accepted += 1,
+                    Err(e) if e.code == ErrorCode::Conflict => sleep(Duration::from_millis(5)).await,
+                    Err(e) => panic!("unexpected flood rejection: {e}"),
+                }
+            }
+        })
+        .await
+        .expect("flood submission deadline");
+        let marker = [0x5a; 32];
+        timeout(Duration::from_secs(30), async {
+            loop {
+                match a.send(&id(1), 20, marker.to_vec()).await {
+                    Ok(()) => break,
+                    Err(e) if e.code == ErrorCode::Conflict => sleep(Duration::from_millis(100)).await,
+                    Err(e) => panic!("unexpected marker rejection: {e}"),
+                }
+            }
+        })
+        .await
+        .expect("marker submission deadline");
+        sleep(Duration::from_millis(500)).await;
+        let mut found = false;
+        for _ in 0..1000 {
+            match timeout(Duration::from_millis(500), b.recv()).await {
+                Ok(Some(event)) if event.channel == 20 => {
+                    assert_eq!(event.bytes, marker);
+                    found = true;
+                    break;
+                }
+                Ok(Some(_)) => {}
+                _ => break,
+            }
+        }
+        assert!(found, "a flood on channel 0 must not drop the channel 20 message");
+        a.shutdown().await.unwrap();
+        b.shutdown().await.unwrap();
+    });
+}
