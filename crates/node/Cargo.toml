@@ -19,6 +19,7 @@ commonware-utils = { version = "=2026.9.0", features = ["std"] }
 serde.workspace = true
 ed25519-dalek.workspace = true
 tokio.workspace = true
+tracing.workspace = true
 
 [dev-dependencies]
 oic-crypto-provider.workspace = true

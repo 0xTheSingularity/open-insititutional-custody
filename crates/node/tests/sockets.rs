@@ -906,6 +906,14 @@ fn real_socket_flood_on_one_channel_does_not_drop_another_channels_message() {
         .await
         .unwrap_or(false);
         assert!(found, "a flood on channel 0 must not drop the channel 20 message");
+        // Audit 0003-07: the overflow on the flooded channel is counted, not
+        // silently discarded, and the other channel lost nothing.
+        let stats = b.stats();
+        assert!(
+            stats.inbound_dropped[&0] + stats.events_dropped[&0] > 0,
+            "flood overflow must be counted: {stats:?}"
+        );
+        assert_eq!(stats.inbound_dropped[&20] + stats.events_dropped[&20], 0);
         a.shutdown().await.unwrap();
         b.shutdown().await.unwrap();
     });
