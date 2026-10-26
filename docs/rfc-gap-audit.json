@@ -375,9 +375,10 @@
         {
           "id": "0004-06",
           "section": "S11-S12",
-          "status": "partial",
+          "status": "closed",
           "severity": "medium",
-          "summary": "Approval inbox filters on dispatch=ready without expiry/eligibility checks; no verifier deep link (CLI accepted per Q2); correctly no Approve button."
+          "summary": "Approval inbox filters on dispatch=ready without expiry/eligibility checks; no verifier deep link (CLI accepted per Q2); correctly no Approve button.",
+          "fixed_in": "PR #41: the approval queue lists a transfer only while it is before dispatch, not issued, a policy rule matches, and fewer unexpired grants are recorded than that rule requires; the table shows unexpired grants against the requirement. Expiry is judged at the time the state was read. The verifier stays the external oic-approve CLI, which RFC 004 Q2 accepts. Per-approver eligibility needs console authentication (0004-01)."
         },
         {
           "id": "0004-07",
@@ -414,7 +415,8 @@
           "section": "§9 freshness",
           "status": "partial",
           "severity": "low",
-          "summary": "Generic stale banner only; no per-scope age thresholds; balances shown without freshness check."
+          "summary": "Generic stale banner only; no per-scope age thresholds; balances shown without freshness check.",
+          "fixed_in": "PR #41: each reconciliation checkpoint shows how long before the read it was taken, and reads as a current match only within CHECKPOINT_STALE_SECONDS (120); older matches are amber and labelled stale, exceptions red. A checkpoint without its timestamp is rejected. Remaining: available balances carry only a head height, no observation time, so they cannot get an age until the status API reports one."
         }
       ],
       "covered": "Navigation matches §5; bridge/demo/watch-only boundaries (§3, §10) enforced: loopback-only upstream, route allowlist, idempotency key, body cap, demo write-block, watch-only never enrolls authority."
