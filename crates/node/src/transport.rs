@@ -430,12 +430,13 @@ async fn run(
         inbound_queues.push(queue);
         let hello_incoming = hello_incoming.clone();
         let counters = policy.clone();
+        // Every valid Hello is these exact bytes; anything else, including a
+        // frame that only claims the Hello variant, goes to the data queue.
+        let canonical_hello: Vec<u8> = policy.packet(HELLO, &hello).as_ref().to_vec();
         workers.push(context.child("inbound").with_attribute("channel", channel).spawn(move |_| async move {
             while let Ok((from, bytes)) = receiver.recv().await {
-                // A busy consumer drops this channel's arrivals only. The
-                // variant byte is an unsigned routing hint; the actor still
-                // validates the whole frame.
-                let queue = if channel == 0 && bytes.as_ref().get(2) == Some(&HELLO) { &hello_incoming } else { &incoming };
+                // A busy consumer drops this channel's arrivals only.
+                let queue = if channel == 0 && bytes.as_ref() == canonical_hello.as_slice() { &hello_incoming } else { &incoming };
                 if queue.try_send(Incoming { from, channel, bytes }).is_err() {
                     Stats::bump(&counters.stats.inbound_dropped[&channel], "inbound queue full, arrival dropped", channel);
                 }
