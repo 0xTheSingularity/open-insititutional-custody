@@ -12,6 +12,7 @@ path = "src/main.rs"
 [dependencies]
 oic-domain-types = { workspace = true }
 oic-canonical-encoding = { workspace = true }
+oic-policy-kernel = { workspace = true }
 oic-membership = { workspace = true }
 oic-node = { workspace = true }
 oic-signer = { workspace = true }
