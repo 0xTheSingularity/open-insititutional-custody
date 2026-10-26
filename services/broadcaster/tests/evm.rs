@@ -142,12 +142,11 @@ fn evm_submitted_included_finalized_settles_exposure() {
     assert_eq!(b.poll(&fam).unwrap(), LifecycleState::Submitted);
     assert_eq!(outstanding(&f.auth, &f.clock, &f.t.asset.asset_id), Amount(AMOUNT));
 
+    // Included at the head, but the finalized view (depth 2) does not reach
+    // the block yet, so it is not final.
     f.sim.mine().unwrap();
     assert_eq!(b.poll(&fam).unwrap(), LifecycleState::Included);
-    // One more block: latest-view confirmations reach the depth, but only the
-    // finality view may finalize.
-    f.sim.mine().unwrap();
-    assert_eq!(b.poll(&fam).unwrap(), LifecycleState::Included);
+    // One more block puts the inclusion block inside the finalized view.
     f.sim.mine().unwrap();
     assert_eq!(b.poll(&fam).unwrap(), LifecycleState::FinalizedSuccess);
     assert!(matches!(f.auth.reservation(&f.reservation).unwrap().state, ReservationState::Settled { success: true, .. }));
