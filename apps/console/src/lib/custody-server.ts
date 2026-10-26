@@ -209,7 +209,57 @@ export async function handleCustody(
       );
     }
     if (!response.ok) {
-      // Do not reflect backend bodies, headers, URLs, or credentials into errors.
+      // A mutation refused with a known definitive error code did not happen:
+      // report the backend's {code, detail} envelope (sanitized) instead of
+      // the unknown-outcome message. Any other failure — ISSUANCE_UNCERTAIN,
+      // an unknown code, an unreadable body — keeps the fail-safe unknown
+      // message, and no other backend body text is ever reflected.
+      if (
+        mutation &&
+        response.status >= 400 &&
+        response.status < 500 &&
+        response.headers.get("content-type")?.split(";")[0] ===
+          "application/json"
+      ) {
+        const definitive = new Set([
+          "POLICY_DENIED",
+          "INVALID_REQUEST",
+          "SCOPE_MISMATCH",
+          "NOT_FOUND",
+          "APPROVAL_REQUIRED",
+          "STALE_EVIDENCE",
+          "BUDGET_EXCEEDED",
+        ]);
+        try {
+          const raw = await response.text();
+          if (raw.length <= 4096) {
+            const parsed: unknown = JSON.parse(raw);
+            if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+              const { code, detail } = parsed as {
+                code?: unknown;
+                detail?: unknown;
+              };
+              if (
+                typeof code === "string" &&
+                definitive.has(code) &&
+                typeof detail === "string"
+              ) {
+                const safeDetail = detail
+                  .replace(/[^\x20-\x7e]/g, " ")
+                  .slice(0, 300);
+                return failure(
+                  response.status,
+                  `The custody service rejected this action (${code}): ${safeDetail}. Nothing was created or submitted.`,
+                  false,
+                );
+              }
+            }
+          }
+        } catch {
+          // Unreadable body: fall through to the unknown-outcome message.
+        }
+        return failure(response.status, unknown, true);
+      }
       await response.body?.cancel();
       return failure(
         response.status,

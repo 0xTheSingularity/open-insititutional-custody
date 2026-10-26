@@ -203,6 +203,14 @@ test("failed or ambiguous submission is not retried, redirected, or presented as
     } else if (request.url === "/v1/intents/malformed/submit") {
       response.writeHead(200, { "content-type": "application/json" });
       response.end("{partial-json");
+    } else if (request.url === "/v1/intents/denied/submit") {
+      response.writeHead(409, { "content-type": "application/json" });
+      response.end(
+        JSON.stringify({
+          code: "POLICY_DENIED",
+          detail: "[EvidenceStale]; stale evidence cannot be refreshed",
+        }),
+      );
     } else {
       response.writeHead(409, { "content-type": "application/json" });
       response.end(
@@ -224,7 +232,15 @@ test("failed or ambiguous submission is not retried, redirected, or presented as
       /private backend diagnostic|test-only-console-capability|steal/,
     );
   }
-  assert.equal(submissions, 4);
+  // A definitive policy denial is reported as a rejection with the backend's
+  // code and detail, not as an unknown outcome.
+  const denied = await call("intents/denied/submit", "POST");
+  assert.equal(denied.status, 409);
+  const deniedBody = await denied.json();
+  assert.equal(deniedBody.outcome_unknown, false);
+  assert.match(deniedBody.error, /POLICY_DENIED/);
+  assert.match(deniedBody.error, /stale evidence cannot be refreshed/);
+  assert.equal(submissions, 5);
   assert.equal(redirected, false);
 });
 

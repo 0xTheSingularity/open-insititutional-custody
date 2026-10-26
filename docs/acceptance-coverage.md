@@ -63,10 +63,12 @@ uncited test may still cover a scenario.
 (Cosmos), A28 (Sui) and A29 (Aptos) test adapters that do not exist yet.
 They become reachable when RFC 0002 Gate E adds a chain, not before.
 
-**Operational scope not built yet (3).** A32 (domain loss recovery), A33
-(removed signer's residual authority) and A38 (attestation rejects an
-unauthorized image) need the recovery and attestation machinery of RFC 0002
-Gates C and D.
+**Operational scope not built yet (1).** A33 (removed signer's residual
+authority) needs share refresh or forced migration, a reserved design decision
+(RFC 0002 §3 decision 1); the FROST backend declares `supports_refresh=false`.
+A32 and A38 left this list the same way A35 did: the
+`crates/crypto-provider-frost-ed25519/tests/frost_provider.rs` tests now cite
+them, as the table above shows.
 
 A35 was in this list until its triage pass: the reconciler's
 `unknown_token_is_quarantined_and_differences_need_unique_admin_quorum`

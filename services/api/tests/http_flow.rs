@@ -37,6 +37,14 @@ fn api(
         (c.destination.destination_id.clone(), c.destination.version),
         c.destination.clone(),
     );
+    // An older enrolled version of the same destination: create must refuse
+    // intents that name it once the newer version above is enrolled.
+    let mut superseded = c.destination.clone();
+    superseded.version = superseded.version.saturating_sub(1);
+    catalog.destinations.insert(
+        (superseded.destination_id.clone(), superseded.version),
+        superseded,
+    );
     catalog
         .profiles
         .insert(c.profile.chain_profile_id.clone(), c.profile.clone());
@@ -205,6 +213,31 @@ async fn transfer(
         .await
         .0,
         StatusCode::FORBIDDEN
+    );
+    // RFC-0001 §4.2: a superseded destination version is refused at create.
+    let mut superseded = intent.clone();
+    {
+        let IntentOperation::AssetTransfer {
+            ref mut destination_version,
+            ..
+        } = superseded.operation;
+        *destination_version -= 1;
+    }
+    let (status, error) = call(
+        &app,
+        "POST",
+        "/v1/intents",
+        "proposer",
+        Some(serde_json::to_value(&superseded).unwrap()),
+    )
+    .await;
+    assert_eq!(status, StatusCode::CONFLICT, "{error}");
+    assert!(
+        error["detail"]
+            .as_str()
+            .unwrap_or_default()
+            .contains("superseded"),
+        "{error}"
     );
     // Issue #26: an unknown top-level field is rejected, not silently dropped.
     let mut extra = body.clone();
