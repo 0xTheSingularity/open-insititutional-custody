@@ -147,6 +147,28 @@ fn abort_sentinel(session_id: &SigningSessionId) -> OicResult<Hash32> {
     domain_hash(domains::SIGNER_FENCE, &("session-abort", session_id))
 }
 
+/// Raise this signer's rollback-protected floor named `name` to `value`.
+/// The floor lives in the one-time-state ledger, which detects restore, so
+/// restoring older local configuration or state cannot lower it. Fails with
+/// `RecoveryRequired` when `value` is below the floor already reached.
+fn ratchet_floor(ledger: &dyn OneTimeStateLedger, participant: &ParticipantId, generation: Epoch, name: &str, value: u64) -> OicResult<()> {
+    let h = domain_hash(domains::SIGNER_FENCE, &(name, participant))?;
+    let key = KeyId::new(format!("oic-floor/{}", &h.to_hex()[..32])).ok_or_else(|| OicError::internal("floor key id"))?;
+    let probe = SigningSessionId::unchecked(format!("oic-floor-{name}-{value}-generation-{}", generation.0));
+    match ledger.allocate(&key, Epoch(0), Epoch(value), &probe) {
+        Ok(_) => {}
+        Err(e) if e.code == ErrorCode::ResourceConflict => {
+            return Err(OicError::new(
+                ErrorCode::RecoveryRequired,
+                format!("{name} {value} is older than one this signer already accepted (restored or replayed state)"),
+            ))
+        }
+        Err(e) => return Err(e),
+    }
+    ledger.tombstone_generations_before(&key, Epoch(value))?;
+    Ok(())
+}
+
 fn fence_key(participant: &ParticipantId) -> OicResult<KeyId> {
     let h = domain_hash(domains::SIGNER_FENCE, participant)?;
     KeyId::new(format!("oic-signer-fence/{}", &h.to_hex()[..32])).ok_or_else(|| OicError::internal("fence key id"))
@@ -336,6 +358,10 @@ impl Signer {
             }
         }
         ledger.tombstone_generations_before(&fence, generation)?;
+        if let Some(e) = &roots.enrolled_materials {
+            // An older, still validly signed enrollment would re-enroll records a newer one revoked.
+            ratchet_floor(ledger.as_ref(), &identity.participant_id, generation, "material enrollment epoch", e.enrollment_epoch.0)?;
+        }
         generation_store.store(generation)?;
         Ok(Signer {
             identity,
@@ -366,6 +392,13 @@ impl Signer {
                 s(e);
             }
         }
+    }
+
+    /// Raise the rollback-protected floor `name` to `value`; see
+    /// [`ratchet_floor`]. Used by the signer domain for state kept outside
+    /// the signer, such as the local halt sequence.
+    pub fn ratchet_floor(&self, name: &str, value: u64) -> OicResult<()> {
+        ratchet_floor(self.ledger.as_ref(), &self.identity.participant_id, self.generation, name, value)
     }
 
     pub fn generation(&self) -> Epoch {

@@ -347,7 +347,8 @@ fn a11_output_without_consumed_record_is_withheld_and_session_aborted() {
     let rr = c.world.release(&env);
     assert_eq!(code(c.node.signer.release(s, &rr, now())), ErrorCode::Internal);
     // The record was never consumed for the payload; the abort burned it with a sentinel.
-    let recs = c.node.ledger.snapshot();
+    // Only the signing key's records; the ledger also holds the signer's fences.
+    let recs: Vec<_> = c.node.ledger.snapshot().into_iter().filter(|r| r.key_id == c.key.key_id).collect();
     assert_eq!(recs.len(), 1);
     assert!(recs[0].consumed);
     assert_ne!(recs[0].bound_message_hash, Some(payload_hash(&env)));
@@ -619,7 +620,8 @@ fn abort_burns_record_and_is_final() {
     assert_eq!(code(c.node.signer.release(s, &rr, now())), ErrorCode::Conflict);
     assert_eq!(code(c.node.signer.receive(s, &dev_release_msg(&c.node, &env))), ErrorCode::Conflict);
     assert_eq!(code(c.node.signer.open_session(&env, &c.setup.m, now())), ErrorCode::Conflict);
-    let recs = c.node.ledger.snapshot();
+    // Only the signing key's records; the ledger also holds the signer's fences.
+    let recs: Vec<_> = c.node.ledger.snapshot().into_iter().filter(|r| r.key_id == c.key.key_id).collect();
     assert_eq!(recs.len(), 1);
     assert!(recs[0].consumed && recs[0].bound_message_hash != Some(payload_hash(&env)), "record burned, never used for the payload");
     assert!(c.node.events().contains(&SignerEvent::Aborted { session: s.clone(), reason: "aborted by caller".into() }));
@@ -813,4 +815,32 @@ fn superseded_destination_version_is_refused() {
     rejected(&node, &env, &c.setup.m, now(), ErrorCode::ScopeMismatch);
     // The case's own node, whose enrollment lists that version, accepts it.
     assert!(c.node.signer.verify_envelope(&env, &c.setup.m, now()).is_ok());
+}
+
+/// Codex review on #41: once a signer accepts an enrollment at some epoch, an
+/// older one (still validly signed) must not re-enroll what it revoked.
+#[test]
+fn older_material_enrollment_epoch_is_refused_after_a_newer_one() {
+    let c = evm_case(0);
+    let ledger = Arc::new(InMemoryLedger::new());
+    let store = Arc::new(InMemoryGenerationStore::new());
+    let at_epoch = |epoch: u64| {
+        let mut roots = c.world.trust_roots_for(vec![evm_profile()], &c.setup.m);
+        let e = roots.enrolled_materials.as_mut().unwrap();
+        e.enrollment_epoch = Epoch(epoch);
+        e.administrative_signatures = c.world.admin_quorum_signatures(oic_policy_kernel::material_enrollment_hash(e).unwrap());
+        roots
+    };
+    let open = |roots: TrustRoots| {
+        let mut adapters: std::collections::BTreeMap<AdapterId, Arc<dyn ChainAdapter>> = Default::default();
+        adapters.insert(c.setup.adapter.manifest().adapter_id, c.setup.adapter.clone());
+        Signer::open(identity(&pid(1)), roots, adapters, c.dev.clone(), ledger.clone(), store.clone()).map(|_| ()).map_err(|e| e.code)
+    };
+    assert_eq!(open(at_epoch(1)), Ok(()));
+    assert_eq!(open(at_epoch(1)), Ok(()), "reopening at the same epoch is fine");
+    assert_eq!(open(at_epoch(2)), Ok(()));
+    assert_eq!(open(at_epoch(1)), Err(ErrorCode::RecoveryRequired));
+    assert_eq!(open(at_epoch(2)), Ok(()));
+    assert_eq!(open(at_epoch(5)), Ok(()));
+    assert_eq!(open(at_epoch(4)), Err(ErrorCode::RecoveryRequired));
 }

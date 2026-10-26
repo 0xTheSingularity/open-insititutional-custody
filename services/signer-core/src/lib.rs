@@ -180,6 +180,9 @@ impl SignerCore {
         if halt.institution_id != identity.institution_id || halt.environment_id != identity.environment_id || halt.node_id != config.node_id {
             return Err(rejected(ErrorCode::RecoveryRequired));
         }
+        // A restored older halt file (for example an unhalt at a lower
+        // sequence) must not lower the halt sequence this node reached.
+        signer.ratchet_floor("halt sequence", halt.sequence).map_err(|_| rejected(ErrorCode::RecoveryRequired))?;
         let core =
             Self { signer, config, participant_key, scope, clock, state: Mutex::new(State { halt, sessions: BTreeMap::new() }), finalized_log: None };
         core.journal("node.roster_applied", BTreeMap::from([("roster".into(), core.scope.roster_hash)]), Epoch(0))?;
@@ -270,6 +273,9 @@ impl SignerCore {
         file.write_all(&canonical_bytes(command)?).and_then(|_| file.as_file().sync_all()).map_err(|_| rejected(ErrorCode::RecoveryRequired))?;
         file.persist(&self.config.halt_state_path).map_err(|_| rejected(ErrorCode::RecoveryRequired))?;
         std::fs::File::open(parent).and_then(|f| f.sync_all()).map_err(|_| rejected(ErrorCode::RecoveryRequired))?;
+        // Raised only after the command is durable, so a crash in between
+        // leaves the file at or above the floor.
+        self.signer.ratchet_floor("halt sequence", b.sequence).map_err(|_| rejected(ErrorCode::RecoveryRequired))?;
         self.journal(if b.halted { "node.halted" } else { "node.unhalted" }, BTreeMap::from([("halt_command".into(), halt_hash(b)?)]), Epoch(0))?;
         state.halt = next;
         Ok(())

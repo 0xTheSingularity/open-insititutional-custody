@@ -423,6 +423,32 @@ fn local_halt_is_signed_durable_and_stops_active_sessions() {
         reopened.control(&node_id(3), &SessionControl::Status { request_id: 3, session_id: SigningSessionId::unchecked("missing") }).result.unwrap_err().code,
         ErrorCode::NodeHalted
     );
+    drop(reopened);
+    // Audit 0003-14: deleting or restoring the halt file must not un-halt the
+    // node, even with no configured minimum. The signer's ledger floor holds
+    // the halt sequence this node reached.
+    std::fs::remove_file(network._dir.path().join("halt-0")).unwrap();
+    let rolled_back = SignerCore::open(
+        CoreConfig {
+            node_id: node_id(0),
+            roster: roster.clone(),
+            previous_roster: None,
+            admins: roster_admins(&world, &sol.chain),
+            committed_roster_hash: roster_hash(&roster.body).unwrap(),
+            halt_state_path: network._dir.path().join("halt-0"),
+            minimum_halt_sequence: 0,
+            operator_key: SigningKey::from_bytes(&[220; 32]).verifying_key(),
+            audit: network.audits[0].clone(),
+        },
+        sol.chain.nodes[0].signer.clone(),
+        SigningKey::from_bytes(&[80; 32]),
+        world.clock.clone(),
+    );
+    assert_eq!(rolled_back.err().map(|e| e.code), Some(ErrorCode::RecoveryRequired));
+}
+
+fn roster_admins(world: &World, chain: &Chain) -> AdminTrust {
+    roster(world, chain).1
 }
 
 #[test]
