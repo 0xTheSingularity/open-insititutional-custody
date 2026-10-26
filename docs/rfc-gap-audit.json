@@ -325,7 +325,8 @@
           "severity": "low",
           "summary": "Passkey sign_count parsed but never compared (no clone alert); no AAGUID allowlist.",
           "evidence": ["crates/policy-kernel/src/approvals.rs:100-109"],
-          "fix_shape": "Clone detection needs a persisted monotonic counter per enrolled credential. ApproverCredential is an admin-signed stored object, so adding last_sign_count is a schema and enrollment-flow change, not a patch."
+          "fix_shape": "Clone detection needs a persisted monotonic counter per enrolled credential. ApproverCredential is an admin-signed stored object, so adding last_sign_count is a schema and enrollment-flow change, not a patch.",
+          "fixed_in": "PR #41: the authority records each passkey credential's highest WebAuthn signature counter and refuses an approval whose counter did not increase when either value is nonzero (possible cloned authenticator); a replay of an already recorded grant still returns Conflict. Zero counters are not encoded, so existing authority state keeps its hash and golden vectors are unchanged. Test passkey_signature_counter_must_increase_across_approvals. Remaining: no AAGUID allowlist for device-bound authenticators."
         }
       ],
       "covered": "§3.2-§3.3 roster validation, §4.1-§4.2 ACLs, §6.3 D2 re-execution, §8.1 Class S fences, §8.3 signed MPC frames, §10 generation fencing, §15 WebAuthn verification and proposer-exclusion, Stateright model."
