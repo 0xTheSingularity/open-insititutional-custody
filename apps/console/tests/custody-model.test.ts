@@ -5,6 +5,7 @@ import {
   readIntentRecord,
   readOperation,
   readStatus,
+  requiredApprovals,
 } from "../src/lib/custody-model";
 import {
   prepareIntent,
@@ -321,6 +322,32 @@ test("read models reject rounded sequences, invalid holdings, unsupported lifecy
     last_error: null,
   };
   assert.equal(readIntentRecord(record).intent.intent_id, "intent-42");
+  const withRules = (rules: unknown[]) =>
+    readIntentRecord({
+      ...record,
+      built: {
+        ...record.built,
+        package: { ...record.built.package, policy: { ...catalog.policy, rules } },
+      },
+    });
+  const rule = (vaults: string[], required_approvals: number) => ({
+    rule_id: `r${required_approvals}`,
+    vaults,
+    assets: [],
+    destinations: [],
+    purposes: [],
+    required_approvals,
+    max_amount_per_operation: "1000000000000000000000",
+    max_native_fee_per_operation: "1000000000000000000",
+    exclude_proposer: true,
+  });
+  // No rule: the console says so instead of inventing a requirement.
+  assert.equal(requiredApprovals(withRules([])), null);
+  // First matching rule in bundle order wins, as in the kernel's match_rule.
+  assert.equal(
+    requiredApprovals(withRules([rule(["other-vault"], 5), rule([], 2), rule([], 3)])),
+    2,
+  );
   assert.throws(() =>
     readIntentRecord({
       ...record,

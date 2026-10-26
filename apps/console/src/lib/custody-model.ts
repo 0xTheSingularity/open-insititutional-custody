@@ -86,6 +86,24 @@ export type CustodyIntent = {
   proposer_credential_id: string;
   created_at: number;
 };
+/** Approvals the first matching policy rule requires, mirroring the kernel's
+ * `match_rule` (empty scope lists match everything). Explanation only: the
+ * custody service decides. `null` when no rule matches. */
+export function requiredApprovals(record: CustodyIntentRecord): number | null {
+  const { intent } = record;
+  const transfer = intent.operation.asset_transfer;
+  const matches = (list: string[], value: string) =>
+    list.length === 0 || list.includes(value);
+  const rule = record.built.package.policy.rules.find(
+    (r) =>
+      matches(r.vaults, intent.vault_id) &&
+      matches(r.assets, transfer.asset_id) &&
+      matches(r.destinations, transfer.destination_id) &&
+      matches(r.purposes, intent.purpose),
+  );
+  return rule ? rule.required_approvals : null;
+}
+
 export type CustodyIntentRecord = {
   intent: CustodyIntent;
   built: {

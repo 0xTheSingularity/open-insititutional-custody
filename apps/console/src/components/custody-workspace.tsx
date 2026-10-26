@@ -53,6 +53,7 @@ import {
   type CustodyOperation,
   type LocalCatalog,
   type LocalStatus,
+  requiredApprovals,
 } from "@/lib/custody-model";
 
 type Data = {
@@ -726,6 +727,7 @@ function TransferDetail({
   onAction: (action: "submit" | "cancel" | "refresh") => void;
 }) {
   const { intent, built } = record;
+  const required = requiredApprovals(record);
   const canDispatch =
     record.dispatch === "ready" &&
     record.issuance === null &&
@@ -840,6 +842,11 @@ function TransferDetail({
           </dl>
           <div className="space-y-3 border-t pt-5">
             <h3 className="font-medium">Independent approval records</h3>
+            <p className="text-sm">
+              {required === null
+                ? "No policy rule matches this transfer; the custody service will deny it."
+                : `Policy requires ${required} independent approval${required === 1 ? "" : "s"}; ${record.approvals.length} recorded.`}
+            </p>
             {record.approvals.length ? (
               record.approvals.map((grant, index) => (
                 <p
