@@ -73,28 +73,47 @@ impl Stack {
         fail_after_release: bool,
     ) -> OicResult<Arc<Self>> {
         private_directory(state)?;
+        const PERSISTED: [&str; 16] = [
+            "ready.json",
+            "authority.json",
+            "api.sqlite",
+            "coordinator.jsonl",
+            "submissions.jsonl",
+            "operations.json",
+            "simulator.jsonl",
+            "simulator.floor",
+            "ledger-0",
+            "ledger-1",
+            "ledger-2",
+            "ledger-3",
+            "generation-0.json",
+            "generation-1.json",
+            "generation-2.json",
+            "generation-3.json",
+        ];
         if !initial {
-            for name in [
-                "ready.json",
-                "authority.json",
-                "api.sqlite",
-                "coordinator.jsonl",
-                "submissions.jsonl",
-                "operations.json",
-                "simulator.jsonl",
-                "simulator.floor",
-                "ledger-0",
-                "ledger-1",
-                "ledger-2",
-                "ledger-3",
-                "generation-0.json",
-                "generation-1.json",
-                "generation-2.json",
-                "generation-3.json",
-            ] {
+            if !state.join("provisioned.json").is_file() {
+                // Deletion is only safe advice when no persisted store exists:
+                // a directory that lost provisioned.json but kept journals or
+                // secrets is an incomplete installation to restore, not a
+                // never-provisioned one to discard.
+                let residue = PERSISTED.iter().any(|n| state.join(n).exists())
+                    || state.join("secrets.json").exists();
+                if residue {
+                    return Err(io(format!(
+                        "{} has persisted stores but no provisioned.json; this is an incomplete installation. fix: restore the complete state directory from your copy; do not delete stores or bootstrap again — payment state may be unresolved",
+                        state.display()
+                    )));
+                }
+                return Err(io(format!(
+                    "{} was never provisioned (no provisioned.json and no persisted stores). fix: run scripts/local-stack/bootstrap.sh first; if an earlier bootstrap failed before completing, delete this directory and bootstrap again. Never delete a provisioned installation to resolve payment uncertainty",
+                    state.display()
+                )));
+            }
+            for name in PERSISTED {
                 if !state.join(name).is_file() {
                     return Err(io(format!(
-                        "missing persisted {name}; refusing to bootstrap an existing installation"
+                        "missing persisted {name}; refusing to open a provisioned installation with incomplete stores. fix: restore the complete state directory from your copy; do not delete stores or bootstrap again — payment state may be unresolved"
                     )));
                 }
             }

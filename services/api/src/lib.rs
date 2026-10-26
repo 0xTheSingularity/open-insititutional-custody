@@ -465,7 +465,24 @@ impl<S: AuthorityStore> Api<S> {
                 ));
             }
             oic_policy_kernel::Decision::Deny { reasons } => {
-                return Err(OicError::policy_denied(format!("{reasons:?}")));
+                let mut detail = format!("{reasons:?}");
+                if reasons
+                    .iter()
+                    .any(|r| matches!(r, oic_policy_kernel::ReasonCode::EvidenceStale))
+                {
+                    detail.push_str(
+                        "; stale evidence cannot be refreshed: create a new intent, then approve and submit within the evidence window",
+                    );
+                }
+                if reasons
+                    .iter()
+                    .any(|r| matches!(r, oic_policy_kernel::ReasonCode::EvidenceFromFuture))
+                {
+                    detail.push_str(
+                        "; evidence is timestamped in the future: check the evaluation clock against the evidence observed_at timestamp",
+                    );
+                }
+                return Err(OicError::policy_denied(detail));
             }
         }
         let participants = self

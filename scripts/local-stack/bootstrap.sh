@@ -11,10 +11,13 @@ if [[ -e "$base/state/provisioned.json" || -e "$base/independent/approver.json" 
   echo 'Installation already exists. Bootstrap never replaces keys or resets stores; use start/restart.' >&2
   exit 1
 fi
-read -r -s -p 'New independent approval passphrase (at least 12 bytes): ' OIC_LOCAL_APPROVAL_PASSPHRASE; echo
-read -r -s -p 'Confirm passphrase: ' confirmation; echo
-[[ "$OIC_LOCAL_APPROVAL_PASSPHRASE" == "$confirmation" ]] || { echo 'Passphrases differ' >&2; exit 1; }
-unset confirmation
+if [[ -z "${OIC_LOCAL_APPROVAL_PASSPHRASE:-}" ]]; then
+  read -r -s -p 'New independent approval passphrase (at least 12 bytes): ' OIC_LOCAL_APPROVAL_PASSPHRASE; echo
+  read -r -s -p 'Confirm passphrase: ' confirmation; echo
+  [[ "$OIC_LOCAL_APPROVAL_PASSPHRASE" == "$confirmation" ]] || { echo 'Passphrases differ. Type the same passphrase twice; do not paste multiple commands over the prompt.' >&2; exit 1; }
+  unset confirmation
+fi
+(( $(printf %s "$OIC_LOCAL_APPROVAL_PASSPHRASE" | wc -c) >= 12 )) || { echo 'Passphrase must be at least 12 bytes.' >&2; exit 1; }
 export OIC_LOCAL_APPROVAL_PASSPHRASE
 "$root/target/debug/oic-approve" keygen --out "$base/independent/approver.json" --credential-id independent-approver --role treasury_approver --passphrase-env OIC_LOCAL_APPROVAL_PASSPHRASE
 unset OIC_LOCAL_APPROVAL_PASSPHRASE

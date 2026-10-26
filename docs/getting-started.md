@@ -160,7 +160,7 @@ explains signature schemes, fee formats, mints, token accounts, and message vers
 | Build runs out of space | Use the [lower-disk build profile](#run-the-full-suite). Review generated build output if space remains insufficient. |
 | A named demo runs zero tests | Copy the full test name and keep `--test coordinator` and `-- --exact`. |
 | Approval input files are missing | Create enrolled roots/profile and export a builder package using the [client guide](approval-client.md). |
-| Evidence is stale or a grant expired | Obtain a fresh chain view or a new approval through the normal flow. |
+| Evidence is stale or a grant expired | A candidate's evidence cannot be refreshed. Create a new intent, then approve and submit it within the evidence window (60s for the local approver). |
 | A payment outcome is unknown | Preserve its reservation and signed bytes. Use chain observation or invalidation proof to resolve it. |
 
 Read the [documentation map](README.md), [implementation boundaries](../openwiki/concepts/implementation-boundaries.md),
