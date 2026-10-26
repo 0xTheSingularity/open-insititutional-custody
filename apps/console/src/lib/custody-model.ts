@@ -104,6 +104,62 @@ export function requiredApprovals(record: CustodyIntentRecord): number | null {
   return rule ? rule.required_approvals : null;
 }
 
+const preDispatchStates = new Set<string>([
+  "DRAFT",
+  "BUILT",
+  "VERIFIED",
+  "POLICY_EVALUATED",
+  "AWAITING_APPROVAL",
+]);
+/** Grants recorded for this intent that have not expired at `now` (Unix seconds). */
+export function liveApprovals(record: CustodyIntentRecord, now: number): number {
+  return record.approvals.filter((grant) => grant.body.expires_at > now).length;
+}
+/** Whether the transfer belongs in the approval queue: still before dispatch,
+ * not issued, a policy rule matches, and fewer unexpired grants are recorded
+ * than that rule requires. Explanation only; the custody service decides. */
+export function needsApproval(
+  record: CustodyIntentRecord,
+  lifecycle: string,
+  now: number,
+): boolean {
+  const required = requiredApprovals(record);
+  return (
+    record.dispatch === "ready" &&
+    record.issuance === null &&
+    preDispatchStates.has(lifecycle) &&
+    required !== null &&
+    liveApprovals(record, now) < required
+  );
+}
+
+/** Checkpoints older than this are reported as stale, not as a current match. */
+export const CHECKPOINT_STALE_SECONDS = 120;
+export type CheckpointView = {
+  tone: "success" | "attention" | "danger";
+  label: string;
+  ageSeconds: number;
+};
+/** RFC 004 §9: a reconciliation result is shown as current only while fresh. */
+export function checkpointView(
+  body: LocalStatus["checkpoints"][number]["body"],
+  now: number,
+): CheckpointView {
+  const ageSeconds = Math.max(0, now - body.at);
+  const consistent =
+    body.balances.every((b) => b.chain_balance === b.journal_balance) &&
+    body.cases_opened.length === 0;
+  if (!consistent)
+    return { tone: "danger", label: "Reconciliation exception", ageSeconds };
+  if (ageSeconds > CHECKPOINT_STALE_SECONDS)
+    return {
+      tone: "attention",
+      label: `Matched ${Math.round(ageSeconds / 60)} min ago; stale`,
+      ageSeconds,
+    };
+  return { tone: "success", label: "Reported balances match", ageSeconds };
+}
+
 export type CustodyIntentRecord = {
   intent: CustodyIntent;
   built: {
@@ -211,6 +267,8 @@ export type LocalStatus = {
     body: {
       checkpoint_id: string;
       chain_profile_id: string;
+      /** Unix seconds the reconciler took this checkpoint. */
+      at: number;
       state: State;
       journal_sequence: number;
       balances: {
@@ -427,6 +485,7 @@ export function readStatus(value: unknown): LocalStatus {
     const c = object(checkpoint);
     const b = fields(c.body, ["checkpoint_id", "chain_profile_id"]);
     state(b.state);
+    integer(b.at);
     integer(b.journal_sequence);
     strings(b.cases_opened);
     list(b.balances).forEach((balance) => {

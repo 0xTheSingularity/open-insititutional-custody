@@ -53,7 +53,10 @@ import {
   type CustodyOperation,
   type LocalCatalog,
   type LocalStatus,
+  checkpointView,
   lifecycleDisplay,
+  liveApprovals,
+  needsApproval,
   requiredApprovals,
 } from "@/lib/custody-model";
 
@@ -266,6 +269,8 @@ export function CustodyWorkspace({
       </Card>
     );
   const { catalog, status, records, operations } = data;
+  // Grant expiry is judged at the time this state was read, not render time.
+  const nowSeconds = Math.floor(Date.parse(data.readAt) / 1000);
   const id = pathname.split("/")[2];
   const record = records.find((item) => item.intent.intent_id === id);
   const detail = pathname.startsWith("/transfers/") && id !== "new";
@@ -534,7 +539,12 @@ export function CustodyWorkspace({
                   {records
                     .filter(
                       (item) =>
-                        pathname !== "/approvals" || item.dispatch === "ready",
+                        pathname !== "/approvals" ||
+                        needsApproval(
+                          item,
+                          operations[item.intent.intent_id].lifecycle,
+                          nowSeconds,
+                        ),
                     )
                     .map((item) => (
                       <TableRow key={item.intent.intent_id}>
@@ -559,7 +569,9 @@ export function CustodyWorkspace({
                           />
                         </TableCell>
                         <TableCell>
-                          {item.approvals.length} · not a quorum assertion
+                          {liveApprovals(item, nowSeconds)} unexpired of{" "}
+                          {requiredApprovals(item) ?? "no matching rule"} ·
+                          not a quorum assertion
                         </TableCell>
                         <TableCell>
                           <StateBadge
@@ -660,10 +672,7 @@ export function CustodyWorkspace({
             <div className="grid gap-4 lg:grid-cols-2">
               {status.checkpoints.map((checkpoint) => {
                 const body = checkpoint.body;
-                const consistent =
-                  body.balances.every(
-                    (b) => b.chain_balance === b.journal_balance,
-                  ) && body.cases_opened.length === 0;
+                const view = checkpointView(body, nowSeconds);
                 return (
                   <div
                     className="space-y-2 border-l-2 pl-4"
@@ -672,13 +681,12 @@ export function CustodyWorkspace({
                     <p className="text-sm font-medium">
                       {body.chain_profile_id}
                     </p>
-                    <Badge variant="outline">
-                      {consistent
-                        ? "Reported balances match"
-                        : "Reconciliation exception"}
+                    <Badge variant="outline" className={toneClass[view.tone]}>
+                      {view.label}
                     </Badge>
                     <p className="text-xs text-muted-foreground">
-                      Checkpoint {body.checkpoint_id} · journal sequence{" "}
+                      Taken {view.ageSeconds}s before this read · checkpoint{" "}
+                      {body.checkpoint_id} · journal sequence{" "}
                       {body.journal_sequence} · {body.state.commitment} height{" "}
                       {body.state.height}
                     </p>

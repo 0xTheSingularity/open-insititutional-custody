@@ -1,11 +1,15 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  CHECKPOINT_STALE_SECONDS,
+  checkpointView,
   readCatalog,
   readIntentRecord,
   readOperation,
   lifecycleDisplay,
   lifecycles,
+  liveApprovals,
+  needsApproval,
   readStatus,
   requiredApprovals,
 } from "../src/lib/custody-model";
@@ -350,6 +354,21 @@ test("read models reject rounded sequences, invalid holdings, unsupported lifecy
     requiredApprovals(withRules([rule(["other-vault"], 5), rule([], 2), rule([], 3)])),
     2,
   );
+  // Approval queue: unexpired grants below the rule's requirement, before dispatch.
+  const two = withRules([rule([], 2)]);
+  const grant = (expires_at: number) => ({
+    body: { approver_credential_id: "a", issued_at: 1, expires_at },
+  });
+  const now = 1000;
+  assert.equal(needsApproval(two, "AWAITING_APPROVAL", now), true);
+  const oneLive = { ...two, approvals: [grant(2000), grant(500)] };
+  assert.equal(liveApprovals(oneLive, now), 1, "expired grants do not count");
+  assert.equal(needsApproval(oneLive, "AWAITING_APPROVAL", now), true);
+  const satisfied = { ...two, approvals: [grant(2000), grant(3000)] };
+  assert.equal(needsApproval(satisfied, "AWAITING_APPROVAL", now), false);
+  assert.equal(needsApproval(two, "SIGNING", now), false, "after dispatch");
+  assert.equal(needsApproval({ ...two, dispatch: "dispatching" }, "AWAITING_APPROVAL", now), false);
+  assert.equal(needsApproval(withRules([]), "AWAITING_APPROVAL", now), false, "no rule: denied, not queued");
   assert.throws(() =>
     readIntentRecord({
       ...record,
@@ -391,4 +410,34 @@ test("every lifecycle state has an RFC 004 label, action, and tone", () => {
   // Uncertain outcomes never read as done or failed.
   for (const s of ["ISSUANCE_UNKNOWN", "SUBMISSION_UNKNOWN", "REORGED"] as const)
     assert.equal(lifecycleDisplay[s].tone, "attention");
+});
+
+test("reconciliation is shown as a current match only while the checkpoint is fresh", () => {
+  const checkpoint = (at: number, journal_balance = "5") => ({
+    body: {
+      checkpoint_id: "checkpoint-1",
+      chain_profile_id: "evm",
+      at,
+      state: { height: 3, hash: "h", commitment: "finalized" },
+      journal_sequence: 2,
+      balances: [
+        { chain_wallet_id: "w", asset_id: "a", chain_balance: "5", journal_balance },
+      ],
+      cases_opened: [],
+    },
+    signature: {},
+  });
+  const status = (c: unknown) => readStatus({ balances: [], checkpoints: [c] });
+  const now = 10_000;
+  const fresh = status(checkpoint(now - 10)).checkpoints[0].body;
+  assert.equal(checkpointView(fresh, now).tone, "success");
+  const stale = status(checkpoint(now - CHECKPOINT_STALE_SECONDS - 1)).checkpoints[0].body;
+  assert.equal(checkpointView(stale, now).tone, "attention");
+  assert.match(checkpointView(stale, now).label, /stale/);
+  const mismatch = status(checkpoint(now - 10, "4")).checkpoints[0].body;
+  assert.equal(checkpointView(mismatch, now).tone, "danger");
+  // A checkpoint without its timestamp is not accepted at all.
+  const undated = checkpoint(now) as { body: Record<string, unknown> };
+  delete undated.body.at;
+  assert.throws(() => status(undated));
 });
