@@ -26,15 +26,31 @@ Run commands from the repository root:
 ```bash
 bash scripts/local-stack/build.sh
 export INSTALL="$HOME/.local/share/oic-local-trial"
+```
+
+Then bootstrap. **Run this command on its own, not as part of a pasted block:**
+it prompts twice for a hidden passphrase, and a multi-line paste feeds the next
+pasted command into that prompt.
+
+```bash
 bash scripts/local-stack/bootstrap.sh "$INSTALL"
+```
+
+To run bootstrap without a prompt (for scripts), export
+`OIC_LOCAL_APPROVAL_PASSPHRASE` first; the script uses it when set. Finally:
+
+```bash
 bash scripts/local-stack/start.sh "$INSTALL"
 ```
 
 Bootstrap builds both binaries, prompts for a new approval-key passphrase
 (at least 12 bytes), and calls the existing `oic-approve keygen` CLI. Only the
 public approval key reaches the server. The encrypted key remains in
-`$INSTALL/independent/approver.json`. Bootstrap refuses an existing installation;
-never delete stores or bootstrap again to resolve payment uncertainty.
+`$INSTALL/independent/approver.json`. Bootstrap refuses a provisioned
+installation; never delete stores or bootstrap again to resolve payment
+uncertainty. If bootstrap itself failed **before** it printed `Provisioned`
+(for example a short or mismatched passphrase), nothing was provisioned yet:
+delete the install directory and run bootstrap again.
 
 Start stays in the foreground, binds **127.0.0.1:8787**, and writes
 `$INSTALL/server.json` with its PID/address after reopening all stores. In another
@@ -57,12 +73,16 @@ Bootstrap creates private mode-0600 handoff files in `$INSTALL/handoff`:
 | `trust.json`, `catalog.json` | Public trust configuration and enrolled catalog |
 
 For the separately owned local Next console bridge, load **only** `console.env`
-into the local server's environment. It contains exactly:
+into the local server's environment — source the file rather than retyping it
+(the token value is generated per install):
 
-```text
-OIC_CONSOLE_CUSTODY_ORIGIN=http://127.0.0.1:8787
-OIC_CONSOLE_CUSTODY_TOKEN=<local Read/Propose/Submit bearer>
+```bash
+set -a; source "$INSTALL/handoff/console.env"; set +a
 ```
+
+It contains exactly two variables: `OIC_CONSOLE_CUSTODY_ORIGIN`
+(`http://127.0.0.1:8787`) and `OIC_CONSOLE_CUSTODY_TOKEN` (the local
+Read/Propose/Submit bearer).
 
 Do not copy the installation, approval/operator credentials, or approval keys
 into browser storage, the console repository, Vercel, or a hosted demo.
@@ -77,6 +97,14 @@ DEV-ETH has 18 decimals; DEV-SOL has 9. Simulator `receive` and `fund_fees`
 are separately labelled native faucets, not external deposits or approved
 treasury funding workflows. Each control requires a unique stable command ID;
 repeating that ID with the same contents is idempotent, different contents fail.
+
+**Timing matters.** A candidate embeds chain evidence with a short freshness
+window (60 seconds for the approver here; the policy allows 120). The window
+starts when the intent is created and the evidence cannot be refreshed. If it
+expires, approval and submit fail with `StaleEvidence`/`PolicyDenied`; create a
+new intent and run approve and submit promptly. To avoid typing a passphrase
+inside the window, export `OIC_LOCAL_APPROVAL_PASSPHRASE` before creating the
+intent — `approve.sh` uses it when set.
 
 ```bash
 umask 077

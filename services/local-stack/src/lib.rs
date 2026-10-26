@@ -74,6 +74,12 @@ impl Stack {
     ) -> OicResult<Arc<Self>> {
         private_directory(state)?;
         if !initial {
+            if !state.join("provisioned.json").is_file() {
+                return Err(io(format!(
+                    "{} was never provisioned (no provisioned.json). fix: run scripts/local-stack/bootstrap.sh first; if an earlier bootstrap failed before completing, delete this directory and bootstrap again. Never delete a provisioned installation to resolve payment uncertainty",
+                    state.display()
+                )));
+            }
             for name in [
                 "ready.json",
                 "authority.json",
@@ -94,7 +100,7 @@ impl Stack {
             ] {
                 if !state.join(name).is_file() {
                     return Err(io(format!(
-                        "missing persisted {name}; refusing to bootstrap an existing installation"
+                        "missing persisted {name}; refusing to open a provisioned installation with incomplete stores. fix: restore the complete state directory from your copy; do not delete stores or bootstrap again — payment state may be unresolved"
                     )));
                 }
             }

@@ -465,7 +465,19 @@ impl<S: AuthorityStore> Api<S> {
                 ));
             }
             oic_policy_kernel::Decision::Deny { reasons } => {
-                return Err(OicError::policy_denied(format!("{reasons:?}")));
+                let mut detail = format!("{reasons:?}");
+                if reasons.iter().any(|r| {
+                    matches!(
+                        r,
+                        oic_policy_kernel::ReasonCode::EvidenceStale
+                            | oic_policy_kernel::ReasonCode::EvidenceFromFuture
+                    )
+                }) {
+                    detail.push_str(
+                        "; a candidate's evidence cannot be refreshed: create a new intent, then approve and submit within the evidence window",
+                    );
+                }
+                return Err(OicError::policy_denied(detail));
             }
         }
         let participants = self

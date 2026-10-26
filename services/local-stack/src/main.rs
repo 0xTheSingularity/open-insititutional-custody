@@ -49,7 +49,16 @@ enum Command {
     },
 }
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> std::process::ExitCode {
+    match run().await {
+        Ok(()) => std::process::ExitCode::SUCCESS,
+        Err(e) => {
+            eprintln!("oic-local-stack: error: {e}");
+            std::process::ExitCode::FAILURE
+        }
+    }
+}
+async fn run() -> Result<(), Box<dyn std::error::Error>> {
     match Args::parse().command {
         Command::Bootstrap {
             state,
