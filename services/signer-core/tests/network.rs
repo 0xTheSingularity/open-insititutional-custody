@@ -330,6 +330,22 @@ fn tampered_open_and_gateway_mpc_forgery_produce_no_output() {
     assert_eq!(rejected[0].body.object_commitments.get("session"), Some(&session_hash));
     assert!(!rejected[0].body.detail.contains(envelope.body.signer_session_id.as_str()));
     assert!(rejected[0].body.detail.contains("code=") && rejected[0].body.detail.contains("refused_from_sender=1"));
+    // Senders outside the roster share one counter, so invented identities
+    // cannot each start a fresh count; the detail never names them.
+    for outsider in ["outsider-1", "outsider-2"] {
+        let reply = network.clients[0]
+            .control(&NodeId::unchecked(outsider), SessionControl::Open { request_id: 9, envelope: envelope.clone(), materials: materials.clone() })
+            .unwrap();
+        assert!(reply.result.is_err());
+    }
+    let unadmitted: Vec<_> = network.audits[0]
+        .events_since(0, 1000)
+        .unwrap()
+        .into_iter()
+        .filter(|event| event.body.action == "signer.session_rejected" && event.body.detail.contains("from=unadmitted"))
+        .collect();
+    assert_eq!(unadmitted.len(), 2, "pooled counts 1 and 2 are both powers of two");
+    assert!(unadmitted.iter().all(|e| !e.body.detail.contains("outsider")));
     assert!(network.clients[0].outbound_at(0).unwrap().is_none());
     assert_eq!(network.clients[0].deliver(&node_id(3), vec![0; 16]).unwrap_err().code, ErrorCode::PeerNotAdmitted);
 

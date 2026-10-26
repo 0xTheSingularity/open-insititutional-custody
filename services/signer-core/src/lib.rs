@@ -71,9 +71,12 @@ struct HaltState {
 struct State {
     halt: HaltState,
     sessions: BTreeMap<SigningSessionId, NetworkSession>,
-    /// Refused session opens per gateway since start; journaled at powers
-    /// of two so a misbehaving gateway cannot fill the journal.
+    /// Refused session opens per roster node since start; journaled at
+    /// powers of two so a misbehaving gateway cannot fill the journal.
     rejected_opens: BTreeMap<NodeId, u64>,
+    /// Refused opens naming a sender outside the roster, pooled so invented
+    /// identities cannot grow `rejected_opens` or each trigger an append.
+    rejected_opens_unadmitted: u64,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -187,7 +190,7 @@ impl SignerCore {
         // sequence) must not lower the halt sequence this node reached.
         signer.ratchet_floor("halt sequence", halt.sequence).map_err(|_| rejected(ErrorCode::RecoveryRequired))?;
         let core =
-            Self { signer, config, participant_key, scope, clock, state: Mutex::new(State { halt, sessions: BTreeMap::new(), rejected_opens: BTreeMap::new() }), finalized_log: None };
+            Self { signer, config, participant_key, scope, clock, state: Mutex::new(State { halt, sessions: BTreeMap::new(), rejected_opens: BTreeMap::new(), rejected_opens_unadmitted: 0 }), finalized_log: None };
         core.journal("node.roster_applied", BTreeMap::from([("roster".into(), core.scope.roster_hash)]), Epoch(0))?;
         Ok(core)
     }
@@ -271,14 +274,15 @@ impl SignerCore {
             session.outbound.clear();
             session.outcome = Some(SessionResult::Aborted);
         }
+        // Raise the ledger floor before the file is written. If the write then
+        // fails, the older file on disk is below the floor and reopening
+        // fails closed (RecoveryRequired) rather than starting unhalted.
+        self.signer.ratchet_floor("halt sequence", b.sequence).map_err(|_| rejected(ErrorCode::RecoveryRequired))?;
         let parent = self.config.halt_state_path.parent().ok_or_else(|| rejected(ErrorCode::RecoveryRequired))?;
         let mut file = tempfile::NamedTempFile::new_in(parent).map_err(|_| rejected(ErrorCode::RecoveryRequired))?;
         file.write_all(&canonical_bytes(command)?).and_then(|_| file.as_file().sync_all()).map_err(|_| rejected(ErrorCode::RecoveryRequired))?;
         file.persist(&self.config.halt_state_path).map_err(|_| rejected(ErrorCode::RecoveryRequired))?;
         std::fs::File::open(parent).and_then(|f| f.sync_all()).map_err(|_| rejected(ErrorCode::RecoveryRequired))?;
-        // Raised only after the command is durable, so a crash in between
-        // leaves the file at or above the floor.
-        self.signer.ratchet_floor("halt sequence", b.sequence).map_err(|_| rejected(ErrorCode::RecoveryRequired))?;
         self.journal(if b.halted { "node.halted" } else { "node.unhalted" }, BTreeMap::from([("halt_command".into(), halt_hash(b)?)]), Epoch(0))?;
         state.halt = next;
         Ok(())
@@ -508,35 +512,51 @@ impl SignerCore {
         // RFC 0003 §9: a refused session open is journaled with its reason
         // code. Status and other controls are not, so polling cannot fill
         // the journal.
-        if let Err(e) = &result {
-            let session = match control {
-                SessionControl::Open { envelope, .. } => Some(&envelope.body.signer_session_id),
-                SessionControl::OpenFinalized { body, .. } => Some(&body.signer_session_id),
-                _ => None,
-            };
-            if let Some(session) = session {
-                let count = {
-                    let mut state = self.state.lock();
-                    let n = state.rejected_opens.entry(from.clone()).or_insert(0);
-                    *n += 1;
-                    *n
+        let result = match result {
+            Err(e) => {
+                let session = match control {
+                    SessionControl::Open { envelope, .. } => Some(&envelope.body.signer_session_id),
+                    SessionControl::OpenFinalized { body, .. } => Some(&body.signer_session_id),
+                    _ => None,
                 };
-                if count.is_power_of_two() {
-                    // The session id is attacker-chosen: commit to it by hash,
-                    // never as journal text. `from` is a roster-admitted node.
-                    let session_hash = oic_canonical_encoding::sha256(session.as_str().as_bytes());
-                    let _ = self.config.audit.append(
-                        self.config.node_id.as_str(),
-                        "signer.session_rejected",
-                        BTreeMap::from([("session".into(), session_hash)]),
-                        Epoch(0),
-                        &format!("from={from} code={:?} refused_from_sender={count}", e.code),
-                    );
+                match session {
+                    // Like every other journal write, a failed append is RecoveryRequired.
+                    Some(session) => self.journal_rejected_open(from, session, e.code).and(Err(e)),
+                    None => Err(e),
                 }
             }
-        }
+            ok => ok,
+        };
         // Do not send detailed adapter/backend inputs back to a net process.
         SessionReply { request_id, result: result.map_err(|e| rejected(e.code)) }
+    }
+
+    /// Journal a refused session open at power-of-two counts per sender. The
+    /// session id is attacker-chosen, so it is committed by hash, never
+    /// written as text; senders outside the roster share one counter.
+    fn journal_rejected_open(&self, from: &NodeId, session: &SigningSessionId, code: ErrorCode) -> OicResult<()> {
+        let admitted = self.config.roster.node(from).is_some();
+        let count = {
+            let mut state = self.state.lock();
+            let n = if admitted { state.rejected_opens.entry(from.clone()).or_insert(0) } else { &mut state.rejected_opens_unadmitted };
+            *n += 1;
+            *n
+        };
+        if !count.is_power_of_two() {
+            return Ok(());
+        }
+        let sender = if admitted { from.as_str() } else { "unadmitted" };
+        self.config
+            .audit
+            .append(
+                self.config.node_id.as_str(),
+                "signer.session_rejected",
+                BTreeMap::from([("session".into(), sha256(session.as_str().as_bytes()))]),
+                Epoch(0),
+                &format!("from={sender} code={code:?} refused_from_sender={count}"),
+            )
+            .map(|_| ())
+            .map_err(|_| rejected(ErrorCode::RecoveryRequired))
     }
 
     fn check_deadline(&self, id: &SigningSessionId, session: &mut NetworkSession) -> OicResult<()> {
