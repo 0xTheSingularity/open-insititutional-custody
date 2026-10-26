@@ -602,7 +602,7 @@ pub struct ChainValidityConstraints {
 }
 
 /// Body of the authorization envelope. `EnvelopeHash` is
-/// `SHA256("OIC/AUTHORIZATION/v1" || CanonicalEncode(body))`.
+/// `SHA256("OIC/AUTHORIZATION/v2" || CanonicalEncode(body))`.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuthorizationEnvelopeBody {
     pub institution_id: InstitutionId,
@@ -633,6 +633,20 @@ pub struct AuthorizationEnvelopeBody {
     /// `SHA256("OIC/DESTINATION/v1" || CanonicalEncode(destination without signatures))`
     /// of the exact admin-signed destination version the intent names.
     pub destination_hash: Hash32,
+    /// `SHA256("OIC/ASSET/v1" || CanonicalEncode(asset))` of the enrolled
+    /// asset the intent names. The signer recomputes this from the supplied
+    /// materials, so a coordinator cannot substitute a forged asset record.
+    pub asset_hash: Hash32,
+    /// `SHA256("OIC/CHAIN_WALLET/v1" || CanonicalEncode(wallet))` of the
+    /// enrolled chain wallet; forged wallet records fail the signer's check.
+    pub wallet_hash: Hash32,
+    /// `SHA256("OIC/VAULT/v1" || CanonicalEncode(vault))` of the enrolled
+    /// vault; forged vault records fail the signer's check.
+    pub vault_hash: Hash32,
+    /// `SHA256("OIC/KEY_DESCRIPTOR/v1" || CanonicalEncode(key))` of the full
+    /// enrolled key descriptor (threshold, participants, scheme, networks),
+    /// complementing `public_key_hash` which covers only the key bytes.
+    pub key_descriptor_hash: Hash32,
     pub approval_grants: Vec<ApprovalGrant>,
     pub budget_reservation_id: ReservationId,
     pub reservation_version: u32,

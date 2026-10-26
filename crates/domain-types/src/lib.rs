@@ -22,7 +22,15 @@ pub use primitives::*;
 /// Domain-separation tags for internal commitments (§3.2). These are never
 /// chain-native signing domains.
 pub mod domains {
-    pub const AUTHORIZATION: &str = "OIC/AUTHORIZATION/v1";
+    /// v2 added the asset/wallet/vault/key-descriptor commitments; a v1
+    /// envelope no longer decodes or verifies (fail closed, no dual window).
+    pub const AUTHORIZATION: &str = "OIC/AUTHORIZATION/v2";
+    /// Enrolled asset record committed by the authorization envelope.
+    pub const ASSET: &str = "OIC/ASSET/v1";
+    /// Enrolled chain wallet record committed by the authorization envelope.
+    pub const CHAIN_WALLET: &str = "OIC/CHAIN_WALLET/v1";
+    /// Enrolled vault record committed by the authorization envelope.
+    pub const VAULT: &str = "OIC/VAULT/v1";
     pub const INTENT: &str = "OIC/INTENT/v1";
     pub const CANDIDATE: &str = "OIC/CANDIDATE/v1";
     pub const DECODED_OPERATION: &str = "OIC/DECODED_OPERATION/v1";

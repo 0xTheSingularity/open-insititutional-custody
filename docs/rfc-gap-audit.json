@@ -13,7 +13,7 @@
           "section": "§2 I2/I3, §3.1, §1.3",
           "status": "diverges",
           "severity": "critical",
-          "summary": "Asset, ChainWallet, and Vault reach the signer inside SigningMaterials with no admin signature and no envelope hash commitment; only the destination is hash-bound (destination_hash). A compromised coordinator can supply a forged but internally consistent set and obtain a signature under another vault's rule; zero-approval rules make this concrete. KeyDescriptor is described as signed in §7.3 but has no signature field.",
+          "summary": "Asset, ChainWallet, and Vault reach the signer inside SigningMaterials with no admin signature and no envelope hash commitment; only the destination is hash-bound (destination_hash). A compromised coordinator can supply a forged but internally consistent set and obtain a signature under another vault's rule. Not limited to zero-approval rules: preview_hash commits only to candidate id/revision, decoded-operation hash, and evidence hash, so a forged Asset.behavior passes exact-candidate approval unauthenticated, and bounded grants never use preview_hash (Codex review on the design doc). KeyDescriptor is described as signed in §7.3 but has no signature field.",
           "evidence": [
             "crates/signer/src/lib.rs:179-188",
             "crates/domain-types/src/objects.rs:30-56",
@@ -21,7 +21,8 @@
             "crates/signer/src/verify.rs:265-268"
           ],
           "fix_shape": "Extend the envelope to commit hashes of asset, wallet, vault, and key descriptor the way destination_hash does. Protocol change: envelope schema and golden vectors; needs a deliberate compatibility decision, not a quick patch.",
-          "test_gap": "A03 test mutates the wallet without rebuilding the envelope; add a consistently-forged-set test."
+          "test_gap": "A03 test mutates the wallet without rebuilding the envelope; add a consistently-forged-set test.",
+          "fixed_in": "Option A implemented per docs/designs/signing-material-commitment.md under the user's decision 'A then B' (2026-10-26): the envelope (domain OIC/AUTHORIZATION/v2) commits asset_hash, wallet_hash, vault_hash, and key_descriptor_hash; the signer and the D2 replica execution boundary both verify them; golden vectors regenerated as a justified break; the forged-but-consistent-set test covers all four objects. Option B (admin-signed objects) remains a later layer and this entry's provenance aspect stays open until then."
         },
         {
           "id": "0001-02",

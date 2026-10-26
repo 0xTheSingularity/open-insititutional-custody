@@ -17,7 +17,10 @@ use oic_crypto_provider_dev::DevSingleKeyProvider;
 use oic_crypto_provider_frost_ed25519::{FrostEd25519Provider, build_signing_package, run_dkg};
 use oic_domain_types::*;
 use oic_one_time_state_ledger::InMemoryLedger;
-use oic_policy_kernel::{Decision, destination_hash, intent_hash, policy_hash, preview_hash};
+use oic_policy_kernel::{
+    asset_hash, chain_wallet_hash, destination_hash, intent_hash, key_descriptor_hash, policy_hash,
+    preview_hash, vault_hash, Decision,
+};
 use oic_signer::*;
 use std::collections::{BTreeMap, VecDeque};
 use std::sync::{Arc, Mutex};
@@ -491,6 +494,10 @@ impl Setup {
             decoded_operation_hash: verified.decoded_operation_hash,
             evidence_bundle_hash: c.evidence_bundle_hash,
             destination_hash: destination_hash(&m.destination).unwrap(),
+            asset_hash: asset_hash(&m.asset).unwrap(),
+            wallet_hash: chain_wallet_hash(&m.wallet).unwrap(),
+            vault_hash: vault_hash(&m.vault).unwrap(),
+            key_descriptor_hash: key_descriptor_hash(&m.key).unwrap(),
             approval_grants: grants,
             budget_reservation_id: reservation_id_for(
                 &c.operation_family_id,

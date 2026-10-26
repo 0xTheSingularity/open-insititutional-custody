@@ -642,3 +642,35 @@ fn signer_set_and_payload_scope_checks() {
     m.wallet.active = false;
     rejected(&c.node, &env, &m, now(), ErrorCode::ScopeMismatch);
 }
+
+/// RFC 0001 §2 I2/I3 (audit finding 0001-01): the envelope commits to the
+/// enrolled asset, wallet, vault, and key descriptor, so a compromised
+/// coordinator cannot substitute forged but internally consistent records
+/// whose identifiers still match the envelope. Every mutation below keeps
+/// the ids intact and changes only content the pre-commitment checks never
+/// examined.
+#[test]
+fn forged_but_consistent_materials_fail_envelope_commitments() {
+    let c = evm_case(0);
+    let env = c.setup.authorize(&c.world, "sess-forged", vec![pid(1)]);
+
+    let mut forged_asset = c.setup.m.clone();
+    forged_asset.asset.decimals += 1;
+    forged_asset.asset.symbol = "FORGED".into();
+    rejected(&c.node, &env, &forged_asset, now(), ErrorCode::ScopeMismatch);
+
+    let mut forged_wallet = c.setup.m.clone();
+    forged_wallet.wallet.address_display = "0xattacker".into();
+    rejected(&c.node, &env, &forged_wallet, now(), ErrorCode::ScopeMismatch);
+
+    let mut forged_vault = c.setup.m.clone();
+    forged_vault.vault.display_name = "attacker-relabeled vault".into();
+    rejected(&c.node, &env, &forged_vault, now(), ErrorCode::ScopeMismatch);
+
+    let mut forged_key = c.setup.m.clone();
+    forged_key.key.recovery_profile = "attacker recovery domain".into();
+    rejected(&c.node, &env, &forged_key, now(), ErrorCode::ScopeMismatch);
+
+    // The untouched materials still verify against the same envelope.
+    c.node.signer.verify_envelope(&env, &c.setup.m, now()).unwrap();
+}

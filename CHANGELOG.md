@@ -6,6 +6,15 @@ the [GitHub releases page](https://github.com/0xTheSingularity/open-insititution
 
 ## Unreleased
 
+**Compatibility break.** The authorization envelope moved to
+`OIC/AUTHORIZATION/v2`: it now commits to the enrolled asset, wallet, vault,
+and key descriptor by hash, and signers verify those commitments (see
+`docs/designs/signing-material-commitment.md`). This fails closed with no
+transition window: post-change software refuses v1 envelopes and v0.1.4 and
+earlier refuse v2. Do not mix v0.1.4 components with later ones; a local
+stack rebuilt from one checkout stays consistent. Golden vectors were
+regenerated for v2.
+
 - Authorization-state hardening: pre-freeze-epoch snapshots migrate on load,
   releases are refused across a freeze-epoch change, and stale v1 reservations
   recover by abort only.
