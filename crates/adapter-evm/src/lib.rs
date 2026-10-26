@@ -663,7 +663,14 @@ impl ChainAdapter for EvmAdapter {
         let fee_paid = (obs.gas_used as u128)
             .checked_mul(obs.effective_gas_price.0)
             .ok_or_else(|| OicError::unverifiable("gas_used * effective_gas_price overflows u128"))?;
-        if obs.confirmations >= profile.finality_depth.max(1) {
+        // RFC 0001 §9.4: finality comes from the chain's own finalized view,
+        // not from a confirmation count over the latest block. Evidence taken
+        // at any other commitment can show inclusion at most. Inclusion at the
+        // finalized view is already final: the view itself sits behind the head
+        // by the finality depth, so counting confirmations again would demand
+        // that depth twice. Inclusion with zero confirmations is inconsistent
+        // evidence and is never final.
+        if evidence.state.commitment == profile.finality_commitment && obs.confirmations >= 1 {
             let raw = get_item(evidence, &tx_key(&hash))?;
             Ok(ChainObservation::Finalized {
                 tx_id: tx_id.clone(),
@@ -750,6 +757,9 @@ impl ChainAdapter for EvmAdapter {
             let Ok(cobs) = get_tx_observation(evidence, &consumer) else {
                 return Ok(InvalidationEvidence::Unknown);
             };
+            // Stricter than observe(): proving invalidation permits a
+            // replacement payment, so the consuming transaction must also sit
+            // finality_depth blocks inside the finalized view.
             if !cobs.included || cobs.confirmations < profile.finality_depth.max(1) {
                 return Ok(InvalidationEvidence::Unknown);
             }

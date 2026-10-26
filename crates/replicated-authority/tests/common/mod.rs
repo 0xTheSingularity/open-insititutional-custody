@@ -35,6 +35,24 @@ pub enum Chain {
     Solana,
 }
 
+/// Admin-quorum enrollment of every record the replica's registry holds.
+#[allow(dead_code)]
+pub fn registry_enrollment(r: &oic_replicated_authority::Registry) -> MaterialEnrollment {
+    let mut e = oic_policy_kernel::material_enrollment(
+        r.vaults[0].institution_id.clone(),
+        r.vaults[0].environment_id.clone(),
+        Epoch(1),
+        &r.assets,
+        &r.wallets,
+        &r.vaults,
+        &r.keys,
+        &r.destinations,
+    )
+    .unwrap();
+    e.administrative_signatures = admin_signatures(oic_policy_kernel::material_enrollment_hash(&e).unwrap());
+    e
+}
+
 pub fn admin_signatures(hash: Hash32) -> Vec<CredentialSignature> {
     [1, 2]
         .into_iter()

@@ -86,6 +86,110 @@ export type CustodyIntent = {
   proposer_credential_id: string;
   created_at: number;
 };
+/** Approvals the first matching policy rule requires, mirroring the kernel's
+ * `match_rule` (empty scope lists match everything). Explanation only: the
+ * custody service decides. `null` when no rule matches. */
+export function requiredApprovals(record: CustodyIntentRecord): number | null {
+  const { intent } = record;
+  const transfer = intent.operation.asset_transfer;
+  const matches = (list: string[], value: string) =>
+    list.length === 0 || list.includes(value);
+  const rule = record.built.package.policy.rules.find(
+    (r) =>
+      matches(r.vaults, intent.vault_id) &&
+      matches(r.assets, transfer.asset_id) &&
+      matches(r.destinations, transfer.destination_id) &&
+      matches(r.purposes, intent.purpose),
+  );
+  return rule ? rule.required_approvals : null;
+}
+
+const preDispatchStates = new Set<string>([
+  "DRAFT",
+  "BUILT",
+  "VERIFIED",
+  "POLICY_EVALUATED",
+  "AWAITING_APPROVAL",
+]);
+/** Distinct credentials with an unexpired grant at `now` (Unix seconds).
+ * Two grants from one credential are one approver, as in the kernel. */
+export function liveApprovals(record: CustodyIntentRecord, now: number): number {
+  return new Set(
+    record.approvals
+      .filter((grant) => grant.body.expires_at > now)
+      .map((grant) => grant.body.approver_credential_id),
+  ).size;
+}
+/** Whether the transfer belongs in the approval queue: still before dispatch,
+ * not issued, and a policy rule matches that requires approvals. The local
+ * grant count never removes a transfer: the record keeps grants from
+ * credentials the authority may since have removed, and only the custody
+ * service can judge them. Explanation only; the custody service decides. */
+export function needsApproval(
+  record: CustodyIntentRecord,
+  lifecycle: string,
+): boolean {
+  const required = requiredApprovals(record);
+  return (
+    record.dispatch === "ready" &&
+    record.issuance === null &&
+    preDispatchStates.has(lifecycle) &&
+    required !== null &&
+    required > 0
+  );
+}
+
+/** Checkpoints older than this are reported as stale, not as a current match. */
+export const CHECKPOINT_STALE_SECONDS = 120;
+export type CheckpointView = {
+  tone: "success" | "attention" | "danger";
+  label: string;
+  ageSeconds: number;
+};
+/** RFC 004 §9: a reconciliation result is shown as current only while fresh. */
+export function checkpointView(
+  body: LocalStatus["checkpoints"][number]["body"],
+  now: number,
+): CheckpointView {
+  const ageSeconds = Math.max(0, now - body.at);
+  const consistent =
+    body.balances.every((b) => b.chain_balance === b.journal_balance) &&
+    body.cases_opened.length === 0;
+  if (!consistent)
+    return { tone: "danger", label: "Reconciliation exception", ageSeconds };
+  if (ageSeconds > CHECKPOINT_STALE_SECONDS)
+    return {
+      tone: "attention",
+      label: `Matched ${Math.round(ageSeconds / 60)} min ago; stale`,
+      ageSeconds,
+    };
+  return { tone: "success", label: "Reported balances match", ageSeconds };
+}
+
+/** Case-insensitive match of `query` against a record's reference, intent,
+ * operation family, candidate, vault, wallet, destination, asset, and
+ * transaction identifiers. An empty query matches everything. */
+export function matchesQuery(record: CustodyIntentRecord, query: string): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  const { intent, built } = record;
+  const fields = [
+    intent.external_reference,
+    intent.intent_id,
+    intent.vault_id,
+    intent.chain_wallet_id,
+    intent.operation.asset_transfer.asset_id,
+    intent.operation.asset_transfer.destination_id,
+    built.candidate.operation_family_id,
+    built.candidate.candidate_id,
+    built.package.destination.address_display,
+    built.package.destination.display_name,
+    built.package.asset.symbol,
+    record.issuance?.signed.signed.chain_tx_id ?? "",
+  ];
+  return fields.some((f) => f.toLowerCase().includes(q));
+}
+
 export type CustodyIntentRecord = {
   intent: CustodyIntent;
   built: {
@@ -136,6 +240,38 @@ export const lifecycles = [
   "REPLACEMENT_PENDING",
   "DEFINITIVELY_INVALIDATED",
 ] as const;
+type Lifecycle = (typeof lifecycles)[number];
+/** RFC 004 §7 display label and safe action per exact lifecycle state, and
+ * §9 tone: green only for a verified outcome, amber for wait or
+ * uncertainty, red for denied or failed, neutral for ordinary progress. */
+export const lifecycleDisplay: Record<
+  Lifecycle,
+  { label: string; action: string; tone: "success" | "attention" | "danger" | "neutral" }
+> = {
+  DRAFT: { label: "Draft", action: "Edit or submit where permitted.", tone: "neutral" },
+  BUILT: { label: "Checking", action: "Wait for verification.", tone: "neutral" },
+  VERIFIED: { label: "Checking", action: "Wait for policy evaluation.", tone: "neutral" },
+  POLICY_EVALUATED: { label: "Policy checked", action: "Submit for approval where permitted.", tone: "neutral" },
+  AWAITING_APPROVAL: { label: "Awaiting approvals", action: "Open the verifier; inspect expiry.", tone: "attention" },
+  RESERVED: { label: "Funds reserved", action: "Inspect. Exposure is held.", tone: "attention" },
+  AUTHORIZED: { label: "Authorized", action: "Inspect. Exposure is held.", tone: "attention" },
+  ISSUANCE_COMMITTED: { label: "Signature may exist", action: "Do not cancel; ordinary cancellation is no longer safe.", tone: "attention" },
+  SIGNING: { label: "Signing", action: "Do not cancel; ordinary cancellation is no longer safe.", tone: "attention" },
+  SIGNATURE_OBSERVED: { label: "Signed", action: "Inspect, or make the approved initial submit.", tone: "attention" },
+  SUBMITTED: { label: "Submitted to network", action: "Inspect the transaction. Never resend as a new payment.", tone: "attention" },
+  INCLUDED: { label: "Included, awaiting finality", action: "Wait for finality.", tone: "attention" },
+  FINALIZED_SUCCESS: { label: "Finalized successfully", action: "Check reconciliation separately.", tone: "success" },
+  FINALIZED_FAILURE: { label: "Finalized with execution failure", action: "Inspect actual fees. A new payment needs a new authorization.", tone: "danger" },
+  REJECTED: { label: "Rejected", action: "Inspect the reason.", tone: "danger" },
+  APPROVAL_EXPIRED: { label: "Approval expired", action: "Create a new intent if still needed.", tone: "danger" },
+  ABORTED_BEFORE_ISSUANCE: { label: "Cancelled before issuance", action: "No signature was issued.", tone: "neutral" },
+  ISSUANCE_UNKNOWN: { label: "Outcome uncertain", action: "Investigate. A signature may exist; do not re-sign.", tone: "attention" },
+  SUBMISSION_UNKNOWN: { label: "Outcome uncertain", action: "Investigate. A signature may exist; do not re-sign.", tone: "attention" },
+  REORGED: { label: "Chain reorganization", action: "Tracking the canonical outcome.", tone: "attention" },
+  REPLACEMENT_PENDING: { label: "Replacement pending", action: "Inspect the original and the candidate family.", tone: "attention" },
+  DEFINITIVELY_INVALIDATED: { label: "Proven unable to execute", action: "Inspect the evidence.", tone: "danger" },
+};
+
 export type CustodyOperation = {
   operation_family_id: string;
   lifecycle: (typeof lifecycles)[number];
@@ -161,6 +297,8 @@ export type LocalStatus = {
     body: {
       checkpoint_id: string;
       chain_profile_id: string;
+      /** Unix seconds the reconciler took this checkpoint. */
+      at: number;
       state: State;
       journal_sequence: number;
       balances: {
@@ -377,6 +515,7 @@ export function readStatus(value: unknown): LocalStatus {
     const c = object(checkpoint);
     const b = fields(c.body, ["checkpoint_id", "chain_profile_id"]);
     state(b.state);
+    integer(b.at);
     integer(b.journal_sequence);
     strings(b.cases_opened);
     list(b.balances).forEach((balance) => {

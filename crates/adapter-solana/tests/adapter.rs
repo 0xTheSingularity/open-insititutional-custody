@@ -176,6 +176,32 @@ fn spl_build_existing_destination_account() {
 }
 
 #[test]
+fn spl_source_with_delegate_or_foreign_close_authority_is_rejected() {
+    let fx = spl_fixture();
+    let c = fx.build();
+    fx.verify(&c).unwrap();
+    let source = get_token_account(&fx.evidence, &fx.source_ata()).unwrap();
+    // RFC 0001 §10.3: a delegate on the source can move the custodied balance.
+    let mut delegated = source.clone();
+    delegated.delegate = Some(Bytes(vec![9; 32]));
+    let mut f2 = spl_fixture();
+    f2.evidence.items.insert(token_account_key(&f2.source_ata()), canon(&delegated));
+    assert_eq!(code(f2.verify(&c)), ErrorCode::UnverifiableTransaction);
+    // A close authority other than the owner can close it.
+    let mut closable = source.clone();
+    closable.close_authority = Some(Bytes(vec![7; 32]));
+    let mut f3 = spl_fixture();
+    f3.evidence.items.insert(token_account_key(&f3.source_ata()), canon(&closable));
+    assert_eq!(code(f3.verify(&c)), ErrorCode::UnverifiableTransaction);
+    // The owner as its own close authority is the normal case.
+    let mut own = source;
+    own.close_authority = Some(own.owner.clone());
+    let mut f4 = spl_fixture();
+    f4.evidence.items.insert(token_account_key(&f4.source_ata()), canon(&own));
+    f4.verify(&c).unwrap();
+}
+
+#[test]
 fn spl_non_ata_destination_requires_evidence() {
     let fx = spl_fixture();
     let other_account = [0x44u8; 32];

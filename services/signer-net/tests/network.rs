@@ -28,7 +28,7 @@ use oic_service_coordinator::{
 use oic_service_signer_core::{CoreConfig, SignerCore, ipc, remote::RemoteSigner};
 use oic_service_signer_net::{AuthorityHandler, Bridge, Gateway};
 use oic_signer::{
-    EnrolledMaterials, FileGenerationStore, GenerationStore, Signer, SignerEvent, SignerIdentity,
+    FileGenerationStore, GenerationStore, Signer, SignerEvent, SignerIdentity,
     TrustRoots,
 };
 use serde::{Deserialize, Serialize};
@@ -88,7 +88,7 @@ struct PublicRoots {
     builds: BTreeMap<AdapterId, Vec<Hash32>>,
     profiles: Vec<ChainProfile>,
     /// Enrolled asset, wallet, and vault hashes, in that order.
-    materials: (Vec<Hash32>, Vec<Hash32>, Vec<Hash32>),
+    materials: Option<MaterialEnrollment>,
     skew: u64,
 }
 impl From<TrustRoots> for PublicRoots {
@@ -117,11 +117,7 @@ impl From<TrustRoots> for PublicRoots {
                 .collect(),
             builds: roots.accepted_verifier_builds,
             profiles: roots.chain_profiles,
-            materials: (
-                roots.enrolled_materials.assets.into_iter().collect(),
-                roots.enrolled_materials.wallets.into_iter().collect(),
-                roots.enrolled_materials.vaults.into_iter().collect(),
-            ),
+            materials: roots.enrolled_materials,
             skew: roots.max_clock_skew_seconds,
         }
     }
@@ -151,11 +147,7 @@ impl PublicRoots {
                 .collect(),
             accepted_verifier_builds: self.builds,
             chain_profiles: self.profiles,
-            enrolled_materials: EnrolledMaterials {
-                assets: self.materials.0.into_iter().collect(),
-                wallets: self.materials.1.into_iter().collect(),
-                vaults: self.materials.2.into_iter().collect(),
-            },
+            enrolled_materials: self.materials,
             max_clock_skew_seconds: self.skew,
         }
     }
@@ -773,8 +765,7 @@ impl Harness {
         fs::set_permissions(dir.path(), fs::Permissions::from_mode(0o700)).unwrap();
         let (roster, admins, placeholders) = roster(world, &sol.chain);
         let mut roots = world.trust_roots(vec![sol.chain.profile.clone()]);
-        roots.enrolled_materials =
-            EnrolledMaterials::from_records([&sol.chain.asset], [&sol.chain.wallet], [&vault()]).unwrap();
+        roots.enrolled_materials = Some(world.enroll(&sol.chain.asset, &sol.chain.wallet, &sol.chain.key, &sol.chain.destination));
         sol.chain.nodes.clear(); // No live participant provider in the network process.
         let cores = sealed
             .into_iter()
@@ -978,7 +969,8 @@ fn real_process_frost_2_of_3_native_solana_transfer() {
             .iter()
             .any(|event| matches!(event, SignerEvent::SessionOpened { .. }))
     );
-    assert!(reports[2].records.is_empty());
+    // The non-participant's ledger holds only the signer's own rollback floors.
+    assert!(reports[2].records.iter().all(|record| record.key_id.as_str().starts_with("oic-floor/")));
     println!(
         "native Solana: beneficiary={} lamports, txid={txid}, child_pids={:?}, shares={:?}; durable ledger/generation/audit verified",
         sol.sim.lamports(&sol_dest_owner()),

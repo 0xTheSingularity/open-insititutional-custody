@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"timeout 20 bun run dev & BGPID=$!; for i in $(seq 1 15); do sleep 1; if ss -tln | grep -q 4174; then echo \\\"server up on 4174\\\"; break; fi; done; kill $BGPID 2>/dev/null; sleep 1; pkill -f...",
+  "error": "Exit code 144\n$ next dev --hostname 127.0.0.1 --port 4174\n▲ Next.js 16.4.2 (Turbopack)\n- Local:         http://127.0.0.1:4174\n- Network:       http://127.0.0.1:4174\n- Environments: .env.local\n✓ Ready in 354ms\n✓ Running next.config.ts took 27ms\n\nserver up on 4174\n\u001b[?25h\n[1]+  Done                    timeout 20 bun run dev",
+  "timestamp": "2026-10-21T17:54:14.449Z",
+  "retry_count": 1
+}

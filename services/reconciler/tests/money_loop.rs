@@ -354,7 +354,7 @@ fn evm_wallet(
     let adapter: Arc<dyn ChainAdapter> = Arc::new(oic_adapter_evm::EvmAdapter);
     let wallet = wallet_for(adapter.as_ref(), &profile, &keygen.descriptor, id);
     let mut roots = world.trust_roots(vec![profile.clone()]);
-    roots.enrolled_materials = oic_signer::EnrolledMaterials::from_records([&asset], [&wallet], [&vault()]).unwrap();
+    roots.enrolled_materials = Some(world.enroll(&asset, &wallet, &keygen.descriptor, &dest));
     let node = open_node(
         &pid(1),
         roots,
@@ -407,13 +407,28 @@ fn token_without_gas_is_funded_once_through_policy_then_swept_and_both_legs_reco
         vec![0xab; 20],
         "treasury".into(),
     ));
+    // A controlled treasury receiver makes consolidation an internal transfer.
+    // It exists first so the operating signer enrolls its real destination.
+    let treasury = evm_wallet(
+        &world,
+        sim.clone(),
+        82,
+        "treasury-wallet",
+        asset.clone(),
+        treasury_dest,
+    );
     let operating = evm_wallet(
         &world,
         sim.clone(),
         80,
         "operating",
         asset.clone(),
-        treasury_dest,
+        world.sign_destination(destination(
+            &profile,
+            "treasury",
+            treasury.wallet.address.0.clone(),
+            treasury.wallet.address_display.clone(),
+        )),
     );
     let native = native(&operating);
     let operating_dest = world.sign_destination(destination(
@@ -430,22 +445,6 @@ fn token_without_gas_is_funded_once_through_policy_then_swept_and_both_legs_reco
         native.clone(),
         operating_dest.clone(),
     );
-    // A controlled treasury receiver makes consolidation an internal transfer.
-    let treasury = evm_wallet(
-        &world,
-        sim.clone(),
-        82,
-        "treasury-wallet",
-        asset.clone(),
-        operating.destination.clone(),
-    );
-    let mut operating = operating;
-    operating.destination = world.sign_destination(destination(
-        &profile,
-        "treasury",
-        treasury.wallet.address.0.clone(),
-        treasury.wallet.address_display.clone(),
-    ));
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("operations.json");
     let r = reconciler(Arc::new(OperationsStore::open(&path).unwrap()));
@@ -800,7 +799,7 @@ fn sol_wallet(
         .enumerate()
         .map(|(i, p)| {
             let mut roots = world.trust_roots(vec![profile.clone()]);
-            roots.enrolled_materials = oic_signer::EnrolledMaterials::from_records([&asset], [&wallet], [&vault()]).unwrap();
+            roots.enrolled_materials = Some(world.enroll(&asset, &wallet, &dkg.descriptor, &dest));
             let node = open_node(
                 p,
                 roots,

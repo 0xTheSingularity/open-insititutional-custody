@@ -31,6 +31,9 @@ pub mod domains {
     pub const CHAIN_WALLET: &str = "OIC/CHAIN_WALLET/v1";
     /// Enrolled vault record committed by the authorization envelope.
     pub const VAULT: &str = "OIC/VAULT/v1";
+    /// Admin-quorum enrollment manifest of the asset, wallet, vault, and key
+    /// descriptor hashes a signer accepts.
+    pub const MATERIAL_ENROLLMENT: &str = "OIC/MATERIAL_ENROLLMENT/v1";
     pub const INTENT: &str = "OIC/INTENT/v1";
     pub const CANDIDATE: &str = "OIC/CANDIDATE/v1";
     pub const DECODED_OPERATION: &str = "OIC/DECODED_OPERATION/v1";

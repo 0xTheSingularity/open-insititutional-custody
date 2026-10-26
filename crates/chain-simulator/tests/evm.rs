@@ -76,6 +76,11 @@ fn build_and_sign(sim: &EvmSimulator, clock: &SimClock, t: &Transfer, sk: &Signi
     (c, signed)
 }
 
+fn observe_finalized(sim: &EvmSimulator, id: &ChainTxId) -> ChainObservation {
+    let ev = sim.evidence(&EvmEvidenceQuery::finalized().tx_id(id).unwrap()).unwrap();
+    EvmAdapter.observe(id, &sim.profile(), &ev).unwrap()
+}
+
 fn observe(sim: &EvmSimulator, id: &ChainTxId) -> ChainObservation {
     let ev = sim.evidence(&EvmEvidenceQuery::latest().tx_id(id).unwrap()).unwrap();
     EvmAdapter.observe(id, &sim.profile(), &ev).unwrap()
@@ -176,7 +181,7 @@ fn native_transfer_end_to_end_included_then_finalized() {
         o => panic!("expected Included, got {o:?}"),
     }
     sim.mine().unwrap();
-    assert!(matches!(observe(&sim, &id), ChainObservation::Finalized { execution_success: true, .. }));
+    assert!(matches!(observe_finalized(&sim, &id), ChainObservation::Finalized { execution_success: true, .. }));
     assert_eq!(sim.balance(&sender), before - 123_456_789 - fee);
     assert_eq!(sim.balance(&DEST), 123_456_789);
     assert_eq!(sim.nonce(&sender), 1);
@@ -226,7 +231,7 @@ fn erc20_transfer_end_to_end_with_transfer_log() {
     assert_eq!(sim.balance(&sender), native_before - r.fee_paid());
     assert!(matches!(observe(&sim, &id), ChainObservation::Included { execution_success: true, .. }));
     sim.mine().unwrap();
-    assert!(matches!(observe(&sim, &id), ChainObservation::Finalized { execution_success: true, .. }));
+    assert!(matches!(observe_finalized(&sim, &id), ChainObservation::Finalized { execution_success: true, .. }));
     // Indexer view: the block carries the decoded transfer and its log.
     let blk = sim.block(r.block_height).unwrap();
     assert_eq!(blk.transactions[0].to, token);
@@ -559,11 +564,14 @@ fn conflicting_sources_a30() {
     let id = sim.submit(&raw_tx(&sim, &sk, 0, DEST, 1, vec![], 21_000, prio)).unwrap();
     let h = parse_tx_id(&id).unwrap();
     let liar = EvidenceSourceId::unchecked("devsim-evm-liar");
-    let head = sim.head();
+    // The lie claims inclusion inside the finalized view, so a source that
+    // lies about finality yields a Finalized observation the honest source
+    // contradicts.
+    let fin = sim.finalized();
     let lie = TxObservation {
         included: true,
-        block_height: head.height,
-        block_hash: head.hash.clone(),
+        block_height: fin.height,
+        block_hash: fin.hash.clone(),
         success: true,
         gas_used: 21_000,
         effective_gas_price: Amount(1),
@@ -572,7 +580,7 @@ fn conflicting_sources_a30() {
     };
     sim.set_lie(&liar, h, lie.clone()).unwrap();
     assert_eq!(sim.set_lie(&EvidenceSourceId::unchecked(SOURCE_ID), h, lie).unwrap_err().code, ErrorCode::InvalidRequest);
-    let q = EvmEvidenceQuery::latest().tx(h);
+    let q = EvmEvidenceQuery::finalized().tx(h);
     let honest = sim.evidence(&q).unwrap();
     let lying = sim.evidence_from(&liar, &q).unwrap();
     assert_ne!(honest.items, lying.items);

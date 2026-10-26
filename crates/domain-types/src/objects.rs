@@ -5,7 +5,7 @@
 use crate::ids::*;
 use crate::primitives::*;
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 // ---------------------------------------------------------------------------
 // Institution / vault / wallet / key
@@ -208,6 +208,31 @@ pub struct PolicyBundle {
 pub struct CredentialSignature {
     pub credential_id: CredentialId,
     pub signature: SignatureBytes,
+}
+
+/// The asset, chain wallet, vault, key descriptor, and counterparty
+/// destination records an institution enrolled, pinned by their envelope
+/// commitment hashes. Like
+/// [`PolicyBundle`], `administrative_signatures` sign
+/// `SHA256("OIC/MATERIAL_ENROLLMENT/v1" || CanonicalEncode(all other fields))`,
+/// so the set a signer accepts is anchored to the same administrative keys
+/// that already sign destinations and policy bundles. It does not protect
+/// against an attacker who can also replace those admin keys in the signer's
+/// trust roots. A newer enrollment replaces the whole set: dropping a hash
+/// revokes that record.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct MaterialEnrollment {
+    pub institution_id: InstitutionId,
+    pub environment_id: EnvironmentId,
+    pub enrollment_epoch: Epoch,
+    pub assets: BTreeSet<Hash32>,
+    pub wallets: BTreeSet<Hash32>,
+    pub vaults: BTreeSet<Hash32>,
+    pub keys: BTreeSet<Hash32>,
+    /// `destination_hash` of each currently enrolled destination version.
+    /// Leaving out an older version supersedes it.
+    pub destinations: BTreeSet<Hash32>,
+    pub administrative_signatures: Vec<CredentialSignature>,
 }
 
 // ---------------------------------------------------------------------------

@@ -500,8 +500,10 @@ fn observe_maps_lifecycle() {
     ev.items.insert(tx_key(&hash), obs(false, 0, None));
     assert!(matches!(EvmAdapter.observe(&signed.chain_tx_id, &fx.profile, &ev).unwrap(), ChainObservation::Submitted { .. }));
 
-    ev.items.insert(tx_key(&hash), obs(true, 1, None));
-    match EvmAdapter.observe(&signed.chain_tx_id, &fx.profile, &ev).unwrap() {
+    let mut head = ev.clone();
+    head.state.commitment = "latest".into();
+    head.items.insert(tx_key(&hash), obs(true, 1, None));
+    match EvmAdapter.observe(&signed.chain_tx_id, &fx.profile, &head).unwrap() {
         ChainObservation::Included { execution_success, fee_paid, state, .. } => {
             assert!(execution_success);
             assert_eq!(fee_paid, Amount(21000 * 11_000_000_000));
@@ -509,8 +511,19 @@ fn observe_maps_lifecycle() {
         }
         o => panic!("{o:?}"),
     }
-    ev.items.insert(tx_key(&hash), obs(true, 2, None));
+    // Inclusion inside the finalized view is final at one confirmation: the
+    // view already trails the head by the finality depth.
+    ev.items.insert(tx_key(&hash), obs(true, 0, None));
+    assert!(matches!(EvmAdapter.observe(&signed.chain_tx_id, &fx.profile, &ev).unwrap(), ChainObservation::Included { .. }), "inclusion without confirmations is never final");
+    ev.items.insert(tx_key(&hash), obs(true, 1, None));
     assert!(matches!(EvmAdapter.observe(&signed.chain_tx_id, &fx.profile, &ev).unwrap(), ChainObservation::Finalized { .. }));
+
+    // Audit 0001-08: the same confirmations seen at the latest head are only
+    // inclusion. Finality comes from evidence at the finalized view.
+    let mut latest = ev.clone();
+    latest.state.commitment = "latest".into();
+    latest.items.insert(tx_key(&hash), obs(true, 50, None));
+    assert!(matches!(EvmAdapter.observe(&signed.chain_tx_id, &fx.profile, &latest).unwrap(), ChainObservation::Included { .. }));
 
     ev.items.insert(tx_key(&hash), Bytes(vec![0xff, 0x00]));
     assert_eq!(code(EvmAdapter.observe(&signed.chain_tx_id, &fx.profile, &ev).unwrap_err()), ErrorCode::StaleEvidence);

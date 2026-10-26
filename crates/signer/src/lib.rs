@@ -124,7 +124,7 @@ use oic_domain_types::*;
 use oic_policy_kernel::Decision;
 use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 use std::sync::Arc;
 use verify::ReceiptBinding;
 
@@ -145,6 +145,72 @@ pub fn envelope_body_hash(body: &AuthorizationEnvelopeBody) -> OicResult<Hash32>
 
 fn abort_sentinel(session_id: &SigningSessionId) -> OicResult<Hash32> {
     domain_hash(domains::SIGNER_FENCE, &("session-abort", session_id))
+}
+
+/// Ledger key for the rollback-protected floor `name`.
+fn floor_key(participant: &ParticipantId, name: &str) -> OicResult<KeyId> {
+    let h = domain_hash(domains::SIGNER_FENCE, &(name, participant))?;
+    KeyId::new(format!("oic-floor/{}", &h.to_hex()[..32])).ok_or_else(|| OicError::internal("floor key id"))
+}
+
+/// Whether `ledger` would allocate under `key` at `value`, i.e. its floor is
+/// at most `value`. An allowed probe leaves one unconsumed record.
+fn floor_at_most(ledger: &dyn OneTimeStateLedger, key: &KeyId, value: u64, session: &SigningSessionId) -> OicResult<bool> {
+    match ledger.allocate(key, Epoch(0), Epoch(value), session) {
+        Ok(_) => Ok(true),
+        Err(e) if e.code == ErrorCode::ResourceConflict => Ok(false),
+        Err(e) => Err(e),
+    }
+}
+
+/// Bind `hash` to `epoch` the first time this signer accepts that epoch, and
+/// refuse any different hash at the same epoch afterwards. The ledger floor
+/// only rises, so each of four floors pins 63 bits of the hash exactly: a
+/// floor equals `v` when allocation at `v` succeeds and at `v - 1` fails.
+fn bind_epoch_hash(ledger: &dyn OneTimeStateLedger, participant: &ParticipantId, generation: Epoch, epoch: Epoch, hash: &Hash32) -> OicResult<()> {
+    let conflict = || {
+        OicError::new(
+            ErrorCode::RecoveryRequired,
+            format!("material enrollment epoch {epoch} was already accepted with a different manifest; a changed manifest needs a higher epoch"),
+        )
+    };
+    for part in 0..4 {
+        let key = floor_key(participant, &format!("material enrollment epoch {} hash part {part}", epoch.0))?;
+        let bytes: [u8; 8] = hash.0[part * 8..part * 8 + 8].try_into().map_err(|_| OicError::internal("hash part"))?;
+        let value = (u64::from_be_bytes(bytes) >> 1) + 1;
+        let session = SigningSessionId::unchecked(format!("oic-floor-enrollment-hash-{}-{part}-generation-{}", epoch.0, generation.0));
+        if floor_at_most(ledger, &key, value - 1, &session)? {
+            // Floor below `value`: unclaimed (0) or another manifest's smaller part.
+            if !floor_at_most(ledger, &key, 0, &session)? {
+                return Err(conflict());
+            }
+            ledger.tombstone_generations_before(&key, Epoch(value))?;
+        } else if !floor_at_most(ledger, &key, value, &session)? {
+            return Err(conflict());
+        }
+    }
+    Ok(())
+}
+
+/// Raise this signer's rollback-protected floor named `name` to `value`.
+/// The floor lives in the one-time-state ledger, which detects restore, so
+/// restoring older local configuration or state cannot lower it. Fails with
+/// `RecoveryRequired` when `value` is below the floor already reached.
+fn ratchet_floor(ledger: &dyn OneTimeStateLedger, participant: &ParticipantId, generation: Epoch, name: &str, value: u64) -> OicResult<()> {
+    let key = floor_key(participant, name)?;
+    let probe = SigningSessionId::unchecked(format!("oic-floor-{name}-{value}-generation-{}", generation.0));
+    match ledger.allocate(&key, Epoch(0), Epoch(value), &probe) {
+        Ok(_) => {}
+        Err(e) if e.code == ErrorCode::ResourceConflict => {
+            return Err(OicError::new(
+                ErrorCode::RecoveryRequired,
+                format!("{name} {value} is older than one this signer already accepted (restored or replayed state)"),
+            ))
+        }
+        Err(e) => return Err(e),
+    }
+    ledger.tombstone_generations_before(&key, Epoch(value))?;
+    Ok(())
 }
 
 fn fence_key(participant: &ParticipantId) -> OicResult<KeyId> {
@@ -171,37 +237,18 @@ pub struct TrustRoots {
     pub accepted_verifier_builds: BTreeMap<AdapterId, Vec<Hash32>>,
     /// Enrolled profiles; `envelope.chain_profile_hash` must match one.
     pub chain_profiles: Vec<ChainProfile>,
-    /// Enrolled asset, wallet, and vault records, pinned by hash. The
-    /// envelope's `asset_hash`, `wallet_hash`, and `vault_hash` must each be
-    /// in these sets. The envelope hashes alone only bind the signer to what
-    /// the envelope producer chose; this pin binds them to what the
-    /// institution enrolled, so a compromised D1 coordinator cannot hash its
-    /// own forged records. Empty sets fail closed.
-    pub enrolled_materials: EnrolledMaterials,
+    /// The institution's admin-quorum-signed enrollment of asset, wallet,
+    /// vault, and key descriptor hashes. The envelope's `asset_hash`,
+    /// `wallet_hash`, `vault_hash`, and `key_descriptor_hash` must each be in
+    /// it. The envelope hashes alone only bind the signer to what the
+    /// envelope producer chose; the enrollment binds them to what the
+    /// administrative quorum enrolled, so a compromised D1 coordinator cannot
+    /// add a forged record. Its trust anchor is `admin_keys`, the same keys
+    /// that sign destinations and policy: whoever can replace `admin_keys`
+    /// can also sign a new enrollment. [`Signer::open`] verifies the quorum.
+    /// `None` fails closed.
+    pub enrolled_materials: Option<MaterialEnrollment>,
     pub max_clock_skew_seconds: u64,
-}
-
-/// Hashes of the asset, wallet, and vault records a signer accepts.
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
-pub struct EnrolledMaterials {
-    pub assets: BTreeSet<Hash32>,
-    pub wallets: BTreeSet<Hash32>,
-    pub vaults: BTreeSet<Hash32>,
-}
-
-impl EnrolledMaterials {
-    /// Pin the given enrolled records by their envelope commitment hashes.
-    pub fn from_records<'a>(
-        assets: impl IntoIterator<Item = &'a Asset>,
-        wallets: impl IntoIterator<Item = &'a ChainWallet>,
-        vaults: impl IntoIterator<Item = &'a Vault>,
-    ) -> OicResult<Self> {
-        Ok(EnrolledMaterials {
-            assets: assets.into_iter().map(oic_policy_kernel::asset_hash).collect::<OicResult<_>>()?,
-            wallets: wallets.into_iter().map(oic_policy_kernel::chain_wallet_hash).collect::<OicResult<_>>()?,
-            vaults: vaults.into_iter().map(oic_policy_kernel::vault_hash).collect::<OicResult<_>>()?,
-        })
-    }
 }
 
 /// The objects an envelope commits to, delivered alongside it.
@@ -322,6 +369,12 @@ impl Signer {
         if roots.admin_quorum == 0 || roots.admin_keys.len() < usize::from(roots.admin_quorum) {
             return Err(OicError::invalid_request("administrative quorum must be at least 1 and satisfiable"));
         }
+        if let Some(e) = &roots.enrolled_materials {
+            if e.institution_id != identity.institution_id || e.environment_id != identity.environment_id {
+                return Err(OicError::invalid_request("material enrollment belongs to another institution or environment"));
+            }
+            oic_policy_kernel::verify_material_enrollment_admin_signatures(e, &roots.admin_keys, roots.admin_quorum)?;
+        }
         for (id, a) in &adapters {
             let m = a.manifest();
             if &m.adapter_id != id {
@@ -349,6 +402,17 @@ impl Signer {
             }
         }
         ledger.tombstone_generations_before(&fence, generation)?;
+        if let Some(e) = &roots.enrolled_materials {
+            // An older, still validly signed enrollment would re-enroll records a newer one revoked.
+            ratchet_floor(ledger.as_ref(), &identity.participant_id, generation, "material enrollment epoch", e.enrollment_epoch.0)?;
+            bind_epoch_hash(
+                ledger.as_ref(),
+                &identity.participant_id,
+                generation,
+                e.enrollment_epoch,
+                &oic_policy_kernel::material_enrollment_hash(e)?,
+            )?;
+        }
         generation_store.store(generation)?;
         Ok(Signer {
             identity,
@@ -379,6 +443,13 @@ impl Signer {
                 s(e);
             }
         }
+    }
+
+    /// Raise the rollback-protected floor `name` to `value`; see
+    /// [`ratchet_floor`]. Used by the signer domain for state kept outside
+    /// the signer, such as the local halt sequence.
+    pub fn ratchet_floor(&self, name: &str, value: u64) -> OicResult<()> {
+        ratchet_floor(self.ledger.as_ref(), &self.identity.participant_id, self.generation, name, value)
     }
 
     pub fn generation(&self) -> Epoch {

@@ -26,7 +26,15 @@ class ApiError extends Error {
   }
 }
 
+function custodyBridge(demo: boolean): Snapshot["preflight"]["custody_bridge"] {
+  if (demo || process.env.VERCEL) return "disabled";
+  // The bridge defaults the origin to the local stack, so the bearer alone
+  // configures it (custody-server.ts).
+  return process.env.OIC_CONSOLE_CUSTODY_TOKEN ? "configured" : "not_configured";
+}
+
 function snapshot(setup: Setup, demo = false): Snapshot {
+  const bridge = custodyBridge(demo);
   return {
     schema_version: 1,
     environment: "test",
@@ -38,16 +46,24 @@ function snapshot(setup: Setup, demo = false): Snapshot {
       os: process.platform,
       architecture: process.arch,
       version: "0.1.0",
+      // Only served after openStore and BEGIN IMMEDIATE succeeded.
       durable_state: !demo,
+      custody_bridge: bridge,
       release_signature_verified: false,
     },
     production_ready: false,
     blockers: [
-      {
-        title: "Local money loop",
-        reason:
-          "API, reconciler, simulator orchestration and independent verifier are not connected to this console.",
-      },
+      ...(bridge === "configured"
+        ? []
+        : [
+            {
+              title: "Local money loop",
+              reason:
+                bridge === "disabled"
+                  ? "Hosted samples never connect to a custody API."
+                  : "This console server has no local custody API bearer (OIC_CONSOLE_CUSTODY_TOKEN).",
+            },
+          ]),
       {
         title: "Independent signer domains",
         reason:

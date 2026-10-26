@@ -180,3 +180,91 @@ pub fn verify_policy_admin_signatures(bundle: &PolicyBundle, admin_keys: &[(Cred
     }
     Ok(())
 }
+
+/// The signed portion of a [`MaterialEnrollment`]: every field except
+/// `administrative_signatures`, which sign this view.
+#[derive(Clone, Debug, Serialize)]
+pub struct MaterialEnrollmentUnsigned<'a> {
+    pub institution_id: &'a InstitutionId,
+    pub environment_id: &'a EnvironmentId,
+    pub enrollment_epoch: Epoch,
+    pub assets: &'a std::collections::BTreeSet<Hash32>,
+    pub wallets: &'a std::collections::BTreeSet<Hash32>,
+    pub vaults: &'a std::collections::BTreeSet<Hash32>,
+    pub keys: &'a std::collections::BTreeSet<Hash32>,
+    pub destinations: &'a std::collections::BTreeSet<Hash32>,
+}
+
+impl<'a> From<&'a MaterialEnrollment> for MaterialEnrollmentUnsigned<'a> {
+    fn from(e: &'a MaterialEnrollment) -> Self {
+        MaterialEnrollmentUnsigned {
+            institution_id: &e.institution_id,
+            environment_id: &e.environment_id,
+            enrollment_epoch: e.enrollment_epoch,
+            assets: &e.assets,
+            wallets: &e.wallets,
+            vaults: &e.vaults,
+            keys: &e.keys,
+            destinations: &e.destinations,
+        }
+    }
+}
+
+/// `SHA256("OIC/MATERIAL_ENROLLMENT/v1" || CanonicalEncode(MaterialEnrollmentUnsigned))`.
+pub fn material_enrollment_hash(e: &MaterialEnrollment) -> OicResult<Hash32> {
+    domain_hash(domains::MATERIAL_ENROLLMENT, &MaterialEnrollmentUnsigned::from(e))
+}
+
+/// An unsigned enrollment pinning the given records by their envelope
+/// commitment hashes. Callers add `administrative_signatures` over
+/// [`material_enrollment_hash`].
+pub fn material_enrollment<'a>(
+    institution_id: InstitutionId,
+    environment_id: EnvironmentId,
+    enrollment_epoch: Epoch,
+    assets: impl IntoIterator<Item = &'a Asset>,
+    wallets: impl IntoIterator<Item = &'a ChainWallet>,
+    vaults: impl IntoIterator<Item = &'a Vault>,
+    keys: impl IntoIterator<Item = &'a KeyDescriptor>,
+    destinations: impl IntoIterator<Item = &'a CounterpartyDestination>,
+) -> OicResult<MaterialEnrollment> {
+    Ok(MaterialEnrollment {
+        institution_id,
+        environment_id,
+        enrollment_epoch,
+        assets: assets.into_iter().map(asset_hash).collect::<OicResult<_>>()?,
+        wallets: wallets.into_iter().map(chain_wallet_hash).collect::<OicResult<_>>()?,
+        vaults: vaults.into_iter().map(vault_hash).collect::<OicResult<_>>()?,
+        keys: keys.into_iter().map(key_descriptor_hash).collect::<OicResult<_>>()?,
+        destinations: destinations.into_iter().map(destination_hash).collect::<OicResult<_>>()?,
+        administrative_signatures: vec![],
+    })
+}
+
+/// Verify that at least `quorum` distinct administrative credentials signed
+/// `material_enrollment_hash(e)`. `quorum == 0` is rejected.
+pub fn verify_material_enrollment_admin_signatures(e: &MaterialEnrollment, admin_keys: &[(CredentialId, VerifyingKey)], quorum: u8) -> OicResult<()> {
+    if quorum == 0 {
+        return Err(OicError::invalid_request("administrative quorum must be at least 1"));
+    }
+    let h = material_enrollment_hash(e)?;
+    let n = count_quorum_signatures(&h.0, &e.administrative_signatures, admin_keys);
+    if n < usize::from(quorum) {
+        return Err(OicError::invalid_signature(format!("material enrollment administrative quorum not met: {n} of {quorum}")));
+    }
+    Ok(())
+}
+
+/// Add `admins`' Ed25519 signatures over [`material_enrollment_hash`].
+pub fn sign_material_enrollment(mut e: MaterialEnrollment, admins: &[(CredentialId, ed25519_dalek::SigningKey)]) -> OicResult<MaterialEnrollment> {
+    use ed25519_dalek::Signer as _;
+    let h = material_enrollment_hash(&e)?;
+    e.administrative_signatures = admins
+        .iter()
+        .map(|(id, k)| CredentialSignature {
+            credential_id: id.clone(),
+            signature: SignatureBytes { scheme: SchemeId::Ed25519Pure, bytes: Bytes(k.sign(&h.0).to_bytes().to_vec()) },
+        })
+        .collect();
+    Ok(e)
+}

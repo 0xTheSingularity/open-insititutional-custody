@@ -1,10 +1,18 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  CHECKPOINT_STALE_SECONDS,
+  checkpointView,
   readCatalog,
   readIntentRecord,
   readOperation,
+  lifecycleDisplay,
+  lifecycles,
+  liveApprovals,
+  matchesQuery,
+  needsApproval,
   readStatus,
+  requiredApprovals,
 } from "../src/lib/custody-model";
 import {
   prepareIntent,
@@ -321,6 +329,65 @@ test("read models reject rounded sequences, invalid holdings, unsupported lifecy
     last_error: null,
   };
   assert.equal(readIntentRecord(record).intent.intent_id, "intent-42");
+  const withRules = (rules: unknown[]) =>
+    readIntentRecord({
+      ...record,
+      built: {
+        ...record.built,
+        package: { ...record.built.package, policy: { ...catalog.policy, rules } },
+      },
+    });
+  const rule = (vaults: string[], required_approvals: number) => ({
+    rule_id: `r${required_approvals}`,
+    vaults,
+    assets: [],
+    destinations: [],
+    purposes: [],
+    required_approvals,
+    max_amount_per_operation: "1000000000000000000000",
+    max_native_fee_per_operation: "1000000000000000000",
+    exclude_proposer: true,
+  });
+  // No rule: the console says so instead of inventing a requirement.
+  assert.equal(requiredApprovals(withRules([])), null);
+  // First matching rule in bundle order wins, as in the kernel's match_rule.
+  assert.equal(
+    requiredApprovals(withRules([rule(["other-vault"], 5), rule([], 2), rule([], 3)])),
+    2,
+  );
+  // Approval queue: before dispatch, unissued, and a rule that requires
+  // approvals. The local grant count is shown, never used to hide a transfer.
+  const two = withRules([rule([], 2)]);
+  const grant = (expires_at: number) => ({
+    body: { approver_credential_id: "a", issued_at: 1, expires_at },
+  });
+  const now = 1000;
+  assert.equal(needsApproval(two, "AWAITING_APPROVAL"), true);
+  const oneLive = { ...two, approvals: [grant(2000), grant(500)] };
+  assert.equal(liveApprovals(oneLive, now), 1, "expired grants do not count");
+  // grant() always names credential "a": two grants from one credential are
+  // one approver.
+  const sameCredential = { ...two, approvals: [grant(2000), grant(3000)] };
+  assert.equal(liveApprovals(sameCredential, now), 1);
+  const b = (expires_at: number) => ({
+    body: { approver_credential_id: "b", issued_at: 1, expires_at },
+  });
+  // A recorded quorum may include grants from credentials the authority has
+  // since removed, so the transfer stays queued until the service dispatches.
+  const recorded = { ...two, approvals: [grant(2000), b(3000)] };
+  assert.equal(liveApprovals(recorded, now), 2);
+  assert.equal(needsApproval(recorded, "AWAITING_APPROVAL"), true);
+  assert.equal(needsApproval(two, "SIGNING"), false, "after dispatch");
+  assert.equal(needsApproval({ ...two, dispatch: "dispatching" }, "AWAITING_APPROVAL"), false);
+  assert.equal(needsApproval(withRules([]), "AWAITING_APPROVAL"), false, "no rule: denied, not queued");
+  assert.equal(needsApproval(withRules([rule([], 0)]), "AWAITING_APPROVAL"), false, "no approvals required");
+  // Search spans reference, intent, family, destination, and asset fields.
+  assert.equal(matchesQuery(two, ""), true);
+  assert.equal(matchesQuery(two, "READ-42"), true, "case-insensitive reference");
+  assert.equal(matchesQuery(two, "intent-42"), true);
+  assert.equal(matchesQuery(two, "family"), true);
+  assert.equal(matchesQuery(two, catalog.destinations[0].display_name.slice(0, 4)), true);
+  assert.equal(matchesQuery(two, "no-such-transfer"), false);
   assert.throws(() =>
     readIntentRecord({
       ...record,
@@ -342,4 +409,54 @@ test("read models reject rounded sequences, invalid holdings, unsupported lifecy
       },
     }),
   );
+});
+
+test("every lifecycle state has an RFC 004 label, action, and tone", () => {
+  for (const state of lifecycles) {
+    const d = lifecycleDisplay[state];
+    assert.ok(d.label && d.action, state);
+  }
+  // Green only for a verified outcome; red for denied or failed.
+  const tone = (t: string) =>
+    lifecycles.filter((s) => lifecycleDisplay[s].tone === t).sort();
+  assert.deepEqual(tone("success"), ["FINALIZED_SUCCESS"]);
+  assert.deepEqual(tone("danger"), [
+    "APPROVAL_EXPIRED",
+    "DEFINITIVELY_INVALIDATED",
+    "FINALIZED_FAILURE",
+    "REJECTED",
+  ]);
+  // Uncertain outcomes never read as done or failed.
+  for (const s of ["ISSUANCE_UNKNOWN", "SUBMISSION_UNKNOWN", "REORGED"] as const)
+    assert.equal(lifecycleDisplay[s].tone, "attention");
+});
+
+test("reconciliation is shown as a current match only while the checkpoint is fresh", () => {
+  const checkpoint = (at: number, journal_balance = "5") => ({
+    body: {
+      checkpoint_id: "checkpoint-1",
+      chain_profile_id: "evm",
+      at,
+      state: { height: 3, hash: "h", commitment: "finalized" },
+      journal_sequence: 2,
+      balances: [
+        { chain_wallet_id: "w", asset_id: "a", chain_balance: "5", journal_balance },
+      ],
+      cases_opened: [],
+    },
+    signature: {},
+  });
+  const status = (c: unknown) => readStatus({ balances: [], checkpoints: [c] });
+  const now = 10_000;
+  const fresh = status(checkpoint(now - 10)).checkpoints[0].body;
+  assert.equal(checkpointView(fresh, now).tone, "success");
+  const stale = status(checkpoint(now - CHECKPOINT_STALE_SECONDS - 1)).checkpoints[0].body;
+  assert.equal(checkpointView(stale, now).tone, "attention");
+  assert.match(checkpointView(stale, now).label, /stale/);
+  const mismatch = status(checkpoint(now - 10, "4")).checkpoints[0].body;
+  assert.equal(checkpointView(mismatch, now).tone, "danger");
+  // A checkpoint without its timestamp is not accepted at all.
+  const undated = checkpoint(now) as { body: Record<string, unknown> };
+  delete undated.body.at;
+  assert.throws(() => status(undated));
 });

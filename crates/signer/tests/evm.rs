@@ -55,7 +55,7 @@ fn happy_path_signs_after_release_and_evm_accepts_signature() {
         [ProtocolStep::Complete(sig)] => sig.clone(),
         other => panic!("expected Complete, got {other:?}"),
     };
-    let consumed: Vec<_> = c.node.ledger.snapshot().into_iter().filter(|r| r.consumed).collect();
+    let consumed: Vec<_> = c.node.ledger.snapshot().into_iter().filter(|r| r.consumed && r.key_id == c.key.key_id).collect();
     assert_eq!(consumed.len(), 1);
     assert_eq!(consumed[0].bound_message_hash, Some(payload_hash(&env)));
     assert_eq!(consumed[0].session_id.as_ref(), Some(s));
@@ -208,9 +208,38 @@ fn a03_envelope_replayed_for_another_vault_network_key_or_environment() {
     // A signer of another environment.
     let mut adapters: std::collections::BTreeMap<AdapterId, Arc<dyn ChainAdapter>> = Default::default();
     adapters.insert(AdapterId::unchecked("evm"), c.setup.adapter.clone());
-    let testnet = Signer::open(
-        SignerIdentity { participant_id: pid(1), institution_id: inst(), environment_id: EnvironmentId::unchecked("testnet") },
+    let testnet_id = SignerIdentity { participant_id: pid(1), institution_id: inst(), environment_id: EnvironmentId::unchecked("testnet") };
+    // This environment's signer refuses the other environment's enrollment at open.
+    let other_env = Signer::open(
+        testnet_id.clone(),
         c.world.trust_roots_for(vec![evm_profile()], &c.setup.m),
+        adapters.clone(),
+        c.dev.clone(),
+        Arc::new(InMemoryLedger::new()),
+        Arc::new(InMemoryGenerationStore::new()),
+    );
+    assert_eq!(code(other_env.map(|_| ())), ErrorCode::InvalidRequest);
+    // With its own environment's enrollment over the same hashes, it still
+    // refuses the envelope and key for their environment.
+    let m = &c.setup.m;
+    let mut enrollment = oic_policy_kernel::material_enrollment(
+        inst(),
+        testnet_id.environment_id.clone(),
+        Epoch(1),
+        [&m.asset],
+        [&m.wallet],
+        [&m.vault],
+        [&m.key],
+        [&m.destination],
+    )
+    .unwrap();
+    enrollment.administrative_signatures =
+        c.world.admin_quorum_signatures(oic_policy_kernel::material_enrollment_hash(&enrollment).unwrap());
+    let mut roots = c.world.trust_roots(vec![evm_profile()]);
+    roots.enrolled_materials = Some(enrollment);
+    let testnet = Signer::open(
+        testnet_id,
+        roots,
         adapters,
         c.dev.clone(),
         Arc::new(InMemoryLedger::new()),
@@ -318,7 +347,8 @@ fn a11_output_without_consumed_record_is_withheld_and_session_aborted() {
     let rr = c.world.release(&env);
     assert_eq!(code(c.node.signer.release(s, &rr, now())), ErrorCode::Internal);
     // The record was never consumed for the payload; the abort burned it with a sentinel.
-    let recs = c.node.ledger.snapshot();
+    // Only the signing key's records; the ledger also holds the signer's fences.
+    let recs: Vec<_> = c.node.ledger.snapshot().into_iter().filter(|r| r.key_id == c.key.key_id).collect();
     assert_eq!(recs.len(), 1);
     assert!(recs[0].consumed);
     assert_ne!(recs[0].bound_message_hash, Some(payload_hash(&env)));
@@ -590,7 +620,8 @@ fn abort_burns_record_and_is_final() {
     assert_eq!(code(c.node.signer.release(s, &rr, now())), ErrorCode::Conflict);
     assert_eq!(code(c.node.signer.receive(s, &dev_release_msg(&c.node, &env))), ErrorCode::Conflict);
     assert_eq!(code(c.node.signer.open_session(&env, &c.setup.m, now())), ErrorCode::Conflict);
-    let recs = c.node.ledger.snapshot();
+    // Only the signing key's records; the ledger also holds the signer's fences.
+    let recs: Vec<_> = c.node.ledger.snapshot().into_iter().filter(|r| r.key_id == c.key.key_id).collect();
     assert_eq!(recs.len(), 1);
     assert!(recs[0].consumed && recs[0].bound_message_hash != Some(payload_hash(&env)), "record burned, never used for the payload");
     assert!(c.node.events().contains(&SignerEvent::Aborted { session: s.clone(), reason: "aborted by caller".into() }));
@@ -701,4 +732,135 @@ fn coordinator_forged_envelope_over_unenrolled_materials_is_refused() {
     let body = c.setup.body_for(&forged_vault, &verified, vec![], "sess-coord-vault", vec![pid(1)], DEADLINE);
     let env = c.setup.reserve(&c.world, body, &verified);
     rejected(&c.node, &env, &forged_vault, now(), ErrorCode::ScopeMismatch);
+}
+
+/// Option B: the enrollment a signer pins must carry the administrative
+/// quorum, belong to this signer's institution, and name the envelope's key
+/// descriptor.
+#[test]
+fn material_enrollment_requires_admin_quorum_and_names_the_key() {
+    let c = evm_case(0);
+    let open = |roots: TrustRoots| {
+        let mut adapters: std::collections::BTreeMap<AdapterId, Arc<dyn ChainAdapter>> = Default::default();
+        adapters.insert(c.setup.adapter.manifest().adapter_id, c.setup.adapter.clone());
+        Signer::open(
+            identity(&pid(1)),
+            roots,
+            adapters,
+            c.dev.clone(),
+            Arc::new(InMemoryLedger::new()),
+            Arc::new(InMemoryGenerationStore::new()),
+        )
+        .map(|_| ())
+        .map_err(|e| e.code)
+    };
+    let roots = || c.world.trust_roots_for(vec![evm_profile()], &c.setup.m);
+    assert_eq!(open(roots()), Ok(()));
+
+    // No signatures: the operator wrote the list, no admin approved it.
+    let mut unsigned = roots();
+    unsigned.enrolled_materials.as_mut().unwrap().administrative_signatures.clear();
+    assert_eq!(open(unsigned), Err(ErrorCode::InvalidSignature));
+
+    // One admin is below the quorum of two.
+    let mut one = roots();
+    one.enrolled_materials.as_mut().unwrap().administrative_signatures.truncate(1);
+    assert_eq!(open(one), Err(ErrorCode::InvalidSignature));
+
+    // A hash added after the admins signed breaks the signatures.
+    let mut widened = roots();
+    widened.enrolled_materials.as_mut().unwrap().assets.insert(Hash32([0xaa; 32]));
+    assert_eq!(open(widened), Err(ErrorCode::InvalidSignature));
+
+    // A genuinely signed enrollment for another institution is refused.
+    let mut e = c.setup.m.clone();
+    e.vault.institution_id = InstitutionId::unchecked("other-institution");
+    let mut foreign = roots();
+    foreign.enrolled_materials = Some(c.world.enroll(&e));
+    assert_eq!(open(foreign), Err(ErrorCode::InvalidRequest));
+
+    // A signed enrollment that omits the key descriptor: the signer opens,
+    // but refuses an envelope naming that key.
+    let mut no_key = roots();
+    let enrollment = no_key.enrolled_materials.as_mut().unwrap();
+    enrollment.keys.clear();
+    enrollment.administrative_signatures =
+        c.world.admin_quorum_signatures(oic_policy_kernel::material_enrollment_hash(enrollment).unwrap());
+    let node = open_node(&pid(1), no_key, c.setup.adapter.clone(), c.dev.clone(), Arc::new(InMemoryLedger::new()), Arc::new(InMemoryGenerationStore::new()));
+    node.signer.load_key(&c.key, &c.sealed).unwrap();
+    let verified = c.setup.verify_for(&c.setup.m);
+    let body = c.setup.body_for(&c.setup.m, &verified, vec![], "sess-no-key-enrollment", vec![pid(1)], DEADLINE);
+    let env = c.setup.reserve(&c.world, body, &verified);
+    rejected(&node, &env, &c.setup.m, now(), ErrorCode::ScopeMismatch);
+}
+
+/// Audit 0001-02: an admin-signed destination version that a newer
+/// enrollment no longer lists is superseded and cannot be signed for.
+#[test]
+fn superseded_destination_version_is_refused() {
+    let c = evm_case(0);
+    let mut newer = c.setup.m.clone();
+    newer.destination.version += 1;
+    newer.destination.address.0[0] ^= 0xff;
+    newer.destination = c.world.sign_destination(newer.destination);
+    // The current enrollment lists only the newer version.
+    let mut roots = c.world.trust_roots(vec![evm_profile()]);
+    roots.enrolled_materials = Some(c.world.enroll(&newer));
+    let node = open_node(&pid(1), roots, c.setup.adapter.clone(), c.dev.clone(), Arc::new(InMemoryLedger::new()), Arc::new(InMemoryGenerationStore::new()));
+    node.signer.load_key(&c.key, &c.sealed).unwrap();
+    // The old version still carries a valid admin quorum, but is no longer enrolled.
+    let verified = c.setup.verify_for(&c.setup.m);
+    let body = c.setup.body_for(&c.setup.m, &verified, vec![], "sess-superseded-destination", vec![pid(1)], DEADLINE);
+    let env = c.setup.reserve(&c.world, body, &verified);
+    rejected(&node, &env, &c.setup.m, now(), ErrorCode::ScopeMismatch);
+    // The case's own node, whose enrollment lists that version, accepts it.
+    assert!(c.node.signer.verify_envelope(&env, &c.setup.m, now()).is_ok());
+}
+
+/// Codex review on #41: once a signer accepts an enrollment at some epoch, an
+/// older one (still validly signed) must not re-enroll what it revoked.
+#[test]
+fn older_material_enrollment_epoch_is_refused_after_a_newer_one() {
+    let c = evm_case(0);
+    let ledger = Arc::new(InMemoryLedger::new());
+    let store = Arc::new(InMemoryGenerationStore::new());
+    let at_epoch = |epoch: u64| {
+        let mut roots = c.world.trust_roots_for(vec![evm_profile()], &c.setup.m);
+        let e = roots.enrolled_materials.as_mut().unwrap();
+        e.enrollment_epoch = Epoch(epoch);
+        e.administrative_signatures = c.world.admin_quorum_signatures(oic_policy_kernel::material_enrollment_hash(e).unwrap());
+        roots
+    };
+    let open = |roots: TrustRoots| {
+        let mut adapters: std::collections::BTreeMap<AdapterId, Arc<dyn ChainAdapter>> = Default::default();
+        adapters.insert(c.setup.adapter.manifest().adapter_id, c.setup.adapter.clone());
+        Signer::open(identity(&pid(1)), roots, adapters, c.dev.clone(), ledger.clone(), store.clone()).map(|_| ()).map_err(|e| e.code)
+    };
+    assert_eq!(open(at_epoch(1)), Ok(()));
+    assert_eq!(open(at_epoch(1)), Ok(()), "reopening at the same epoch is fine");
+    assert_eq!(open(at_epoch(2)), Ok(()));
+    assert_eq!(open(at_epoch(1)), Err(ErrorCode::RecoveryRequired));
+    assert_eq!(open(at_epoch(2)), Ok(()));
+    assert_eq!(open(at_epoch(5)), Ok(()));
+    assert_eq!(open(at_epoch(4)), Err(ErrorCode::RecoveryRequired));
+    // A different manifest at an accepted epoch (here: one more asset listed,
+    // or one record dropped without raising the epoch) is refused; the same
+    // manifest still reopens.
+    let changed_at_5 = |change: &dyn Fn(&mut MaterialEnrollment)| {
+        let mut roots = at_epoch(5);
+        let e = roots.enrolled_materials.as_mut().unwrap();
+        change(e);
+        e.administrative_signatures = c.world.admin_quorum_signatures(oic_policy_kernel::material_enrollment_hash(e).unwrap());
+        roots
+    };
+    assert_eq!(open(changed_at_5(&|e| { e.assets.insert(Hash32([0xab; 32])); })), Err(ErrorCode::RecoveryRequired));
+    assert_eq!(open(changed_at_5(&|e| e.destinations.clear())), Err(ErrorCode::RecoveryRequired));
+    assert_eq!(open(at_epoch(5)), Ok(()));
+    // The same change at a higher epoch is accepted.
+    let mut revoked = at_epoch(6);
+    let e = revoked.enrolled_materials.as_mut().unwrap();
+    e.destinations.clear();
+    e.administrative_signatures = c.world.admin_quorum_signatures(oic_policy_kernel::material_enrollment_hash(e).unwrap());
+    assert_eq!(open(revoked), Ok(()));
+    assert_eq!(open(at_epoch(6)), Err(ErrorCode::RecoveryRequired), "epoch 6 is bound to the revoking manifest");
 }

@@ -15,9 +15,14 @@ use oic_domain_types::*;
 use oic_one_time_state_ledger::InMemoryLedger;
 use oic_replicated_authority::*;
 use oic_service_builder::signing_materials;
-use oic_signer::{EnrolledMaterials, FinalizedAuthorityConfig, InMemoryGenerationStore, Signer, TrustRoots};
+use oic_signer::{FinalizedAuthorityConfig, InMemoryGenerationStore, Signer, TrustRoots};
 use rand::{SeedableRng, rngs::StdRng};
 use std::sync::Arc;
+
+/// The ledger's signing records, without the signer's own rollback floors.
+fn signing_records(ledger: &InMemoryLedger) -> Vec<oic_crypto_provider::OneTimeStateRecord> {
+    ledger.snapshot().into_iter().filter(|r| !r.key_id.as_str().starts_with("oic-floor/")).collect()
+}
 
 fn signer(
     fixture: &Fixture,
@@ -58,12 +63,7 @@ fn signer(
             .collect(),
         chain_profiles: vec![fixture.profile.clone()],
         // The signer pins the same records the replica's registry pins.
-        enrolled_materials: EnrolledMaterials::from_records(
-            &fixture.executor.registry.assets,
-            &fixture.executor.registry.wallets,
-            &fixture.executor.registry.vaults,
-        )
-        .unwrap(),
+        enrolled_materials: Some(common::registry_enrollment(&fixture.executor.registry)),
         max_clock_skew_seconds: 30,
     };
     let ledger = Arc::new(InMemoryLedger::new());
@@ -160,7 +160,7 @@ fn only_exact_fresh_finalized_release_enables_once_only_native_signing() {
                 ErrorCode::SessionRejected
             );
             assert!(
-                ledger.snapshot().is_empty(),
+                signing_records(&ledger).is_empty(),
                 "reserve cannot allocate a signing record"
             );
             append(&mut follower, &fixture, &committee, &[fixture.release()], 2).await;
@@ -176,7 +176,7 @@ fn only_exact_fresh_finalized_release_enables_once_only_native_signing() {
                     .code,
                 ErrorCode::InvalidSignature
             );
-            assert!(foreign_ledger.snapshot().is_empty());
+            assert!(signing_records(&foreign_ledger).is_empty());
             assert_eq!(
                 instance
                     .verify_finalized_envelope(&body, &materials, &released, UnixSeconds(NOW + 61))
@@ -192,7 +192,7 @@ fn only_exact_fresh_finalized_release_enables_once_only_native_signing() {
                     .is_err()
             );
             assert!(
-                ledger.snapshot().is_empty(),
+                signing_records(&ledger).is_empty(),
                 "rejected evidence cannot allocate a record"
             );
             let verified = instance
@@ -227,7 +227,7 @@ fn only_exact_fresh_finalized_release_enables_once_only_native_signing() {
                 instance.receive(session, &message).unwrap(),
                 ProtocolStep::Waiting
             );
-            assert!(ledger.snapshot().iter().all(|record| !record.consumed));
+            assert!(signing_records(&ledger).iter().all(|record| !record.consumed));
             assert_eq!(
                 instance
                     .release_finalized(session, &reserved, now())
@@ -252,7 +252,7 @@ fn only_exact_fresh_finalized_release_enables_once_only_native_signing() {
             adapter
                 .verify_signed_transaction(&signed, &materials.candidate, &materials.key)
                 .unwrap();
-            let records = ledger.snapshot();
+            let records = signing_records(&ledger);
             assert_eq!(records.len(), 1);
             assert!(records[0].consumed);
             assert_eq!(records[0].bound_message_hash, Some(hash));
@@ -276,7 +276,7 @@ fn only_exact_fresh_finalized_release_enables_once_only_native_signing() {
                     .code,
                 ErrorCode::Conflict
             );
-            assert_eq!(ledger.snapshot(), records);
+            assert_eq!(signing_records(&ledger), records);
         });
     }
 }
@@ -376,6 +376,6 @@ fn removal_from_latest_ordered_enrollment_blocks_buffered_output() {
                 .code,
             ErrorCode::InvalidSignature
         );
-        assert!(ledger.snapshot().iter().all(|record| !record.consumed));
+        assert!(signing_records(&ledger).iter().all(|record| !record.consumed));
     });
 }

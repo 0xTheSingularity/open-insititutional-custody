@@ -317,6 +317,35 @@ fn tampered_open_and_gateway_mpc_forgery_produce_no_output() {
     changed.candidate.native_unsigned_bytes.0[0] ^= 1;
     let reply = network.clients[0].control(&node_id(3), SessionControl::Open { request_id: 1, envelope: envelope.clone(), materials: changed }).unwrap();
     assert!(reply.result.is_err());
+    // Audit 0003-11: the refused open is journaled with its reason code.
+    let rejected: Vec<_> = network.audits[0]
+        .events_since(0, 1000)
+        .unwrap()
+        .into_iter()
+        .filter(|event| event.body.action == "signer.session_rejected")
+        .collect();
+    assert_eq!(rejected.len(), 1);
+    // The attacker-chosen session id is committed by hash, never as text.
+    let session_hash = oic_canonical_encoding::sha256(envelope.body.signer_session_id.as_str().as_bytes());
+    assert_eq!(rejected[0].body.object_commitments.get("session"), Some(&session_hash));
+    assert!(!rejected[0].body.detail.contains(envelope.body.signer_session_id.as_str()));
+    assert!(rejected[0].body.detail.contains("code=") && rejected[0].body.detail.contains("refused_from_sender=1"));
+    // Senders outside the roster share one counter, so invented identities
+    // cannot each start a fresh count; the detail never names them.
+    for outsider in ["outsider-1", "outsider-2"] {
+        let reply = network.clients[0]
+            .control(&NodeId::unchecked(outsider), SessionControl::Open { request_id: 9, envelope: envelope.clone(), materials: materials.clone() })
+            .unwrap();
+        assert!(reply.result.is_err());
+    }
+    let unadmitted: Vec<_> = network.audits[0]
+        .events_since(0, 1000)
+        .unwrap()
+        .into_iter()
+        .filter(|event| event.body.action == "signer.session_rejected" && event.body.detail.contains("from=unadmitted"))
+        .collect();
+    assert_eq!(unadmitted.len(), 2, "pooled counts 1 and 2 are both powers of two");
+    assert!(unadmitted.iter().all(|e| !e.body.detail.contains("outsider")));
     assert!(network.clients[0].outbound_at(0).unwrap().is_none());
     assert_eq!(network.clients[0].deliver(&node_id(3), vec![0; 16]).unwrap_err().code, ErrorCode::PeerNotAdmitted);
 
@@ -423,6 +452,32 @@ fn local_halt_is_signed_durable_and_stops_active_sessions() {
         reopened.control(&node_id(3), &SessionControl::Status { request_id: 3, session_id: SigningSessionId::unchecked("missing") }).result.unwrap_err().code,
         ErrorCode::NodeHalted
     );
+    drop(reopened);
+    // Audit 0003-14: deleting or restoring the halt file must not un-halt the
+    // node, even with no configured minimum. The signer's ledger floor holds
+    // the halt sequence this node reached.
+    std::fs::remove_file(network._dir.path().join("halt-0")).unwrap();
+    let rolled_back = SignerCore::open(
+        CoreConfig {
+            node_id: node_id(0),
+            roster: roster.clone(),
+            previous_roster: None,
+            admins: roster_admins(&world, &sol.chain),
+            committed_roster_hash: roster_hash(&roster.body).unwrap(),
+            halt_state_path: network._dir.path().join("halt-0"),
+            minimum_halt_sequence: 0,
+            operator_key: SigningKey::from_bytes(&[220; 32]).verifying_key(),
+            audit: network.audits[0].clone(),
+        },
+        sol.chain.nodes[0].signer.clone(),
+        SigningKey::from_bytes(&[80; 32]),
+        world.clock.clone(),
+    );
+    assert_eq!(rolled_back.err().map(|e| e.code), Some(ErrorCode::RecoveryRequired));
+}
+
+fn roster_admins(world: &World, chain: &Chain) -> AdminTrust {
+    roster(world, chain).1
 }
 
 #[test]

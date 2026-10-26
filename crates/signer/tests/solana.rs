@@ -34,7 +34,7 @@ fn frost_2_of_3_happy_path_produces_solana_accepted_signature() {
     let z1 = expect_share(n1.signer.release(s, &rr, now()).unwrap());
     let z2 = expect_share(n2.signer.release(s, &rr, now()).unwrap());
     for n in [n1, n2] {
-        let consumed: Vec<_> = n.ledger.snapshot().into_iter().filter(|r| r.consumed).collect();
+        let consumed: Vec<_> = n.ledger.snapshot().into_iter().filter(|r| r.consumed && !r.key_id.as_str().starts_with("oic-floor/")).collect();
         assert_eq!(consumed.len(), 1);
         assert!(consumed[0].bound_message_hash.is_some());
         assert!(n.events().iter().any(|e| matches!(e, SignerEvent::ShareProduced { session, .. } if session == s)));

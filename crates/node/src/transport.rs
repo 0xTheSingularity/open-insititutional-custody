@@ -7,7 +7,7 @@ use ed25519_dalek::SigningKey;
 use oic_domain_types::*;
 use oic_membership::{AdminTrust, PeerClass, SignedRoster, roster_hash, validate_roster};
 use oic_peer_wire::{FrameKind, PaddingProfile, PeerFrameV1, RosterState};
-use std::{collections::{BTreeMap, BTreeSet}, num::NonZeroUsize, sync::Arc, time::Duration};
+use std::{collections::{BTreeMap, BTreeSet}, num::NonZeroUsize, sync::{Arc, atomic::{AtomicU64, Ordering}}, time::Duration};
 use tokio::sync::{mpsc, oneshot};
 use tokio::time::{Instant, MissedTickBehavior};
 
@@ -16,6 +16,11 @@ pub const MAX_MESSAGE_SIZE: usize = oic_peer_wire::HEADER_LEN + oic_peer_wire::M
 /// A roster may lower these per-peer/per-channel messages-per-second limits.
 pub const MAX_QUOTA: u32 = 100;
 const QUEUE_SIZE: usize = 128;
+/// Per-channel bound for inbound arrivals and for delivered events. Each
+/// channel has its own queues (RFC 0003 §4.2, T12): a peer flooding one
+/// channel fills only that channel's queues and cannot crowd out `Hello` or
+/// `authority.rpc` replies on another channel.
+const CHANNEL_QUEUE_SIZE: usize = 32;
 const CONVERGENCE_TTL: Duration = Duration::from_secs(5);
 // Unsigned container hints: version:u16, variant:u8, epoch:u64, roster_hash:32.
 const PREFIX_LEN: usize = 43;
@@ -54,7 +59,64 @@ impl std::fmt::Debug for Event {
     }
 }
 
+/// Every arrival the transport drops or refuses is counted here (RFC 0003
+/// §9), and logged when a counter reaches a power of two so a flood cannot
+/// also flood the log.
+struct Stats {
+    inbound_dropped: BTreeMap<u64, AtomicU64>,
+    events_dropped: BTreeMap<u64, AtomicU64>,
+    malformed_frames: AtomicU64,
+    roster_mismatch_frames: AtomicU64,
+    not_admitted_frames: AtomicU64,
+}
+
+impl Stats {
+    fn new(channels: impl Iterator<Item = u64> + Clone) -> Self {
+        Self {
+            inbound_dropped: channels.clone().map(|c| (c, AtomicU64::new(0))).collect(),
+            events_dropped: channels.map(|c| (c, AtomicU64::new(0))).collect(),
+            malformed_frames: AtomicU64::new(0),
+            roster_mismatch_frames: AtomicU64::new(0),
+            not_admitted_frames: AtomicU64::new(0),
+        }
+    }
+
+    fn bump(counter: &AtomicU64, what: &'static str, channel: u64) {
+        let total = counter.fetch_add(1, Ordering::Relaxed) + 1;
+        if total.is_power_of_two() {
+            tracing::warn!(channel, total, "transport {what}");
+        }
+    }
+
+    fn snapshot(&self) -> TransportStats {
+        let read = |m: &BTreeMap<u64, AtomicU64>| m.iter().map(|(c, n)| (*c, n.load(Ordering::Relaxed))).collect();
+        TransportStats {
+            inbound_dropped: read(&self.inbound_dropped),
+            events_dropped: read(&self.events_dropped),
+            malformed_frames: self.malformed_frames.load(Ordering::Relaxed),
+            roster_mismatch_frames: self.roster_mismatch_frames.load(Ordering::Relaxed),
+            not_admitted_frames: self.not_admitted_frames.load(Ordering::Relaxed),
+        }
+    }
+}
+
+/// Totals since this transport started.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct TransportStats {
+    /// Arrivals dropped because the channel's inbound queue was full.
+    pub inbound_dropped: BTreeMap<u64, u64>,
+    /// Accepted messages dropped because the channel's event queue was full.
+    pub events_dropped: BTreeMap<u64, u64>,
+    /// Frames from an unknown sender, of the wrong size or version, or with invalid padding.
+    pub malformed_frames: u64,
+    /// Frames naming another roster epoch or hash.
+    pub roster_mismatch_frames: u64,
+    /// Frames the roster ACL or convergence state does not admit.
+    pub not_admitted_frames: u64,
+}
+
 struct Policy {
+    stats: Stats,
     roster: SignedRoster,
     local: NodeId,
     hash: Hash32,
@@ -254,12 +316,18 @@ impl Transport {
         lookup.tracked_peer_sets = NonZeroUsize::new(2).unwrap();
         let primary: Map<_, _> = primary.try_into().map_err(|_| OicError::invalid_request("duplicate primary transport key"))?;
         let secondary: Map<_, _> = secondary.try_into().map_err(|_| OicError::invalid_request("duplicate secondary transport key"))?;
-        let policy = Arc::new(Policy { roster: config.roster, local: config.node_id, hash, peers, identities, sizes, padding });
+        let stats = Stats::new(config.roster.body.channel_acl.iter().map(|acl| acl.channel));
+        let policy = Arc::new(Policy { stats, roster: config.roster, local: config.node_id, hash, peers, identities, sizes, padding });
         let (commands, receive) = mpsc::channel(QUEUE_SIZE);
         let (events, event_receive) = mpsc::channel(QUEUE_SIZE);
         let actor_policy = policy.clone();
         let task = context.spawn(move |context| run(context, lookup, AddressableTrackedPeers::new(primary, secondary), actor_policy, hello, receive, events));
         Ok(Self { sender: SendHandle { commands, policy }, events: event_receive, task: Some(task) })
+    }
+
+    /// Drop and rejection totals since start.
+    pub fn stats(&self) -> TransportStats {
+        self.sender.policy.stats.snapshot()
     }
 
     pub fn sender(&self) -> SendHandle {
@@ -309,6 +377,27 @@ fn closed() -> OicError {
     OicError::new(ErrorCode::AuthorityUnavailable, "transport stopped")
 }
 
+/// Receive from the per-channel inbound queues round-robin, starting after the
+/// channel served last, so no channel can monopolize the actor loop.
+fn next_fair<'a>(queues: &'a mut [mpsc::Receiver<Incoming>], next: &'a mut usize) -> impl std::future::Future<Output = Option<Incoming>> + 'a {
+    std::future::poll_fn(move |cx| {
+        let n = queues.len();
+        let mut closed = 0;
+        for offset in 0..n {
+            let index = (*next + offset) % n;
+            match queues[index].poll_recv(cx) {
+                std::task::Poll::Ready(Some(message)) => {
+                    *next = (index + 1) % n;
+                    return std::task::Poll::Ready(Some(message));
+                }
+                std::task::Poll::Ready(None) => closed += 1,
+                std::task::Poll::Pending => {}
+            }
+        }
+        if closed == n { std::task::Poll::Ready(None) } else { std::task::Poll::Pending }
+    })
+}
+
 fn converged(peers: &BTreeMap<NodeId, Instant>, peer: &NodeId) -> bool {
     peers.get(peer).is_some_and(|seen| seen.elapsed() < CONVERGENCE_TTL)
 }
@@ -324,7 +413,12 @@ async fn run(
 ) {
     let (mut network, mut oracle) = lookup::Network::new(context.child("lookup"), config);
     oracle.track(policy.roster.body.roster_epoch, peers);
-    let (incoming, mut receive) = mpsc::channel(QUEUE_SIZE);
+    let mut inbound_queues = Vec::new();
+    // Hello keeps roster convergence alive (CONVERGENCE_TTL). It gets its own
+    // queue so data flooding channel 0, which Hello shares, cannot expire it.
+    let (hello_incoming, hello_queue) = mpsc::channel(CHANNEL_QUEUE_SIZE);
+    inbound_queues.push(hello_queue);
+    let mut channel_events = BTreeMap::new();
     let mut senders = BTreeMap::new();
     let mut workers = Vec::new();
     for acl in &policy.roster.body.channel_acl {
@@ -332,15 +426,37 @@ async fn run(
         let quota = Quota::per_second(std::num::NonZeroU32::new(acl.quota.min(MAX_QUOTA)).unwrap());
         let (sender, mut receiver) = network.register(channel, quota);
         senders.insert(channel, sender);
-        let incoming = incoming.clone();
+        let (incoming, queue) = mpsc::channel(CHANNEL_QUEUE_SIZE);
+        inbound_queues.push(queue);
+        let hello_incoming = hello_incoming.clone();
+        let counters = policy.clone();
+        // Every valid Hello is these exact bytes; anything else, including a
+        // frame that only claims the Hello variant, goes to the data queue.
+        let canonical_hello: Vec<u8> = policy.packet(HELLO, &hello).as_ref().to_vec();
         workers.push(context.child("inbound").with_attribute("channel", channel).spawn(move |_| async move {
             while let Ok((from, bytes)) = receiver.recv().await {
-                // A busy consumer drops arrivals, never blocks another channel.
-                let _ = incoming.try_send(Incoming { from, channel, bytes });
+                // A busy consumer drops this channel's arrivals only.
+                let queue = if channel == 0 && bytes.as_ref() == canonical_hello.as_slice() { &hello_incoming } else { &incoming };
+                if queue.try_send(Incoming { from, channel, bytes }).is_err() {
+                    Stats::bump(&counters.stats.inbound_dropped[&channel], "inbound queue full, arrival dropped", channel);
+                }
+            }
+        }));
+        let (deliver, mut pending) = mpsc::channel::<Event>(CHANNEL_QUEUE_SIZE);
+        channel_events.insert(channel, deliver);
+        let events = events.clone();
+        workers.push(context.child("events").with_attribute("channel", channel).spawn(move |_| async move {
+            // Waiting senders get shared-queue space in arrival order, so a
+            // flooding channel takes turns with the others instead of filling it.
+            while let Some(event) = pending.recv().await {
+                if events.send(event).await.is_err() {
+                    break;
+                }
             }
         }));
     }
-    drop(incoming);
+    drop(hello_incoming);
+    let mut next_queue = 0;
     let mut network_task = network.start();
     let mut network_finished = false;
     let mut views = BTreeMap::new();
@@ -383,13 +499,21 @@ async fn run(
                 }
                 Some(Command::Shutdown) | None => break,
             },
-            Some(inbound) = receive.recv() => {
-                let Some(from) = policy.identities.get(&inbound.from) else { continue };
+            Some(inbound) = next_fair(&mut inbound_queues, &mut next_queue) => {
+                let stats = &policy.stats;
+                let Some(from) = policy.identities.get(&inbound.from) else {
+                    Stats::bump(&stats.malformed_frames, "frame from unknown sender", inbound.channel);
+                    continue;
+                };
                 if blocked.contains(from) { continue; }
                 let bytes = inbound.bytes.as_ref();
                 let limit = policy.sizes[&inbound.channel];
-                if bytes.len() < PREFIX_LEN || bytes.len() > PREFIX_LEN + limit || bytes[..2] != 1u16.to_be_bytes() { continue; }
+                if bytes.len() < PREFIX_LEN || bytes.len() > PREFIX_LEN + limit || bytes[..2] != 1u16.to_be_bytes() {
+                    Stats::bump(&stats.malformed_frames, "malformed frame", inbound.channel);
+                    continue;
+                }
                 if bytes[3..11] != policy.roster.body.roster_epoch.to_be_bytes() || bytes[11..43] != policy.hash.0 {
+                    Stats::bump(&stats.roster_mismatch_frames, "frame for another roster", inbound.channel);
                     views.remove(from);
                     continue;
                 }
@@ -405,14 +529,21 @@ async fn run(
                             Some(kind) => {
                                 let Ok(frame) = policy.padding.decode_point_to_point(
                                     payload, policy.roster.body.roster_epoch, kind, limit,
-                                ) else { continue };
+                                ) else {
+                                    Stats::bump(&stats.malformed_frames, "invalid padded frame", inbound.channel);
+                                    continue;
+                                };
                                 frame
                             }
                             None => payload,
                         };
-                        let _ = events.try_send(Event { from: from.clone(), channel: inbound.channel, bytes: payload.to_vec() });
+                        if let Some(deliver) = channel_events.get(&inbound.channel) {
+                            if deliver.try_send(Event { from: from.clone(), channel: inbound.channel, bytes: payload.to_vec() }).is_err() {
+                                Stats::bump(&stats.events_dropped[&inbound.channel], "event queue full, message dropped", inbound.channel);
+                            }
+                        }
                     }
-                    _ => {}
+                    _ => Stats::bump(&stats.not_admitted_frames, "frame not admitted by ACL or convergence", inbound.channel),
                 }
             }
         }

@@ -25,7 +25,10 @@ export type Snapshot = {
     os: string;
     architecture: string;
     version: string;
+    /** Local mode: the state database opened and took a write lock for this request. */
     durable_state: boolean;
+    /** Whether the server holds the local custody API origin and bearer. Not a reachability check. */
+    custody_bridge: "configured" | "not_configured" | "disabled";
     release_signature_verified: false;
   };
   production_ready: false;

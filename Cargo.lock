@@ -4268,6 +4268,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -4548,6 +4549,7 @@ dependencies = [
  "oic-node",
  "oic-one-time-state-ledger",
  "oic-peer-wire",
+ "oic-policy-kernel",
  "oic-service-authority-rpc",
  "oic-service-signer-core",
  "oic-service-signer-net",

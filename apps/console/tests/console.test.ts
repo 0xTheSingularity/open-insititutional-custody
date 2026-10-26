@@ -128,11 +128,38 @@ test("stale, malformed, and authority-expanding commands leave saved state uncha
     ).status,
     422,
   );
+  // Isolate the custody bridge variables from the developer's shell and
+  // restore them afterwards.
+  const saved = {
+    origin: process.env.OIC_CONSOLE_CUSTODY_ORIGIN,
+    token: process.env.OIC_CONSOLE_CUSTODY_TOKEN,
+  };
+  delete process.env.OIC_CONSOLE_CUSTODY_ORIGIN;
+  delete process.env.OIC_CONSOLE_CUSTODY_TOKEN;
+  t.after(() => {
+    for (const [key, value] of [
+      ["OIC_CONSOLE_CUSTODY_ORIGIN", saved.origin],
+      ["OIC_CONSOLE_CUSTODY_TOKEN", saved.token],
+    ] as const) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  });
   const state = (await call("setup")).body;
   assert.equal(state.setup.workspace_name, "Winner");
   assert.equal(state.setup.revision, 2);
   assert.equal(state.production_ready, false);
   assert.equal(state.blockers.length, 5);
+  assert.equal(state.preflight.custody_bridge, "not_configured");
+  assert.ok(state.blockers.some((b: { title: string }) => b.title === "Local money loop"));
+  // With the custody bridge configured (the bearer alone; the origin
+  // defaults to the local stack), the console no longer claims the money
+  // loop is disconnected.
+  process.env.OIC_CONSOLE_CUSTODY_TOKEN = "test-bearer";
+  const bridged = (await call("setup")).body;
+  assert.equal(bridged.preflight.custody_bridge, "configured");
+  assert.equal(bridged.blockers.length, 4);
+  assert.ok(!bridged.blockers.some((b: { title: string }) => b.title === "Local money loop"));
 });
 
 test("EIP-55 checksum, Solana byte length, and both sides of the CSV limits are enforced", async (t) => {

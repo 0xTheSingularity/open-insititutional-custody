@@ -22,12 +22,12 @@
           ],
           "fix_shape": "Extend the envelope to commit hashes of asset, wallet, vault, and key descriptor the way destination_hash does. Protocol change: envelope schema and golden vectors; needs a deliberate compatibility decision, not a quick patch.",
           "test_gap": "A03 test mutates the wallet without rebuilding the envelope; add a consistently-forged-set test.",
-          "fixed_in": "Option A implemented per docs/designs/signing-material-commitment.md under the user's decision 'A then B' (2026-10-26): the envelope (domain OIC/AUTHORIZATION/v2) commits asset_hash, wallet_hash, vault_hash, and key_descriptor_hash; the signer and the D2 replica execution boundary both verify them; golden vectors regenerated as a justified break. Hashes alone were not enough in D1, where the coordinator produces the envelope and the authority sees only its body hash, so a compromised coordinator could hash its own forged records; the signer therefore also pins the enrolled asset/wallet/vault hashes in TrustRoots.enrolled_materials (empty fails closed; key descriptor pinned by loaded-key equality). In D2 the replica additionally checks its pinned registry. Tests: forged-but-consistent materials, and a coordinator-built envelope over unenrolled records, are both refused. Merged in PR #39. Cost: enrolling a new asset/wallet/vault requires updating signer trust roots, like chain profiles. Option B (admin-signed objects) remains a later layer for end-to-end provenance."
+          "fixed_in": "Option A implemented per docs/designs/signing-material-commitment.md under the user's decision 'A then B' (2026-10-26): the envelope (domain OIC/AUTHORIZATION/v2) commits asset_hash, wallet_hash, vault_hash, and key_descriptor_hash; the signer and the D2 replica execution boundary both verify them; golden vectors regenerated as a justified break. Hashes alone were not enough in D1, where the coordinator produces the envelope and the authority sees only its body hash, so a compromised coordinator could hash its own forged records; the signer therefore also pins the enrolled asset/wallet/vault hashes in TrustRoots.enrolled_materials (empty fails closed; key descriptor pinned by loaded-key equality). In D2 the replica additionally checks its pinned registry. Tests: forged-but-consistent materials, and a coordinator-built envelope over unenrolled records, are both refused. Merged in PR #39. Cost: enrolling a new asset/wallet/vault requires updating signer trust roots, like chain profiles. Option B: the pinned set is now an admin-quorum-signed MaterialEnrollment manifest (domain OIC/MATERIAL_ENROLLMENT/v1) that also pins the key descriptor; Signer::open refuses it without the quorum or for another institution. Its trust anchor is admin_keys, the same keys that sign destinations and policy; an attacker who can replace admin_keys can sign a new manifest."
         },
         {
           "id": "0001-02",
           "section": "§4.2, §3.1, I6",
-          "status": "diverges",
+          "status": "closed",
           "severity": "high",
           "summary": "No destination supersession: an older admin-signed destination version stays signable forever. The kernel only checks the version equals what the proposer wrote in the intent; the only revocation is denying the whole destination id.",
           "evidence": [
@@ -35,7 +35,7 @@
             "crates/policy-kernel/src/lib.rs:276-277"
           ],
           "fix_shape": "Enforce latest-enrolled-version at intent build/create (fail closed on superseded versions); longer term, an ordered destination registry in the authority.",
-          "fixed_in": "this commit, REDUCED not closed: the API build path now refuses a destination version older than the newest enrolled version for that id. That catches honest proposer mistakes only. The audited threat — a compromised coordinator that talks to the signer directly, skipping the API — is unchanged: the signer still accepts any admin-signed version. The signer-checked destination registry is a protocol change and remains open."
+          "fixed_in": "PR #41: the admin-signed MaterialEnrollment lists the destination_hash of each currently enrolled destination version, and the signer refuses an envelope whose destination is not listed, so a newer enrollment that leaves out an old version supersedes it at the signer, including for a compromised coordinator that bypasses the API. The signer persists the highest accepted enrollment epoch in its one-time-state ledger, so an older, validly signed enrollment cannot be replayed to re-enroll a revoked version. Test: superseded_destination_version_is_refused, older_material_enrollment_epoch_is_refused_after_a_newer_one."
         },
         {
           "id": "0001-03",
@@ -101,14 +101,15 @@
         {
           "id": "0001-08",
           "section": "§9.2-§9.4, I10",
-          "status": "diverges",
+          "status": "partial",
           "severity": "medium",
           "summary": "EVM verification thinner than spec: chain-id-only network identity (no genesis binding), fixed 65000 gas limit with no simulation, no L2 fee component, finality is a fixed confirmation count defaulting to 1 where the spec forbids fixed counts, no EIP-7702 delegation or allowance inventory.",
           "evidence": [
             "crates/adapter-evm/src/lib.rs:376-389",
             "services/chain-rpc/src/evm.rs:69-70",
             "crates/adapter-evm/src/lib.rs:665"
-          ]
+          ],
+          "fixed_in": "PR #41: the EVM adapter reports Finalized only for evidence taken at the profile's finality commitment (the chain's finalized view). Inclusion inside that view is final; the view already trails the head by the finality depth, so no second confirmation count applies. Before this, the live client's latest-head evidence with the default finality_depth of 1 made a transaction final one block after inclusion, and the broadcaster accepted that. Test observe_maps_lifecycle; chain-rpc live-node tests and oic demo pass. Remaining: chain-id-only network identity (no genesis binding), fixed 65,000 gas limit with no estimation or simulation, no L2 data-fee component, and no proxy implementation check."
         },
         {
           "id": "0001-09",
@@ -116,7 +117,8 @@
           "status": "partial",
           "severity": "medium",
           "summary": "Solana delegate/close-authority checks run only on the destination token account; an existing source delegate is not detected; mint owner program taken from the registry, not evidence.",
-          "evidence": ["crates/adapter-solana/src/lib.rs:297-304", "crates/adapter-solana/src/lib.rs:408-418"]
+          "evidence": ["crates/adapter-solana/src/lib.rs:297-304", "crates/adapter-solana/src/lib.rs:408-418"],
+          "fixed_in": "PR #41: the source token account is now refused when it has a delegate or a close authority other than its owner (test spl_source_with_delegate_or_foreign_close_authority_is_rejected). Remaining: the mint account's owning program is still taken from the registry; verifying it needs a new evidence item from the chain clients. The transfer instruction targets the SPL Token program, which rejects a mint it does not own at execution."
         },
         {
           "id": "0001-10",
@@ -140,7 +142,8 @@
           "status": "partial",
           "severity": "low",
           "summary": "PolicyRule has no vault-tier dimension; fees have only a per-operation maximum (no rolling native-fee budget applied).",
-          "evidence": ["crates/domain-types/src/objects.rs:171-188", "crates/authorization-state/src/transition.rs:153-166"]
+          "evidence": ["crates/domain-types/src/objects.rs:171-188", "crates/authorization-state/src/transition.rs:153-166"],
+          "fixed_in": "Not fixed in PR #41, on purpose: a rolling native-fee budget changes ReserveRequest.exposure_limits, which the authority commits to and the D2 replica recomputes, so it is a protocol change with golden-vector impact. It needs its own PR with an optional, skipped-when-empty PolicyRule field so existing policy hashes stay stable."
         },
         {
           "id": "0001-13",
@@ -183,10 +186,10 @@
         {
           "id": "0002-01",
           "section": "docs/acceptance-coverage.md",
-          "status": "partial",
+          "status": "closed",
           "severity": "low",
           "summary": "Triage prose still lists A32/A38 as unreferenced although the autogenerated table cites them.",
-          "fixed_in": "this commit"
+          "fixed_in": "PR #36: the triage prose now matches the generated table; only A33 remains operationally blocked."
         }
       ]
     },
@@ -243,18 +246,20 @@
         {
           "id": "0003-06",
           "section": "§4.2, E6, T12",
-          "status": "diverges",
+          "status": "closed",
           "severity": "high",
           "summary": "All channels share one 128-entry inbound queue and one event queue; one flooding admitted peer starves Hello (5s convergence TTL) and authority.rpc replies, causing refused sessions and IssuanceUnknown.",
-          "evidence": ["crates/node/src/transport.rs:18,258-259,333-340"]
+          "evidence": ["crates/node/src/transport.rs:18,258-259,333-340"],
+          "fixed_in": "PR #41: each channel has its own bounded inbound queue (drained round-robin) and its own bounded event queue whose sends wait their turn for the shared receiver. Real-socket test real_socket_flood_on_one_channel_does_not_drop_another_channels_message fails on the original shared-queue transport and passes on the per-channel one. Hello frames also get a dedicated inbound queue; that part is defense in depth with no test that fails without it (the receiver drains inbound queues continuously, so overflow at quota-limited rates was not reproduced). The test failure first attributed to Hello starvation was the sender's own flood exhausting its channel-0 quota, fixed by pacing the test flood."
         },
         {
           "id": "0003-07",
           "section": "§9, §5.1",
-          "status": "missing",
+          "status": "partial",
           "severity": "medium",
           "summary": "No metrics or logs from network crates; inbound and event drops silently discarded; handshake failures, roster divergence, session aborts, attestation disagreements, nullifications not exposed.",
-          "evidence": ["crates/node/src/transport.rs:340,414"]
+          "evidence": ["crates/node/src/transport.rs:340,414"],
+          "fixed_in": "PR #41: the node transport counts every dropped or refused arrival (inbound or event queue full, per channel; malformed, foreign-roster, and not-admitted frames), exposes the totals through Transport::stats(), and logs a tracing warning when a counter reaches a power of two. The flood test asserts the overflow is counted. Remaining: handshake failures, roster divergence, session aborts, and attestation disagreements are not yet counted, and no metrics endpoint exports the totals."
         },
         {
           "id": "0003-08",
@@ -262,7 +267,8 @@
           "status": "partial",
           "severity": "medium",
           "summary": "Coordinator crash recovery: no reconciliation of in-flight operations on restart; approval expiry unreachable over authority.rpc, so a crash before Release strands reserved exposure.",
-          "evidence": ["crates/authorization-state/src/authority.rs:239-247"]
+          "evidence": ["crates/authorization-state/src/authority.rs:239-247"],
+          "fixed_in": "PR #41: nothing in production called expire_approvals, so reserved exposure whose approvals expired stayed reserved. Authority::expire_due_approvals (commits only when a reservation is due, so an idle check is a read) now runs every 5 s on a background thread in the node-runner authority and the local stack, released when the authority is dropped. Test expire_due_approvals_commits_only_when_a_reservation_is_due. Remaining: the coordinator does not reconcile its in-flight OperationStore records on restart."
         },
         {
           "id": "0003-09",
@@ -286,7 +292,8 @@
           "status": "partial",
           "severity": "medium",
           "summary": "Per-node journal incomplete: session rejection reasons, peer blocks, attestations not journaled; gateway/authority-rpc/transport keep no signed journal.",
-          "evidence": ["crates/node/src/transport.rs:122"]
+          "evidence": ["crates/node/src/transport.rs:122"],
+          "fixed_in": "PR #41: signer-core journals every refused session open (Open and OpenFinalized) as signer.session_rejected with session, sender, and error code; status polling is not journaled, so it cannot fill the journal. Remaining: peer blocks and attestations are not journaled, and the gateway, authority-rpc, and transport nodes keep no signed journal."
         },
         {
           "id": "0003-12",
@@ -310,7 +317,8 @@
           "status": "partial",
           "severity": "medium",
           "summary": "Halt key is a free-standing operator key, unbound to roster administrators; minimum_halt_sequence hardcoded 0 (no rollback floor); unhalt only in the local journal.",
-          "evidence": ["services/signer-core/src/lib.rs:25-35", "services/node-runner/src/corerun.rs:78"]
+          "evidence": ["services/signer-core/src/lib.rs:25-35", "services/node-runner/src/corerun.rs:78"],
+          "fixed_in": "PR #41: the signer keeps the highest halt sequence a node reached as a floor in its one-time-state ledger (Signer::ratchet_floor), raised after each halt command is durable and checked when signer-core opens, so deleting or restoring the halt file no longer un-halts a node even with minimum_halt_sequence 0 (test local_halt_is_signed_durable_and_stops_active_sessions). Remaining: the halt key is still a free-standing operator key not bound to the roster administrators; unhalt is journaled locally only; SignerFence and RosterActivate are not authority commands."
         },
         {
           "id": "0003-15",
@@ -319,7 +327,8 @@
           "severity": "low",
           "summary": "Passkey sign_count parsed but never compared (no clone alert); no AAGUID allowlist.",
           "evidence": ["crates/policy-kernel/src/approvals.rs:100-109"],
-          "fix_shape": "Clone detection needs a persisted monotonic counter per enrolled credential. ApproverCredential is an admin-signed stored object, so adding last_sign_count is a schema and enrollment-flow change, not a patch."
+          "fix_shape": "Clone detection needs a persisted monotonic counter per enrolled credential. ApproverCredential is an admin-signed stored object, so adding last_sign_count is a schema and enrollment-flow change, not a patch.",
+          "fixed_in": "PR #41: the authority records each passkey credential's highest WebAuthn signature counter and refuses an approval whose counter did not increase when either value is nonzero (possible cloned authenticator); a replay of an already recorded grant still returns Conflict. Zero counters are not encoded, so existing authority state keeps its hash and golden vectors are unchanged. Test passkey_signature_counter_must_increase_across_approvals. Remaining: no AAGUID allowlist for device-bound authenticators."
         }
       ],
       "covered": "§3.2-§3.3 roster validation, §4.1-§4.2 ACLs, §6.3 D2 re-execution, §8.1 Class S fences, §8.3 signed MPC frames, §10 generation fencing, §15 WebAuthn verification and proposer-exclusion, Stateright model."
@@ -363,32 +372,35 @@
         {
           "id": "0004-05",
           "section": "§7 error mapping, F3",
-          "status": "diverges",
+          "status": "closed",
           "severity": "high",
           "summary": "Every non-OK mutation response, including definitive 4xx policy rejections, is flattened to a generic outcome-unknown message, dropping the backend reason; only a raw last_error code badge is shown; required_approvals parsed but never rendered.",
           "evidence": ["apps/console/src/lib/custody-server.ts:211-220", "apps/console/src/components/custody-workspace.tsx:767"],
-          "fixed_in": "this commit, partially: the bridge reflects only the backend's error CODE with a console-authored per-code explanation; backend detail text is never reflected (it can carry sensitive diagnostics). Only the create route is definitive (outcome_unknown=false): no signing can have happened for an intent whose create returned 4xx. Submit, cancel, and refresh errors always keep outcome_unknown=true with the inspect-first instruction, because codes like NOT_FOUND or STALE_EVIDENCE can arrive after a signature exists. ISSUANCE_UNCERTAIN, unknown codes, 5xx, redirects, and unreadable bodies keep the fail-safe unknown-outcome message. Rendering required_approvals remains open."
+          "fixed_in": "PR #36 (route-scoped error mapping; backend detail never reflected) and PR #41 (the transfer detail states how many approvals the first matching policy rule requires, mirroring the kernel match_rule)."
         },
         {
           "id": "0004-06",
           "section": "S11-S12",
-          "status": "partial",
+          "status": "closed",
           "severity": "medium",
-          "summary": "Approval inbox filters on dispatch=ready without expiry/eligibility checks; no verifier deep link (CLI accepted per Q2); correctly no Approve button."
+          "summary": "Approval inbox filters on dispatch=ready without expiry/eligibility checks; no verifier deep link (CLI accepted per Q2); correctly no Approve button.",
+          "fixed_in": "PR #41: the approval queue lists a transfer only while it is before dispatch, not issued, and a matching policy rule requires approvals; the table shows unexpired grants against the requirement. The local count never hides a transfer, because the record keeps grants from credentials the authority may have removed. Expiry is judged at the time the state was read. The verifier stays the external oic-approve CLI, which RFC 004 Q2 accepts. Per-approver eligibility needs console authentication (0004-01)."
         },
         {
           "id": "0004-07",
           "section": "§7, §9 lifecycle display",
           "status": "partial",
           "severity": "medium",
-          "summary": "Raw state names; only FINALIZED_SUCCESS green, failures amber instead of red; no per-state labels/safe actions; no real-record operation timeline. Uncertain states correctly block retry/cancel."
+          "summary": "Raw state names; only FINALIZED_SUCCESS green, failures amber instead of red; no per-state labels/safe actions; no real-record operation timeline. Uncertain states correctly block retry/cancel.",
+          "fixed_in": "PR #41: every lifecycle state maps to its RFC 004 §7 label and safe action, and §9 tone (green only for FINALIZED_SUCCESS; red for rejected, expired, failed, invalidated; amber for wait and uncertainty); the detail view shows the exact state. Remaining: a per-stage timeline with time and source for real records."
         },
         {
           "id": "0004-08",
           "section": "S01-S06, F1",
-          "status": "diverges",
+          "status": "closed",
           "severity": "medium",
-          "summary": "Setup preflight hard-codes complete:true (spec forbids misleading success); release_signature_verified literal false; test-transfer step hard-coded awaiting; stale blocker still listed; no vault seeding or deposit step; checklist is a page, not persistent."
+          "summary": "Setup preflight hard-codes complete:true (spec forbids misleading success); release_signature_verified literal false; test-transfer step hard-coded awaiting; stale blocker still listed; no vault seeding or deposit step; checklist is a page, not persistent.",
+          "fixed_in": "PR #41: the preflight step is complete only when the state database opened and took a write lock; the test-transfer step and the money-loop blocker reflect whether the console server holds the custody API origin and bearer. release_signature_verified stays false because nothing verifies it."
         },
         {
           "id": "0004-09",
@@ -402,14 +414,16 @@
           "section": "S16, F9, §5",
           "status": "partial",
           "severity": "low",
-          "summary": "No event search/filtering or sequence-gap detection in local mode; no global search; export limited to custody export plus first 1000 events."
+          "summary": "No event search/filtering or sequence-gap detection in local mode; no global search; export limited to custody export plus first 1000 events.",
+          "fixed_in": "PR #41: in local mode the transfers and approvals tables filter by a case-insensitive search across reference, intent, operation family, candidate, vault, wallet, destination (id, name, address), asset, and transaction id. Remaining: event search and filtering, sequence-gap detection, and a search box that spans every screen."
         },
         {
           "id": "0004-11",
           "section": "§9 freshness",
           "status": "partial",
           "severity": "low",
-          "summary": "Generic stale banner only; no per-scope age thresholds; balances shown without freshness check."
+          "summary": "Generic stale banner only; no per-scope age thresholds; balances shown without freshness check.",
+          "fixed_in": "PR #41: each reconciliation checkpoint shows how long before the read it was taken, and reads as a current match only within CHECKPOINT_STALE_SECONDS (120); older matches are amber and labelled stale, exceptions red. A checkpoint without its timestamp is rejected. Remaining: available balances carry only a head height, no observation time, so they cannot get an age until the status API reports one."
         }
       ],
       "covered": "Navigation matches §5; bridge/demo/watch-only boundaries (§3, §10) enforced: loopback-only upstream, route allowlist, idempotency key, body cap, demo write-block, watch-only never enrolls authority."

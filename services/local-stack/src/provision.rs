@@ -3,7 +3,7 @@ use ed25519_dalek::{Signer as _, SigningKey, VerifyingKey};
 use oic_crypto_provider::{CryptoProvider, KeygenCeremony};
 use oic_crypto_provider_dev::DevSingleKeyProvider;
 use oic_crypto_provider_frost_ed25519::{run_dkg, FrostEd25519Provider};
-use oic_policy_kernel::{destination_hash, policy_hash};
+use oic_policy_kernel::{destination_hash, material_enrollment, material_enrollment_hash, policy_hash};
 use rand::{rngs::OsRng, RngCore};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -62,6 +62,9 @@ pub(crate) struct Provisioned {
     pub destinations: Vec<CounterpartyDestination>,
     pub profiles: Vec<oic_adapter_api::ChainProfile>,
     pub policy: PolicyBundle,
+    /// Admin-quorum-signed enrollment of the assets, wallets, vault, and keys
+    /// above; every signer pins exactly this set.
+    pub material_enrollment: MaterialEnrollment,
 }
 
 pub(crate) fn admins(p: &Provisioned) -> OicResult<Vec<(CredentialId, VerifyingKey)>> {
@@ -302,8 +305,10 @@ pub fn bootstrap(state: &Path, handoff: &Path, approval_public_key: [u8; 32]) ->
         administrative_signatures: vec![],
     };
     policy.administrative_signatures = signatures(&admin_keys, policy_hash(&policy)?);
+    let mut material_enrollment = material_enrollment(inst(), environment(), Epoch(1), &assets, &wallets, [&vault()], &keys, &destinations)?;
+    material_enrollment.administrative_signatures = signatures(&admin_keys, material_enrollment_hash(&material_enrollment)?);
     let p = Provisioned {
-        schema_version: 1,
+        schema_version: 2,
         genesis,
         simulator_seeds,
         admins: admin_keys
@@ -318,6 +323,7 @@ pub fn bootstrap(state: &Path, handoff: &Path, approval_public_key: [u8; 32]) ->
         destinations,
         profiles,
         policy,
+        material_enrollment,
     };
     write_new(&state.join("provisioned.json"), &p)?;
     write_new(&state.join("secrets.json"), &secrets)?;

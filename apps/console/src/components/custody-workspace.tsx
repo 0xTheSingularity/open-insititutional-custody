@@ -8,9 +8,11 @@ import {
   Download,
   LockKeyhole,
   RotateCw,
+  Search,
   ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -53,6 +55,12 @@ import {
   type CustodyOperation,
   type LocalCatalog,
   type LocalStatus,
+  checkpointView,
+  lifecycleDisplay,
+  liveApprovals,
+  matchesQuery,
+  needsApproval,
+  requiredApprovals,
 } from "@/lib/custody-model";
 
 type Data = {
@@ -69,20 +77,21 @@ const preDispatch = new Set([
   "POLICY_EVALUATED",
   "AWAITING_APPROVAL",
 ]);
-function stateLabel(state: string) {
-  return state.toLowerCase().replaceAll("_", " ");
-}
+const toneClass = {
+  success: "border-success-border bg-success-surface text-success",
+  attention: "border-warning-border bg-warning-surface text-warning",
+  danger: "border-destructive/40 bg-destructive/10 text-destructive",
+  neutral: "",
+} as const;
 function StateBadge({ state }: { state: string }) {
+  const display = lifecycleDisplay[state as keyof typeof lifecycleDisplay];
   return (
     <Badge
       variant="outline"
-      className={
-        state === "FINALIZED_SUCCESS"
-          ? "border-success-border bg-success-surface text-success"
-          : "border-warning-border bg-warning-surface text-warning"
-      }
+      title={state}
+      className={display ? toneClass[display.tone] : toneClass.attention}
     >
-      {stateLabel(state)}
+      {display ? display.label : state}
     </Badge>
   );
 }
@@ -119,6 +128,7 @@ export function CustodyWorkspace({
   const [blocked, setBlocked] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [query, setQuery] = useState("");
   const flight = useRef(false);
   const reload = useCallback(async () => {
     if (flight.current) return;
@@ -263,6 +273,8 @@ export function CustodyWorkspace({
       </Card>
     );
   const { catalog, status, records, operations } = data;
+  // Grant expiry is judged at the time this state was read, not render time.
+  const nowSeconds = Math.floor(Date.parse(data.readAt) / 1000);
   const id = pathname.split("/")[2];
   const record = records.find((item) => item.intent.intent_id === id);
   const detail = pathname.startsWith("/transfers/") && id !== "new";
@@ -516,7 +528,17 @@ export function CustodyWorkspace({
                 <Link href="/transfers/new">New local transfer</Link>
               </Button>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
+              <div className="flex max-w-md items-center gap-2">
+                <Search aria-hidden="true" className="size-4 text-muted-foreground" />
+                <Input
+                  aria-label="Search transfers by reference, intent, vault, destination, asset, or transaction"
+                  placeholder="Search reference, intent, vault, destination, tx"
+                  value={query}
+                  maxLength={160}
+                  onChange={(event) => setQuery(event.target.value)}
+                />
+              </div>
               <Table aria-label="Persisted local transfers">
                 <TableHeader>
                   <TableRow>
@@ -529,9 +551,14 @@ export function CustodyWorkspace({
                 </TableHeader>
                 <TableBody>
                   {records
+                    .filter((item) => matchesQuery(item, query))
                     .filter(
                       (item) =>
-                        pathname !== "/approvals" || item.dispatch === "ready",
+                        pathname !== "/approvals" ||
+                        needsApproval(
+                          item,
+                          operations[item.intent.intent_id].lifecycle,
+                        ),
                     )
                     .map((item) => (
                       <TableRow key={item.intent.intent_id}>
@@ -556,7 +583,9 @@ export function CustodyWorkspace({
                           />
                         </TableCell>
                         <TableCell>
-                          {item.approvals.length} · not a quorum assertion
+                          {liveApprovals(item, nowSeconds)} unexpired of{" "}
+                          {requiredApprovals(item) ?? "no matching rule"} ·
+                          not a quorum assertion
                         </TableCell>
                         <TableCell>
                           <StateBadge
@@ -657,10 +686,7 @@ export function CustodyWorkspace({
             <div className="grid gap-4 lg:grid-cols-2">
               {status.checkpoints.map((checkpoint) => {
                 const body = checkpoint.body;
-                const consistent =
-                  body.balances.every(
-                    (b) => b.chain_balance === b.journal_balance,
-                  ) && body.cases_opened.length === 0;
+                const view = checkpointView(body, nowSeconds);
                 return (
                   <div
                     className="space-y-2 border-l-2 pl-4"
@@ -669,13 +695,12 @@ export function CustodyWorkspace({
                     <p className="text-sm font-medium">
                       {body.chain_profile_id}
                     </p>
-                    <Badge variant="outline">
-                      {consistent
-                        ? "Reported balances match"
-                        : "Reconciliation exception"}
+                    <Badge variant="outline" className={toneClass[view.tone]}>
+                      {view.label}
                     </Badge>
                     <p className="text-xs text-muted-foreground">
-                      Checkpoint {body.checkpoint_id} · journal sequence{" "}
+                      Taken {view.ageSeconds}s before this read · checkpoint{" "}
+                      {body.checkpoint_id} · journal sequence{" "}
                       {body.journal_sequence} · {body.state.commitment} height{" "}
                       {body.state.height}
                     </p>
@@ -726,6 +751,7 @@ function TransferDetail({
   onAction: (action: "submit" | "cancel" | "refresh") => void;
 }) {
   const { intent, built } = record;
+  const required = requiredApprovals(record);
   const canDispatch =
     record.dispatch === "ready" &&
     record.issuance === null &&
@@ -759,10 +785,15 @@ function TransferDetail({
         <CardContent className="space-y-6">
           <div className="flex flex-wrap items-center gap-3">
             <StateBadge state={operation.lifecycle} />
+            <p className="mt-1 text-xs text-muted-foreground">
+              <span className="font-mono">{operation.lifecycle}</span>
+              {" · "}
+              {lifecycleDisplay[operation.lifecycle].action}
+            </p>
             <Badge variant="outline">Dispatch: {record.dispatch}</Badge>
             {operation.issuance && (
               <Badge variant="outline">
-                Coordinator: {stateLabel(operation.issuance.lifecycle)}
+                Coordinator: {lifecycleDisplay[operation.issuance.lifecycle].label}
               </Badge>
             )}
             {record.last_error && (
@@ -840,6 +871,11 @@ function TransferDetail({
           </dl>
           <div className="space-y-3 border-t pt-5">
             <h3 className="font-medium">Independent approval records</h3>
+            <p className="text-sm">
+              {required === null
+                ? "No policy rule matches this transfer; the custody service will deny it."
+                : `Policy requires ${required} independent approval${required === 1 ? "" : "s"}; ${record.approvals.length} recorded.`}
+            </p>
             {record.approvals.length ? (
               record.approvals.map((grant, index) => (
                 <p

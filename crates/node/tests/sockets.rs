@@ -846,3 +846,75 @@ fn real_socket_padding_rejects_mixed_malformed_and_oversized_before_delivery() {
         eprintln!("padding: both mixed-profile directions, malformed length/tail, ACL oversize and forbidden role produce no event; valid traffic still progresses");
     });
 }
+
+/// RFC 0003 §4.2 / T12: while the receiver is not reading, a peer flooding one
+/// channel fills only that channel's queues; a message on another channel is
+/// still delivered once the receiver drains.
+#[test]
+fn real_socket_flood_on_one_channel_does_not_drop_another_channels_message() {
+    run(|context| async move {
+        let roster = fixture();
+        let a = Transport::start_loopback(context.child("a"), config(&roster, 0), PaddingProfile::Disabled).unwrap();
+        let mut b = Transport::start_loopback(context.child("b"), config(&roster, 1), PaddingProfile::Disabled).unwrap();
+        deliver(&a, &mut b, 1, 0, b"warm-up").await;
+        // Flood channel 0 well past the old shared 128-entry queue while b is
+        // not reading. About 50/s keeps a's own Hello within the channel quota
+        // and lasts longer than CONVERGENCE_TTL, so b's Hello handling must
+        // not be crowded out by the flood either.
+        let mut accepted = 0;
+        timeout(Duration::from_secs(60), async {
+            while accepted < 250 {
+                match a.send(&id(1), 0, b"flood".to_vec()).await {
+                    Ok(()) => {
+                        accepted += 1;
+                        sleep(Duration::from_millis(20)).await;
+                    }
+                    Err(e) if e.code == ErrorCode::Conflict => sleep(Duration::from_millis(5)).await,
+                    Err(e) => panic!("unexpected flood rejection: {e}"),
+                }
+            }
+        })
+        .await
+        .expect("flood submission deadline");
+        let marker = [0x5a; 32];
+        timeout(Duration::from_secs(30), async {
+            loop {
+                match a.send(&id(1), 20, marker.to_vec()).await {
+                    Ok(()) => break,
+                    Err(e) if e.code == ErrorCode::Conflict => sleep(Duration::from_millis(100)).await,
+                    Err(e) => panic!("unexpected marker rejection: {e}"),
+                }
+            }
+        })
+        .await
+        .expect("marker submission deadline");
+        sleep(Duration::from_millis(500)).await;
+        // Drain until the marker arrives. The old shared queue dropped it for
+        // good, so the deadline only bounds a failure, never a pass.
+        let found = timeout(Duration::from_secs(30), async {
+            loop {
+                match b.recv().await {
+                    Some(event) if event.channel == 20 => {
+                        assert_eq!(event.bytes, marker);
+                        return true;
+                    }
+                    Some(_) => {}
+                    None => return false,
+                }
+            }
+        })
+        .await
+        .unwrap_or(false);
+        assert!(found, "a flood on channel 0 must not drop the channel 20 message");
+        // Audit 0003-07: the overflow on the flooded channel is counted, not
+        // silently discarded, and the other channel lost nothing.
+        let stats = b.stats();
+        assert!(
+            stats.inbound_dropped[&0] + stats.events_dropped[&0] > 0,
+            "flood overflow must be counted: {stats:?}"
+        );
+        assert_eq!(stats.inbound_dropped[&20] + stats.events_dropped[&20], 0);
+        a.shutdown().await.unwrap();
+        b.shutdown().await.unwrap();
+    });
+}
