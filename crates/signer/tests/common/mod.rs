@@ -17,7 +17,10 @@ use oic_crypto_provider_dev::DevSingleKeyProvider;
 use oic_crypto_provider_frost_ed25519::{FrostEd25519Provider, build_signing_package, run_dkg};
 use oic_domain_types::*;
 use oic_one_time_state_ledger::InMemoryLedger;
-use oic_policy_kernel::{Decision, destination_hash, intent_hash, policy_hash, preview_hash};
+use oic_policy_kernel::{
+    asset_hash, chain_wallet_hash, destination_hash, intent_hash, key_descriptor_hash, policy_hash,
+    preview_hash, vault_hash, Decision,
+};
 use oic_signer::*;
 use std::collections::{BTreeMap, VecDeque};
 use std::sync::{Arc, Mutex};
@@ -186,8 +189,16 @@ impl World {
             approvers: self.approver_credentials(),
             accepted_verifier_builds: builds,
             chain_profiles: profiles,
+            enrolled_materials: EnrolledMaterials::default(),
             max_clock_skew_seconds: 30,
         }
+    }
+
+    /// Trust roots that also pin the case's enrolled asset, wallet, and vault.
+    pub fn trust_roots_for(&self, profiles: Vec<ChainProfile>, m: &SigningMaterials) -> TrustRoots {
+        let mut roots = self.trust_roots(profiles);
+        roots.enrolled_materials = EnrolledMaterials::from_records([&m.asset], [&m.wallet], [&m.vault]).unwrap();
+        roots
     }
 
     /// A receipt with a genuine authority signature over an arbitrary body
@@ -491,6 +502,10 @@ impl Setup {
             decoded_operation_hash: verified.decoded_operation_hash,
             evidence_bundle_hash: c.evidence_bundle_hash,
             destination_hash: destination_hash(&m.destination).unwrap(),
+            asset_hash: asset_hash(&m.asset).unwrap(),
+            wallet_hash: chain_wallet_hash(&m.wallet).unwrap(),
+            vault_hash: vault_hash(&m.vault).unwrap(),
+            key_descriptor_hash: key_descriptor_hash(&m.key).unwrap(),
             approval_grants: grants,
             budget_reservation_id: reservation_id_for(
                 &c.operation_family_id,
@@ -871,7 +886,7 @@ pub fn evm_case_with(
     let provider = wrap(dev.clone());
     let node = open_node(
         &p1,
-        world.trust_roots(vec![evm_profile()]),
+        world.trust_roots_for(vec![evm_profile()], &setup.m),
         setup.adapter.clone(),
         provider,
         ledger,
@@ -1095,7 +1110,7 @@ pub fn sol_case_mode(required_approvals: u8, mode: ApprovalMode) -> SolCase {
     for (i, p) in ids.iter().enumerate() {
         let node = open_node(
             p,
-            world.trust_roots(vec![sol_profile()]),
+            world.trust_roots_for(vec![sol_profile()], &setup.m),
             setup.adapter.clone(),
             providers[i].clone(),
             Arc::new(InMemoryLedger::new()),

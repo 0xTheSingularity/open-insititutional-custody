@@ -1,22 +1,26 @@
 # Design: commit the signer's materials to the envelope
 
-Status: DRAFT — awaiting a decision. This draft proposes changes to address
-audit finding `0001-01` in
-[`docs/rfc-gap-audit.json`](../rfc-gap-audit.json), the top-ranked gap from the
-2026-10-26 RFC audit. It changes the signed envelope format, so it needs an
-explicit decision, a `schema_version` bump, and golden-vector regeneration.
-Nothing in this document is implemented.
+Status: ACCEPTED 2026-10-26 — the user chose "A then B": Option A is
+implemented in this change (envelope domain `OIC/AUTHORIZATION/v2` with
+`asset_hash`, `wallet_hash`, `vault_hash`, `key_descriptor_hash`, verified by
+the signer and the D2 replica execution boundary; golden vectors regenerated
+as a justified break). Option B (admin-signed objects) remains a deliberate
+later layer. This closes the signer-trust aspect of audit finding `0001-01`
+in [`docs/rfc-gap-audit.json`](../rfc-gap-audit.json).
 
 ## Problem
 
 RFC 0001 §1.3 says a compromised API or coordinator must not be able to bypass
 signer checks, and §2 (I2/I3) requires scope binding over the vault, key, and
 asset identity. Today the signer receives `SigningMaterials` from the
-coordinator (`crates/signer/src/lib.rs`), and three of the objects in it carry
-no admin signature and no hash commitment: `Asset`, `ChainWallet`, and `Vault`
-(`crates/domain-types/src/objects.rs`). Only the destination is protected,
-through `destination_hash` in the envelope (`crates/signer/src/verify.rs`).
-The signer checks these objects only for internal consistency with the intent.
+coordinator (`crates/signer/src/lib.rs`). Before this change, the verifier
+bound only selected fields of those objects to the envelope: key fields are
+checked against the envelope and the supplied `KeyDescriptor` must equal the
+descriptor the signer loaded; wallet and vault identifiers are checked against
+the envelope and the signer's scope. The destination alone got a full-content
+commitment (`destination_hash`) plus an admin-signature check. `Asset`,
+`ChainWallet`, and `Vault` had no commitment to their complete contents, so
+any field outside the identifier checks was trusted from the coordinator.
 
 Consequences a compromised coordinator can reach:
 
@@ -28,9 +32,14 @@ Consequences a compromised coordinator can reach:
   limits are then charged to the wrong asset (the A04 scenario).
 - `KeyDescriptor` is described as "signed" in §7.3 but has no signature field.
 
-Exact-candidate human approvals bind the whole package through `preview_hash`,
-so the practical exposure is rules that require no approvals — but the threat
-model does not permit trusting the coordinator either way.
+Human approvals do NOT fully close this: `preview_hash` commits only to the
+candidate id/revision, the decoded-operation hash, and the evidence hash
+(`PreviewCommitment` in `crates/policy-kernel/src/hashing.rs`). A forged
+`Asset.behavior` reaches both the approval client and the signer
+unauthenticated even under exact-candidate approval, and bounded-transfer
+grants do not use `preview_hash` at all. The exposure is therefore not limited
+to zero-approval rules, and the commitment checks must hold with or without
+grants present.
 
 ## Option A — hash-bind the materials in the envelope (recommended)
 
@@ -73,14 +82,19 @@ Option B can be layered on later; it does not conflict with Option A.
 2. Regenerate golden vectors in `tests/golden-vectors` in a dedicated commit
    whose message justifies the compatibility break, per CONTRIBUTING.
 3. Extend the A03 test: today it mutates the wallet without rebuilding the
-   envelope. Add the forged-but-consistent case — rebuild `SigningMaterials`
-   wholesale with a forged wallet/asset/vault set and assert the signer
-   refuses on the envelope commitment, not on internal inconsistency.
+   envelope. Add the forged-but-consistent case — forge each of the asset,
+   wallet, vault, and key descriptor in `SigningMaterials` with identifiers
+   intact and assert the signer refuses on the envelope commitment, not on
+   internal inconsistency. The commitment checks run before grant handling,
+   so they hold with or without approvals present.
 4. Update RFC 0001 §3.3 (envelope fields) and §7.3 (`KeyDescriptor` wording),
    and mark `0001-01` closed in `docs/rfc-gap-audit.json` with the commit.
 
 ## Decision needed
 
 Pick Option A, Option B, or A now with B as a later layer. The recommendation
-is **A now**; it is one focused change to the envelope plus verifier, with the
-blast radius confined to the signing path and the vectors.
+is **A now**. Blast radius, stated fully: the envelope schema and its domain
+tag, every envelope producer (the builder service and the D2 replica
+execution boundary, which re-derives the envelope independently), the signer
+verifier, every test fixture that constructs an envelope, and the golden
+vectors.

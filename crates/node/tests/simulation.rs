@@ -132,7 +132,7 @@ impl Fixture {
         let provider = Self::provider(self.seed);
         let node = common::open_node(
             &pid(index as u8 + 1),
-            self.world.trust_roots(vec![evm_profile()]),
+            self.world.trust_roots_for(vec![evm_profile()], &self.setup.m),
             self.setup.adapter.clone(),
             provider.clone(),
             self.ledger.clone(),

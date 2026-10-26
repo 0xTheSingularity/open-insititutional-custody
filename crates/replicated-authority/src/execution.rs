@@ -3,7 +3,10 @@ use oic_approval_verifier::{DisplayInputs, IndependentVerifier};
 use oic_authorization_state::{AuthorityCommand, AuthorityConfig, AuthorityEvent, AuthorityOutput, AuthorityState, BudgetKey, ReserveRequest, apply};
 use oic_canonical_encoding::domain_hash;
 use oic_domain_types::*;
-use oic_policy_kernel::{ExposureView, PolicyInput, WindowExposure, destination_hash, evaluate, intent_hash, policy_hash, preview_hash, verify_grants};
+use oic_policy_kernel::{
+    asset_hash, chain_wallet_hash, destination_hash, evaluate, intent_hash, key_descriptor_hash, policy_hash, preview_hash, vault_hash,
+    verify_grants, ExposureView, PolicyInput, WindowExposure,
+};
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, sync::Arc};
 
@@ -219,6 +222,8 @@ impl Executor {
             policy_id: policy.policy_id.clone(), policy_epoch: policy.policy_epoch, policy_hash: policy_hash(policy)?, allowlist_version: policy.allowlist_version,
             native_unsigned_bytes: p.candidate.native_unsigned_bytes.clone(), native_signing_payloads: verified.signing_payloads.clone(),
             decoded_operation_hash: verified.decoded_operation_hash, evidence_bundle_hash: evidence_hash(&p.evidence)?, destination_hash: destination_hash(&p.destination)?,
+            asset_hash: asset_hash(&p.asset)?, wallet_hash: chain_wallet_hash(&p.wallet)?,
+            vault_hash: vault_hash(&p.vault)?, key_descriptor_hash: key_descriptor_hash(&p.key)?,
             approval_grants: r.grants.clone(), budget_reservation_id: oic_authorization_state::reservation_id_for(&r.family_id, &r.candidate_id, r.candidate_revision)?,
             reservation_version: 1, resource_reservations: verified.claims.resources.clone(), maximum_asset_outflows: verified.claims.asset_outflows.clone(),
             maximum_native_fees: verified.claims.native_fees.clone(), issuance_deadline: r.issuance_deadline,

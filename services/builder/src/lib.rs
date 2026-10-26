@@ -30,7 +30,10 @@ use oic_adapter_api::{decoded_operation_hash, evidence_hash, AuthorizationTarget
 use oic_approval_verifier::{fillable_fields_for, verify_grants, ApproverCredential};
 use oic_authorization_state::{family_id_for, reservation_id_for};
 use oic_domain_types::*;
-use oic_policy_kernel::{destination_hash, intent_hash, match_rule, policy_hash, preview_hash, Decision, ExposureView, PolicyInput};
+use oic_policy_kernel::{
+    asset_hash, chain_wallet_hash, destination_hash, intent_hash, key_descriptor_hash, match_rule,
+    policy_hash, preview_hash, vault_hash, Decision, ExposureView, PolicyInput,
+};
 use oic_signer::{public_key_hash, SigningMaterials};
 use serde::{Deserialize, Serialize};
 
@@ -304,6 +307,10 @@ pub fn envelope_body(
         decoded_operation_hash: built.verified.decoded_operation_hash,
         evidence_bundle_hash: c.evidence_bundle_hash,
         destination_hash: destination_hash(&p.destination)?,
+        asset_hash: asset_hash(&p.asset)?,
+        wallet_hash: chain_wallet_hash(&p.wallet)?,
+        vault_hash: vault_hash(&p.vault)?,
+        key_descriptor_hash: key_descriptor_hash(&p.key)?,
         approval_grants: grants,
         budget_reservation_id: reservation_id_for(&c.operation_family_id, &c.candidate_id, c.candidate_revision)?,
         reservation_version: 1,

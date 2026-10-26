@@ -95,6 +95,29 @@ pub fn verify_destination_admin_signatures(d: &CounterpartyDestination, admin_ke
     Ok(())
 }
 
+/// `SHA256("OIC/ASSET/v1" || CanonicalEncode(asset))` of the enrolled asset.
+pub fn asset_hash(a: &Asset) -> OicResult<Hash32> {
+    domain_hash(domains::ASSET, a)
+}
+
+/// `SHA256("OIC/CHAIN_WALLET/v1" || CanonicalEncode(wallet))` of the enrolled
+/// chain wallet.
+pub fn chain_wallet_hash(w: &ChainWallet) -> OicResult<Hash32> {
+    domain_hash(domains::CHAIN_WALLET, w)
+}
+
+/// `SHA256("OIC/VAULT/v1" || CanonicalEncode(vault))` of the enrolled vault.
+pub fn vault_hash(v: &Vault) -> OicResult<Hash32> {
+    domain_hash(domains::VAULT, v)
+}
+
+/// `SHA256("OIC/KEY_DESCRIPTOR/v1" || CanonicalEncode(key))` of the enrolled
+/// key descriptor (threshold, participants, scheme, networks — not only the
+/// public key bytes, which `public_key_hash` covers separately).
+pub fn key_descriptor_hash(k: &KeyDescriptor) -> OicResult<Hash32> {
+    domain_hash(domains::KEY_DESCRIPTOR, k)
+}
+
 /// `SHA256("OIC/INTENT/v1" || CanonicalEncode(intent))`.
 pub fn intent_hash(intent: &Intent) -> OicResult<Hash32> {
     domain_hash(domains::INTENT, intent)

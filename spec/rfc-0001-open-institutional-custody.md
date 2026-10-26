@@ -182,7 +182,7 @@ Choose one specified deterministic encoding for security objects: a restricted d
 Use domain-separated hashes for internal commitments, for example:
 
 ```text
-EnvelopeHash = SHA256("OIC/AUTHORIZATION/v1" || CanonicalEncode(envelope_body))
+EnvelopeHash = SHA256("OIC/AUTHORIZATION/v2" || CanonicalEncode(envelope_body))
 IntentHash   = SHA256("OIC/INTENT/v1"        || CanonicalEncode(intent))
 ```
 
@@ -193,8 +193,9 @@ These are **internal authorization hashes**, not substitutes for chain-native si
 The envelope must contain or commit to the following authenticated data. Sensitive content may be retrieved by commitment from authenticated storage; absence or inconsistency fails closed.
 
 ```text
-AuthorizationEnvelopeV1
-  domain = OIC/AUTHORIZATION/v1
+AuthorizationEnvelopeV2
+  domain = OIC/AUTHORIZATION/v2   (v2 added the asset/wallet/vault/key-descriptor
+                                   commitments; a v1 envelope fails closed)
   institution_id, environment_id
   vault_id, chain_wallet_id
   intent_id, intent_hash, operation_family_id
@@ -212,6 +213,8 @@ AuthorizationEnvelopeV1
     native_signing_context
   decoded_operation_hash
   evidence_bundle_hash
+  destination_hash
+  asset_hash, wallet_hash, vault_hash, key_descriptor_hash
   approval_grants[]
   budget_reservation_id, reservation_version
   resource_reservations[]
@@ -369,7 +372,7 @@ Different providers can reduce correlated administrative/vendor failure, but int
 
 ### 7.3 Key generation
 
-Conduct authenticated distributed key generation within the selected backend. Produce a signed `KeyDescriptor` with public key, algorithm, participant roster, threshold, network/environment bindings, and recovery profile. Verify public-key agreement and chain address derivation independently before enabling deposits.
+Conduct authenticated distributed key generation within the selected backend. Produce a `KeyDescriptor` with public key, algorithm, participant roster, threshold, network/environment bindings, and recovery profile; the authorization envelope commits to it by hash (`key_descriptor_hash`), and each signer additionally refuses a descriptor that differs from the one it loaded. Verify public-key agreement and chain address derivation independently before enabling deposits.
 
 Avoid a universal master seed across networks and institutions. Prefer independent key material for distinct environments and high-value vaults. Any hierarchical derivation feature requires backend-specific review and test vectors; ordinary Ed25519 wallet seed derivation cannot be assumed to work unchanged with distributed shares.
 

@@ -7,7 +7,8 @@ use oic_approval_verifier::verify_grants;
 use oic_authorization_state::{claims_hash, reservation_id_for, verify_receipt, ReceiptExpectation};
 use oic_domain_types::*;
 use oic_policy_kernel::{
-    destination_hash, evaluate, intent_hash, policy_hash, preview_hash, verify_destination_admin_signatures, verify_policy_admin_signatures,
+    asset_hash, chain_wallet_hash, destination_hash, evaluate, intent_hash, key_descriptor_hash, policy_hash, preview_hash, vault_hash,
+    verify_destination_admin_signatures, verify_policy_admin_signatures,
     Decision, ExposureView, PolicyInput, ReasonCode, WindowExposure,
 };
 use std::collections::BTreeSet;
@@ -163,12 +164,28 @@ impl Signer {
             scope("key belongs to another institution or environment"),
         )?;
         ensure(b.public_key_hash == public_key_hash(&m.key.public_key)?, scope("envelope public_key_hash does not match the key's public key"))?;
+        // The envelope commits to the exact enrolled key descriptor, asset,
+        // wallet, and vault (RFC 0001 §2 I2/I3): a coordinator supplying a
+        // forged-but-internally-consistent materials set fails these hash
+        // checks even when no human approval binds the package.
+        ensure(key_descriptor_hash(&m.key)? == b.key_descriptor_hash, scope("key descriptor does not hash to the envelope key_descriptor_hash"))?;
+        // The envelope hashes must also name records this signer enrolled:
+        // otherwise a compromised D1 coordinator, which produces the envelope,
+        // could commit to its own forged records and pass the checks below.
+        // The key descriptor is already pinned by the loaded-key equality above.
+        let pinned = &roots.enrolled_materials;
+        ensure(pinned.assets.contains(&b.asset_hash), scope("envelope asset_hash is not an enrolled asset"))?;
+        ensure(pinned.wallets.contains(&b.wallet_hash), scope("envelope wallet_hash is not an enrolled wallet"))?;
+        ensure(pinned.vaults.contains(&b.vault_hash), scope("envelope vault_hash is not an enrolled vault"))?;
         let w = &m.wallet;
+        ensure(chain_wallet_hash(w)? == b.wallet_hash, scope("wallet does not hash to the envelope wallet_hash"))?;
         ensure(w.chain_wallet_id == b.chain_wallet_id && w.vault_id == b.vault_id, scope("wallet id/vault does not match the envelope"))?;
         ensure(w.key_id == b.key_id && w.key_epoch == b.key_epoch, scope("wallet is bound to a different key or key epoch"))?;
         ensure(w.chain_profile_id == b.chain_profile_id, scope("wallet chain profile does not match the envelope"))?;
         ensure(w.active, scope("chain wallet is not active"))?;
+        ensure(asset_hash(&m.asset)? == b.asset_hash, scope("asset does not hash to the envelope asset_hash"))?;
         let v = &m.vault;
+        ensure(vault_hash(v)? == b.vault_hash, scope("vault does not hash to the envelope vault_hash"))?;
         ensure(v.vault_id == b.vault_id, scope("vault does not match the envelope"))?;
         ensure(
             v.institution_id == id.institution_id && v.environment_id == id.environment_id,

@@ -12,7 +12,10 @@ use oic_approval_client::keyfile::{ApproverKeyFile, MIN_PBKDF2_ITERATIONS};
 use oic_approval_client::trust::TrustRoots;
 use oic_authorization_state::{claims_hash, receipt_hash, reservation_id_for};
 use oic_domain_types::*;
-use oic_policy_kernel::{destination_hash, intent_hash, policy_hash};
+use oic_policy_kernel::{
+    asset_hash, chain_wallet_hash, destination_hash, intent_hash, key_descriptor_hash, policy_hash,
+    vault_hash,
+};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
@@ -476,6 +479,10 @@ pub fn envelope_for(p: &ApprovalPackage, grants: Vec<ApprovalGrant>) -> Authoriz
         decoded_operation_hash: verified.decoded_operation_hash,
         evidence_bundle_hash: c.evidence_bundle_hash,
         destination_hash: destination_hash(&p.destination).unwrap(),
+        asset_hash: asset_hash(&p.asset).unwrap(),
+        wallet_hash: chain_wallet_hash(&p.wallet).unwrap(),
+        vault_hash: vault_hash(&p.vault).unwrap(),
+        key_descriptor_hash: key_descriptor_hash(&p.key).unwrap(),
         approval_grants: grants,
         budget_reservation_id: reservation_id_for(&c.operation_family_id, &c.candidate_id, c.candidate_revision).unwrap(),
         reservation_version: 1,
