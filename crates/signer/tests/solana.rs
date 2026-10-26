@@ -84,7 +84,7 @@ fn a12_stale_clone_is_fenced_by_generation_and_ledger() {
     // generation store and ledger: it starts a new generation and tombstones
     // the old generation's one-time state when it loads the key.
     let provider = Arc::new(FrostEd25519Provider::with_os_rng(pid(1), sealing_key(1)).unwrap());
-    let clone = open_node(&pid(1), c.world.trust_roots(vec![sol_profile()]), c.setup.adapter.clone(), provider, n1.ledger.clone(), n1.store.clone());
+    let clone = open_node(&pid(1), c.world.trust_roots_for(vec![sol_profile()], &c.setup.m), c.setup.adapter.clone(), provider, n1.ledger.clone(), n1.store.clone());
     assert_eq!(clone.signer.generation(), old_gen.next());
     let sealed = &c.sealed.iter().find(|(p, _)| *p == pid(1)).unwrap().1;
     clone.signer.load_key(&c.key, sealed).unwrap();

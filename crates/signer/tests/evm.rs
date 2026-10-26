@@ -179,7 +179,7 @@ fn a03_envelope_replayed_for_another_vault_network_key_or_environment() {
     mainnet.network_binding = oic_adapter_evm::network_binding_for_chain_id(1);
     let other_net = open_node(
         &pid(1),
-        c.world.trust_roots(vec![mainnet]),
+        c.world.trust_roots_for(vec![mainnet], &c.setup.m),
         c.setup.adapter.clone(),
         c.dev.clone(),
         Arc::new(InMemoryLedger::new()),
@@ -191,7 +191,7 @@ fn a03_envelope_replayed_for_another_vault_network_key_or_environment() {
     // Another key: not loaded here, or a different descriptor than the envelope names.
     let no_key = open_node(
         &pid(1),
-        c.world.trust_roots(vec![evm_profile()]),
+        c.world.trust_roots_for(vec![evm_profile()], &c.setup.m),
         c.setup.adapter.clone(),
         c.dev.clone(),
         Arc::new(InMemoryLedger::new()),
@@ -210,7 +210,7 @@ fn a03_envelope_replayed_for_another_vault_network_key_or_environment() {
     adapters.insert(AdapterId::unchecked("evm"), c.setup.adapter.clone());
     let testnet = Signer::open(
         SignerIdentity { participant_id: pid(1), institution_id: inst(), environment_id: EnvironmentId::unchecked("testnet") },
-        c.world.trust_roots(vec![evm_profile()]),
+        c.world.trust_roots_for(vec![evm_profile()], &c.setup.m),
         adapters,
         c.dev.clone(),
         Arc::new(InMemoryLedger::new()),
@@ -425,13 +425,13 @@ fn expired_reserved_receipt_is_rejected() {
 fn wrong_authority_key_is_invalid_signature() {
     let c = evm_case(1);
     let env = c.setup.authorize(&c.world, "sess-1", vec![pid(1)]);
-    let mut roots = c.world.trust_roots(vec![evm_profile()]);
+    let mut roots = c.world.trust_roots_for(vec![evm_profile()], &c.setup.m);
     roots.authority_pubkey = ed25519_dalek::SigningKey::from_bytes(&[43; 32]).verifying_key();
     let node = open_node(&pid(1), roots, c.setup.adapter.clone(), c.dev.clone(), Arc::new(InMemoryLedger::new()), Arc::new(InMemoryGenerationStore::new()));
     node.signer.load_key(&c.key, &c.sealed).unwrap();
     rejected(&node, &env, &c.setup.m, now(), ErrorCode::InvalidSignature);
 
-    let mut roots = c.world.trust_roots(vec![evm_profile()]);
+    let mut roots = c.world.trust_roots_for(vec![evm_profile()], &c.setup.m);
     roots.authority_key_id = KeyId::unchecked("authority-key-2");
     let node = open_node(&pid(1), roots, c.setup.adapter.clone(), c.dev.clone(), Arc::new(InMemoryLedger::new()), Arc::new(InMemoryGenerationStore::new()));
     node.signer.load_key(&c.key, &c.sealed).unwrap();
@@ -446,7 +446,7 @@ fn wrong_authority_key_is_invalid_signature() {
 fn unknown_verifier_build_hash_is_unsupported() {
     let c = evm_case(1);
     let env = c.setup.authorize(&c.world, "sess-1", vec![pid(1)]);
-    let mut roots = c.world.trust_roots(vec![evm_profile()]);
+    let mut roots = c.world.trust_roots_for(vec![evm_profile()], &c.setup.m);
     roots.accepted_verifier_builds.insert(AdapterId::unchecked("evm"), vec![Hash32([1; 32])]);
     let node = open_node(&pid(1), roots, c.setup.adapter.clone(), c.dev.clone(), Arc::new(InMemoryLedger::new()), Arc::new(InMemoryGenerationStore::new()));
     node.signer.load_key(&c.key, &c.sealed).unwrap();
@@ -673,4 +673,32 @@ fn forged_but_consistent_materials_fail_envelope_commitments() {
 
     // The untouched materials still verify against the same envelope.
     c.node.signer.verify_envelope(&env, &c.setup.m, now()).unwrap();
+}
+
+/// The envelope hashes alone bind the signer only to what the envelope
+/// producer chose. In D1 the coordinator produces the envelope and the
+/// authority sees only its body hash, so a compromised coordinator can hash
+/// its own forged records into a fully self-consistent envelope. The signer's
+/// pinned enrolled-material set must refuse it.
+#[test]
+fn coordinator_forged_envelope_over_unenrolled_materials_is_refused() {
+    let c = evm_case(0);
+    let mut forged = c.setup.m.clone();
+    forged.asset.symbol = "FORGED".into();
+    forged.asset.decimals += 1;
+    let verified = c.setup.verify_for(&forged);
+    // Every commitment in this body hashes the forged records, so the
+    // per-object hash checks all pass; only the enrollment pin can refuse it.
+    let body = c.setup.body_for(&forged, &verified, vec![], "sess-coord-forged", vec![pid(1)], DEADLINE);
+    let env = c.setup.reserve(&c.world, body, &verified);
+    rejected(&c.node, &env, &forged, now(), ErrorCode::ScopeMismatch);
+
+    // A fresh case: one authority reserves a candidate revision only once.
+    let c = evm_case(0);
+    let mut forged_vault = c.setup.m.clone();
+    forged_vault.vault.display_name = "coordinator-relabeled".into();
+    let verified = c.setup.verify_for(&forged_vault);
+    let body = c.setup.body_for(&forged_vault, &verified, vec![], "sess-coord-vault", vec![pid(1)], DEADLINE);
+    let env = c.setup.reserve(&c.world, body, &verified);
+    rejected(&c.node, &env, &forged_vault, now(), ErrorCode::ScopeMismatch);
 }

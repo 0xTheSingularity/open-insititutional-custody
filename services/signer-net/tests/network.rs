@@ -28,7 +28,8 @@ use oic_service_coordinator::{
 use oic_service_signer_core::{CoreConfig, SignerCore, ipc, remote::RemoteSigner};
 use oic_service_signer_net::{AuthorityHandler, Bridge, Gateway};
 use oic_signer::{
-    FileGenerationStore, GenerationStore, Signer, SignerEvent, SignerIdentity, TrustRoots,
+    EnrolledMaterials, FileGenerationStore, GenerationStore, Signer, SignerEvent, SignerIdentity,
+    TrustRoots,
 };
 use serde::{Deserialize, Serialize};
 use std::{
@@ -86,6 +87,8 @@ struct PublicRoots {
     approvers: Vec<(CredentialId, [u8; 32], ApprovalRole)>,
     builds: BTreeMap<AdapterId, Vec<Hash32>>,
     profiles: Vec<ChainProfile>,
+    /// Enrolled asset, wallet, and vault hashes, in that order.
+    materials: (Vec<Hash32>, Vec<Hash32>, Vec<Hash32>),
     skew: u64,
 }
 impl From<TrustRoots> for PublicRoots {
@@ -114,6 +117,11 @@ impl From<TrustRoots> for PublicRoots {
                 .collect(),
             builds: roots.accepted_verifier_builds,
             profiles: roots.chain_profiles,
+            materials: (
+                roots.enrolled_materials.assets.into_iter().collect(),
+                roots.enrolled_materials.wallets.into_iter().collect(),
+                roots.enrolled_materials.vaults.into_iter().collect(),
+            ),
             skew: roots.max_clock_skew_seconds,
         }
     }
@@ -143,6 +151,11 @@ impl PublicRoots {
                 .collect(),
             accepted_verifier_builds: self.builds,
             chain_profiles: self.profiles,
+            enrolled_materials: EnrolledMaterials {
+                assets: self.materials.0.into_iter().collect(),
+                wallets: self.materials.1.into_iter().collect(),
+                vaults: self.materials.2.into_iter().collect(),
+            },
             max_clock_skew_seconds: self.skew,
         }
     }
@@ -759,7 +772,9 @@ impl Harness {
         let dir = tempfile::tempdir().unwrap();
         fs::set_permissions(dir.path(), fs::Permissions::from_mode(0o700)).unwrap();
         let (roster, admins, placeholders) = roster(world, &sol.chain);
-        let roots = world.trust_roots(vec![sol.chain.profile.clone()]);
+        let mut roots = world.trust_roots(vec![sol.chain.profile.clone()]);
+        roots.enrolled_materials =
+            EnrolledMaterials::from_records([&sol.chain.asset], [&sol.chain.wallet], [&vault()]).unwrap();
         sol.chain.nodes.clear(); // No live participant provider in the network process.
         let cores = sealed
             .into_iter()

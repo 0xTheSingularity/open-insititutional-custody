@@ -124,7 +124,7 @@ use oic_domain_types::*;
 use oic_policy_kernel::Decision;
 use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::sync::Arc;
 use verify::ReceiptBinding;
 
@@ -171,7 +171,37 @@ pub struct TrustRoots {
     pub accepted_verifier_builds: BTreeMap<AdapterId, Vec<Hash32>>,
     /// Enrolled profiles; `envelope.chain_profile_hash` must match one.
     pub chain_profiles: Vec<ChainProfile>,
+    /// Enrolled asset, wallet, and vault records, pinned by hash. The
+    /// envelope's `asset_hash`, `wallet_hash`, and `vault_hash` must each be
+    /// in these sets. The envelope hashes alone only bind the signer to what
+    /// the envelope producer chose; this pin binds them to what the
+    /// institution enrolled, so a compromised D1 coordinator cannot hash its
+    /// own forged records. Empty sets fail closed.
+    pub enrolled_materials: EnrolledMaterials,
     pub max_clock_skew_seconds: u64,
+}
+
+/// Hashes of the asset, wallet, and vault records a signer accepts.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct EnrolledMaterials {
+    pub assets: BTreeSet<Hash32>,
+    pub wallets: BTreeSet<Hash32>,
+    pub vaults: BTreeSet<Hash32>,
+}
+
+impl EnrolledMaterials {
+    /// Pin the given enrolled records by their envelope commitment hashes.
+    pub fn from_records<'a>(
+        assets: impl IntoIterator<Item = &'a Asset>,
+        wallets: impl IntoIterator<Item = &'a ChainWallet>,
+        vaults: impl IntoIterator<Item = &'a Vault>,
+    ) -> OicResult<Self> {
+        Ok(EnrolledMaterials {
+            assets: assets.into_iter().map(oic_policy_kernel::asset_hash).collect::<OicResult<_>>()?,
+            wallets: wallets.into_iter().map(oic_policy_kernel::chain_wallet_hash).collect::<OicResult<_>>()?,
+            vaults: vaults.into_iter().map(oic_policy_kernel::vault_hash).collect::<OicResult<_>>()?,
+        })
+    }
 }
 
 /// The objects an envelope commits to, delivered alongside it.

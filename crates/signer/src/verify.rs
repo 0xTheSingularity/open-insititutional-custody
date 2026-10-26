@@ -169,6 +169,14 @@ impl Signer {
         // forged-but-internally-consistent materials set fails these hash
         // checks even when no human approval binds the package.
         ensure(key_descriptor_hash(&m.key)? == b.key_descriptor_hash, scope("key descriptor does not hash to the envelope key_descriptor_hash"))?;
+        // The envelope hashes must also name records this signer enrolled:
+        // otherwise a compromised D1 coordinator, which produces the envelope,
+        // could commit to its own forged records and pass the checks below.
+        // The key descriptor is already pinned by the loaded-key equality above.
+        let pinned = &roots.enrolled_materials;
+        ensure(pinned.assets.contains(&b.asset_hash), scope("envelope asset_hash is not an enrolled asset"))?;
+        ensure(pinned.wallets.contains(&b.wallet_hash), scope("envelope wallet_hash is not an enrolled wallet"))?;
+        ensure(pinned.vaults.contains(&b.vault_hash), scope("envelope vault_hash is not an enrolled vault"))?;
         let w = &m.wallet;
         ensure(chain_wallet_hash(w)? == b.wallet_hash, scope("wallet does not hash to the envelope wallet_hash"))?;
         ensure(w.chain_wallet_id == b.chain_wallet_id && w.vault_id == b.vault_id, scope("wallet id/vault does not match the envelope"))?;

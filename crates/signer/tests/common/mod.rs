@@ -189,8 +189,16 @@ impl World {
             approvers: self.approver_credentials(),
             accepted_verifier_builds: builds,
             chain_profiles: profiles,
+            enrolled_materials: EnrolledMaterials::default(),
             max_clock_skew_seconds: 30,
         }
+    }
+
+    /// Trust roots that also pin the case's enrolled asset, wallet, and vault.
+    pub fn trust_roots_for(&self, profiles: Vec<ChainProfile>, m: &SigningMaterials) -> TrustRoots {
+        let mut roots = self.trust_roots(profiles);
+        roots.enrolled_materials = EnrolledMaterials::from_records([&m.asset], [&m.wallet], [&m.vault]).unwrap();
+        roots
     }
 
     /// A receipt with a genuine authority signature over an arbitrary body
@@ -878,7 +886,7 @@ pub fn evm_case_with(
     let provider = wrap(dev.clone());
     let node = open_node(
         &p1,
-        world.trust_roots(vec![evm_profile()]),
+        world.trust_roots_for(vec![evm_profile()], &setup.m),
         setup.adapter.clone(),
         provider,
         ledger,
@@ -1102,7 +1110,7 @@ pub fn sol_case_mode(required_approvals: u8, mode: ApprovalMode) -> SolCase {
     for (i, p) in ids.iter().enumerate() {
         let node = open_node(
             p,
-            world.trust_roots(vec![sol_profile()]),
+            world.trust_roots_for(vec![sol_profile()], &setup.m),
             setup.adapter.clone(),
             providers[i].clone(),
             Arc::new(InMemoryLedger::new()),

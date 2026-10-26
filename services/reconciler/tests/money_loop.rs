@@ -353,9 +353,11 @@ fn evm_wallet(
         .unwrap();
     let adapter: Arc<dyn ChainAdapter> = Arc::new(oic_adapter_evm::EvmAdapter);
     let wallet = wallet_for(adapter.as_ref(), &profile, &keygen.descriptor, id);
+    let mut roots = world.trust_roots(vec![profile.clone()]);
+    roots.enrolled_materials = oic_signer::EnrolledMaterials::from_records([&asset], [&wallet], [&vault()]).unwrap();
     let node = open_node(
         &pid(1),
-        world.trust_roots(vec![profile.clone()]),
+        roots,
         adapter.clone(),
         provider,
     );
@@ -797,9 +799,11 @@ fn sol_wallet(
         .iter()
         .enumerate()
         .map(|(i, p)| {
+            let mut roots = world.trust_roots(vec![profile.clone()]);
+            roots.enrolled_materials = oic_signer::EnrolledMaterials::from_records([&asset], [&wallet], [&vault()]).unwrap();
             let node = open_node(
                 p,
-                world.trust_roots(vec![profile.clone()]),
+                roots,
                 adapter.clone(),
                 providers[i].clone(),
             );

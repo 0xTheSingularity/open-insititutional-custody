@@ -184,6 +184,7 @@ impl World {
             approvers: self.approver_credentials(),
             accepted_verifier_builds: builds,
             chain_profiles: profiles,
+            enrolled_materials: EnrolledMaterials::default(),
             max_clock_skew_seconds: 30,
         }
     }
@@ -757,7 +758,11 @@ pub fn evm_flow() -> EvmFlow {
     adapters.insert(AdapterId::unchecked("evm"), Arc::new(adapter));
     let signer = Signer::open(
         SignerIdentity { participant_id: p1.clone(), institution_id: inst(), environment_id: env_id() },
-        world.trust_roots(vec![profile.clone()]),
+        {
+            let mut roots = world.trust_roots(vec![profile.clone()]);
+            roots.enrolled_materials = EnrolledMaterials::from_records([&m.asset], [&m.wallet], [&m.vault]).unwrap();
+            roots
+        },
         adapters,
         dev.clone(),
         ledger.clone(),

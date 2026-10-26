@@ -21,7 +21,7 @@ use oic_service_api::{Api, ApiCredential, ApiStore, Catalog, Scope};
 use oic_service_broadcaster::{Broadcaster, FileSubmissionStore};
 use oic_service_coordinator::{Coordinator, FileOperationStore, InProcessSigner, SignerEndpoint};
 use oic_service_reconciler::*;
-use oic_signer::{FileGenerationStore, Signer, SignerIdentity, SigningMaterials, TrustRoots};
+use oic_signer::{EnrolledMaterials, FileGenerationStore, Signer, SignerIdentity, SigningMaterials, TrustRoots};
 use provision::*;
 use serde_json::{json, Value};
 use std::{
@@ -175,6 +175,7 @@ impl Stack {
             approvers: approver_credentials(&p)?,
             accepted_verifier_builds: builds(),
             chain_profiles: p.profiles.clone(),
+            enrolled_materials: EnrolledMaterials::from_records(&p.assets, &p.wallets, [&vault()])?,
             max_clock_skew_seconds: 30,
         };
         let adapter_list = adapters();

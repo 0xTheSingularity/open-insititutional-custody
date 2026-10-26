@@ -26,7 +26,7 @@ use oic_service_signer_core::{
     remote::{LocalClient, RemoteSigner},
     CoreConfig, SignerCore,
 };
-use oic_signer::{FinalizedAuthorityConfig, InMemoryGenerationStore, Signer, TrustRoots};
+use oic_signer::{EnrolledMaterials, FinalizedAuthorityConfig, InMemoryGenerationStore, Signer, TrustRoots};
 use rand::{rngs::StdRng, SeedableRng};
 use std::{
     collections::BTreeMap,
@@ -93,6 +93,13 @@ impl Contract {
                     .map(|(id, adapter)| (id.clone(), vec![adapter.manifest().verifier_build_hash]))
                     .collect(),
                 chain_profiles: vec![fixture.profile.clone()],
+                // The signer pins the same records the replica's registry pins.
+                enrolled_materials: EnrolledMaterials::from_records(
+                    &fixture.executor.registry.assets,
+                    &fixture.executor.registry.wallets,
+                    &fixture.executor.registry.vaults,
+                )
+                .unwrap(),
                 max_clock_skew_seconds: 30,
             },
             fixture.executor.adapters.clone(),
