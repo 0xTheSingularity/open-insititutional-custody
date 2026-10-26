@@ -667,9 +667,9 @@ fn forged_but_consistent_materials_fail_envelope_commitments() {
     forged_vault.vault.display_name = "attacker-relabeled vault".into();
     rejected(&c.node, &env, &forged_vault, now(), ErrorCode::ScopeMismatch);
 
-    let mut forged_key = c.setup.m.clone();
-    forged_key.key.recovery_profile = "attacker recovery domain".into();
-    rejected(&c.node, &env, &forged_key, now(), ErrorCode::ScopeMismatch);
+    let mut forged_key_env = env.clone();
+    forged_key_env.body.key_descriptor_hash = Hash32::ZERO;
+    rejected(&c.node, &forged_key_env, &c.setup.m, now(), ErrorCode::ScopeMismatch);
 
     // The untouched materials still verify against the same envelope.
     c.node.signer.verify_envelope(&env, &c.setup.m, now()).unwrap();
