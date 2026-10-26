@@ -45,9 +45,22 @@ pub mod local_domains {
 }
 
 /// File name (without directory) of the vector file for a domain tag:
-/// `"OIC/AUTHORITY_RECEIPT/v1"` → `"authority_receipt.json"`.
+/// `"OIC/AUTHORITY_RECEIPT/v1"` → `"authority_receipt.json"`. The version
+/// suffix is stripped whatever its number, so a bumped domain (for example
+/// `OIC/AUTHORIZATION/v2`) keeps its established file name; one file holds
+/// vectors for the current version of its domain only.
 pub fn file_name_for_domain(domain: &str) -> String {
-    let middle = domain.strip_prefix("OIC/").and_then(|s| s.strip_suffix("/v1")).unwrap_or(domain);
+    let middle = domain
+        .strip_prefix("OIC/")
+        .map(|s| match s.rsplit_once("/v") {
+            Some((name, version))
+                if !version.is_empty() && version.bytes().all(|b| b.is_ascii_digit()) =>
+            {
+                name
+            }
+            _ => s,
+        })
+        .unwrap_or(domain);
     format!("{}.json", middle.to_ascii_lowercase())
 }
 

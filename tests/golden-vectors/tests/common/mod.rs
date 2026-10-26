@@ -26,7 +26,10 @@ use oic_crypto_provider_dev::DevSingleKeyProvider;
 use oic_domain_types::*;
 use oic_golden_vectors::*;
 use oic_one_time_state_ledger::InMemoryLedger;
-use oic_policy_kernel::{destination_hash, intent_hash, policy_hash, preview_hash, Decision};
+use oic_policy_kernel::{
+    asset_hash, chain_wallet_hash, destination_hash, intent_hash, key_descriptor_hash, policy_hash,
+    preview_hash, vault_hash, Decision,
+};
 use oic_signer::*;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
@@ -709,6 +712,10 @@ pub fn evm_flow() -> EvmFlow {
         decoded_operation_hash: verified.decoded_operation_hash,
         evidence_bundle_hash: c.evidence_bundle_hash,
         destination_hash: destination_hash(&m.destination).unwrap(),
+        asset_hash: asset_hash(&m.asset).unwrap(),
+        wallet_hash: chain_wallet_hash(&m.wallet).unwrap(),
+        vault_hash: vault_hash(&m.vault).unwrap(),
+        key_descriptor_hash: key_descriptor_hash(&m.key).unwrap(),
         approval_grants: vec![grant.clone()],
         budget_reservation_id: reservation_id_for(&c.operation_family_id, &c.candidate_id, c.candidate_revision).unwrap(),
         reservation_version: 1,
