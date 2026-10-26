@@ -34,14 +34,7 @@ credentials, no prompts. `oic demo` settles two transfers:
 Then it blocks a theft: an attacker changes the amount in an approved package,
 and the independent verifier refuses to sign it. It ends on the signed audit log.
 
-<!-- GIF PLACEHOLDER: recording tools (asciinema+agg / vhs) were not available
-     on the build host, so the <=20s demo GIF is not yet committed. Generate it
-     with docs/assets/record-demo.sh, then uncomment the <img> below.
-<p><img src="docs/assets/oic-demo.gif" alt="oic demo: a theft is blocked, then an EVM single-key and a Solana FROST 2-of-3 transfer settle." width="900"></p>
--->
-> **Demo recording pending.** The ≤20s `oic demo` GIF is not yet committed —
-> generate it with [`docs/assets/record-demo.sh`](docs/assets/record-demo.sh)
-> (needs `asciinema`+`agg` or `vhs`), then embed `docs/assets/oic-demo.gif` here.
+<p><img src="docs/assets/oic-demo.gif" alt="oic demo: an EVM single-key and a Solana FROST 2-of-3 transfer settle, a tampered amount is refused, and the signed audit log verifies." width="900"></p>
 
 ### Zero install — open it in your browser
 
