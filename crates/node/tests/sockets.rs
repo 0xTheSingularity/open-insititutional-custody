@@ -883,18 +883,22 @@ fn real_socket_flood_on_one_channel_does_not_drop_another_channels_message() {
         .await
         .expect("marker submission deadline");
         sleep(Duration::from_millis(500)).await;
-        let mut found = false;
-        for _ in 0..1000 {
-            match timeout(Duration::from_millis(500), b.recv()).await {
-                Ok(Some(event)) if event.channel == 20 => {
-                    assert_eq!(event.bytes, marker);
-                    found = true;
-                    break;
+        // Drain until the marker arrives. The old shared queue dropped it for
+        // good, so the deadline only bounds a failure, never a pass.
+        let found = timeout(Duration::from_secs(30), async {
+            loop {
+                match b.recv().await {
+                    Some(event) if event.channel == 20 => {
+                        assert_eq!(event.bytes, marker);
+                        return true;
+                    }
+                    Some(_) => {}
+                    None => return false,
                 }
-                Ok(Some(_)) => {}
-                _ => break,
             }
-        }
+        })
+        .await
+        .unwrap_or(false);
         assert!(found, "a flood on channel 0 must not drop the channel 20 message");
         a.shutdown().await.unwrap();
         b.shutdown().await.unwrap();
