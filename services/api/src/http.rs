@@ -1,6 +1,6 @@
 use crate::*;
 use axum::{
-    extract::{rejection::JsonRejection, DefaultBodyLimit, Path, Query, State},
+    extract::{rejection::BytesRejection, DefaultBodyLimit, Path, Query, State},
     http::{HeaderMap, StatusCode},
     response::{IntoResponse, Response},
     routing::{get, post},
@@ -52,6 +52,56 @@ fn principal<S: AuthorityStore>(
     })
 }
 
+/// Reject a caller whose credential holds `scope` on no vault at all, before
+/// the request body is parsed. An under-scoped caller then receives HTTP 403
+/// whether or not the body is well-formed, so parse success is not an oracle.
+/// The full vault-specific check still runs inside the domain call.
+fn require_scope<S: AuthorityStore>(
+    api: &Api<S>,
+    p: &ApiCredential,
+    scope: Scope,
+) -> Result<(), HttpError> {
+    let held = api.credentials.iter().any(|c| {
+        c.token_hash == p.token_hash
+            && c.credential_id == p.credential_id
+            && c.scopes.contains(&scope)
+    });
+    if held {
+        Ok(())
+    } else {
+        Err(HttpError::from(OicError::scope(
+            "credential lacks the requested scope",
+        )))
+    }
+}
+
+/// Parse a JSON body only after authentication and the scope gate have passed.
+/// The extractor hands the handler raw bytes, so no deserialization work runs
+/// for a caller the gate rejects, and every body-derived response (unreadable,
+/// oversize, malformed, unknown field) comes after authorization.
+fn parse_json<T: serde::de::DeserializeOwned>(
+    what: &str,
+    headers: &HeaderMap,
+    body: Result<axum::body::Bytes, BytesRejection>,
+) -> Result<T, HttpError> {
+    let json = headers
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .and_then(|v| v.split(';').next())
+        .is_some_and(|essence| essence.trim().ends_with("json"));
+    if !json {
+        return Err(HttpError::from(OicError::invalid_request(format!(
+            "{what} body must be application/json"
+        ))));
+    }
+    let bytes = body.map_err(|e| {
+        OicError::invalid_request(format!("unreadable {what} body: {}", e.body_text()))
+    })?;
+    serde_json::from_slice(&bytes).map_err(|e| {
+        HttpError::from(OicError::invalid_request(format!("invalid {what} JSON: {e}")))
+    })
+}
+
 /// Run synchronous custody work off the async worker and return JSON.
 /// Domain errors retain their HTTP mapping; a stopped worker becomes HTTP 500.
 /// A worker failure does not establish whether the operation took effect.
@@ -90,11 +140,11 @@ pub fn router<S: AuthorityStore + 'static>(api: Arc<Api<S>>) -> Router {
 async fn create<S: AuthorityStore + 'static>(
     State(api): State<Arc<Api<S>>>,
     headers: HeaderMap,
-    body: Result<Json<Intent>, JsonRejection>,
+    body: Result<axum::body::Bytes, BytesRejection>,
 ) -> Result<Json<IntentRecord>, HttpError> {
     let p = principal(&api, &headers)?;
-    let Json(intent) =
-        body.map_err(|_| OicError::invalid_request("invalid intent JSON or request size"))?;
+    require_scope(&api, &p, Scope::Propose)?;
+    let intent: Intent = parse_json("intent", &headers, body)?;
     let key = headers
         .get("idempotency-key")
         .and_then(|v| v.to_str().ok())
@@ -131,11 +181,11 @@ async fn approve<S: AuthorityStore + 'static>(
     State(api): State<Arc<Api<S>>>,
     headers: HeaderMap,
     Path(id): Path<String>,
-    body: Result<Json<ApprovalGrant>, JsonRejection>,
+    body: Result<axum::body::Bytes, BytesRejection>,
 ) -> Result<Json<IntentRecord>, HttpError> {
     let p = principal(&api, &headers)?;
-    let Json(grant) =
-        body.map_err(|_| OicError::invalid_request("invalid approval JSON or request size"))?;
+    require_scope(&api, &p, Scope::Approve)?;
+    let grant: ApprovalGrant = parse_json("approval", &headers, body)?;
     blocking(move || api.approve(&p, &IntentId::unchecked(id), grant)).await
 }
 /// Dispatch or retry an intent through the API submission path with submit access.
