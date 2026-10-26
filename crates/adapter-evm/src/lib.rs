@@ -665,8 +665,11 @@ impl ChainAdapter for EvmAdapter {
             .ok_or_else(|| OicError::unverifiable("gas_used * effective_gas_price overflows u128"))?;
         // RFC 0001 §9.4: finality comes from the chain's own finalized view,
         // not from a confirmation count over the latest block. Evidence taken
-        // at any other commitment can show inclusion at most.
-        if evidence.state.commitment == profile.finality_commitment && obs.confirmations >= profile.finality_depth.max(1) {
+        // at any other commitment can show inclusion at most. Inclusion at the
+        // finalized view is already final: the view itself sits behind the head
+        // by the finality depth, so counting confirmations again would demand
+        // that depth twice.
+        if evidence.state.commitment == profile.finality_commitment {
             let raw = get_item(evidence, &tx_key(&hash))?;
             Ok(ChainObservation::Finalized {
                 tx_id: tx_id.clone(),

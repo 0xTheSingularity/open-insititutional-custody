@@ -500,8 +500,10 @@ fn observe_maps_lifecycle() {
     ev.items.insert(tx_key(&hash), obs(false, 0, None));
     assert!(matches!(EvmAdapter.observe(&signed.chain_tx_id, &fx.profile, &ev).unwrap(), ChainObservation::Submitted { .. }));
 
-    ev.items.insert(tx_key(&hash), obs(true, 1, None));
-    match EvmAdapter.observe(&signed.chain_tx_id, &fx.profile, &ev).unwrap() {
+    let mut head = ev.clone();
+    head.state.commitment = "latest".into();
+    head.items.insert(tx_key(&hash), obs(true, 1, None));
+    match EvmAdapter.observe(&signed.chain_tx_id, &fx.profile, &head).unwrap() {
         ChainObservation::Included { execution_success, fee_paid, state, .. } => {
             assert!(execution_success);
             assert_eq!(fee_paid, Amount(21000 * 11_000_000_000));
@@ -509,7 +511,9 @@ fn observe_maps_lifecycle() {
         }
         o => panic!("{o:?}"),
     }
-    ev.items.insert(tx_key(&hash), obs(true, 2, None));
+    // Inclusion inside the finalized view is final at one confirmation: the
+    // view already trails the head by the finality depth.
+    ev.items.insert(tx_key(&hash), obs(true, 1, None));
     assert!(matches!(EvmAdapter.observe(&signed.chain_tx_id, &fx.profile, &ev).unwrap(), ChainObservation::Finalized { .. }));
 
     // Audit 0001-08: the same confirmations seen at the latest head are only
