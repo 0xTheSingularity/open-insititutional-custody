@@ -416,6 +416,14 @@ fn decode_message(msg: &Message, message_bytes: &[u8], ctx: &VerifyContext<'_>, 
             if src.state != TOKEN_ACCOUNT_INITIALIZED {
                 return Err(OicError::unverifiable(format!("source token account state {} is not initialized", src.state)));
             }
+            // RFC 0001 §10.3: a delegate or a foreign close authority on the
+            // source can move or close the custodied balance outside the policy.
+            if src.delegate.is_some() {
+                return Err(OicError::unverifiable("source token account has a delegate that can move its balance"));
+            }
+            if src.close_authority.as_ref().is_some_and(|c| c != &src.owner) {
+                return Err(OicError::unverifiable("source token account has a close authority other than its owner"));
+            }
             // Establish the destination owner: PDA derivation against the registered
             // destination, or explicit token-account evidence. Never address shape.
             let registered = ctx.destination.address.as_slice();
