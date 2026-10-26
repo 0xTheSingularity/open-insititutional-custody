@@ -1,6 +1,7 @@
 # Design: commit the signer's materials to the envelope
 
-Status: DRAFT — awaiting a decision. This closes audit finding `0001-01` in
+Status: DRAFT — awaiting a decision. This draft proposes changes to address
+audit finding `0001-01` in
 [`docs/rfc-gap-audit.json`](../rfc-gap-audit.json), the top-ranked gap from the
 2026-10-26 RFC audit. It changes the signed envelope format, so it needs an
 explicit decision, a `schema_version` bump, and golden-vector regeneration.
