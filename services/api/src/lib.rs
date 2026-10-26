@@ -265,6 +265,20 @@ impl<S: AuthorityStore> Api<S> {
             .destinations
             .get(&(destination_id.clone(), *destination_version))
             .ok_or_else(|| missing("destination version"))?;
+        // Fail closed on superseded destinations: an older admin-signed
+        // version (for example a replaced address) must not stay proposable
+        // once a newer version is enrolled.
+        let newest = c
+            .destinations
+            .range((destination_id.clone(), 0)..=(destination_id.clone(), u32::MAX))
+            .map(|((_, v), _)| *v)
+            .max()
+            .unwrap_or(*destination_version);
+        if *destination_version < newest {
+            return Err(OicError::policy_denied(format!(
+                "destination {destination_id:?} version {destination_version} is superseded by enrolled version {newest}; propose against the current version"
+            )));
+        }
         let policy = self
             .coordinator
             .authority()

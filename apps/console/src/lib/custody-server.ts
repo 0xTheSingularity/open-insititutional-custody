@@ -209,7 +209,73 @@ export async function handleCustody(
       );
     }
     if (!response.ok) {
-      // Do not reflect backend bodies, headers, URLs, or credentials into errors.
+      // A mutation refused with a known definitive error code did not happen:
+      // report the backend's {code, detail} envelope (sanitized) instead of
+      // the unknown-outcome message. Any other failure — ISSUANCE_UNCERTAIN,
+      // an unknown code, an unreadable body — keeps the fail-safe unknown
+      // message, and no other backend body text is ever reflected.
+      if (
+        mutation &&
+        response.status >= 400 &&
+        response.status < 500 &&
+        response.headers.get("content-type")?.split(";")[0] ===
+          "application/json"
+      ) {
+        // Reflect only the backend's error CODE, never its detail text: a
+        // detail can carry sensitive diagnostics (for example a
+        // credential-bearing RPC URL). The explanation shown is authored
+        // here, per code. Only the create route is ever definitive: no
+        // signing can have happened for an intent whose create returned
+        // 4xx. On submit, several codes (NOT_FOUND from a missing
+        // broadcaster client, STALE_EVIDENCE from a chain client) can
+        // arrive AFTER a signature exists, so every submit, cancel, or
+        // refresh error keeps the fail-safe unknown-outcome instruction,
+        // with the code named for context.
+        const explain: Record<string, string> = {
+          POLICY_DENIED: "policy refused this action",
+          INVALID_REQUEST: "the request was invalid",
+          SCOPE_MISMATCH: "this credential lacks the required permission",
+          NOT_FOUND: "the custody service does not know this record",
+          APPROVAL_REQUIRED: "the approval quorum is incomplete",
+          STALE_EVIDENCE:
+            "the chain evidence for this request was too old or could not be confirmed",
+          BUDGET_EXCEEDED:
+            "a policy budget or rolling limit refused this amount",
+        };
+        let code: string | undefined;
+        try {
+          const raw = await response.text();
+          if (raw.length <= 4096) {
+            const parsed: unknown = JSON.parse(raw);
+            if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+              const claimed = (parsed as { code?: unknown }).code;
+              if (
+                typeof claimed === "string" &&
+                /^[A-Z0-9_]{1,64}$/.test(claimed)
+              ) {
+                code = claimed;
+              }
+            }
+          }
+        } catch {
+          // Unreadable body: report without a code.
+        }
+        const meaning = code ? explain[code] : undefined;
+        if (path === "intents" && code && meaning) {
+          return failure(
+            response.status,
+            `The custody service rejected this request (${code}): ${meaning}. No intent was created.`,
+            false,
+          );
+        }
+        return failure(
+          response.status,
+          code && meaning
+            ? `The custody service reported ${code}: ${meaning}. ${unknown}`
+            : unknown,
+          true,
+        );
+      }
       await response.body?.cancel();
       return failure(
         response.status,

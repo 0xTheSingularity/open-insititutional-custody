@@ -1,0 +1,423 @@
+{
+  "schema_version": 1,
+  "generated": "2026-10-26",
+  "method": "spec-vs-code audit of each RFC against main (d0a0314 + merged #28/#34/#35); every item carries file evidence from the audited tree",
+  "status_values": ["missing", "partial", "diverges", "external", "reserved_decision"],
+  "severity_values": ["critical", "high", "medium", "low"],
+  "rfcs": {
+    "rfc-0001": {
+      "title": "Open institutional custody (core)",
+      "gaps": [
+        {
+          "id": "0001-01",
+          "section": "§2 I2/I3, §3.1, §1.3",
+          "status": "diverges",
+          "severity": "critical",
+          "summary": "Asset, ChainWallet, and Vault reach the signer inside SigningMaterials with no admin signature and no envelope hash commitment; only the destination is hash-bound (destination_hash). A compromised coordinator can supply a forged but internally consistent set and obtain a signature under another vault's rule; zero-approval rules make this concrete. KeyDescriptor is described as signed in §7.3 but has no signature field.",
+          "evidence": [
+            "crates/signer/src/lib.rs:179-188",
+            "crates/domain-types/src/objects.rs:30-56",
+            "crates/signer/src/verify.rs:166-177",
+            "crates/signer/src/verify.rs:265-268"
+          ],
+          "fix_shape": "Extend the envelope to commit hashes of asset, wallet, vault, and key descriptor the way destination_hash does. Protocol change: envelope schema and golden vectors; needs a deliberate compatibility decision, not a quick patch.",
+          "test_gap": "A03 test mutates the wallet without rebuilding the envelope; add a consistently-forged-set test."
+        },
+        {
+          "id": "0001-02",
+          "section": "§4.2, §3.1, I6",
+          "status": "diverges",
+          "severity": "high",
+          "summary": "No destination supersession: an older admin-signed destination version stays signable forever. The kernel only checks the version equals what the proposer wrote in the intent; the only revocation is denying the whole destination id.",
+          "evidence": [
+            "crates/domain-types/src/objects.rs:122-135",
+            "crates/policy-kernel/src/lib.rs:276-277"
+          ],
+          "fix_shape": "Enforce latest-enrolled-version at intent build/create (fail closed on superseded versions); longer term, an ordered destination registry in the authority.",
+          "fixed_in": "this commit, REDUCED not closed: the API build path now refuses a destination version older than the newest enrolled version for that id. That catches honest proposer mistakes only. The audited threat — a compromised coordinator that talks to the signer directly, skipping the API — is unchanged: the signer still accepts any admin-signed version. The signer-checked destination registry is a protocol change and remains open."
+        },
+        {
+          "id": "0001-03",
+          "section": "§13.1",
+          "status": "missing",
+          "severity": "high",
+          "summary": "Most public API resources absent: no /v1/vaults, wallets enrollment, destination/policy/configuration proposals, freeze, or recovery-ceremony routes. Freeze exists only as a library call; no SDK directory; CLI has only demo and display-inputs.",
+          "evidence": [
+            "services/api/src/http.rs (router)",
+            "services/authority-rpc/src/lib.rs:66",
+            "services/node-runner/src/main.rs:308",
+            "cli/oic/src/main.rs"
+          ]
+        },
+        {
+          "id": "0001-04",
+          "section": "§6.1, §1.2",
+          "status": "missing",
+          "severity": "high",
+          "summary": "EVM has no threshold backend (dev single-key signer; cggmp24 not integrated). FROST declares supports_refresh=false and supports_recover_or_replace=false.",
+          "evidence": [
+            "crates/crypto-provider-dev",
+            "docs/audit-readiness.md:65",
+            "crates/crypto-provider-frost-ed25519/src/lib.rs:552-553"
+          ],
+          "note": "Share refresh is a reserved design decision (RFC-0002 §3 decision 1); blocks A33."
+        },
+        {
+          "id": "0001-05",
+          "section": "§4.2, §1.2",
+          "status": "partial",
+          "severity": "medium",
+          "summary": "Admin changes have no delay, no before/after diff object, and widening vs narrowing a policy is treated the same. TrustRoots (verifier builds, chain profiles) are static per-signer settings, not ordered admin-quorum transactions.",
+          "evidence": [
+            "crates/authorization-state/src/transition.rs:381-401",
+            "crates/signer/src/lib.rs:164-175"
+          ]
+        },
+        {
+          "id": "0001-06",
+          "section": "§9.4, §12.2, §3.4",
+          "status": "partial",
+          "severity": "medium",
+          "summary": "No replacement or cancellation workflow after dispatch: candidate_revision hardcoded to 1, cancel returns IssuanceUncertain without invalidation, broadcaster refuses a second candidate, no gas-bump/same-nonce-cancel builder. Authority supports ReplacementPending.",
+          "evidence": [
+            "services/api/src/lib.rs:311",
+            "services/api/src/lib.rs:546-561",
+            "services/broadcaster/src/broadcaster.rs:181"
+          ]
+        },
+        {
+          "id": "0001-07",
+          "section": "§6.3",
+          "status": "partial",
+          "severity": "medium",
+          "summary": "One-time-state rollback fencing is local only: production callers open the ledger without an external high-water mark, so a whole-disk snapshot restore rolls back the sidecar too.",
+          "evidence": [
+            "services/local-stack/src/lib.rs (FileLedger::open .. None)",
+            "services/node-runner/src/corerun.rs:46",
+            "crates/one-time-state-ledger/src/lib.rs (header)"
+          ]
+        },
+        {
+          "id": "0001-08",
+          "section": "§9.2-§9.4, I10",
+          "status": "diverges",
+          "severity": "medium",
+          "summary": "EVM verification thinner than spec: chain-id-only network identity (no genesis binding), fixed 65000 gas limit with no simulation, no L2 fee component, finality is a fixed confirmation count defaulting to 1 where the spec forbids fixed counts, no EIP-7702 delegation or allowance inventory.",
+          "evidence": [
+            "crates/adapter-evm/src/lib.rs:376-389",
+            "services/chain-rpc/src/evm.rs:69-70",
+            "crates/adapter-evm/src/lib.rs:665"
+          ]
+        },
+        {
+          "id": "0001-09",
+          "section": "§10.3",
+          "status": "partial",
+          "severity": "medium",
+          "summary": "Solana delegate/close-authority checks run only on the destination token account; an existing source delegate is not detected; mint owner program taken from the registry, not evidence.",
+          "evidence": ["crates/adapter-solana/src/lib.rs:297-304", "crates/adapter-solana/src/lib.rs:408-418"]
+        },
+        {
+          "id": "0001-10",
+          "section": "§12.3, §4.1",
+          "status": "partial",
+          "severity": "medium",
+          "summary": "Evidence trust weakly enforced: trust_level is declared by untrusted callers, the bundle is unsigned, SingleProvider is blocked only when environment_id is literally 'mainnet', and pre-sign evidence is never cross-checked across sources.",
+          "evidence": ["crates/policy-kernel/src/lib.rs:226-232", "services/chain-rpc/src/evm.rs:62"]
+        },
+        {
+          "id": "0001-11",
+          "section": "§13.3",
+          "status": "partial",
+          "severity": "low",
+          "summary": "API scopes limited to Read/Propose/Approve/Submit; spec also requires administrator, broadcaster, auditor, recovery roles. Webhooks are pull-only; WebhookSubscription type is unused.",
+          "evidence": ["services/api/src/lib.rs:28-33", "crates/domain-types/src/operations.rs:704"]
+        },
+        {
+          "id": "0001-12",
+          "section": "§4.1",
+          "status": "partial",
+          "severity": "low",
+          "summary": "PolicyRule has no vault-tier dimension; fees have only a per-operation maximum (no rolling native-fee budget applied).",
+          "evidence": ["crates/domain-types/src/objects.rs:171-188", "crates/authorization-state/src/transition.rs:153-166"]
+        },
+        {
+          "id": "0001-13",
+          "section": "§7",
+          "status": "external",
+          "severity": "high",
+          "summary": "No TEE/HSM; shares sealed in software; development DKG runs on one machine. Gate D hardware scope.",
+          "evidence": ["crates/crypto-provider-frost-ed25519/src/lib.rs:32", "docs/audit-readiness.md:50-56"]
+        },
+        {
+          "id": "0001-14",
+          "section": "§11",
+          "status": "missing",
+          "severity": "medium",
+          "summary": "No Bitcoin/Cosmos/Sui/Aptos/XRPL adapters; only NativeResource placeholder variants. Gate E scope; blocks A25-A29.",
+          "evidence": ["crates/domain-types/src/objects.rs:369-373"]
+        }
+      ],
+      "covered": "§3.2-§3.4, §5.1-§5.4, I1/I4/I5/I7 signer checks, §8 adapter contract, §10.1-10.2/10.4-10.5, §12.1-12.2, §13.2, §13.3 idempotency and error codes, §4.3 credential distinctness."
+    },
+    "rfc-0002": {
+      "title": "Product completion",
+      "gates": {
+        "A": "done",
+        "B": "done",
+        "C": "done except true multi-machine qualification (needs a second physical host)",
+        "D": "external: audit booking (docs/audit-readiness.md), HSM hardware, independent operators, pilot approval",
+        "E": "not started (one requested capability at a time)"
+      },
+      "acceptance": {
+        "cited": 32,
+        "total": 38,
+        "uncited": ["A25", "A26", "A27", "A28", "A29", "A33"],
+        "reasons": {
+          "A25-A29": "chain adapters not built (Gate E)",
+          "A33": "share refresh reserved decision; FROST supports_refresh=false"
+        }
+      },
+      "gaps": [
+        {
+          "id": "0002-01",
+          "section": "docs/acceptance-coverage.md",
+          "status": "partial",
+          "severity": "low",
+          "summary": "Triage prose still lists A32/A38 as unreferenced although the autogenerated table cites them.",
+          "fixed_in": "this commit"
+        }
+      ]
+    },
+    "rfc-0003": {
+      "title": "Institution-operated signer network",
+      "known_fences_confirmed": [
+        "A33 residual threshold power documented with a test",
+        "readmission is a development-only fleet-restart ceremony",
+        "roster propagation pending (SingleEpoch blocks committee activation)",
+        "BETA cfg gate in CI (lib only; node-runner binary uncovered, no N26 negative test)",
+        "multi-machine qualification disclosed as pending"
+      ],
+      "gaps": [
+        {
+          "id": "0003-01",
+          "section": "§5 step 2, §5.1, §7, §2, N22",
+          "status": "missing",
+          "severity": "critical",
+          "summary": "Attestation flow is a library with no network wiring: no VerificationRequest in peer-wire, nothing uses channel 11, no verifier node runtime, required_attestations policy absent, verifier-disagreement quarantine in memory only.",
+          "evidence": ["crates/membership/src/attestation.rs", "crates/peer-wire/src/"]
+        },
+        {
+          "id": "0003-02",
+          "section": "§5 steps 7-8, §13.3",
+          "status": "missing",
+          "severity": "critical",
+          "summary": "Networked lifecycle cannot pass ISSUANCE_COMMITTED: AuthorityRequest lacks RegisterIntent and Observe; intent registration requires a process on the authority host; SignatureObserved is local to the coordinator; D2 refuses RecordObservation.",
+          "evidence": ["crates/peer-wire/src/authority.rs:22", "crates/authorization-state/src/transition.rs:425", "services/coordinator/src/lib.rs:318", "crates/replicated-authority/src/execution.rs:104"]
+        },
+        {
+          "id": "0003-03",
+          "section": "§5 steps 4-5, §13.2, §15.5",
+          "status": "missing",
+          "severity": "high",
+          "summary": "D2 has no gateway submission path (Proposer::submit is replica-local; NodeApi 403s without a replica proposer) and no OpenFinalized/ReleaseFinalized coordinator driver.",
+          "evidence": ["crates/replicated-authority/src/application.rs:34", "services/signer-net/src/http.rs:223", "services/signer-core/src/remote.rs:50-57"]
+        },
+        {
+          "id": "0003-04",
+          "section": "§6.3, §9, N15",
+          "status": "missing",
+          "severity": "high",
+          "summary": "D2 equivocation evidence (ConflictingNotarize/ConflictingFinalize/NullifyFinalize) is never kept or exported; ExportBundle covers D1 only; no N15 test.",
+          "evidence": ["crates/replicated-authority/src/runtime.rs:224-226", "services/witness/src/export.rs:61-78"]
+        },
+        {
+          "id": "0003-05",
+          "section": "§6.2, §9, §10, §12, T08",
+          "status": "missing",
+          "severity": "high",
+          "summary": "Nothing publishes authority checkpoints to witnesses (consumer exists, no producer); node-runner opens the store without witness rollback detection; D1 reference topology has no witness node though §12 requires one.",
+          "evidence": ["crates/authorization-state/src/authority.rs:265", "services/node-runner/src/main.rs:290", "services/node-runner/src/provision.rs:100-102"]
+        },
+        {
+          "id": "0003-06",
+          "section": "§4.2, E6, T12",
+          "status": "diverges",
+          "severity": "high",
+          "summary": "All channels share one 128-entry inbound queue and one event queue; one flooding admitted peer starves Hello (5s convergence TTL) and authority.rpc replies, causing refused sessions and IssuanceUnknown.",
+          "evidence": ["crates/node/src/transport.rs:18,258-259,333-340"]
+        },
+        {
+          "id": "0003-07",
+          "section": "§9, §5.1",
+          "status": "missing",
+          "severity": "medium",
+          "summary": "No metrics or logs from network crates; inbound and event drops silently discarded; handshake failures, roster divergence, session aborts, attestation disagreements, nullifications not exposed.",
+          "evidence": ["crates/node/src/transport.rs:340,414"]
+        },
+        {
+          "id": "0003-08",
+          "section": "§10",
+          "status": "partial",
+          "severity": "medium",
+          "summary": "Coordinator crash recovery: no reconciliation of in-flight operations on restart; approval expiry unreachable over authority.rpc, so a crash before Release strands reserved exposure.",
+          "evidence": ["crates/authorization-state/src/authority.rs:239-247"]
+        },
+        {
+          "id": "0003-09",
+          "section": "§13.2, §2, §13.3",
+          "status": "partial",
+          "severity": "medium",
+          "summary": "Node API has 2 of ~11 spec'd endpoints (log, approvals); halt only via local IPC; no content-addressed gateway store; materials travel inline in SessionControl.",
+          "evidence": ["services/signer-net/src/http.rs:91-92", "services/signer-core/src/ipc.rs:121", "services/signer-net/src/lib.rs:126"]
+        },
+        {
+          "id": "0003-10",
+          "section": "§7, §13.3 Hello",
+          "status": "partial",
+          "severity": "medium",
+          "summary": "signer-core never measures its own build (checks only claimed hashes); Hello lacks the generation and build_hash fields.",
+          "evidence": ["services/signer-core/src/lib.rs:337", "crates/peer-wire/src/frame.rs:202"]
+        },
+        {
+          "id": "0003-11",
+          "section": "§9",
+          "status": "partial",
+          "severity": "medium",
+          "summary": "Per-node journal incomplete: session rejection reasons, peer blocks, attestations not journaled; gateway/authority-rpc/transport keep no signed journal.",
+          "evidence": ["crates/node/src/transport.rs:122"]
+        },
+        {
+          "id": "0003-12",
+          "section": "§8.1",
+          "status": "missing",
+          "severity": "medium",
+          "summary": "Class C data (intents, candidates, grants) plaintext at rest in journals and stores; disclosed in docs.",
+          "evidence": ["docs/signer-network.md:198-199"]
+        },
+        {
+          "id": "0003-13",
+          "section": "§8.3-§8.4, §13.3",
+          "status": "missing",
+          "severity": "medium",
+          "summary": "No networked DKG (CeremonyOpen/CeremonyResult absent); DKG is offline fixture provisioning; no point-to-point payload encryption to signer-core keys. Disclosed.",
+          "evidence": ["docs/signer-network.md"]
+        },
+        {
+          "id": "0003-14",
+          "section": "§10.1",
+          "status": "partial",
+          "severity": "medium",
+          "summary": "Halt key is a free-standing operator key, unbound to roster administrators; minimum_halt_sequence hardcoded 0 (no rollback floor); unhalt only in the local journal.",
+          "evidence": ["services/signer-core/src/lib.rs:25-35", "services/node-runner/src/corerun.rs:78"]
+        },
+        {
+          "id": "0003-15",
+          "section": "§15.6",
+          "status": "partial",
+          "severity": "low",
+          "summary": "Passkey sign_count parsed but never compared (no clone alert); no AAGUID allowlist.",
+          "evidence": ["crates/policy-kernel/src/approvals.rs:100-109"],
+          "fix_shape": "Clone detection needs a persisted monotonic counter per enrolled credential. ApproverCredential is an admin-signed stored object, so adding last_sign_count is a schema and enrollment-flow change, not a patch."
+        }
+      ],
+      "covered": "§3.2-§3.3 roster validation, §4.1-§4.2 ACLs, §6.3 D2 re-execution, §8.1 Class S fences, §8.3 signed MPC frames, §10 generation fencing, §15 WebAuthn verification and proposer-exclusion, Stateright model."
+    },
+    "rfc-0004": {
+      "title": "Operator console",
+      "completeness_estimate": "35-40%",
+      "gaps": [
+        {
+          "id": "0004-01",
+          "section": "§3, §10, F7, S17",
+          "status": "missing",
+          "severity": "critical",
+          "summary": "No authentication, RBAC, or scoping: boundary.ts gives CSRF-style protection only; one server-held bearer for every caller; Administration always visible.",
+          "evidence": ["apps/console/src/lib/boundary.ts", "apps/console/src/lib/custody-server.ts:100-125", "apps/console/src/app/console.tsx:112"]
+        },
+        {
+          "id": "0004-02",
+          "section": "S17-S24, F4/F7/F8/F9/F10",
+          "status": "missing",
+          "severity": "high",
+          "summary": "Admin/governance screens are placeholder requirement tables; mutation button permanently disabled; no policy draft/simulation/diff, admin quorum, verifier handoff, offboarding, freeze/halt, recovery drill, credentials or webhooks.",
+          "evidence": ["apps/console/src/components/administration.tsx:357"]
+        },
+        {
+          "id": "0004-03",
+          "section": "S14, F5",
+          "status": "missing",
+          "severity": "medium",
+          "summary": "No operations workflows (fee funding, sweeps, paused states) and no receive/deposit panel (no address or QR).",
+          "evidence": ["apps/console/src/components/workbench.tsx:199", "apps/console/src/components/custody-workspace.tsx:280-284"]
+        },
+        {
+          "id": "0004-04",
+          "section": "S15, F6",
+          "status": "partial",
+          "severity": "medium",
+          "summary": "Case detail exists for sample fixtures only; real records get an inline alert; no case object, owner, RPC-disagreement/reorg handling, or identical-bytes rebroadcast.",
+          "evidence": ["apps/console/src/app/[section]/[[...detail]]/page.tsx:25-32", "apps/console/src/components/custody-workspace.tsx:732-781"]
+        },
+        {
+          "id": "0004-05",
+          "section": "§7 error mapping, F3",
+          "status": "diverges",
+          "severity": "high",
+          "summary": "Every non-OK mutation response, including definitive 4xx policy rejections, is flattened to a generic outcome-unknown message, dropping the backend reason; only a raw last_error code badge is shown; required_approvals parsed but never rendered.",
+          "evidence": ["apps/console/src/lib/custody-server.ts:211-220", "apps/console/src/components/custody-workspace.tsx:767"],
+          "fixed_in": "this commit, partially: the bridge reflects only the backend's error CODE with a console-authored per-code explanation; backend detail text is never reflected (it can carry sensitive diagnostics). Only the create route is definitive (outcome_unknown=false): no signing can have happened for an intent whose create returned 4xx. Submit, cancel, and refresh errors always keep outcome_unknown=true with the inspect-first instruction, because codes like NOT_FOUND or STALE_EVIDENCE can arrive after a signature exists. ISSUANCE_UNCERTAIN, unknown codes, 5xx, redirects, and unreadable bodies keep the fail-safe unknown-outcome message. Rendering required_approvals remains open."
+        },
+        {
+          "id": "0004-06",
+          "section": "S11-S12",
+          "status": "partial",
+          "severity": "medium",
+          "summary": "Approval inbox filters on dispatch=ready without expiry/eligibility checks; no verifier deep link (CLI accepted per Q2); correctly no Approve button."
+        },
+        {
+          "id": "0004-07",
+          "section": "§7, §9 lifecycle display",
+          "status": "partial",
+          "severity": "medium",
+          "summary": "Raw state names; only FINALIZED_SUCCESS green, failures amber instead of red; no per-state labels/safe actions; no real-record operation timeline. Uncertain states correctly block retry/cancel."
+        },
+        {
+          "id": "0004-08",
+          "section": "S01-S06, F1",
+          "status": "diverges",
+          "severity": "medium",
+          "summary": "Setup preflight hard-codes complete:true (spec forbids misleading success); release_signature_verified literal false; test-transfer step hard-coded awaiting; stale blocker still listed; no vault seeding or deposit step; checklist is a page, not persistent."
+        },
+        {
+          "id": "0004-09",
+          "section": "S24, F2",
+          "status": "partial",
+          "severity": "medium",
+          "summary": "Migration is CSV watch-only import only (works well); no manifest, semantic-gap report, canary, batch approval, or reconciliation."
+        },
+        {
+          "id": "0004-10",
+          "section": "S16, F9, §5",
+          "status": "partial",
+          "severity": "low",
+          "summary": "No event search/filtering or sequence-gap detection in local mode; no global search; export limited to custody export plus first 1000 events."
+        },
+        {
+          "id": "0004-11",
+          "section": "§9 freshness",
+          "status": "partial",
+          "severity": "low",
+          "summary": "Generic stale banner only; no per-scope age thresholds; balances shown without freshness check."
+        }
+      ],
+      "covered": "Navigation matches §5; bridge/demo/watch-only boundaries (§3, §10) enforced: loopback-only upstream, route allowlist, idempotency key, body cap, demo write-block, watch-only never enrolls authority."
+    }
+  },
+  "user_actions": [
+    {"action": "GHCR package visibility to Public", "status": "user reports enabled; anonymous pull still 403 as of 2026-10-26 — re-verify", "impact": "README docker quickstart"},
+    {"action": "Branch protection on main", "status": "missing (API 404)", "impact": "unreviewed pushes possible"},
+    {"action": "Tag ruleset", "status": "missing (0 rulesets)", "impact": "release tags unguarded"},
+    {"action": "Gate D: external audit, HSM hardware, operators, pilot approval", "status": "external"}
+  ]
+}

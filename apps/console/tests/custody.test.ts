@@ -203,6 +203,26 @@ test("failed or ambiguous submission is not retried, redirected, or presented as
     } else if (request.url === "/v1/intents/malformed/submit") {
       response.writeHead(200, { "content-type": "application/json" });
       response.end("{partial-json");
+    } else if (request.url === "/v1/intents/denied/submit") {
+      response.writeHead(409, { "content-type": "application/json" });
+      response.end(
+        JSON.stringify({
+          code: "POLICY_DENIED",
+          detail: "[EvidenceStale]; stale evidence cannot be refreshed",
+        }),
+      );
+    } else if (request.url === "/v1/intents" && request.method === "POST") {
+      response.writeHead(400, { "content-type": "application/json" });
+      response.end(
+        JSON.stringify({ code: "INVALID_REQUEST", detail: "secret-diag" }),
+      );
+    } else if (request.url === "/v1/intents/budget/submit") {
+      // BUDGET_EXCEEDED on submit comes from the reserve step after the
+      // Dispatching transition, so the console must not call it definitive.
+      response.writeHead(409, { "content-type": "application/json" });
+      response.end(
+        JSON.stringify({ code: "BUDGET_EXCEEDED", detail: "private reserve diagnostic" }),
+      );
     } else {
       response.writeHead(409, { "content-type": "application/json" });
       response.end(
@@ -224,7 +244,38 @@ test("failed or ambiguous submission is not retried, redirected, or presented as
       /private backend diagnostic|test-only-console-capability|steal/,
     );
   }
-  assert.equal(submissions, 4);
+  // A submit error names the backend code with a console-authored meaning,
+  // but stays an unknown outcome (a signature may already exist) and never
+  // reflects the backend's detail text.
+  const denied = await call("intents/denied/submit", "POST");
+  assert.equal(denied.status, 409);
+  const deniedBody = await denied.json();
+  assert.equal(deniedBody.outcome_unknown, true);
+  assert.match(deniedBody.error, /POLICY_DENIED/);
+  assert.match(deniedBody.error, /Inspect the existing intent and operation/);
+  assert.doesNotMatch(JSON.stringify(deniedBody), /EvidenceStale/);
+  const budget = await call("intents/budget/submit", "POST");
+  assert.equal(budget.status, 409);
+  const budgetBody = await budget.json();
+  assert.equal(budgetBody.outcome_unknown, true);
+  assert.match(budgetBody.error, /BUDGET_EXCEEDED/);
+  assert.match(budgetBody.error, /Inspect the existing intent and operation/);
+  assert.doesNotMatch(JSON.stringify(budgetBody), /private reserve diagnostic/);
+  // Only a create rejection is definitive: the code is named, the authored
+  // meaning is shown, the backend detail is not reflected.
+  const rejectedCreate = await call(
+    "intents",
+    "POST",
+    JSON.stringify({ intent_id: "x" }),
+    { "idempotency-key": "rejected-create-1" },
+  );
+  assert.equal(rejectedCreate.status, 400);
+  const createBody = await rejectedCreate.json();
+  assert.equal(createBody.outcome_unknown, false);
+  assert.match(createBody.error, /INVALID_REQUEST/);
+  assert.match(createBody.error, /No intent was created/);
+  assert.doesNotMatch(JSON.stringify(createBody), /secret-diag/);
+  assert.equal(submissions, 7);
   assert.equal(redirected, false);
 });
 

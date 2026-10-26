@@ -41,7 +41,7 @@ impl Endpoint {
     /// One JSON-RPC call; `params` must be a JSON array.
     pub fn call<T: DeserializeOwned>(&self, method: &str, params: Value) -> OicResult<T> {
         let value = self.call_value(method, params)?;
-        serde_json::from_value(value).map_err(|e| rpc_error(&self.url, method, format!("unexpected result shape: {e}")))
+        serde_json::from_value(value).map_err(|e| rpc_error(&self.redacted, method, format!("unexpected result shape: {e}")))
     }
 
     /// Like [`Endpoint::call`], returning the raw JSON result (may be `null`).
