@@ -238,7 +238,7 @@ export async function handleCustody(
           NOT_FOUND: "the custody service does not know this record",
           APPROVAL_REQUIRED: "the approval quorum is incomplete",
           STALE_EVIDENCE:
-            "the candidate's chain evidence expired and cannot be refreshed; a new intent must be created and approved within the evidence window",
+            "the chain evidence for this request was too old or could not be confirmed",
           BUDGET_EXCEEDED:
             "a policy budget or rolling limit refused this amount",
         };
