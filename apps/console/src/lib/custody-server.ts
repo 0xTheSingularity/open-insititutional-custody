@@ -221,60 +221,60 @@ export async function handleCustody(
         response.headers.get("content-type")?.split(";")[0] ===
           "application/json"
       ) {
-        // Definitive means the backend provably refused BEFORE its
-        // Dispatching transition, judged per route and code, never from the
-        // code alone. Create: every listed code precedes dispatch of the new
-        // intent. Submit: policy/approval/freshness/auth refusals return
-        // before Dispatching, but BUDGET_EXCEEDED comes from the reserve
-        // step after it, so it stays unknown. Cancel and refresh are never
-        // definitive here (cancel after dispatch is IssuanceUncertain).
-        const preDispatch = [
-          "POLICY_DENIED",
-          "INVALID_REQUEST",
-          "SCOPE_MISMATCH",
-          "NOT_FOUND",
-          "APPROVAL_REQUIRED",
-          "STALE_EVIDENCE",
-        ];
-        const definitive =
-          path === "intents"
-            ? new Set([...preDispatch, "BUDGET_EXCEEDED"])
-            : path.endsWith("/submit")
-              ? new Set(preDispatch)
-              : new Set<string>();
-        const consequence =
-          path === "intents"
-            ? " No intent was created."
-            : " The payment was not submitted.";
+        // Reflect only the backend's error CODE, never its detail text: a
+        // detail can carry sensitive diagnostics (for example a
+        // credential-bearing RPC URL). The explanation shown is authored
+        // here, per code. Only the create route is ever definitive: no
+        // signing can have happened for an intent whose create returned
+        // 4xx. On submit, several codes (NOT_FOUND from a missing
+        // broadcaster client, STALE_EVIDENCE from a chain client) can
+        // arrive AFTER a signature exists, so every submit, cancel, or
+        // refresh error keeps the fail-safe unknown-outcome instruction,
+        // with the code named for context.
+        const explain: Record<string, string> = {
+          POLICY_DENIED: "policy refused this action",
+          INVALID_REQUEST: "the request was invalid",
+          SCOPE_MISMATCH: "this credential lacks the required permission",
+          NOT_FOUND: "the custody service does not know this record",
+          APPROVAL_REQUIRED: "the approval quorum is incomplete",
+          STALE_EVIDENCE:
+            "the candidate's chain evidence expired and cannot be refreshed; a new intent must be created and approved within the evidence window",
+          BUDGET_EXCEEDED:
+            "a policy budget or rolling limit refused this amount",
+        };
+        let code: string | undefined;
         try {
           const raw = await response.text();
           if (raw.length <= 4096) {
             const parsed: unknown = JSON.parse(raw);
             if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-              const { code, detail } = parsed as {
-                code?: unknown;
-                detail?: unknown;
-              };
+              const claimed = (parsed as { code?: unknown }).code;
               if (
-                typeof code === "string" &&
-                definitive.has(code) &&
-                typeof detail === "string"
+                typeof claimed === "string" &&
+                /^[A-Z0-9_]{1,64}$/.test(claimed)
               ) {
-                const safeDetail = detail
-                  .replace(/[^\x20-\x7e]/g, " ")
-                  .slice(0, 300);
-                return failure(
-                  response.status,
-                  `The custody service rejected this action (${code}): ${safeDetail}.${consequence}`,
-                  false,
-                );
+                code = claimed;
               }
             }
           }
         } catch {
-          // Unreadable body: fall through to the unknown-outcome message.
+          // Unreadable body: report without a code.
         }
-        return failure(response.status, unknown, true);
+        const meaning = code ? explain[code] : undefined;
+        if (path === "intents" && code && meaning) {
+          return failure(
+            response.status,
+            `The custody service rejected this request (${code}): ${meaning}. No intent was created.`,
+            false,
+          );
+        }
+        return failure(
+          response.status,
+          code && meaning
+            ? `The custody service reported ${code}: ${meaning}. ${unknown}`
+            : unknown,
+          true,
+        );
       }
       await response.body?.cancel();
       return failure(

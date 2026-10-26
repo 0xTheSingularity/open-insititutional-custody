@@ -366,7 +366,7 @@
           "severity": "high",
           "summary": "Every non-OK mutation response, including definitive 4xx policy rejections, is flattened to a generic outcome-unknown message, dropping the backend reason; only a raw last_error code badge is shown; required_approvals parsed but never rendered.",
           "evidence": ["apps/console/src/lib/custody-server.ts:211-220", "apps/console/src/components/custody-workspace.tsx:767"],
-          "fixed_in": "this commit, partially: the bridge now passes through the backend's {code, detail} for an allowlist of definitive rejection codes with outcome_unknown=false; ISSUANCE_UNCERTAIN and unknown codes keep the fail-safe unknown-outcome message. Human-readable per-code explanations and rendering required_approvals remain open."
+          "fixed_in": "this commit, partially: the bridge reflects only the backend's error CODE with a console-authored per-code explanation; backend detail text is never reflected (it can carry sensitive diagnostics). Only the create route is definitive (outcome_unknown=false): no signing can have happened for an intent whose create returned 4xx. Submit, cancel, and refresh errors always keep outcome_unknown=true with the inspect-first instruction, because codes like NOT_FOUND or STALE_EVIDENCE can arrive after a signature exists. ISSUANCE_UNCERTAIN, unknown codes, 5xx, redirects, and unreadable bodies keep the fail-safe unknown-outcome message. Rendering required_approvals remains open."
         },
         {
           "id": "0004-06",
