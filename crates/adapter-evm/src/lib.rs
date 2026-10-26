@@ -757,6 +757,9 @@ impl ChainAdapter for EvmAdapter {
             let Ok(cobs) = get_tx_observation(evidence, &consumer) else {
                 return Ok(InvalidationEvidence::Unknown);
             };
+            // Stricter than observe(): proving invalidation permits a
+            // replacement payment, so the consuming transaction must also sit
+            // finality_depth blocks inside the finalized view.
             if !cobs.included || cobs.confirmations < profile.finality_depth.max(1) {
                 return Ok(InvalidationEvidence::Unknown);
             }

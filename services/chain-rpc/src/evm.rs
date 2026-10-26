@@ -45,7 +45,9 @@ pub struct EvmRpcConfig {
     pub timeout: Duration,
     /// Trust level declared for this endpoint's evidence.
     pub trust_level: EvidenceTrustLevel,
-    /// `Included -> Finalized` confirmations recorded in the profile.
+    /// Recorded in the profile. Observed finality comes from the node's
+    /// `finalized` tag, not this count; the adapter uses it only as an extra
+    /// margin before it proves a candidate invalidated.
     pub finality_depth: u64,
     /// Gas limit reported as build evidence (includes margin).
     pub evidence_gas_limit: u64,
