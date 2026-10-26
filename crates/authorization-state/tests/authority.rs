@@ -1295,3 +1295,21 @@ fn v1_snapshot_without_pending_reservations_upgrades() {
     let store = FileAuthorityStore::open(&path, None).expect("v1 snapshot without pending reservations upgrades");
     assert!(store.snapshot().reservations.values().all(|r| r.state != ReservationState::Reserved));
 }
+
+/// RFC 0003 §10: the sweep releases exposure whose approvals expired, and an
+/// idle check does not commit.
+#[test]
+fn expire_due_approvals_commits_only_when_a_reservation_is_due() {
+    let e = setup();
+    let f = e.register(1);
+    let pending = e.request(&f, "c1", 1, evm_claims(1, 200, 1));
+    e.auth.reserve(pending.clone()).unwrap();
+    let rid = reservation_id_for(&f.operation_family_id, &pending.candidate_id, 1).unwrap();
+    let before = e.auth.checkpoint().unwrap().body.commit_sequence;
+    assert!(e.auth.expire_due_approvals().unwrap().is_empty());
+    assert_eq!(e.auth.checkpoint().unwrap().body.commit_sequence, before, "idle sweep does not commit");
+    e.clock.advance(601);
+    assert_eq!(e.auth.expire_due_approvals().unwrap(), vec![rid]);
+    assert_eq!(e.exposure(), Amount(0), "expired reservation released its exposure");
+    assert_eq!(e.auth.family(&f.operation_family_id).unwrap().lifecycle, LifecycleState::ApprovalExpired);
+}

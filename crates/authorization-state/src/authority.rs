@@ -248,6 +248,17 @@ impl<S: AuthorityStore> Authority<S> {
         Ok(ids)
     }
 
+    /// [`Self::expire_approvals`], but commits only when a never-released
+    /// reservation is past its deadline; an idle check is a read, not a
+    /// store write.
+    pub fn expire_due_approvals(&self) -> OicResult<Vec<ReservationId>> {
+        let now = self.clock.now();
+        let due = self.view(|st| {
+            Ok(st.reservations.values().any(|r| r.state == ReservationState::Reserved && r.reservation.issuance_deadline < now))
+        })?;
+        if due { self.expire_approvals() } else { Ok(Vec::new()) }
+    }
+
     pub fn record_observation(&self, family_id: &OperationFamilyId, candidate_id: &CandidateId, observation: ChainObservation) -> OicResult<LifecycleState> {
         let command = AuthorityCommand::RecordObservation { family_id: family_id.clone(), candidate_id: candidate_id.clone(), observation };
         let AuthorityOutput::Observed(lifecycle) = self.execute(command)? else { unreachable!() };
@@ -274,4 +285,20 @@ impl<S: AuthorityStore> Authority<S> {
         })?;
         sign_checkpoint(&self.signing_key, &self.config.authority_key_id, body)
     }
+}
+
+/// Run [`Authority::expire_due_approvals`] every `every` on a background
+/// thread until the authority is dropped, so reserved exposure whose
+/// approvals expired is released even if the coordinator that reserved it
+/// crashed (RFC 0003 §10). Errors are retried on the next tick.
+pub fn spawn_approval_expiry_sweep<S: AuthorityStore + Send + Sync + 'static>(
+    authority: &Arc<Authority<S>>,
+    every: std::time::Duration,
+) -> std::thread::JoinHandle<()> {
+    let weak = Arc::downgrade(authority);
+    std::thread::spawn(move || loop {
+        std::thread::sleep(every);
+        let Some(authority) = weak.upgrade() else { return };
+        let _ = authority.expire_due_approvals();
+    })
 }

@@ -312,6 +312,9 @@ fn authority_handler(dir: &Path, roster: &SignedRoster, admins: &AdminTrust, nod
         authority_key,
         Arc::new(SystemClock),
     )?);
+    // Reserved exposure whose approvals expired is released even if the
+    // coordinator that reserved it is gone.
+    oic_authorization_state::spawn_approval_expiry_sweep(&authority, Duration::from_secs(5));
     let roster = roster.clone();
     let node_id = node_id.clone();
     Ok(Arc::new(move |from: &NodeId, frame: &[u8]| {

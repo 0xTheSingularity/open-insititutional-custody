@@ -178,6 +178,7 @@ impl Stack {
             SigningKey::from_bytes(&secrets.authority),
             clock.clone(),
         )?);
+        oic_authorization_state::spawn_approval_expiry_sweep(&authority, std::time::Duration::from_secs(5));
         let roots = TrustRoots {
             authority_key_id: authority_key_id(),
             authority_pubkey: authority.verifying_key(),
