@@ -502,6 +502,25 @@ impl SignerCore {
                 }
             }
         })();
+        // RFC 0003 §9: a refused session open is journaled with its reason
+        // code. Status and other controls are not, so polling cannot fill
+        // the journal.
+        if let Err(e) = &result {
+            let session = match control {
+                SessionControl::Open { envelope, .. } => Some(&envelope.body.signer_session_id),
+                SessionControl::OpenFinalized { body, .. } => Some(&body.signer_session_id),
+                _ => None,
+            };
+            if let Some(session) = session {
+                let _ = self.config.audit.append(
+                    self.config.node_id.as_str(),
+                    "signer.session_rejected",
+                    BTreeMap::new(),
+                    Epoch(0),
+                    &format!("session={session} from={from} code={:?}", e.code),
+                );
+            }
+        }
         // Do not send detailed adapter/backend inputs back to a net process.
         SessionReply { request_id, result: result.map_err(|e| rejected(e.code)) }
     }

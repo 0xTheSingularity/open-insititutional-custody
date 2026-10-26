@@ -317,6 +317,16 @@ fn tampered_open_and_gateway_mpc_forgery_produce_no_output() {
     changed.candidate.native_unsigned_bytes.0[0] ^= 1;
     let reply = network.clients[0].control(&node_id(3), SessionControl::Open { request_id: 1, envelope: envelope.clone(), materials: changed }).unwrap();
     assert!(reply.result.is_err());
+    // Audit 0003-11: the refused open is journaled with its reason code.
+    let rejected: Vec<_> = network.audits[0]
+        .events_since(0, 1000)
+        .unwrap()
+        .into_iter()
+        .filter(|event| event.body.action == "signer.session_rejected")
+        .collect();
+    assert_eq!(rejected.len(), 1);
+    assert!(rejected[0].body.detail.contains(envelope.body.signer_session_id.as_str()));
+    assert!(rejected[0].body.detail.contains("code="));
     assert!(network.clients[0].outbound_at(0).unwrap().is_none());
     assert_eq!(network.clients[0].deliver(&node_id(3), vec![0; 16]).unwrap_err().code, ErrorCode::PeerNotAdmitted);
 
