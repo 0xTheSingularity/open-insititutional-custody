@@ -55,7 +55,7 @@ fn happy_path_signs_after_release_and_evm_accepts_signature() {
         [ProtocolStep::Complete(sig)] => sig.clone(),
         other => panic!("expected Complete, got {other:?}"),
     };
-    let consumed: Vec<_> = c.node.ledger.snapshot().into_iter().filter(|r| r.consumed).collect();
+    let consumed: Vec<_> = c.node.ledger.snapshot().into_iter().filter(|r| r.consumed && r.key_id == c.key.key_id).collect();
     assert_eq!(consumed.len(), 1);
     assert_eq!(consumed[0].bound_message_hash, Some(payload_hash(&env)));
     assert_eq!(consumed[0].session_id.as_ref(), Some(s));
@@ -843,4 +843,24 @@ fn older_material_enrollment_epoch_is_refused_after_a_newer_one() {
     assert_eq!(open(at_epoch(2)), Ok(()));
     assert_eq!(open(at_epoch(5)), Ok(()));
     assert_eq!(open(at_epoch(4)), Err(ErrorCode::RecoveryRequired));
+    // A different manifest at an accepted epoch (here: one more asset listed,
+    // or one record dropped without raising the epoch) is refused; the same
+    // manifest still reopens.
+    let changed_at_5 = |change: &dyn Fn(&mut MaterialEnrollment)| {
+        let mut roots = at_epoch(5);
+        let e = roots.enrolled_materials.as_mut().unwrap();
+        change(e);
+        e.administrative_signatures = c.world.admin_quorum_signatures(oic_policy_kernel::material_enrollment_hash(e).unwrap());
+        roots
+    };
+    assert_eq!(open(changed_at_5(&|e| { e.assets.insert(Hash32([0xab; 32])); })), Err(ErrorCode::RecoveryRequired));
+    assert_eq!(open(changed_at_5(&|e| e.destinations.clear())), Err(ErrorCode::RecoveryRequired));
+    assert_eq!(open(at_epoch(5)), Ok(()));
+    // The same change at a higher epoch is accepted.
+    let mut revoked = at_epoch(6);
+    let e = revoked.enrolled_materials.as_mut().unwrap();
+    e.destinations.clear();
+    e.administrative_signatures = c.world.admin_quorum_signatures(oic_policy_kernel::material_enrollment_hash(e).unwrap());
+    assert_eq!(open(revoked), Ok(()));
+    assert_eq!(open(at_epoch(6)), Err(ErrorCode::RecoveryRequired), "epoch 6 is bound to the revoking manifest");
 }

@@ -147,13 +147,57 @@ fn abort_sentinel(session_id: &SigningSessionId) -> OicResult<Hash32> {
     domain_hash(domains::SIGNER_FENCE, &("session-abort", session_id))
 }
 
+/// Ledger key for the rollback-protected floor `name`.
+fn floor_key(participant: &ParticipantId, name: &str) -> OicResult<KeyId> {
+    let h = domain_hash(domains::SIGNER_FENCE, &(name, participant))?;
+    KeyId::new(format!("oic-floor/{}", &h.to_hex()[..32])).ok_or_else(|| OicError::internal("floor key id"))
+}
+
+/// Whether `ledger` would allocate under `key` at `value`, i.e. its floor is
+/// at most `value`. An allowed probe leaves one unconsumed record.
+fn floor_at_most(ledger: &dyn OneTimeStateLedger, key: &KeyId, value: u64, session: &SigningSessionId) -> OicResult<bool> {
+    match ledger.allocate(key, Epoch(0), Epoch(value), session) {
+        Ok(_) => Ok(true),
+        Err(e) if e.code == ErrorCode::ResourceConflict => Ok(false),
+        Err(e) => Err(e),
+    }
+}
+
+/// Bind `hash` to `epoch` the first time this signer accepts that epoch, and
+/// refuse any different hash at the same epoch afterwards. The ledger floor
+/// only rises, so each of four floors pins 63 bits of the hash exactly: a
+/// floor equals `v` when allocation at `v` succeeds and at `v - 1` fails.
+fn bind_epoch_hash(ledger: &dyn OneTimeStateLedger, participant: &ParticipantId, generation: Epoch, epoch: Epoch, hash: &Hash32) -> OicResult<()> {
+    let conflict = || {
+        OicError::new(
+            ErrorCode::RecoveryRequired,
+            format!("material enrollment epoch {epoch} was already accepted with a different manifest; a changed manifest needs a higher epoch"),
+        )
+    };
+    for part in 0..4 {
+        let key = floor_key(participant, &format!("material enrollment epoch {} hash part {part}", epoch.0))?;
+        let bytes: [u8; 8] = hash.0[part * 8..part * 8 + 8].try_into().map_err(|_| OicError::internal("hash part"))?;
+        let value = (u64::from_be_bytes(bytes) >> 1) + 1;
+        let session = SigningSessionId::unchecked(format!("oic-floor-enrollment-hash-{}-{part}-generation-{}", epoch.0, generation.0));
+        if floor_at_most(ledger, &key, value - 1, &session)? {
+            // Floor below `value`: unclaimed (0) or another manifest's smaller part.
+            if !floor_at_most(ledger, &key, 0, &session)? {
+                return Err(conflict());
+            }
+            ledger.tombstone_generations_before(&key, Epoch(value))?;
+        } else if !floor_at_most(ledger, &key, value, &session)? {
+            return Err(conflict());
+        }
+    }
+    Ok(())
+}
+
 /// Raise this signer's rollback-protected floor named `name` to `value`.
 /// The floor lives in the one-time-state ledger, which detects restore, so
 /// restoring older local configuration or state cannot lower it. Fails with
 /// `RecoveryRequired` when `value` is below the floor already reached.
 fn ratchet_floor(ledger: &dyn OneTimeStateLedger, participant: &ParticipantId, generation: Epoch, name: &str, value: u64) -> OicResult<()> {
-    let h = domain_hash(domains::SIGNER_FENCE, &(name, participant))?;
-    let key = KeyId::new(format!("oic-floor/{}", &h.to_hex()[..32])).ok_or_else(|| OicError::internal("floor key id"))?;
+    let key = floor_key(participant, name)?;
     let probe = SigningSessionId::unchecked(format!("oic-floor-{name}-{value}-generation-{}", generation.0));
     match ledger.allocate(&key, Epoch(0), Epoch(value), &probe) {
         Ok(_) => {}
@@ -361,6 +405,13 @@ impl Signer {
         if let Some(e) = &roots.enrolled_materials {
             // An older, still validly signed enrollment would re-enroll records a newer one revoked.
             ratchet_floor(ledger.as_ref(), &identity.participant_id, generation, "material enrollment epoch", e.enrollment_epoch.0)?;
+            bind_epoch_hash(
+                ledger.as_ref(),
+                &identity.participant_id,
+                generation,
+                e.enrollment_epoch,
+                &oic_policy_kernel::material_enrollment_hash(e)?,
+            )?;
         }
         generation_store.store(generation)?;
         Ok(Signer {

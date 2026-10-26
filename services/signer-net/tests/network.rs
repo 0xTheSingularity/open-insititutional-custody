@@ -969,7 +969,8 @@ fn real_process_frost_2_of_3_native_solana_transfer() {
             .iter()
             .any(|event| matches!(event, SignerEvent::SessionOpened { .. }))
     );
-    assert!(reports[2].records.is_empty());
+    // The non-participant's ledger holds only the signer's own rollback floors.
+    assert!(reports[2].records.iter().all(|record| record.key_id.as_str().starts_with("oic-floor/")));
     println!(
         "native Solana: beneficiary={} lamports, txid={txid}, child_pids={:?}, shares={:?}; durable ledger/generation/audit verified",
         sol.sim.lamports(&sol_dest_owner()),
