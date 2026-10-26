@@ -121,12 +121,13 @@ export function liveApprovals(record: CustodyIntentRecord, now: number): number 
   ).size;
 }
 /** Whether the transfer belongs in the approval queue: still before dispatch,
- * not issued, a policy rule matches, and fewer unexpired grants are recorded
- * than that rule requires. Explanation only; the custody service decides. */
+ * not issued, and a policy rule matches that requires approvals. The local
+ * grant count never removes a transfer: the record keeps grants from
+ * credentials the authority may since have removed, and only the custody
+ * service can judge them. Explanation only; the custody service decides. */
 export function needsApproval(
   record: CustodyIntentRecord,
   lifecycle: string,
-  now: number,
 ): boolean {
   const required = requiredApprovals(record);
   return (
@@ -134,7 +135,7 @@ export function needsApproval(
     record.issuance === null &&
     preDispatchStates.has(lifecycle) &&
     required !== null &&
-    liveApprovals(record, now) < required
+    required > 0
   );
 }
 

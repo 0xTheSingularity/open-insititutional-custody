@@ -109,7 +109,7 @@
             "services/chain-rpc/src/evm.rs:69-70",
             "crates/adapter-evm/src/lib.rs:665"
           ],
-          "fixed_in": "PR #41: the EVM adapter reports Finalized only for evidence taken at the profile's finality commitment (the chain's finalized view). Before this, the live client's latest-head evidence with the default finality_depth of 1 made a transaction final one block after inclusion, and the broadcaster accepted that. Test observe_maps_lifecycle; chain-rpc live-node tests and oic demo pass. Remaining: chain-id-only network identity (no genesis binding), fixed 65,000 gas limit with no estimation or simulation, no L2 data-fee component, and no proxy implementation check."
+          "fixed_in": "PR #41: the EVM adapter reports Finalized only for evidence taken at the profile's finality commitment (the chain's finalized view). Inclusion inside that view is final; the view already trails the head by the finality depth, so no second confirmation count applies. Before this, the live client's latest-head evidence with the default finality_depth of 1 made a transaction final one block after inclusion, and the broadcaster accepted that. Test observe_maps_lifecycle; chain-rpc live-node tests and oic demo pass. Remaining: chain-id-only network identity (no genesis binding), fixed 65,000 gas limit with no estimation or simulation, no L2 data-fee component, and no proxy implementation check."
         },
         {
           "id": "0001-09",
@@ -384,7 +384,7 @@
           "status": "closed",
           "severity": "medium",
           "summary": "Approval inbox filters on dispatch=ready without expiry/eligibility checks; no verifier deep link (CLI accepted per Q2); correctly no Approve button.",
-          "fixed_in": "PR #41: the approval queue lists a transfer only while it is before dispatch, not issued, a policy rule matches, and fewer unexpired grants are recorded than that rule requires; the table shows unexpired grants against the requirement. Expiry is judged at the time the state was read. The verifier stays the external oic-approve CLI, which RFC 004 Q2 accepts. Per-approver eligibility needs console authentication (0004-01)."
+          "fixed_in": "PR #41: the approval queue lists a transfer only while it is before dispatch, not issued, and a matching policy rule requires approvals; the table shows unexpired grants against the requirement. The local count never hides a transfer, because the record keeps grants from credentials the authority may have removed. Expiry is judged at the time the state was read. The verifier stays the external oic-approve CLI, which RFC 004 Q2 accepts. Per-approver eligibility needs console authentication (0004-01)."
         },
         {
           "id": "0004-07",

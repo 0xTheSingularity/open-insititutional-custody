@@ -558,7 +558,6 @@ export function CustodyWorkspace({
                         needsApproval(
                           item,
                           operations[item.intent.intent_id].lifecycle,
-                          nowSeconds,
                         ),
                     )
                     .map((item) => (

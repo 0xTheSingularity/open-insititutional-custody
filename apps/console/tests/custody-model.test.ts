@@ -355,29 +355,32 @@ test("read models reject rounded sequences, invalid holdings, unsupported lifecy
     requiredApprovals(withRules([rule(["other-vault"], 5), rule([], 2), rule([], 3)])),
     2,
   );
-  // Approval queue: unexpired grants below the rule's requirement, before dispatch.
+  // Approval queue: before dispatch, unissued, and a rule that requires
+  // approvals. The local grant count is shown, never used to hide a transfer.
   const two = withRules([rule([], 2)]);
   const grant = (expires_at: number) => ({
     body: { approver_credential_id: "a", issued_at: 1, expires_at },
   });
   const now = 1000;
-  assert.equal(needsApproval(two, "AWAITING_APPROVAL", now), true);
+  assert.equal(needsApproval(two, "AWAITING_APPROVAL"), true);
   const oneLive = { ...two, approvals: [grant(2000), grant(500)] };
   assert.equal(liveApprovals(oneLive, now), 1, "expired grants do not count");
-  assert.equal(needsApproval(oneLive, "AWAITING_APPROVAL", now), true);
   // grant() always names credential "a": two grants from one credential are
-  // one approver, so a two-approval rule still needs another approver.
+  // one approver.
   const sameCredential = { ...two, approvals: [grant(2000), grant(3000)] };
   assert.equal(liveApprovals(sameCredential, now), 1);
-  assert.equal(needsApproval(sameCredential, "AWAITING_APPROVAL", now), true);
   const b = (expires_at: number) => ({
     body: { approver_credential_id: "b", issued_at: 1, expires_at },
   });
-  const satisfied = { ...two, approvals: [grant(2000), b(3000)] };
-  assert.equal(needsApproval(satisfied, "AWAITING_APPROVAL", now), false);
-  assert.equal(needsApproval(two, "SIGNING", now), false, "after dispatch");
-  assert.equal(needsApproval({ ...two, dispatch: "dispatching" }, "AWAITING_APPROVAL", now), false);
-  assert.equal(needsApproval(withRules([]), "AWAITING_APPROVAL", now), false, "no rule: denied, not queued");
+  // A recorded quorum may include grants from credentials the authority has
+  // since removed, so the transfer stays queued until the service dispatches.
+  const recorded = { ...two, approvals: [grant(2000), b(3000)] };
+  assert.equal(liveApprovals(recorded, now), 2);
+  assert.equal(needsApproval(recorded, "AWAITING_APPROVAL"), true);
+  assert.equal(needsApproval(two, "SIGNING"), false, "after dispatch");
+  assert.equal(needsApproval({ ...two, dispatch: "dispatching" }, "AWAITING_APPROVAL"), false);
+  assert.equal(needsApproval(withRules([]), "AWAITING_APPROVAL"), false, "no rule: denied, not queued");
+  assert.equal(needsApproval(withRules([rule([], 0)]), "AWAITING_APPROVAL"), false, "no approvals required");
   // Search spans reference, intent, family, destination, and asset fields.
   assert.equal(matchesQuery(two, ""), true);
   assert.equal(matchesQuery(two, "READ-42"), true, "case-insensitive reference");
