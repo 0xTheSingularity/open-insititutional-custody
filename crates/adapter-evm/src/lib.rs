@@ -668,8 +668,9 @@ impl ChainAdapter for EvmAdapter {
         // at any other commitment can show inclusion at most. Inclusion at the
         // finalized view is already final: the view itself sits behind the head
         // by the finality depth, so counting confirmations again would demand
-        // that depth twice.
-        if evidence.state.commitment == profile.finality_commitment {
+        // that depth twice. Inclusion with zero confirmations is inconsistent
+        // evidence and is never final.
+        if evidence.state.commitment == profile.finality_commitment && obs.confirmations >= 1 {
             let raw = get_item(evidence, &tx_key(&hash))?;
             Ok(ChainObservation::Finalized {
                 tx_id: tx_id.clone(),

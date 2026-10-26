@@ -513,6 +513,8 @@ fn observe_maps_lifecycle() {
     }
     // Inclusion inside the finalized view is final at one confirmation: the
     // view already trails the head by the finality depth.
+    ev.items.insert(tx_key(&hash), obs(true, 0, None));
+    assert!(matches!(EvmAdapter.observe(&signed.chain_tx_id, &fx.profile, &ev).unwrap(), ChainObservation::Included { .. }), "inclusion without confirmations is never final");
     ev.items.insert(tx_key(&hash), obs(true, 1, None));
     assert!(matches!(EvmAdapter.observe(&signed.chain_tx_id, &fx.profile, &ev).unwrap(), ChainObservation::Finalized { .. }));
 
