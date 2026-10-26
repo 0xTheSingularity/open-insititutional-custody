@@ -111,9 +111,14 @@ const preDispatchStates = new Set<string>([
   "POLICY_EVALUATED",
   "AWAITING_APPROVAL",
 ]);
-/** Grants recorded for this intent that have not expired at `now` (Unix seconds). */
+/** Distinct credentials with an unexpired grant at `now` (Unix seconds).
+ * Two grants from one credential are one approver, as in the kernel. */
 export function liveApprovals(record: CustodyIntentRecord, now: number): number {
-  return record.approvals.filter((grant) => grant.body.expires_at > now).length;
+  return new Set(
+    record.approvals
+      .filter((grant) => grant.body.expires_at > now)
+      .map((grant) => grant.body.approver_credential_id),
+  ).size;
 }
 /** Whether the transfer belongs in the approval queue: still before dispatch,
  * not issued, a policy rule matches, and fewer unexpired grants are recorded

@@ -62,7 +62,7 @@ export function SetupView({
           ? "Custody API configured. Send one from Transfers; this checklist does not track it."
           : preflight.custody_bridge === "disabled"
             ? "Unavailable in hosted samples"
-            : "Set the local custody API origin and bearer on the console server",
+            : "Set the local custody API bearer (OIC_CONSOLE_CUSTODY_TOKEN) on the console server",
       complete: false,
       href: null,
     },

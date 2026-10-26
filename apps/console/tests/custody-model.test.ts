@@ -365,7 +365,15 @@ test("read models reject rounded sequences, invalid holdings, unsupported lifecy
   const oneLive = { ...two, approvals: [grant(2000), grant(500)] };
   assert.equal(liveApprovals(oneLive, now), 1, "expired grants do not count");
   assert.equal(needsApproval(oneLive, "AWAITING_APPROVAL", now), true);
-  const satisfied = { ...two, approvals: [grant(2000), grant(3000)] };
+  // grant() always names credential "a": two grants from one credential are
+  // one approver, so a two-approval rule still needs another approver.
+  const sameCredential = { ...two, approvals: [grant(2000), grant(3000)] };
+  assert.equal(liveApprovals(sameCredential, now), 1);
+  assert.equal(needsApproval(sameCredential, "AWAITING_APPROVAL", now), true);
+  const b = (expires_at: number) => ({
+    body: { approver_credential_id: "b", issued_at: 1, expires_at },
+  });
+  const satisfied = { ...two, approvals: [grant(2000), b(3000)] };
   assert.equal(needsApproval(satisfied, "AWAITING_APPROVAL", now), false);
   assert.equal(needsApproval(two, "SIGNING", now), false, "after dispatch");
   assert.equal(needsApproval({ ...two, dispatch: "dispatching" }, "AWAITING_APPROVAL", now), false);

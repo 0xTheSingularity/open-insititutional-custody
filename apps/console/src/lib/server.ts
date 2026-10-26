@@ -28,10 +28,9 @@ class ApiError extends Error {
 
 function custodyBridge(demo: boolean): Snapshot["preflight"]["custody_bridge"] {
   if (demo || process.env.VERCEL) return "disabled";
-  return process.env.OIC_CONSOLE_CUSTODY_ORIGIN &&
-    process.env.OIC_CONSOLE_CUSTODY_TOKEN
-    ? "configured"
-    : "not_configured";
+  // The bridge defaults the origin to the local stack, so the bearer alone
+  // configures it (custody-server.ts).
+  return process.env.OIC_CONSOLE_CUSTODY_TOKEN ? "configured" : "not_configured";
 }
 
 function snapshot(setup: Setup, demo = false): Snapshot {
@@ -62,7 +61,7 @@ function snapshot(setup: Setup, demo = false): Snapshot {
               reason:
                 bridge === "disabled"
                   ? "Hosted samples never connect to a custody API."
-                  : "This console server has no local custody API origin and bearer (OIC_CONSOLE_CUSTODY_ORIGIN, OIC_CONSOLE_CUSTODY_TOKEN).",
+                  : "This console server has no local custody API bearer (OIC_CONSOLE_CUSTODY_TOKEN).",
             },
           ]),
       {
