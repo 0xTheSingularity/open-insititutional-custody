@@ -141,7 +141,8 @@
           "status": "partial",
           "severity": "low",
           "summary": "PolicyRule has no vault-tier dimension; fees have only a per-operation maximum (no rolling native-fee budget applied).",
-          "evidence": ["crates/domain-types/src/objects.rs:171-188", "crates/authorization-state/src/transition.rs:153-166"]
+          "evidence": ["crates/domain-types/src/objects.rs:171-188", "crates/authorization-state/src/transition.rs:153-166"],
+          "fixed_in": "Not fixed in PR #41, on purpose: a rolling native-fee budget changes ReserveRequest.exposure_limits, which the authority commits to and the D2 replica recomputes, so it is a protocol change with golden-vector impact. It needs its own PR with an optional, skipped-when-empty PolicyRule field so existing policy hashes stay stable."
         },
         {
           "id": "0001-13",
@@ -253,10 +254,11 @@
         {
           "id": "0003-07",
           "section": "§9, §5.1",
-          "status": "missing",
+          "status": "partial",
           "severity": "medium",
           "summary": "No metrics or logs from network crates; inbound and event drops silently discarded; handshake failures, roster divergence, session aborts, attestation disagreements, nullifications not exposed.",
-          "evidence": ["crates/node/src/transport.rs:340,414"]
+          "evidence": ["crates/node/src/transport.rs:340,414"],
+          "fixed_in": "PR #41: the node transport counts every dropped or refused arrival (inbound or event queue full, per channel; malformed, foreign-roster, and not-admitted frames), exposes the totals through Transport::stats(), and logs a tracing warning when a counter reaches a power of two. The flood test asserts the overflow is counted. Remaining: handshake failures, roster divergence, session aborts, and attestation disagreements are not yet counted, and no metrics endpoint exports the totals."
         },
         {
           "id": "0003-08",
@@ -288,7 +290,8 @@
           "status": "partial",
           "severity": "medium",
           "summary": "Per-node journal incomplete: session rejection reasons, peer blocks, attestations not journaled; gateway/authority-rpc/transport keep no signed journal.",
-          "evidence": ["crates/node/src/transport.rs:122"]
+          "evidence": ["crates/node/src/transport.rs:122"],
+          "fixed_in": "PR #41: signer-core journals every refused session open (Open and OpenFinalized) as signer.session_rejected with session, sender, and error code; status polling is not journaled, so it cannot fill the journal. Remaining: peer blocks and attestations are not journaled, and the gateway, authority-rpc, and transport nodes keep no signed journal."
         },
         {
           "id": "0003-12",
