@@ -221,15 +221,31 @@ export async function handleCustody(
         response.headers.get("content-type")?.split(";")[0] ===
           "application/json"
       ) {
-        const definitive = new Set([
+        // Definitive means the backend provably refused BEFORE its
+        // Dispatching transition, judged per route and code, never from the
+        // code alone. Create: every listed code precedes dispatch of the new
+        // intent. Submit: policy/approval/freshness/auth refusals return
+        // before Dispatching, but BUDGET_EXCEEDED comes from the reserve
+        // step after it, so it stays unknown. Cancel and refresh are never
+        // definitive here (cancel after dispatch is IssuanceUncertain).
+        const preDispatch = [
           "POLICY_DENIED",
           "INVALID_REQUEST",
           "SCOPE_MISMATCH",
           "NOT_FOUND",
           "APPROVAL_REQUIRED",
           "STALE_EVIDENCE",
-          "BUDGET_EXCEEDED",
-        ]);
+        ];
+        const definitive =
+          path === "intents"
+            ? new Set([...preDispatch, "BUDGET_EXCEEDED"])
+            : path.endsWith("/submit")
+              ? new Set(preDispatch)
+              : new Set<string>();
+        const consequence =
+          path === "intents"
+            ? " No intent was created."
+            : " The payment was not submitted.";
         try {
           const raw = await response.text();
           if (raw.length <= 4096) {
@@ -249,7 +265,7 @@ export async function handleCustody(
                   .slice(0, 300);
                 return failure(
                   response.status,
-                  `The custody service rejected this action (${code}): ${safeDetail}. Nothing was created or submitted.`,
+                  `The custody service rejected this action (${code}): ${safeDetail}.${consequence}`,
                   false,
                 );
               }

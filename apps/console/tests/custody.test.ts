@@ -211,6 +211,13 @@ test("failed or ambiguous submission is not retried, redirected, or presented as
           detail: "[EvidenceStale]; stale evidence cannot be refreshed",
         }),
       );
+    } else if (request.url === "/v1/intents/budget/submit") {
+      // BUDGET_EXCEEDED on submit comes from the reserve step after the
+      // Dispatching transition, so the console must not call it definitive.
+      response.writeHead(409, { "content-type": "application/json" });
+      response.end(
+        JSON.stringify({ code: "BUDGET_EXCEEDED", detail: "private reserve diagnostic" }),
+      );
     } else {
       response.writeHead(409, { "content-type": "application/json" });
       response.end(
@@ -240,7 +247,16 @@ test("failed or ambiguous submission is not retried, redirected, or presented as
   assert.equal(deniedBody.outcome_unknown, false);
   assert.match(deniedBody.error, /POLICY_DENIED/);
   assert.match(deniedBody.error, /stale evidence cannot be refreshed/);
-  assert.equal(submissions, 5);
+  assert.match(deniedBody.error, /The payment was not submitted/);
+  // A post-dispatch-stage code on submit stays an unknown outcome and
+  // reflects nothing from the backend body.
+  const budget = await call("intents/budget/submit", "POST");
+  assert.equal(budget.status, 409);
+  const budgetBody = await budget.json();
+  assert.equal(budgetBody.outcome_unknown, true);
+  assert.match(budgetBody.error, /Inspect the existing intent and operation/);
+  assert.doesNotMatch(JSON.stringify(budgetBody), /private reserve diagnostic/);
+  assert.equal(submissions, 6);
   assert.equal(redirected, false);
 });
 
