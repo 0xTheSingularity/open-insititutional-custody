@@ -50,6 +50,8 @@ pub struct ProvisionedRoots {
     pub admins: Vec<(CredentialId, [u8; 32])>,
     pub quorum: u8,
     pub builds: BTreeMap<AdapterId, Vec<Hash32>>,
+    /// Verified against the provisioned admins and signer identity by `Signer::open`.
+    pub material_enrollment: MaterialEnrollment,
     pub skew: u64,
 }
 
@@ -66,7 +68,7 @@ impl ProvisionedRoots {
             approvers: Vec::new(),
             accepted_verifier_builds: self.builds,
             chain_profiles: Vec::new(),
-            enrolled_materials: None,
+            enrolled_materials: Some(self.material_enrollment),
             max_clock_skew_seconds: self.skew,
         })
     }

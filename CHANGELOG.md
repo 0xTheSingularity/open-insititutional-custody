@@ -22,6 +22,10 @@ with no enrollment, or one without the quorum, refuses to sign. Local-stack
 installs provisioned before this change (schema 1) must be deleted and
 bootstrapped again; `start.sh` says so.
 
+`oic-node provision` also persists an admin-signed enrollment of its generated
+key descriptor in each signer's `roots.bin`. Existing node-runner directories
+must be provisioned again; roots without the enrollment are refused on load.
+
 The enrollment also lists the current version of each destination, so a
 newer enrollment that leaves out an old version stops signers from paying
 it. Each signer keeps the highest enrollment epoch and halt sequence it has

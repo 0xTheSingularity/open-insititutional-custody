@@ -167,6 +167,12 @@ pub fn provision(out: &Path, addresses: &[SocketAddr], now: UnixSeconds) -> OicR
         admins: admin_keys.iter().map(|(id, key)| (id.clone(), key.verifying_key().to_bytes())).collect(),
         quorum: 2,
         builds: BTreeMap::from([(adapter.manifest().adapter_id, vec![build_hash])]),
+        // This topology provisions a key, but no payment records. Empty
+        // asset/wallet/vault sets keep those records unenrolled.
+        material_enrollment: oic_policy_kernel::sign_material_enrollment(
+            oic_policy_kernel::material_enrollment(files::institution(), files::environment(), Epoch(1), [], [], [], [&dkg.descriptor], [])?,
+            &admin_keys[..2],
+        )?,
         skew: 30,
     };
 
@@ -207,4 +213,91 @@ pub fn provision(out: &Path, addresses: &[SocketAddr], now: UnixSeconds) -> OicR
     println!("DEVELOPMENT ONLY: provisioned {NODES} node directories under {}", out.display());
     println!("roster hash {}", hash.to_hex());
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use oic_signer::{InMemoryGenerationStore, Signer, SignerIdentity};
+    use std::sync::Arc;
+
+    fn provisioned() -> tempfile::TempDir {
+        let out = tempfile::tempdir().unwrap();
+        let addresses: Vec<_> = (0..NODES).map(|i| SocketAddr::from(([127, 0, 0, 1], 20000 + i as u16))).collect();
+        provision(out.path(), &addresses, UnixSeconds(1_000)).unwrap();
+        out
+    }
+
+    fn open(roots: ProvisionedRoots) -> Result<(), ErrorCode> {
+        Signer::open(
+            SignerIdentity {
+                participant_id: files::participant(0),
+                institution_id: files::institution(),
+                environment_id: files::environment(),
+            },
+            roots.into_roots().unwrap(),
+            BTreeMap::new(),
+            Arc::new(FrostEd25519Provider::with_os_rng(files::participant(0), [0; 32]).unwrap()),
+            Arc::new(oic_one_time_state_ledger::InMemoryLedger::new()),
+            Arc::new(InMemoryGenerationStore::new()),
+        )
+        .map(|_| ())
+        .map_err(|e| e.code)
+    }
+
+    #[test]
+    fn provisioned_roots_preserve_the_signed_key_enrollment() {
+        let out = provisioned();
+        for index in 0..SIGNERS {
+            let dir = out.path().join(format!("node-{index}"));
+            let provisioned: ProvisionedRoots = files::read_canonical(&dir, "roots.bin").unwrap();
+            let descriptor: KeyDescriptor = files::read_canonical(&dir, "descriptor.bin").unwrap();
+            let enrollment = provisioned.material_enrollment.clone();
+            let roots = provisioned.into_roots().unwrap();
+            assert_eq!(roots.enrolled_materials.as_ref(), Some(&enrollment));
+            assert_eq!(enrollment.keys, [oic_policy_kernel::key_descriptor_hash(&descriptor).unwrap()].into());
+            assert!(enrollment.assets.is_empty() && enrollment.wallets.is_empty() && enrollment.vaults.is_empty());
+            oic_policy_kernel::verify_material_enrollment_admin_signatures(&enrollment, &roots.admin_keys, roots.admin_quorum).unwrap();
+        }
+    }
+
+    #[test]
+    fn provisioned_enrollment_is_checked_by_signer_open() {
+        let out = provisioned();
+        let dir = out.path().join("node-0");
+        let roots = || files::read_canonical::<ProvisionedRoots>(&dir, "roots.bin").unwrap();
+        assert_eq!(open(roots()), Ok(()));
+
+        let mut unsigned = roots();
+        unsigned.material_enrollment.administrative_signatures.clear();
+        assert_eq!(open(unsigned), Err(ErrorCode::InvalidSignature));
+
+        let mut below_quorum = roots();
+        below_quorum.material_enrollment.administrative_signatures.truncate(1);
+        assert_eq!(open(below_quorum), Err(ErrorCode::InvalidSignature));
+
+        let mut tampered = roots();
+        tampered.material_enrollment.assets.insert(Hash32([0xaa; 32]));
+        assert_eq!(open(tampered), Err(ErrorCode::InvalidSignature));
+
+        let admin_dir = out.path().join("admin-ceremony");
+        let admins: Vec<_> = (1..=2)
+            .map(|i| {
+                (
+                    CredentialId::unchecked(format!("dev-admin-{i}")),
+                    SigningKey::from_bytes(&files::read_key32(&admin_dir, &format!("dev-admin-{i}.key")).unwrap()),
+                )
+            })
+            .collect();
+        for foreign_institution in [true, false] {
+            let mut foreign = roots();
+            if foreign_institution {
+                foreign.material_enrollment.institution_id = InstitutionId::unchecked("other-institution");
+            } else {
+                foreign.material_enrollment.environment_id = EnvironmentId::unchecked("other-environment");
+            }
+            foreign.material_enrollment = oic_policy_kernel::sign_material_enrollment(foreign.material_enrollment, &admins).unwrap();
+            assert_eq!(open(foreign), Err(ErrorCode::InvalidRequest));
+        }
+    }
 }
