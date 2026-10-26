@@ -72,6 +72,14 @@ pub fn grant_signing_hash(body: &ApprovalGrantBody) -> OicResult<Hash32> {
 /// return `InvalidSignature`; a role mismatch returns `ScopeMismatch`.
 /// Enrollment validation and grant hashing errors propagate.
 pub fn verify_grant(grant: &ApprovalGrant, approvers: &[ApproverCredential], now: UnixSeconds) -> OicResult<()> {
+    verify_grant_counter(grant, approvers, now).map(|_| ())
+}
+
+/// [`verify_grant`], also returning a WebAuthn grant's authenticator
+/// signature counter (`None` for Ed25519 grants). Stateless verifiers cannot
+/// use the counter; a stateful recorder compares it with the last one seen
+/// for the credential (RFC 0003 §15.6 clone detection).
+pub fn verify_grant_counter(grant: &ApprovalGrant, approvers: &[ApproverCredential], now: UnixSeconds) -> OicResult<Option<u32>> {
     let b = &grant.body;
     let mut matching = approvers.iter().filter(|c| c.credential_id == b.approver_credential_id);
     let cred = matching.next().ok_or_else(|| OicError::invalid_signature("approver credential is not enrolled"))?;
@@ -95,7 +103,8 @@ pub fn verify_grant(grant: &ApprovalGrant, approvers: &[ApproverCredential], now
     match (&cred.verifying_key, grant.signature.scheme) {
         (ApproverKey::Ed25519(key), SchemeId::Ed25519Pure) => {
             let sig = ed25519_signature(&grant.signature)?;
-            key.verify_strict(&h.0, &sig).map_err(|_| OicError::invalid_signature("approval signature does not verify"))
+            key.verify_strict(&h.0, &sig).map_err(|_| OicError::invalid_signature("approval signature does not verify"))?;
+            Ok(None)
         }
         (ApproverKey::WebAuthn { public_key_sec1, rp_id, allowed_origins, backup_eligible }, SchemeId::WebAuthnEs256) => {
             let origins: Vec<_> = allowed_origins.iter().map(String::as_str).collect();
@@ -108,7 +117,7 @@ pub fn verify_grant(grant: &ApprovalGrant, approvers: &[ApproverCredential], now
             if verified.backup_eligible != *backup_eligible {
                 return Err(OicError::invalid_signature("authenticator backup eligibility changed"));
             }
-            Ok(())
+            Ok(Some(verified.sign_count))
         }
         _ => Err(OicError::invalid_signature("approval signature scheme differs from enrollment")),
     }

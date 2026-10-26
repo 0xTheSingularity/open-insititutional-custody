@@ -5,7 +5,7 @@
 use crate::{AuthorityConfig, AuthorityEvent, AuthorityState, ReservationState};
 use oic_canonical_encoding::domain_hash;
 use oic_domain_types::*;
-use oic_policy_kernel::{count_quorum_signatures, intent_hash, verify_grant, verify_grants, ApproverCredential, ApproverKey};
+use oic_policy_kernel::{count_quorum_signatures, intent_hash, verify_grant_counter, verify_grants, ApproverCredential, ApproverKey};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -20,6 +20,14 @@ pub struct EnrolledApprover {
     /// the person's identity and enable self-approval under another key.
     pub person_id: CredentialId,
     pub commit_sequence: u64,
+    /// Highest WebAuthn signature counter recorded for this credential.
+    /// Zero (never counted) is not encoded, so existing state keeps its hash.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub last_sign_count: u32,
+}
+
+fn is_zero(n: &u32) -> bool {
+    *n == 0
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -109,7 +117,7 @@ pub(crate) fn change_credential(
         .ordered_approvals
         .get_or_insert_default()
         .credentials
-        .insert(proposal.credential_id.clone(), EnrolledApprover { credential: proposal.credential, person_id, commit_sequence: seq });
+        .insert(proposal.credential_id.clone(), EnrolledApprover { credential: proposal.credential, person_id, commit_sequence: seq, last_sign_count: 0 });
     Ok((seq, AuthorityEvent::CredentialChanged { credential_id: proposal.credential_id, active, commit_sequence: seq }))
 }
 
@@ -151,7 +159,7 @@ pub(crate) fn approve(
         return Err(OicError::new(ErrorCode::Frozen, "approval scope is frozen"));
     }
     let credentials: Vec<_> = approvals.credentials.values().filter_map(|r| r.credential.clone()).collect();
-    verify_grant(&grant, &credentials, now)?;
+    let sign_count = verify_grant_counter(&grant, &credentials, now)?;
     let record = &approvals.credentials[&body.approver_credential_id];
     let credential = record.credential.as_ref().expect("verified enrollment");
     if body.approver_credential_id == intent.proposer_credential_id
@@ -166,6 +174,13 @@ pub(crate) fn approve(
     if previous.is_some_and(|grants| grants.len() >= oic_policy_kernel::MAX_GRANTS) {
         return Err(OicError::invalid_request("approval grant capacity reached"));
     }
+    // WebAuthn: when either counter is nonzero, a counter that did not
+    // increase means the authenticator may have been cloned.
+    if let Some(count) = sign_count {
+        if (count != 0 || record.last_sign_count != 0) && count <= record.last_sign_count {
+            return Err(OicError::invalid_signature("authenticator signature counter did not increase; the authenticator may be cloned"));
+        }
+    }
     let mut grants: Vec<_> = previous.into_iter().flat_map(|grants| grants.values().map(|g| g.grant.clone())).collect();
     // Removed/expired approvals remain historical records, not quorum members.
     grants.retain(|g| credentials.iter().any(|c| c.credential_id == g.body.approver_credential_id) && g.body.expires_at > now);
@@ -176,10 +191,11 @@ pub(crate) fn approve(
     let grant_id = body.grant_id.clone();
     state.commit_sequence = state.commit_sequence.checked_add(1).ok_or_else(|| OicError::internal("commit sequence exhausted"))?;
     let seq = state.commit_sequence;
-    state
-        .ordered_approvals
-        .as_mut()
-        .expect("enabled")
+    let ordered = state.ordered_approvals.as_mut().expect("enabled");
+    if let (Some(count), Some(record)) = (sign_count, ordered.credentials.get_mut(&credential_id)) {
+        record.last_sign_count = count;
+    }
+    ordered
         .grants
         .entry(intent.intent_id.clone())
         .or_default()

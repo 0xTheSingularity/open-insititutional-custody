@@ -135,6 +135,8 @@ fn intent(proposer: &str) -> Intent {
 struct Passkey {
     key: SigningKey,
     credential: ApproverCredential,
+    /// Signature counter: rises with every assertion, like an authenticator's.
+    counter: std::cell::Cell<u32>,
 }
 
 impl Passkey {
@@ -159,6 +161,7 @@ impl Passkey {
                 },
                 role: ApprovalRole::TreasuryApprover,
             },
+            counter: std::cell::Cell::new(0x0102_0303),
         }
     }
 
@@ -175,6 +178,12 @@ impl Passkey {
         self.grant_with(body, hash, ORIGIN, 0x05)
     }
 
+    /// A grant whose authenticator reports exactly `count`.
+    fn grant_counted(&self, body: ApprovalGrantBody, count: u32) -> ApprovalGrant {
+        self.counter.set(count - 1);
+        self.grant(body)
+    }
+
     fn grant_with(
         &self,
         body: ApprovalGrantBody,
@@ -189,7 +198,9 @@ impl Passkey {
         .unwrap();
         let mut auth = Sha256::digest(RP.as_bytes()).to_vec();
         auth.push(flags);
-        auth.extend_from_slice(&0x0102_0304_u32.to_be_bytes());
+        let count = self.counter.get() + 1;
+        self.counter.set(count);
+        auth.extend_from_slice(&count.to_be_bytes());
         let mut signed = auth.clone();
         signed.extend_from_slice(&Sha256::digest(&client));
         let signature: Signature = self.key.sign(&signed);
@@ -724,6 +735,8 @@ fn canonical_enrollment_approval_and_reserve_commands_replay_identically() {
     let scenario = setup(1, "proposer");
     let alice = Passkey::new(51, "alice-key", "alice");
     let proposal = alice.proposal();
+    // One assertion: the reserve carries the grant that was recorded.
+    let grant = alice.grant(scenario.body(&alice));
     let commands = [
         AuthorityCommand::ChangeCredential {
             signatures: signatures(proposal.hash().unwrap()),
@@ -731,10 +744,10 @@ fn canonical_enrollment_approval_and_reserve_commands_replay_identically() {
         },
         AuthorityCommand::Approve {
             intent: Box::new(scenario.intent.clone()),
-            grant: alice.grant(scenario.body(&alice)),
+            grant: grant.clone(),
         },
         AuthorityCommand::Reserve {
-            request: scenario.request(vec![alice.grant(scenario.body(&alice))]),
+            request: scenario.request(vec![grant]),
         },
     ];
     let mut state = scenario.snapshot();
@@ -853,4 +866,39 @@ fn file_reopen_preserves_enrollment_recorded_approval_and_removal_before_release
         authority.recorded_approvals(&intent.intent_id).unwrap(),
         vec![record]
     );
+}
+
+/// RFC 0003 §15.6: a passkey whose signature counter does not increase
+/// across approvals may be cloned; the authority refuses it.
+#[test]
+fn passkey_signature_counter_must_increase_across_approvals() {
+    let scenario = setup(2, "proposer");
+    let alice = Passkey::new(51, "alice-passkey", "alice");
+    scenario.enroll(&alice);
+    scenario.authority.approve(&scenario.intent, alice.grant_counted(scenario.body(&alice), 10)).unwrap();
+
+    let mut other = intent("proposer");
+    other.intent_id = IntentId::unchecked("intent-payroll-8");
+    other.external_reference = "payroll-8".into();
+    scenario
+        .authority
+        .register_intent(
+            &other,
+            intent_hash(&other).unwrap(),
+            IdempotencyKey { institution_id: config().institution_id, route: "POST /v1/intents".into(), key: "payroll-8".into() },
+        )
+        .unwrap();
+    let body = |count: u32| {
+        let mut b = scenario.body(&alice);
+        b.intent_id = other.intent_id.clone();
+        b.intent_hash = intent_hash(&other).unwrap();
+        b.grant_id = GrantId::unchecked(format!("grant-alice-{count}"));
+        alice.grant_counted(b, count)
+    };
+    // A clone replaying the same or an older counter is refused.
+    for stale in [10, 9] {
+        scenario.reject(ErrorCode::InvalidSignature, || scenario.authority.approve(&other, body(stale)));
+    }
+    // The genuine authenticator, counting on, is accepted.
+    scenario.authority.approve(&other, body(11)).unwrap();
 }
