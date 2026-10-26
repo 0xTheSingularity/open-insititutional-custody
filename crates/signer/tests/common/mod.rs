@@ -17,7 +17,7 @@ use oic_crypto_provider_dev::DevSingleKeyProvider;
 use oic_crypto_provider_frost_ed25519::{FrostEd25519Provider, build_signing_package, run_dkg};
 use oic_domain_types::*;
 use oic_one_time_state_ledger::InMemoryLedger;
-use oic_policy_kernel::{
+use oic_policy_kernel::{material_enrollment, material_enrollment_hash, 
     asset_hash, chain_wallet_hash, destination_hash, intent_hash, key_descriptor_hash, policy_hash,
     preview_hash, vault_hash, Decision,
 };
@@ -189,15 +189,31 @@ impl World {
             approvers: self.approver_credentials(),
             accepted_verifier_builds: builds,
             chain_profiles: profiles,
-            enrolled_materials: EnrolledMaterials::default(),
+            enrolled_materials: None,
             max_clock_skew_seconds: 30,
         }
     }
 
-    /// Trust roots that also pin the case's enrolled asset, wallet, and vault.
+    /// Admin-quorum enrollment of the case's asset, wallet, vault, and key.
+    pub fn enroll(&self, m: &SigningMaterials) -> MaterialEnrollment {
+        let mut e = material_enrollment(
+            m.vault.institution_id.clone(),
+            m.vault.environment_id.clone(),
+            Epoch(1),
+            [&m.asset],
+            [&m.wallet],
+            [&m.vault],
+            [&m.key],
+        )
+        .unwrap();
+        e.administrative_signatures = self.admin_quorum_signatures(material_enrollment_hash(&e).unwrap());
+        e
+    }
+
+    /// Trust roots that also pin the case's enrolled asset, wallet, vault, and key.
     pub fn trust_roots_for(&self, profiles: Vec<ChainProfile>, m: &SigningMaterials) -> TrustRoots {
         let mut roots = self.trust_roots(profiles);
-        roots.enrolled_materials = EnrolledMaterials::from_records([&m.asset], [&m.wallet], [&m.vault]).unwrap();
+        roots.enrolled_materials = Some(self.enroll(m));
         roots
     }
 

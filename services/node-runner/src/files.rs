@@ -66,7 +66,7 @@ impl ProvisionedRoots {
             approvers: Vec::new(),
             accepted_verifier_builds: self.builds,
             chain_profiles: Vec::new(),
-            enrolled_materials: oic_signer::EnrolledMaterials::default(),
+            enrolled_materials: None,
             max_clock_skew_seconds: self.skew,
         })
     }

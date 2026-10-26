@@ -15,7 +15,7 @@ use oic_domain_types::*;
 use oic_one_time_state_ledger::InMemoryLedger;
 use oic_replicated_authority::*;
 use oic_service_builder::signing_materials;
-use oic_signer::{EnrolledMaterials, FinalizedAuthorityConfig, InMemoryGenerationStore, Signer, TrustRoots};
+use oic_signer::{FinalizedAuthorityConfig, InMemoryGenerationStore, Signer, TrustRoots};
 use rand::{SeedableRng, rngs::StdRng};
 use std::sync::Arc;
 
@@ -58,12 +58,7 @@ fn signer(
             .collect(),
         chain_profiles: vec![fixture.profile.clone()],
         // The signer pins the same records the replica's registry pins.
-        enrolled_materials: EnrolledMaterials::from_records(
-            &fixture.executor.registry.assets,
-            &fixture.executor.registry.wallets,
-            &fixture.executor.registry.vaults,
-        )
-        .unwrap(),
+        enrolled_materials: Some(common::registry_enrollment(&fixture.executor.registry)),
         max_clock_skew_seconds: 30,
     };
     let ledger = Arc::new(InMemoryLedger::new());

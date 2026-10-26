@@ -15,6 +15,13 @@ earlier refuse v2. Do not mix v0.1.4 components with later ones; a local
 stack rebuilt from one checkout stays consistent. Golden vectors were
 regenerated for v2.
 
+**Signers require an admin-signed material enrollment.** The asset, wallet,
+vault, and key descriptor hashes a signer accepts now come from a
+`MaterialEnrollment` manifest that the administrative quorum signs. A signer
+with no enrollment, or one without the quorum, refuses to sign. Local-stack
+installs provisioned before this change (schema 1) must be deleted and
+bootstrapped again; `start.sh` says so.
+
 - Authorization-state hardening: pre-freeze-epoch snapshots migrate on load,
   releases are refused across a freeze-epoch change, and stale v1 reservations
   recover by abort only.

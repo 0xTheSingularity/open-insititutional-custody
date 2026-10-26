@@ -208,9 +208,37 @@ fn a03_envelope_replayed_for_another_vault_network_key_or_environment() {
     // A signer of another environment.
     let mut adapters: std::collections::BTreeMap<AdapterId, Arc<dyn ChainAdapter>> = Default::default();
     adapters.insert(AdapterId::unchecked("evm"), c.setup.adapter.clone());
-    let testnet = Signer::open(
-        SignerIdentity { participant_id: pid(1), institution_id: inst(), environment_id: EnvironmentId::unchecked("testnet") },
+    let testnet_id = SignerIdentity { participant_id: pid(1), institution_id: inst(), environment_id: EnvironmentId::unchecked("testnet") };
+    // This environment's signer refuses the other environment's enrollment at open.
+    let other_env = Signer::open(
+        testnet_id.clone(),
         c.world.trust_roots_for(vec![evm_profile()], &c.setup.m),
+        adapters.clone(),
+        c.dev.clone(),
+        Arc::new(InMemoryLedger::new()),
+        Arc::new(InMemoryGenerationStore::new()),
+    );
+    assert_eq!(code(other_env.map(|_| ())), ErrorCode::InvalidRequest);
+    // With its own environment's enrollment over the same hashes, it still
+    // refuses the envelope and key for their environment.
+    let m = &c.setup.m;
+    let mut enrollment = oic_policy_kernel::material_enrollment(
+        inst(),
+        testnet_id.environment_id.clone(),
+        Epoch(1),
+        [&m.asset],
+        [&m.wallet],
+        [&m.vault],
+        [&m.key],
+    )
+    .unwrap();
+    enrollment.administrative_signatures =
+        c.world.admin_quorum_signatures(oic_policy_kernel::material_enrollment_hash(&enrollment).unwrap());
+    let mut roots = c.world.trust_roots(vec![evm_profile()]);
+    roots.enrolled_materials = Some(enrollment);
+    let testnet = Signer::open(
+        testnet_id,
+        roots,
         adapters,
         c.dev.clone(),
         Arc::new(InMemoryLedger::new()),
@@ -701,4 +729,64 @@ fn coordinator_forged_envelope_over_unenrolled_materials_is_refused() {
     let body = c.setup.body_for(&forged_vault, &verified, vec![], "sess-coord-vault", vec![pid(1)], DEADLINE);
     let env = c.setup.reserve(&c.world, body, &verified);
     rejected(&c.node, &env, &forged_vault, now(), ErrorCode::ScopeMismatch);
+}
+
+/// Option B: the enrollment a signer pins must carry the administrative
+/// quorum, belong to this signer's institution, and name the envelope's key
+/// descriptor.
+#[test]
+fn material_enrollment_requires_admin_quorum_and_names_the_key() {
+    let c = evm_case(0);
+    let open = |roots: TrustRoots| {
+        let mut adapters: std::collections::BTreeMap<AdapterId, Arc<dyn ChainAdapter>> = Default::default();
+        adapters.insert(c.setup.adapter.manifest().adapter_id, c.setup.adapter.clone());
+        Signer::open(
+            identity(&pid(1)),
+            roots,
+            adapters,
+            c.dev.clone(),
+            Arc::new(InMemoryLedger::new()),
+            Arc::new(InMemoryGenerationStore::new()),
+        )
+        .map(|_| ())
+        .map_err(|e| e.code)
+    };
+    let roots = || c.world.trust_roots_for(vec![evm_profile()], &c.setup.m);
+    assert_eq!(open(roots()), Ok(()));
+
+    // No signatures: the operator wrote the list, no admin approved it.
+    let mut unsigned = roots();
+    unsigned.enrolled_materials.as_mut().unwrap().administrative_signatures.clear();
+    assert_eq!(open(unsigned), Err(ErrorCode::InvalidSignature));
+
+    // One admin is below the quorum of two.
+    let mut one = roots();
+    one.enrolled_materials.as_mut().unwrap().administrative_signatures.truncate(1);
+    assert_eq!(open(one), Err(ErrorCode::InvalidSignature));
+
+    // A hash added after the admins signed breaks the signatures.
+    let mut widened = roots();
+    widened.enrolled_materials.as_mut().unwrap().assets.insert(Hash32([0xaa; 32]));
+    assert_eq!(open(widened), Err(ErrorCode::InvalidSignature));
+
+    // A genuinely signed enrollment for another institution is refused.
+    let mut e = c.setup.m.clone();
+    e.vault.institution_id = InstitutionId::unchecked("other-institution");
+    let mut foreign = roots();
+    foreign.enrolled_materials = Some(c.world.enroll(&e));
+    assert_eq!(open(foreign), Err(ErrorCode::InvalidRequest));
+
+    // A signed enrollment that omits the key descriptor: the signer opens,
+    // but refuses an envelope naming that key.
+    let mut no_key = roots();
+    let enrollment = no_key.enrolled_materials.as_mut().unwrap();
+    enrollment.keys.clear();
+    enrollment.administrative_signatures =
+        c.world.admin_quorum_signatures(oic_policy_kernel::material_enrollment_hash(enrollment).unwrap());
+    let node = open_node(&pid(1), no_key, c.setup.adapter.clone(), c.dev.clone(), Arc::new(InMemoryLedger::new()), Arc::new(InMemoryGenerationStore::new()));
+    node.signer.load_key(&c.key, &c.sealed).unwrap();
+    let verified = c.setup.verify_for(&c.setup.m);
+    let body = c.setup.body_for(&c.setup.m, &verified, vec![], "sess-no-key-enrollment", vec![pid(1)], DEADLINE);
+    let env = c.setup.reserve(&c.world, body, &verified);
+    rejected(&node, &env, &c.setup.m, now(), ErrorCode::ScopeMismatch);
 }

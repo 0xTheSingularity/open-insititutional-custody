@@ -4,8 +4,8 @@ Status: ACCEPTED 2026-10-26 — the user chose "A then B": Option A is
 implemented in this change (envelope domain `OIC/AUTHORIZATION/v2` with
 `asset_hash`, `wallet_hash`, `vault_hash`, `key_descriptor_hash`, verified by
 the signer and the D2 replica execution boundary; golden vectors regenerated
-as a justified break). Option B (admin-signed objects) remains a deliberate
-later layer. This closes the signer-trust aspect of audit finding `0001-01`
+as a justified break). Option B is implemented as an admin-signed
+enrollment manifest; see "Option B as implemented" below. This closes the signer-trust aspect of audit finding `0001-01`
 in [`docs/rfc-gap-audit.json`](../rfc-gap-audit.json).
 
 ## Problem
@@ -73,6 +73,31 @@ object kinds need defining — the same supersession problem destinations have
 (finding `0001-02`) would be inherited by four new objects on day one.
 
 Option B can be layered on later; it does not conflict with Option A.
+
+### Option B as implemented
+
+Signing each object separately would need new schema fields and inherit the
+supersession problem four times. Instead, the administrative quorum signs one
+`MaterialEnrollment` manifest (domain `OIC/MATERIAL_ENROLLMENT/v1`). It lists
+the asset, wallet, vault, and key descriptor hashes the institution enrolled,
+and names the institution, environment, and an enrollment epoch.
+
+- `TrustRoots.enrolled_materials` is now `Option<MaterialEnrollment>`.
+  `None` fails closed.
+- `Signer::open` refuses a manifest without the admin quorum, or one for
+  another institution or environment.
+- The signer requires each envelope commitment, including
+  `key_descriptor_hash`, to be in the manifest.
+- A newer manifest replaces the whole set, so dropping a hash revokes a
+  record. Supersession is solved once, for all four kinds.
+- The envelope and golden vectors are unchanged.
+
+What this does and does not protect. The manifest is anchored to
+`admin_keys`, the same keys that already sign destinations and policy
+bundles. A compromised coordinator cannot add a forged record. An attacker
+who can replace `admin_keys` in a signer's trust roots can also sign a new
+manifest. In the local stack, both come from `provisioned.json`. Protecting
+`admin_keys` themselves is out of scope here.
 
 ## Migration plan (applies to either option)
 

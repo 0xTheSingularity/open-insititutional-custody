@@ -124,7 +124,7 @@ use oic_domain_types::*;
 use oic_policy_kernel::Decision;
 use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 use std::sync::Arc;
 use verify::ReceiptBinding;
 
@@ -171,37 +171,18 @@ pub struct TrustRoots {
     pub accepted_verifier_builds: BTreeMap<AdapterId, Vec<Hash32>>,
     /// Enrolled profiles; `envelope.chain_profile_hash` must match one.
     pub chain_profiles: Vec<ChainProfile>,
-    /// Enrolled asset, wallet, and vault records, pinned by hash. The
-    /// envelope's `asset_hash`, `wallet_hash`, and `vault_hash` must each be
-    /// in these sets. The envelope hashes alone only bind the signer to what
-    /// the envelope producer chose; this pin binds them to what the
-    /// institution enrolled, so a compromised D1 coordinator cannot hash its
-    /// own forged records. Empty sets fail closed.
-    pub enrolled_materials: EnrolledMaterials,
+    /// The institution's admin-quorum-signed enrollment of asset, wallet,
+    /// vault, and key descriptor hashes. The envelope's `asset_hash`,
+    /// `wallet_hash`, `vault_hash`, and `key_descriptor_hash` must each be in
+    /// it. The envelope hashes alone only bind the signer to what the
+    /// envelope producer chose; the enrollment binds them to what the
+    /// administrative quorum enrolled, so a compromised D1 coordinator cannot
+    /// add a forged record. Its trust anchor is `admin_keys`, the same keys
+    /// that sign destinations and policy: whoever can replace `admin_keys`
+    /// can also sign a new enrollment. [`Signer::open`] verifies the quorum.
+    /// `None` fails closed.
+    pub enrolled_materials: Option<MaterialEnrollment>,
     pub max_clock_skew_seconds: u64,
-}
-
-/// Hashes of the asset, wallet, and vault records a signer accepts.
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
-pub struct EnrolledMaterials {
-    pub assets: BTreeSet<Hash32>,
-    pub wallets: BTreeSet<Hash32>,
-    pub vaults: BTreeSet<Hash32>,
-}
-
-impl EnrolledMaterials {
-    /// Pin the given enrolled records by their envelope commitment hashes.
-    pub fn from_records<'a>(
-        assets: impl IntoIterator<Item = &'a Asset>,
-        wallets: impl IntoIterator<Item = &'a ChainWallet>,
-        vaults: impl IntoIterator<Item = &'a Vault>,
-    ) -> OicResult<Self> {
-        Ok(EnrolledMaterials {
-            assets: assets.into_iter().map(oic_policy_kernel::asset_hash).collect::<OicResult<_>>()?,
-            wallets: wallets.into_iter().map(oic_policy_kernel::chain_wallet_hash).collect::<OicResult<_>>()?,
-            vaults: vaults.into_iter().map(oic_policy_kernel::vault_hash).collect::<OicResult<_>>()?,
-        })
-    }
 }
 
 /// The objects an envelope commits to, delivered alongside it.
@@ -321,6 +302,12 @@ impl Signer {
     ) -> OicResult<Signer> {
         if roots.admin_quorum == 0 || roots.admin_keys.len() < usize::from(roots.admin_quorum) {
             return Err(OicError::invalid_request("administrative quorum must be at least 1 and satisfiable"));
+        }
+        if let Some(e) = &roots.enrolled_materials {
+            if e.institution_id != identity.institution_id || e.environment_id != identity.environment_id {
+                return Err(OicError::invalid_request("material enrollment belongs to another institution or environment"));
+            }
+            oic_policy_kernel::verify_material_enrollment_admin_signatures(e, &roots.admin_keys, roots.admin_quorum)?;
         }
         for (id, a) in &adapters {
             let m = a.manifest();

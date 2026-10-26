@@ -21,7 +21,7 @@ use oic_service_api::{Api, ApiCredential, ApiStore, Catalog, Scope};
 use oic_service_broadcaster::{Broadcaster, FileSubmissionStore};
 use oic_service_coordinator::{Coordinator, FileOperationStore, InProcessSigner, SignerEndpoint};
 use oic_service_reconciler::*;
-use oic_signer::{EnrolledMaterials, FileGenerationStore, Signer, SignerIdentity, SigningMaterials, TrustRoots};
+use oic_signer::{FileGenerationStore, Signer, SignerIdentity, SigningMaterials, TrustRoots};
 use provision::*;
 use serde_json::{json, Value};
 use std::{
@@ -132,9 +132,20 @@ impl Stack {
                 "another local-stack process holds the exclusive state lock",
             )
         })?;
+        #[derive(serde::Deserialize)]
+        struct SchemaProbe {
+            schema_version: u16,
+        }
+        let probe: SchemaProbe = read(&state.join("provisioned.json"))?;
+        if probe.schema_version == 1 {
+            return Err(OicError::new(
+                ErrorCode::RecoveryRequired,
+                "local stack storage: this install was provisioned before signers required an admin-signed material enrollment (schema 1), and it cannot be upgraded in place. It holds only development simulator funds and payments, which do not carry over. fix: delete the install directory and run scripts/local-stack/bootstrap.sh again",
+            ));
+        }
         let p: Provisioned = read(&state.join("provisioned.json"))?;
         let secrets: Secrets = read(&state.join("secrets.json"))?;
-        if p.schema_version != 1
+        if p.schema_version != 2
             || p.keys.len() != 2
             || p.sealed.len() != 2
             || p.wallets.len() != 2
@@ -175,7 +186,7 @@ impl Stack {
             approvers: approver_credentials(&p)?,
             accepted_verifier_builds: builds(),
             chain_profiles: p.profiles.clone(),
-            enrolled_materials: EnrolledMaterials::from_records(&p.assets, &p.wallets, [&vault()])?,
+            enrolled_materials: Some(p.material_enrollment.clone()),
             max_clock_skew_seconds: 30,
         };
         let adapter_list = adapters();
