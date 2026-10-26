@@ -160,6 +160,30 @@ export function checkpointView(
   return { tone: "success", label: "Reported balances match", ageSeconds };
 }
 
+/** Case-insensitive match of `query` against a record's reference, intent,
+ * operation family, candidate, vault, wallet, destination, asset, and
+ * transaction identifiers. An empty query matches everything. */
+export function matchesQuery(record: CustodyIntentRecord, query: string): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  const { intent, built } = record;
+  const fields = [
+    intent.external_reference,
+    intent.intent_id,
+    intent.vault_id,
+    intent.chain_wallet_id,
+    intent.operation.asset_transfer.asset_id,
+    intent.operation.asset_transfer.destination_id,
+    built.candidate.operation_family_id,
+    built.candidate.candidate_id,
+    built.package.destination.address_display,
+    built.package.destination.display_name,
+    built.package.asset.symbol,
+    record.issuance?.signed.signed.chain_tx_id ?? "",
+  ];
+  return fields.some((f) => f.toLowerCase().includes(q));
+}
+
 export type CustodyIntentRecord = {
   intent: CustodyIntent;
   built: {

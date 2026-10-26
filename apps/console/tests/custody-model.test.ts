@@ -9,6 +9,7 @@ import {
   lifecycleDisplay,
   lifecycles,
   liveApprovals,
+  matchesQuery,
   needsApproval,
   readStatus,
   requiredApprovals,
@@ -369,6 +370,13 @@ test("read models reject rounded sequences, invalid holdings, unsupported lifecy
   assert.equal(needsApproval(two, "SIGNING", now), false, "after dispatch");
   assert.equal(needsApproval({ ...two, dispatch: "dispatching" }, "AWAITING_APPROVAL", now), false);
   assert.equal(needsApproval(withRules([]), "AWAITING_APPROVAL", now), false, "no rule: denied, not queued");
+  // Search spans reference, intent, family, destination, and asset fields.
+  assert.equal(matchesQuery(two, ""), true);
+  assert.equal(matchesQuery(two, "READ-42"), true, "case-insensitive reference");
+  assert.equal(matchesQuery(two, "intent-42"), true);
+  assert.equal(matchesQuery(two, "family"), true);
+  assert.equal(matchesQuery(two, catalog.destinations[0].display_name.slice(0, 4)), true);
+  assert.equal(matchesQuery(two, "no-such-transfer"), false);
   assert.throws(() =>
     readIntentRecord({
       ...record,

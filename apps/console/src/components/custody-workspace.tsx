@@ -8,9 +8,11 @@ import {
   Download,
   LockKeyhole,
   RotateCw,
+  Search,
   ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -56,6 +58,7 @@ import {
   checkpointView,
   lifecycleDisplay,
   liveApprovals,
+  matchesQuery,
   needsApproval,
   requiredApprovals,
 } from "@/lib/custody-model";
@@ -125,6 +128,7 @@ export function CustodyWorkspace({
   const [blocked, setBlocked] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [query, setQuery] = useState("");
   const flight = useRef(false);
   const reload = useCallback(async () => {
     if (flight.current) return;
@@ -524,7 +528,17 @@ export function CustodyWorkspace({
                 <Link href="/transfers/new">New local transfer</Link>
               </Button>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
+              <div className="flex max-w-md items-center gap-2">
+                <Search aria-hidden="true" className="size-4 text-muted-foreground" />
+                <Input
+                  aria-label="Search transfers by reference, intent, vault, destination, asset, or transaction"
+                  placeholder="Search reference, intent, vault, destination, tx"
+                  value={query}
+                  maxLength={160}
+                  onChange={(event) => setQuery(event.target.value)}
+                />
+              </div>
               <Table aria-label="Persisted local transfers">
                 <TableHeader>
                   <TableRow>
@@ -537,6 +551,7 @@ export function CustodyWorkspace({
                 </TableHeader>
                 <TableBody>
                   {records
+                    .filter((item) => matchesQuery(item, query))
                     .filter(
                       (item) =>
                         pathname !== "/approvals" ||

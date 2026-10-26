@@ -412,7 +412,8 @@
           "section": "S16, F9, §5",
           "status": "partial",
           "severity": "low",
-          "summary": "No event search/filtering or sequence-gap detection in local mode; no global search; export limited to custody export plus first 1000 events."
+          "summary": "No event search/filtering or sequence-gap detection in local mode; no global search; export limited to custody export plus first 1000 events.",
+          "fixed_in": "PR #41: in local mode the transfers and approvals tables filter by a case-insensitive search across reference, intent, operation family, candidate, vault, wallet, destination (id, name, address), asset, and transaction id. Remaining: event search and filtering, sequence-gap detection, and a search box that spans every screen."
         },
         {
           "id": "0004-11",
